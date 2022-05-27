@@ -24,14 +24,17 @@ None
 - This project was made with some reference and allusion to the <a href='https://github.com/konodyuk/obsidian-text-expander' target='_blank'>obsidian-text-expander</a> plugin.
 
 ## Release notes
+
+### 00.06.0000
+- Allow building a result from multiple shortcuts (to allow common code)
+- Allow replacer to be either a string, or an array of strings to be concatenated together
+- Console log when loading/unloading plugin
+- Have version follow format convention (##.##.####)
+
 ### 00.05.0000
 - Basic implementation.  All settings hardwired
 
 ## TODO
-### 00.06.0000
-- Confirm you can make a table-based shortcut
-- Allow building a result from multiple shortcuts (to allow common code)
-- Have version follow format convention (##.##.####)
 
 ### 00.07.0000
 - **Settings**: Shortcut prefix & postfix

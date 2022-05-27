@@ -73,27 +73,29 @@ var MyPlugin = (function (_super)
 			toExpand.prefixIndex + SRC_PREFIX.length,
 			toExpand.suffixIndex);
 
-		// Find and use the right expander pattern
+		// Find and use the right expander patterns
+		let replacement = "";
 		for (let i = 0; i < patterns.length; i++)
 		{
 			let result = text.match(patterns[i].regex);
-
 			if (!result) { continue; }
-			let replacement = "";
+
 			for (let k = 1; k < result.length; k++)
 			{
 				replacement += "let $" + k + " = " + result[k] + ";\n";
 			}
-			replacement += patterns[i].replacer + ";";
-			replacement = eval(replacement);
-			cm.replaceRange(
-				replacement,
-				{ line: toExpand.lineIndex,
-				  ch: toExpand.prefixIndex },
-				{ line: toExpand.lineIndex,
-				  ch: toExpand.suffixIndex + SRC_SUFFIX.length });
-			break;
+			replacement +=
+				Array.isArray(patterns[i].replacer) ?
+				patterns[i].replacer.join("\n") + "\n" :
+				patterns[i].replacer + "\n";
 		}
+		replacement = eval(replacement);
+		cm.replaceRange(
+			replacement,
+			{ line: toExpand.lineIndex,
+			  ch: toExpand.prefixIndex },
+			{ line: toExpand.lineIndex,
+			  ch: toExpand.suffixIndex + SRC_SUFFIX.length });
 	};
 
 	MyPlugin.prototype.getExpanderPatterns = async function()
@@ -157,12 +159,14 @@ var MyPlugin = (function (_super)
 	{
 		this._isEnabled = true;
 		this.refreshIsHotkeyEnabled();
+		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
 	};
 
 	MyPlugin.prototype.onunload = function ()
 	{
 		this._isEnabled = false;
 		this.refreshIsHotkeyEnabled();
+		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
  	};
 
 	return MyPlugin;
