@@ -56,12 +56,16 @@ var MyPlugin = (function(_super)
 	MyPlugin.prototype.getToExpand = function(cm)
 	{
 		let cursor = cm.getCursor();
-		let result = { lineIndex: cursor.line, prefixIndex: -1, postfixIndex: -1 };
+		let result = { lineIndex: cursor.line, prefixIndex: -1, suffixIndex: -1 };
 		let lineText = cm.getLine(cursor.line);
 		result.prefixIndex = lineText.lastIndexOf(this.settings.prefix, cursor.ch);
 		result.suffixIndex = lineText.indexOf(
 			this.settings.suffix,
-			cursor.ch - this.settings.suffix.length);
+			result.prefixIndex + this.settings.prefix.length);
+		if ((result.suffixIndex + this.settings.suffix.length) < cursor.ch)
+		{
+			result.suffixIndex = -1;
+		}
 		if (result.prefixIndex == -1 || result.suffixIndex == -1) { result = null; }
 		return result;
 	}
