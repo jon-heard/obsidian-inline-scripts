@@ -25,28 +25,32 @@ None
 
 ## Release notes
 
-### 00.06.0000
+### 00.06.000
 - Allow building a result from multiple shortcuts (to allow common code)
 - Allow replacer to be either a string, or an array of strings to be concatenated together
 - Console log when loading/unloading plugin
 - Have version follow format convention (##.##.####)
 
-### 00.05.0000
+### 00.05.000
 - Basic implementation.  All settings hardwired
 
 ## TODO
 
-### 00.07.0000
+### 00.07.000
+- Adjust version format (final digit has 3 spaces, not 4)
 - **Settings**: Shortcut prefix & postfix
 - **Settings**: Shortcut definitions filename
 - **Settings**: Shortcut expansion hotkey
 
-### 00.08.0000
+### 00.08.000
 - **Settings**: Custom CSS filename
 
-### 00.09.0000
+### 00.09.000
 - **Settings**: Shortcuts (definable directly in settings)
 - Fill in rest of readme (instructions)
 
-### 01.09.0000
-- Submit to Obsidian community
+### 00.10.000
+- Submit to Obsidian community (beta)
+
+### 01.00.000
+- Respond to Obsidian community feedback for a month
