@@ -7,7 +7,8 @@ const DEFAULT_SETTINGS =
 	prefix: ";;",
 	suffix: ";",
 	hotkey: "Enter",
-	patternFiles: []
+	patternFiles: [],
+	cssFile: ""
 }
 
 var obsidian = require('obsidian');
@@ -144,7 +145,7 @@ var MyPlugin = (function(_super)
 		return this.patternFilesCache[filename].patterns;
 	};
 
-	MyPlugin.prototype.refreshIsHotkeyEnabled = function()
+	MyPlugin.prototype.refreshIsEventTrackingEnabled = function()
 	{
 		for (let i = 0; i < this._codeMirrors.length; i++)
 		{
@@ -174,7 +175,7 @@ var MyPlugin = (function(_super)
 			if (!this._codeMirrors.contains(cm))
 			{
 				this._codeMirrors.push(cm);
-				this.refreshIsHotkeyEnabled();
+				this.refreshIsEventTrackingEnabled();
 			}
 		});
 
@@ -190,14 +191,14 @@ var MyPlugin = (function(_super)
 	{
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 		this._isEnabled = true;
-		this.refreshIsHotkeyEnabled();
+		this.refreshIsEventTrackingEnabled();
 		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
 	};
 
 	MyPlugin.prototype.onunload = function ()
 	{
 		this._isEnabled = false;
-		this.refreshIsHotkeyEnabled();
+		this.refreshIsEventTrackingEnabled();
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
  	};
 
@@ -242,12 +243,12 @@ var MySettings = (function(_super)
 
 		if (!err)
 		{
-			this.errMsgContainer.style.display = "none";
+			this.errMsgContainer.toggleClass("err-msg-container-shown", false);
 			return true;
 		}
 		else
 		{
-			this.errMsgContainer.style.display = "";
+			this.errMsgContainer.toggleClass("err-msg-container-shown", true);
 			this.errMsgContent.innerText = err;
 			return false;
 		}
@@ -261,8 +262,7 @@ var MySettings = (function(_super)
 		var c = this.containerEl;
 		c.empty();
 
-		c.createEl("h2", { text: "General Settings" });
-
+		c.createEl("h2", { text: "Shortcut Sources" });
 		new obsidian.Setting(c)
 			.setName("Shortcut files")
 			.setDesc("List of files containing shortcuts to use.")
@@ -287,15 +287,12 @@ var MySettings = (function(_super)
 						}
 					});
 			});
-		this.patternFileUis = c.createEl("div");
-		this.patternFileUis.style["margin-bottom"] = "1em";
-		this.patternFileUis.style["text-align"] = "right";
+		this.patternFileUis = c.createEl("div", { cls: "pattern-file-uis" });
 		var addPatternFileUi = (text) =>
 		{
-			let t = this.patternFileUis.createEl("input");
+			let t = this.patternFileUis.createEl("input", { cls: "pattern-file-ui" });
 			t.setAttr("type", "text");
-			t.style["width"] = "90%";
-			t.style["margin-bottom"] = "1em";
+			t.setAttr("placeholder", "Filename");
 			if (text)
 			{
 				t.setAttr("value", text);
@@ -310,6 +307,7 @@ var MySettings = (function(_super)
 			addPatternFileUi();
 		}
 
+		c.createEl("h2", { text: "General Settings" });
 		new obsidian.Setting(c)
 			.setName("Expansion Hotkey")
 			.setDesc("Key to expand the shortcut at the caret.")
@@ -324,7 +322,21 @@ var MySettings = (function(_super)
 						this.tmpSettings.hotkey = value;
 					});
 			});
+		new obsidian.Setting(c)
+			.setName("CSS File")
+			.setDesc("File to load custom CSS from")
+			.addText((text) =>
+			{
+				return text
+					.setPlaceholder('Filename')
+					.setValue(this.tmpSettings.cssFile)
+					.onChange((value) =>
+					{
+						this.tmpSettings.cssFile = value;
+					});
+			});
 
+		c.createEl("h2", { text: "Shortcut format" });
 		var shortcutExample = null;
 		var refreshShortcutExample = () =>
 		{
@@ -333,17 +345,9 @@ var MySettings = (function(_super)
 				"D100" +
 				this.tmpSettings.suffix;
 		};
-
-		c.createEl("h2", { text: "Shortcut format" });
-
-		this.errMsgContainer = c.createEl("div");
-		this.errMsgContainer.style["background-color"] = "red";
-		this.errMsgContainer.style.display = "none";
-		let errMsgTitle = this.errMsgContainer.createEl("span", { text: "ERROR" });
-		errMsgTitle.style["font-weight"] = "bold";
-		errMsgTitle.style.margin = "0 1em";
+		this.errMsgContainer = c.createEl("div", { cls: "err-msg-container" });
+		let errMsgTitle = this.errMsgContainer.createEl("span", { text: "ERROR", cls: "err-msg-title" });
 		this.errMsgContent = this.errMsgContainer.createEl("span");
-
 		new obsidian.Setting(c)
 			.setName("Prefix")
 			.setDesc("What to type before a shortcut.")

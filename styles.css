@@ -1,0 +1,25 @@
+.pattern-file-uis
+{
+	margin-bottom: 1em;
+	text-align: right;
+}
+.pattern-file-ui
+{
+	width: 90%;
+	margin-bottom: 1em;
+}
+.err-msg-container
+{
+	background-color: Red;
+	display: none;
+}
+.err-msg-container-shown
+{
+	display: inherit;
+}
+.err-msg-title
+{
+	font-weight: bold;
+	margin: 0 1em;
+}
+
