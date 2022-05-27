@@ -48,6 +48,7 @@ None
 
 ### 00.09.000
 - **Settings**: Shortcuts (definable directly in settings)
+- Test functionality: create scripts for all of mythic VII
 - Fill in rest of readme (instructions)
 
 ### 00.10.000

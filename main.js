@@ -3,11 +3,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const PATTERN_FILE = "TextExpanderJs.json";
-const HOTKEY = "Enter"; // "Tab"
 const DEFAULT_SETTINGS =
 {
 	prefix: ";;",
-	suffix: ";"
+	suffix: ";",
+	hotkey: "Enter"
 }
 
 var obsidian = require('obsidian');
@@ -42,7 +42,7 @@ var MyPlugin = (function(_super)
 
 	MyPlugin.prototype.handleHotkey = async function(cm, keydown)
 	{
-		if (event.key === HOTKEY)
+		if (event.key === this.settings.hotkey)
 		{
 			let toExpand = this.getToExpand(cm);
 			if (toExpand)
@@ -241,7 +241,22 @@ var MySettings = (function(_super)
 
 		var c = this.containerEl;
 		c.empty();
-		c.createEl("h2", { text: "Text Expander JS Settings" });
+
+		c.createEl("h2", { text: "General Settings" });
+		new obsidian.Setting(c)
+			.setName("Expansion Hotkey")
+			.setDesc("Key to expand the shortcut at the caret.")
+			.addDropdown((dropdown) =>
+			{
+				return dropdown
+					.addOption("Enter", "Enter / Return")
+					.addOption("Tab", "Tab")
+					.setValue(this.tmpSettings.hotkey)
+					.onChange((value) =>
+					{
+						this.tmpSettings.hotkey = value;
+					});
+			});
 
 		var shortcutExample = null;
 		var refreshShortcutExample = () =>
@@ -252,7 +267,7 @@ var MySettings = (function(_super)
 				this.tmpSettings.suffix;
 		};
 
-		c.createEl("h3", { text: "Shortcut format" });
+		c.createEl("h2", { text: "Shortcut format" });
 		new obsidian.Setting(c)
 			.setName("Prefix")
 			.setDesc("What to type before a shortcut.")
@@ -261,7 +276,7 @@ var MySettings = (function(_super)
 				return text
 					.setPlaceholder("Prefix")
 					.setValue(this.tmpSettings.prefix)
-					.onChange(async (value) =>
+					.onChange((value) =>
 					{
 						this.tmpSettings.prefix = value;
 						refreshShortcutExample();
@@ -276,7 +291,7 @@ var MySettings = (function(_super)
 				return text
 					.setPlaceholder('Suffix')
 					.setValue(this.tmpSettings.suffix)
-					.onChange(async (value) =>
+					.onChange((value) =>
 					{
 						this.tmpSettings.suffix = value;
 						refreshShortcutExample();
