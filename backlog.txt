@@ -1,8 +1,0 @@
-- cfg: prefix & postfix replace sources
-- cfg: replace scripts file
-- cfg: hotkey to trigger replace (default "Enter")
-
-- git
-
-- cfg: custom css file name
-- cfg: replace scripts (to get from both scripts file (if entered) AND from this setting
