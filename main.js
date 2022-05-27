@@ -83,9 +83,8 @@ var MyPlugin = (function(_super)
 			}
 			else
 			{
-				alert(
-					"Invalid expander patterns file\n" +
-					this.settings.patternFiles[i]);
+				new obsidian.Notice("Invalid expander patterns file\n" +
+					this.settings.patternFiles[i], 8 * 1000);
 			}
 		}
 
