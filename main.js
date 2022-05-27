@@ -1,7 +1,5 @@
 'use strict';
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 const DEFAULT_SETTINGS =
 {
 	prefix: ";;",
@@ -12,6 +10,8 @@ const DEFAULT_SETTINGS =
 }
 
 var obsidian = require('obsidian');
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 var extendStatics = function(d, b) {
 	extendStatics =
@@ -36,6 +36,8 @@ function __extends(d, b) {
 		Object.create(b) :
 		(__.prototype = b.prototype, new __());
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 var MyPlugin = (function(_super)
 {
@@ -160,6 +162,27 @@ var MyPlugin = (function(_super)
 		}
 	};
 
+	MyPlugin.prototype.refreshCss = async function()
+	{
+		let file = this.app.vault.fileMap[this.settings.cssFile + ".md"];
+		if (!file)
+		{
+			if (this.cssFile.filename)
+			{
+				this.cssFile.filename = this.cssFile.modDate = null;
+				this.cssFile.ui.innerHTML = "";
+			}
+		}
+		else if (!this.cssFile.filename || !this.cssFile.modDate ||
+		    this.cssFile.filename != this.settings.cssFile ||
+		    this.cssFile.modDate < file.stat.mtime)
+		{
+			this.cssFile.filename = this.settings.cssFile;
+			this.cssFile.modDate = file.stat.mtime;
+			this.cssFile.ui.innerHTML = await this.app.vault.read(file);
+		}
+	};
+
 	function MyPlugin()
 	{
 		let result = _super !== null && _super.apply(this, arguments) || this;
@@ -184,14 +207,24 @@ var MyPlugin = (function(_super)
 		this.settings = null;
 		this.addSettingTab(new MySettings(this.app, this));
 
+		this.cssFile = {
+			filename: null,
+			modDate: null,
+			ui: document.createElement("style")
+		};
+
 		return result;
 	}
 
 	MyPlugin.prototype.onload = async function()
 	{
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.registerMarkdownPostProcessor(this.refreshCss.bind(this));
+		this.refreshCss();
+
 		this._isEnabled = true;
 		this.refreshIsEventTrackingEnabled();
+		document.head.appendChild(this.cssFile.ui);
 		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
 	};
 
@@ -199,6 +232,7 @@ var MyPlugin = (function(_super)
 	{
 		this._isEnabled = false;
 		this.refreshIsEventTrackingEnabled();
+		document.head.removeChild(this.cssFile.ui);
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
  	};
 
@@ -210,6 +244,8 @@ var MyPlugin = (function(_super)
 	return MyPlugin;
 
 }(obsidian.Plugin));
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 var MySettings = (function(_super)
 {
@@ -346,7 +382,8 @@ var MySettings = (function(_super)
 				this.tmpSettings.suffix;
 		};
 		this.errMsgContainer = c.createEl("div", { cls: "err-msg-container" });
-		let errMsgTitle = this.errMsgContainer.createEl("span", { text: "ERROR", cls: "err-msg-title" });
+		let errMsgTitle = this.errMsgContainer.createEl(
+			"span", { text: "ERROR", cls: "err-msg-title" });
 		this.errMsgContent = this.errMsgContainer.createEl("span");
 		new obsidian.Setting(c)
 			.setName("Prefix")
@@ -405,16 +442,25 @@ var MySettings = (function(_super)
 		{
 			if (this.patternFileUis.childNodes[i].value)
 			{
-				this.tmpSettings.patternFiles.push(
-					this.patternFileUis.childNodes[i].value);
+				this.tmpSettings.patternFiles.push(obsidian.normalizePath(
+					this.patternFileUis.childNodes[i].value));
 			}
 		}
+		this.tmpSettings.cssFile = this.tmpSettings.cssFile;
+		if (this.tmpSettings.cssFile)
+		{
+			this.tmpSettings.cssFile =
+				obsidian.normalizePath(this.tmpSettings.cssFile);
+		}
 		this.plugin.settings = this.tmpSettings;
+		this.plugin.refreshCss();
 		await this.plugin.saveSettings();
 	};
 
 	return MySettings;
 
 }(obsidian.PluginSettingTab));
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 module.exports = MyPlugin;

@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-text-expander-js",
 	"name": "Text Expander JS",
-	"version": "00.06.000",
+	"version": "00.08.000",
 	"minAppVersion": "0.12.0",
 	"description": "Expand text shortcuts into strings built using javascript.",
 	"author": "Jonathan Heard",

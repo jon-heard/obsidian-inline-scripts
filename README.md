@@ -25,6 +25,11 @@ None
 
 ## Release notes
 
+### 00.08.000
+- **Settings**: Custom CSS filename
+- Replace "alert" with alternative that doesn't mess up caret
+- CSS file added for settings UI (replaces inline styles)
+
 ### 00.07.000
 - Adjust version format (final digit has 3 spaces, not 4)
 - Fix ";;"/";" bookends to work when caret is on prefix
@@ -43,13 +48,11 @@ None
 
 ## TODO
 
-### 00.08.000
-- **Settings**: Custom CSS filename
-- Replace "alert" with alternative that doesn't mess up caret
-
 ### 00.09.000
 - **Settings**: Shortcuts (definable directly in settings)
-- Test functionality: create scripts for all of mythic VII
+- Test that it works properly on mobile
+- Test functionality: create scripts for all of mythic and mythic variations II
+- Test that all mythic functionality works on mobile too
 - Fill in rest of readme (instructions)
 
 ### 00.10.000
