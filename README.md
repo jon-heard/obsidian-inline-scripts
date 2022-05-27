@@ -38,6 +38,7 @@ None
 
 ### 00.07.000
 - Adjust version format (final digit has 3 spaces, not 4)
+- Fix ";;"/";" bookends to work when caret is on prefix
 - **Settings**: Shortcut prefix & postfix
 - **Settings**: Shortcut definitions filename
 - **Settings**: Shortcut expansion hotkey

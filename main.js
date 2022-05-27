@@ -2,10 +2,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const SRC_PREFIX = ";;";
-const SRC_SUFFIX = ";";
 const PATTERN_FILE = "TextExpanderJs.json";
-const HOTKEY = "Enter"; // "Enter"
+const HOTKEY = "Enter"; // "Tab"
+const DEFAULT_SETTINGS =
+{
+	prefix: ";;",
+	suffix: ";"
+}
 
 var obsidian = require('obsidian');
 
@@ -33,7 +36,7 @@ function __extends(d, b) {
 		(__.prototype = b.prototype, new __());
 }
 
-var MyPlugin = (function (_super)
+var MyPlugin = (function(_super)
 {
 	__extends(MyPlugin, _super);
 
@@ -55,8 +58,10 @@ var MyPlugin = (function (_super)
 		let cursor = cm.getCursor();
 		let result = { lineIndex: cursor.line, prefixIndex: -1, postfixIndex: -1 };
 		let lineText = cm.getLine(cursor.line);
-		result.prefixIndex = lineText.lastIndexOf(SRC_PREFIX, cursor.ch);
-		result.suffixIndex = lineText.indexOf(SRC_SUFFIX, cursor.ch - SRC_SUFFIX.length);
+		result.prefixIndex = lineText.lastIndexOf(this.settings.prefix, cursor.ch);
+		result.suffixIndex = lineText.indexOf(
+			this.settings.suffix,
+			cursor.ch - this.settings.suffix.length);
 		if (result.prefixIndex == -1 || result.suffixIndex == -1) { result = null; }
 		return result;
 	}
@@ -70,7 +75,7 @@ var MyPlugin = (function (_super)
 		}
 
 		let text = cm.getLine(toExpand.lineIndex).substring(
-			toExpand.prefixIndex + SRC_PREFIX.length,
+			toExpand.prefixIndex + this.settings.prefix.length,
 			toExpand.suffixIndex);
 
 		// Find and use the right expander patterns
@@ -95,7 +100,7 @@ var MyPlugin = (function (_super)
 			{ line: toExpand.lineIndex,
 			  ch: toExpand.prefixIndex },
 			{ line: toExpand.lineIndex,
-			  ch: toExpand.suffixIndex + SRC_SUFFIX.length });
+			  ch: toExpand.suffixIndex + this.settings.suffix.length });
 	};
 
 	MyPlugin.prototype.getExpanderPatterns = async function()
@@ -152,11 +157,15 @@ var MyPlugin = (function (_super)
 			}
 		});
 
+		this.settings = null;
+		this.addSettingTab(new MySettings(this.app, this));
+
 		return result;
 	}
 
-	MyPlugin.prototype.onload = function()
+	MyPlugin.prototype.onload = async function()
 	{
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 		this._isEnabled = true;
 		this.refreshIsHotkeyEnabled();
 		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
@@ -169,8 +178,143 @@ var MyPlugin = (function (_super)
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
  	};
 
+	MyPlugin.prototype.saveSettings = async function()
+	{
+		await this.saveData(this.settings);
+	};
+
 	return MyPlugin;
 
 }(obsidian.Plugin));
+
+var MySettings = (function(_super)
+{
+	__extends(MySettings, _super);
+
+	function MySettings(app, plugin)
+	{
+		let result = _super !== null && _super.apply(this, arguments) || this;
+		this.plugin = plugin;
+		this.tmpSettings = null;
+		this.errMsgContainer = null;
+		this.errMsgContent = null;
+		return result;
+	}
+
+	MySettings.prototype.checkFormatErrs = function()
+	{
+		let err = "";
+		if (!this.tmpSettings.prefix)
+		{
+			err = "Prefix cannot be blank";
+		}
+		else if (!this.tmpSettings.suffix)
+		{
+			err = "Suffix cannot be blank";
+		}
+		else if (this.tmpSettings.suffix.indexOf(this.tmpSettings.prefix) != -1)
+		{
+			err = "Suffix cannot contain prefix";
+		}
+
+		if (!err)
+		{
+			this.errMsgContainer.style.display = "none";
+			return true;
+		}
+		else
+		{
+			this.errMsgContainer.style.display = "";
+			this.errMsgContent.innerText = err;
+			return false;
+		}
+	};
+
+
+	MySettings.prototype.display = function()
+	{
+		this.tmpSettings = JSON.parse(JSON.stringify(this.plugin.settings));
+
+		var c = this.containerEl;
+		c.empty();
+		c.createEl("h2", { text: "Text Expander JS Settings" });
+
+		var shortcutExample = null;
+		var refreshShortcutExample = () =>
+		{
+			shortcutExample.innerText =
+				this.tmpSettings.prefix +
+				"D100" +
+				this.tmpSettings.suffix;
+		};
+
+		c.createEl("h3", { text: "Shortcut format" });
+		new obsidian.Setting(c)
+			.setName("Prefix")
+			.setDesc("What to type before a shortcut.")
+			.addText((text) =>
+			{
+				return text
+					.setPlaceholder("Prefix")
+					.setValue(this.tmpSettings.prefix)
+					.onChange(async (value) =>
+					{
+						this.tmpSettings.prefix = value;
+						refreshShortcutExample();
+						this.checkFormatErrs();
+					});
+			});
+		new obsidian.Setting(c)
+			.setName("Suffix")
+			.setDesc("What to type after a shortcut.")
+			.addText((text) =>
+			{
+				return text
+					.setPlaceholder('Suffix')
+					.setValue(this.tmpSettings.suffix)
+					.onChange(async (value) =>
+					{
+						this.tmpSettings.suffix = value;
+						refreshShortcutExample();
+						this.checkFormatErrs();
+					});
+			});
+		let exampleOuter = c.createEl("div", { cls: "setting-item" });
+		let exampleInfo = exampleOuter.createEl("div", { cls: "setting-item-info" });
+		exampleInfo.createEl("div", { text: "Example", cls: "setting-item-name" });
+		exampleInfo.createEl("div",
+		{
+			text: "How to write the shortcut \"D100\"",
+			cls: "setting-item-description"
+		});
+		shortcutExample = exampleOuter.createEl("div",
+		{
+			text: "", cls: "setting-item-control"
+		});
+		refreshShortcutExample();
+
+		this.errMsgContainer = c.createEl("div");
+		this.errMsgContainer.style["background-color"] = "red";
+		this.errMsgContainer.style.display = "none";
+		let errMsgTitle = this.errMsgContainer.createEl("span", { text: "ERROR" });
+		errMsgTitle.style["font-weight"] = "bold";
+		errMsgTitle.style.margin = "0 1em";
+		this.errMsgContent = this.errMsgContainer.createEl("span", { text: "Unknown error" });
+	};
+
+	MySettings.prototype.hide = async function()
+	{
+		if (!this.checkFormatErrs())
+		{
+			this.tmpSettings.prefix = this.plugin.settings.prefix;
+			this.tmpSettings.suffix = this.plugin.settings.suffix;
+		}
+		this.plugin.settings = this.tmpSettings;
+		await this.plugin.saveSettings();
+	};
+
+	return MySettings;
+
+}(obsidian.PluginSettingTab));
 
 module.exports = MyPlugin;
