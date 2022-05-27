@@ -45,6 +45,7 @@ None
 
 ### 00.08.000
 - **Settings**: Custom CSS filename
+- Replace "alert" with alternative that doesn't mess up caret
 
 ### 00.09.000
 - **Settings**: Shortcuts (definable directly in settings)

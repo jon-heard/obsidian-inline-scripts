@@ -2,12 +2,12 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const PATTERN_FILE = "TextExpanderJs.json";
 const DEFAULT_SETTINGS =
 {
 	prefix: ";;",
 	suffix: ";",
-	hotkey: "Enter"
+	hotkey: "Enter",
+	patternFiles: []
 }
 
 var obsidian = require('obsidian');
@@ -72,10 +72,21 @@ var MyPlugin = (function(_super)
 
 	MyPlugin.prototype.runExpander = async function(cm, toExpand)
 	{
-		let patterns = await this.getExpanderPatterns();
-		if (!patterns)
+		let patterns = [];
+		for (let i = 0; i < this.settings.patternFiles.length; i++)
 		{
-			return alert("Invalid expander patterns file\n" + PATTERN_FILE);
+			let newPatterns =
+				await this.getPatternsFromFile(this.settings.patternFiles[i]);
+			if (newPatterns)
+			{
+				patterns = patterns.concat(newPatterns);
+			}
+			else
+			{
+				alert(
+					"Invalid expander patterns file\n" +
+					this.settings.patternFiles[i]);
+			}
 		}
 
 		let text = cm.getLine(toExpand.lineIndex).substring(
@@ -99,24 +110,31 @@ var MyPlugin = (function(_super)
 				patterns[i].replacer + "\n";
 		}
 		replacement = eval(replacement);
-		cm.replaceRange(
-			replacement,
-			{ line: toExpand.lineIndex,
-			  ch: toExpand.prefixIndex },
-			{ line: toExpand.lineIndex,
-			  ch: toExpand.suffixIndex + this.settings.suffix.length });
+		if (replacement)
+		{
+			cm.replaceRange(
+				replacement,
+				{ line: toExpand.lineIndex,
+				  ch: toExpand.prefixIndex },
+				{ line: toExpand.lineIndex,
+				  ch: toExpand.suffixIndex + this.settings.suffix.length });
+		}
 	};
 
-	MyPlugin.prototype.getExpanderPatterns = async function()
+	MyPlugin.prototype.getPatternsFromFile = async function(filename)
 	{
-		let file = this.app.vault.fileMap["TextExpanderJs.json.md"];
-		if (!this._patternFileModDate || this._patternFileModDate < file.stat.mtime)
+		if (!filename) { return []; }
+		let file = this.app.vault.fileMap[filename + ".md"];
+		if (!file) { return null; }
+		if (!this.patternFilesCache.hasOwnProperty(filename) ||
+		    this.patternFilesCache[filename].modDate < file.stat.mtime)
 		{
 			let patternText = await this.app.vault.read(file);
 			try
 			{
-				this._patterns = JSON.parse(patternText);
-				this._patternFileModDate = file.stat.mtime;
+				let patterns = JSON.parse(patternText);
+				this.patternFilesCache[filename] =
+					{ patterns: patterns, modDate: file.stat.mtime};
 			}
 			catch (e)
 			{
@@ -124,7 +142,7 @@ var MyPlugin = (function(_super)
 				return null;
 			}
 		}
-		return this._patterns;
+		return this.patternFilesCache[filename].patterns;
 	};
 
 	MyPlugin.prototype.refreshIsHotkeyEnabled = function()
@@ -160,6 +178,8 @@ var MyPlugin = (function(_super)
 				this.refreshIsHotkeyEnabled();
 			}
 		});
+
+		this.patternFilesCache = {};
 
 		this.settings = null;
 		this.addSettingTab(new MySettings(this.app, this));
@@ -243,6 +263,54 @@ var MySettings = (function(_super)
 		c.empty();
 
 		c.createEl("h2", { text: "General Settings" });
+
+		new obsidian.Setting(c)
+			.setName("Shortcut files")
+			.setDesc("List of files containing shortcuts to use.")
+			.addButton((button) =>
+			{
+				return button
+					.setButtonText("Add file")
+					.onClick(() =>
+					{
+						addPatternFileUi();
+					});
+			})
+			.addButton((button) =>
+			{
+				return button
+					.setButtonText("Remove file")
+					.onClick(() =>
+					{
+						if (this.patternFileUis.childNodes.length > 1)
+						{
+							this.patternFileUis.lastChild.remove();
+						}
+					});
+			});
+		this.patternFileUis = c.createEl("div");
+		this.patternFileUis.style["margin-bottom"] = "1em";
+		this.patternFileUis.style["text-align"] = "right";
+		var addPatternFileUi = (text) =>
+		{
+			let t = this.patternFileUis.createEl("input");
+			t.setAttr("type", "text");
+			t.style["width"] = "90%";
+			t.style["margin-bottom"] = "1em";
+			if (text)
+			{
+				t.setAttr("value", text);
+			}
+		};
+		for (let i = 0; i < this.tmpSettings.patternFiles.length; i++)
+		{
+			addPatternFileUi(this.tmpSettings.patternFiles[i]);
+		}
+		if (this.tmpSettings.patternFiles.length <= 0)
+		{
+			addPatternFileUi();
+		}
+
 		new obsidian.Setting(c)
 			.setName("Expansion Hotkey")
 			.setDesc("Key to expand the shortcut at the caret.")
@@ -268,6 +336,15 @@ var MySettings = (function(_super)
 		};
 
 		c.createEl("h2", { text: "Shortcut format" });
+
+		this.errMsgContainer = c.createEl("div");
+		this.errMsgContainer.style["background-color"] = "red";
+		this.errMsgContainer.style.display = "none";
+		let errMsgTitle = this.errMsgContainer.createEl("span", { text: "ERROR" });
+		errMsgTitle.style["font-weight"] = "bold";
+		errMsgTitle.style.margin = "0 1em";
+		this.errMsgContent = this.errMsgContainer.createEl("span");
+
 		new obsidian.Setting(c)
 			.setName("Prefix")
 			.setDesc("What to type before a shortcut.")
@@ -311,14 +388,6 @@ var MySettings = (function(_super)
 			text: "", cls: "setting-item-control"
 		});
 		refreshShortcutExample();
-
-		this.errMsgContainer = c.createEl("div");
-		this.errMsgContainer.style["background-color"] = "red";
-		this.errMsgContainer.style.display = "none";
-		let errMsgTitle = this.errMsgContainer.createEl("span", { text: "ERROR" });
-		errMsgTitle.style["font-weight"] = "bold";
-		errMsgTitle.style.margin = "0 1em";
-		this.errMsgContent = this.errMsgContainer.createEl("span", { text: "Unknown error" });
 	};
 
 	MySettings.prototype.hide = async function()
@@ -327,6 +396,15 @@ var MySettings = (function(_super)
 		{
 			this.tmpSettings.prefix = this.plugin.settings.prefix;
 			this.tmpSettings.suffix = this.plugin.settings.suffix;
+		}
+		this.tmpSettings.patternFiles = [];
+		for (let i = 0; i < this.patternFileUis.childNodes.length; i++)
+		{
+			if (this.patternFileUis.childNodes[i].value)
+			{
+				this.tmpSettings.patternFiles.push(
+					this.patternFileUis.childNodes[i].value);
+			}
 		}
 		this.plugin.settings = this.tmpSettings;
 		await this.plugin.saveSettings();
