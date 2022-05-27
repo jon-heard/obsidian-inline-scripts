@@ -25,6 +25,13 @@ None
 
 ## Release notes
 
+### 00.07.000
+- Adjust version format (final digit has 3 spaces, not 4)
+- Fix ";;"/";" bookends to work when caret is on prefix
+- **Settings**: Shortcut prefix & postfix
+- **Settings**: Shortcut definitions filename
+- **Settings**: Shortcut expansion hotkey
+
 ### 00.06.000
 - Allow building a result from multiple shortcuts (to allow common code)
 - Allow replacer to be either a string, or an array of strings to be concatenated together
@@ -35,13 +42,6 @@ None
 - Basic implementation.  All settings hardwired
 
 ## TODO
-
-### 00.07.000
-- Adjust version format (final digit has 3 spaces, not 4)
-- Fix ";;"/";" bookends to work when caret is on prefix
-- **Settings**: Shortcut prefix & postfix
-- **Settings**: Shortcut definitions filename
-- **Settings**: Shortcut expansion hotkey
 
 ### 00.08.000
 - **Settings**: Custom CSS filename
