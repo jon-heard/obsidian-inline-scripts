@@ -50,6 +50,7 @@ None
 
 ### 00.09.000
 - **Settings**: Shortcuts (definable directly in settings)
+- **Settings**: each shortcut file should have a delete button (no global "Remove file" button)
 - Test that it works properly on mobile
 - Test functionality: create scripts for all of mythic and mythic variations II
 - Test that all mythic functionality works on mobile too

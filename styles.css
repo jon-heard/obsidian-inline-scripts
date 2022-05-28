@@ -1,4 +1,4 @@
-.pattern-file-uis
+.pattern-uis
 {
 	margin-bottom: 1em;
 	text-align: right;
@@ -7,6 +7,32 @@
 {
 	width: 90%;
 	margin-bottom: 1em;
+}
+.pattern-ui
+{
+	text-align: right;
+	width: 100%;
+	margin-bottom: 1em;
+}
+.pattern-ui-regex
+{
+	width: calc(90% - 2.1em);
+}
+.pattern-ui-replacer
+{
+	width: 90%;
+	margin-top: 0.2em;
+}
+.delete-button
+{
+	margin: 0;
+	margin-left: 0.2em;
+	padding: 0.5em;
+}
+.delete-button:before
+{
+	content: "🗑";
+	display: inline;
 }
 .err-msg-container
 {

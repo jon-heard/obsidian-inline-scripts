@@ -6,7 +6,17 @@ const DEFAULT_SETTINGS =
 	suffix: ";",
 	hotkey: "Enter",
 	patternFiles: [],
-	cssFile: ""
+	cssFile: "",
+	patterns: [
+	  {
+	    regex: "^[d|D]([0-9]+)",
+	    replacer: "\"<span style='background-color:lightblue;color:black;padding:0 .25em'><b>\" + Math.trunc(Math.random() * $1 + 1) + \"</b>🎲\" + $1 + \"</span>\""
+	  },
+	  {
+	    regex: "^[p|P][d|D]([0-9]+)",
+	    replacer: "Math.trunc(Math.random() * $1 + 1) + \"🎲\" + $1"
+	  }
+	]
 }
 
 var obsidian = require('obsidian');
@@ -75,7 +85,7 @@ var MyPlugin = (function(_super)
 
 	MyPlugin.prototype.runExpander = async function(cm, toExpand)
 	{
-		let patterns = [];
+		let patterns = JSON.parse(JSON.stringify(this.settings.patterns));
 		for (let i = 0; i < this.settings.patternFiles.length; i++)
 		{
 			let newPatterns =
@@ -301,7 +311,7 @@ var MySettings = (function(_super)
 		c.createEl("h2", { text: "Shortcut Sources" });
 		new obsidian.Setting(c)
 			.setName("Shortcut files")
-			.setDesc("List of files containing shortcuts to use.")
+			.setDesc("List of JSON files containing shortcuts to use.")
 			.addButton((button) =>
 			{
 				return button
@@ -323,24 +333,66 @@ var MySettings = (function(_super)
 						}
 					});
 			});
-		this.patternFileUis = c.createEl("div", { cls: "pattern-file-uis" });
+		this.patternFileUis = c.createEl("div", { cls: "pattern-uis" });
 		var addPatternFileUi = (text) =>
 		{
-			let t = this.patternFileUis.createEl("input", { cls: "pattern-file-ui" });
-			t.setAttr("type", "text");
-			t.setAttr("placeholder", "Filename");
+			let n = this.patternFileUis.createEl("input", { cls: "pattern-file-ui" });
+			n.setAttr("type", "text");
+			n.setAttr("placeholder", "Filename");
 			if (text)
 			{
-				t.setAttr("value", text);
+				n.setAttr("value", text);
 			}
 		};
 		for (let i = 0; i < this.tmpSettings.patternFiles.length; i++)
 		{
 			addPatternFileUi(this.tmpSettings.patternFiles[i]);
 		}
-		if (this.tmpSettings.patternFiles.length <= 0)
+		if (this.tmpSettings.patternFiles.length <= 0) { addPatternFileUi(); }
+		new obsidian.Setting(c)
+			.setName("Shortcuts")
+			.setDesc("Shortcuts defined in settings (not a json file)")
+			.addButton((button) =>
+			{
+				return button
+					.setButtonText("Add shortcut")
+					.onClick(() =>
+					{
+						addPatternUi();
+					});
+			})
+		this.patternUis = c.createEl("div", { cls: "pattern-uis" });
+		var patternDeleteButtonClicked = function()
 		{
-			addPatternFileUi();
+			new ConfirmModal(this.plugin.app, "Confirm deleting a pattern.",
+			(confirmation) =>
+			{
+				if (confirmation)
+				{
+					this.remove();
+				}
+			}).open();
+		};
+		var addPatternUi = (pattern) =>
+		{
+			let n = this.patternUis.createEl("div", { cls: "pattern-ui" });
+			n.plugin = this.plugin;
+			let regex = n.createEl("input", { cls: "pattern-ui-regex" });
+				regex.setAttr("type", "text");
+				regex.setAttr("placeholder", "Pattern (regex)");
+			let deleteBtn = n.createEl("button", { cls: "delete-button" });
+			deleteBtn.onclick = patternDeleteButtonClicked.bind(n);
+			let replacer = n.createEl("textarea", { cls: "pattern-ui-replacer" });
+				replacer.setAttr("placeholder", "Replacer script (javascript)");
+			if (pattern)
+			{
+				regex.setAttr("value", pattern.regex);
+				replacer.value = pattern.replacer;
+			}
+		};
+		for (let i = 0; i < this.tmpSettings.patterns.length; i++)
+		{
+			addPatternUi(this.tmpSettings.patterns[i]);
 		}
 
 		c.createEl("h2", { text: "General Settings" });
@@ -452,6 +504,18 @@ var MySettings = (function(_super)
 			this.tmpSettings.cssFile =
 				obsidian.normalizePath(this.tmpSettings.cssFile);
 		}
+		this.tmpSettings.patterns = [];
+		for (let i = 0; i < this.patternUis.childNodes.length; i++)
+		{
+			let patternUi = this.patternUis.childNodes[i];
+			if (patternUi.childNodes[2].value)
+			{
+				this.tmpSettings.patterns.push({
+					regex: patternUi.childNodes[0].value,
+					replacer: patternUi.childNodes[2].value
+				});
+			}
+		}
 		this.plugin.settings = this.tmpSettings;
 		this.plugin.refreshCss();
 		await this.plugin.saveSettings();
@@ -460,6 +524,51 @@ var MySettings = (function(_super)
 	return MySettings;
 
 }(obsidian.PluginSettingTab));
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+var ConfirmModal = (function(_super)
+{
+	__extends(ConfirmModal, _super);
+	function ConfirmModal(app, message, callback) {
+		let result = _super.call(this, app) || this;
+		this.message = message;
+		this.callback = callback;
+		return result;
+	}
+	ConfirmModal.prototype.onOpen = function ()
+	{
+		this.titleEl.setText(this.message);
+		let s = new obsidian.Setting(this.contentEl)
+			.addButton((btn) =>
+			{
+				btn
+					.setButtonText("Confirm")
+					.onClick(() =>
+					{
+						this.callback(true);
+						this.close();
+					})
+			})
+			.addButton((btn) =>
+			{
+				btn
+					.setButtonText("Cancel")
+					.setCta()
+					.onClick(() =>
+					{
+						this.callback(false);
+						this.close();
+					})
+			});
+		s.settingEl.style.padding = "0";
+	};
+	ConfirmModal.prototype.onClose = function ()
+	{
+		this.contentEl.empty();
+	};
+	return ConfirmModal;
+}(obsidian.Modal));
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
