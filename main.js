@@ -311,7 +311,7 @@ var MySettings = (function(_super)
 		c.createEl("h2", { text: "Shortcut Sources" });
 		new obsidian.Setting(c)
 			.setName("Shortcut files")
-			.setDesc("List of JSON files containing shortcuts to use.")
+			.setDesc("JSON files containing shortcuts to use.")
 			.addButton((button) =>
 			{
 				return button
@@ -354,7 +354,7 @@ var MySettings = (function(_super)
 		if (this.tmpSettings.patternFiles.length <= 0) { addPatternFileUi(); }
 		new obsidian.Setting(c)
 			.setName("Shortcuts")
-			.setDesc("Shortcuts defined in settings (not a json file)")
+			.setDesc("Shortcuts can be defined here (in addition to JSON files)")
 			.addButton((button) =>
 			{
 				return button
