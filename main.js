@@ -1,10 +1,12 @@
 'use strict';
 
+var obsidian = require('obsidian');
+
 const DEFAULT_SETTINGS =
 {
 	prefix: ";;",
 	suffix: ";",
-	hotkey: "Enter",
+	hotkey: obsidian.platform.isMobile ? " " : "Enter",
 	patternFiles: [],
 	cssFile: "",
 	patterns: [
@@ -18,8 +20,6 @@ const DEFAULT_SETTINGS =
 	  }
 	]
 }
-
-var obsidian = require('obsidian');
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +55,7 @@ var MyPlugin = (function(_super)
 
 	MyPlugin.prototype.handleHotkey = async function(cm, keydown)
 	{
-		if (event.key === this.settings.hotkey)
+		if (this.settings.hotkey != " " && event.key === this.settings.hotkey)
 		{
 			let toExpand = this.getToExpand(cm);
 			if (toExpand)
@@ -63,6 +63,17 @@ var MyPlugin = (function(_super)
 				event.preventDefault();
 				await this.runExpander(cm, toExpand);
 			}
+		}
+		else if (this.settings.hotkey == " " && event.key === this.shortcutEndCharacter)
+		{
+			setTimeout(async () =>
+			{
+				let toExpand = this.getToExpand(cm);
+				if (toExpand)
+				{
+					await this.runExpander(cm, toExpand);
+				}
+			}, 100);
 		}
 	};
 
@@ -223,12 +234,16 @@ var MyPlugin = (function(_super)
 			ui: document.createElement("style")
 		};
 
+		this.shortcutEndCharacter = null;
+
 		return result;
 	}
 
 	MyPlugin.prototype.onload = async function()
 	{
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.shortcutEndCharacter =
+			this.settings.suffix.charAt(this.settings.suffix.length - 1);
 		this.registerMarkdownPostProcessor(this.refreshCss.bind(this));
 		this.refreshCss();
 
@@ -400,13 +415,14 @@ var MySettings = (function(_super)
 
 		c.createEl("h2", { text: "General Settings" });
 		new obsidian.Setting(c)
-			.setName("Expansion Hotkey")
-			.setDesc("Key to expand the shortcut at the caret.")
+			.setName("Shortcut expansion trigger")
+			.setDesc("When to expand a shortcut.")
 			.addDropdown((dropdown) =>
 			{
 				return dropdown
-					.addOption("Enter", "Enter / Return")
-					.addOption("Tab", "Tab")
+					.addOption("Enter", "Enter / Return key")
+					.addOption("Tab", "Tab key")
+					.addOption(" ", "Shortcut typed")
 					.setValue(this.tmpSettings.hotkey)
 					.onChange((value) =>
 					{
@@ -491,6 +507,11 @@ var MySettings = (function(_super)
 		{
 			this.tmpSettings.prefix = this.plugin.settings.prefix;
 			this.tmpSettings.suffix = this.plugin.settings.suffix;
+		}
+		else
+		{
+			this.plugin.shortcutEndCharacter =
+				this.tmpSettings.suffix.charAt(this.tmpSettings.suffix.length - 1);
 		}
 		this.tmpSettings.patternFiles = [];
 		for (let i = 0; i < this.patternFileUis.childNodes.length; i++)
