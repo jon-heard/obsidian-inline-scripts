@@ -5,7 +5,7 @@
 }
 .pattern-file-ui
 {
-	width: 90%;
+	width: calc(90% - 2.1em);
 	margin-bottom: 1em;
 }
 .pattern-ui

@@ -320,29 +320,32 @@ var MySettings = (function(_super)
 					{
 						addPatternFileUi();
 					});
-			})
-			.addButton((button) =>
-			{
-				return button
-					.setButtonText("Remove file")
-					.onClick(() =>
-					{
-						if (this.patternFileUis.childNodes.length > 1)
-						{
-							this.patternFileUis.lastChild.remove();
-						}
-					});
 			});
 		this.patternFileUis = c.createEl("div", { cls: "pattern-uis" });
+		var patternFileDeleteButtonClicked = function()
+		{
+			new ConfirmModal(this.plugin.app, "Confirm unlinking a pattern file.",
+			(confirmation) =>
+			{
+				if (confirmation)
+				{
+					this.assocText.remove();
+					this.remove();
+				}
+			}).open();
+		};
 		var addPatternFileUi = (text) =>
 		{
+			let isFirst = (this.patternFileUis.childNodes.length == 0);
 			let n = this.patternFileUis.createEl("input", { cls: "pattern-file-ui" });
-			n.setAttr("type", "text");
-			n.setAttr("placeholder", "Filename");
-			if (text)
-			{
-				n.setAttr("value", text);
-			}
+				n.setAttr("type", "text");
+				n.setAttr("placeholder", "Filename");
+				if (text) { n.setAttr("value", text); }
+			let b = this.patternFileUis.createEl("button", { cls: "delete-button" });
+				b.plugin = this.plugin;
+				b.assocText = n;
+				b.onclick = patternFileDeleteButtonClicked.bind(b);
+				if (isFirst) { b.style.visibility = "hidden"; }
 		};
 		for (let i = 0; i < this.tmpSettings.patternFiles.length; i++)
 		{
