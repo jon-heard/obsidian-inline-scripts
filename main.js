@@ -6,17 +6,17 @@ const DEFAULT_SETTINGS =
 {
 	prefix: ";;",
 	suffix: ";",
-	hotkey: obsidian.platform.isMobile ? " " : "Enter",
-	patternFiles: [],
+	hotkey: " ",
+	shortcutFiles: [],
 	cssFile: "",
-	patterns: [
-	  {
-	    regex: "^[d|D]([0-9]+)",
-	    replacer: "\"<span style='background-color:lightblue;color:black;padding:0 .25em'><b>\" + Math.trunc(Math.random() * $1 + 1) + \"</b>🎲\" + $1 + \"</span>\""
-	  },
+	shortcuts: [
 	  {
 	    regex: "^[p|P][d|D]([0-9]+)",
-	    replacer: "Math.trunc(Math.random() * $1 + 1) + \"🎲\" + $1"
+	    expansion: "\"🎲 \" + Math.trunc(Math.random() * $1 + 1) + \" /\" + $1"
+	  },
+	  {
+	    regex: "^[d|D]([0-9]+)",
+	    expansion: "\"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + Math.trunc(Math.random() * $1 + 1) + \"</b> /\" + $1 + \"</span>\""
 	  }
 	]
 }
@@ -57,27 +57,27 @@ var MyPlugin = (function(_super)
 	{
 		if (this.settings.hotkey != " " && event.key === this.settings.hotkey)
 		{
-			let toExpand = this.getToExpand(cm);
-			if (toExpand)
+			let shortcutPosition = this.parseShortcutPosition(cm);
+			if (shortcutPosition)
 			{
 				event.preventDefault();
-				await this.runExpander(cm, toExpand);
+				await this.expandShortcut(cm, shortcutPosition);
 			}
 		}
 		else if (this.settings.hotkey == " " && event.key === this.shortcutEndCharacter)
 		{
 			setTimeout(async () =>
 			{
-				let toExpand = this.getToExpand(cm);
-				if (toExpand)
+				let shortcutPosition = this.parseShortcutPosition(cm);
+				if (shortcutPosition)
 				{
-					await this.runExpander(cm, toExpand);
+					await this.expandShortcut(cm, shortcutPosition);
 				}
-			}, 100);
+			}, 0);
 		}
 	};
 
-	MyPlugin.prototype.getToExpand = function(cm)
+	MyPlugin.prototype.parseShortcutPosition = function(cm)
 	{
 		let cursor = cm.getCursor();
 		let result = { lineIndex: cursor.line, prefixIndex: -1, suffixIndex: -1 };
@@ -94,70 +94,78 @@ var MyPlugin = (function(_super)
 		return result;
 	}
 
-	MyPlugin.prototype.runExpander = async function(cm, toExpand)
+	MyPlugin.prototype.expandShortcut = async function(cm, shortcutPosition)
 	{
-		let patterns = JSON.parse(JSON.stringify(this.settings.patterns));
-		for (let i = 0; i < this.settings.patternFiles.length; i++)
+		// Gather full shortcuts list
+		let shortcuts = JSON.parse(JSON.stringify(this.settings.shortcuts));
+		for (let i = 0; i < this.settings.shortcutFiles.length; i++)
 		{
-			let newPatterns =
-				await this.getPatternsFromFile(this.settings.patternFiles[i]);
-			if (newPatterns)
+			if (!this.app.vault.fileMap[this.settings.shortcutFiles[i] + ".md"])
 			{
-				patterns = patterns.concat(newPatterns);
+				new obsidian.Notice("Missing shortcut file\n" +
+					this.settings.shortcutFiles[i], 8 * 1000);
+				continue;
 			}
-			else
+			let newShortcuts =
+				await this.getShortcutsFromFile(this.settings.shortcutFiles[i]);
+			if (!newShortcuts)
 			{
-				new obsidian.Notice("Invalid expander patterns file\n" +
-					this.settings.patternFiles[i], 8 * 1000);
+				new obsidian.Notice("Malformed shortcut file\n" +
+					this.settings.shortcutFiles[i], 8 * 1000);
+				continue;
 			}
+			shortcuts = shortcuts.concat(newShortcuts);
 		}
 
-		let text = cm.getLine(toExpand.lineIndex).substring(
-			toExpand.prefixIndex + this.settings.prefix.length,
-			toExpand.suffixIndex);
-
-		// Find and use the right expander patterns
-		let replacement = "";
-		for (let i = 0; i < patterns.length; i++)
+		// Find and use the right shortcuts
+		let text = cm.getLine(shortcutPosition.lineIndex).substring(
+			shortcutPosition.prefixIndex + this.settings.prefix.length,
+			shortcutPosition.suffixIndex);
+		let expansion = "";
+		for (let i = 0; i < shortcuts.length; i++)
 		{
-			let result = text.match(patterns[i].regex);
-			if (!result) { continue; }
+			let matchInfo = text.match(shortcuts[i].regex);
+			if (!matchInfo) { continue; }
 
-			for (let k = 1; k < result.length; k++)
+			for (let k = 1; k < matchInfo.length; k++)
 			{
-				replacement += "let $" + k + " = " + result[k] + ";\n";
+				expansion += "let $" + k + " = " + matchInfo[k] + ";\n";
 			}
-			replacement +=
-				Array.isArray(patterns[i].replacer) ?
-				patterns[i].replacer.join("\n") + "\n" :
-				patterns[i].replacer + "\n";
+			expansion +=
+				Array.isArray(shortcuts[i].expansion) ?
+				shortcuts[i].expansion.join("\n") + "\n" :
+				shortcuts[i].expansion + "\n";
+			if (shortcuts[i].regex)
+			{
+				break;
+			}
 		}
-		replacement = eval(replacement);
-		if (replacement)
+		expansion = eval(expansion);
+		if (expansion)
 		{
 			cm.replaceRange(
-				replacement,
-				{ line: toExpand.lineIndex,
-				  ch: toExpand.prefixIndex },
-				{ line: toExpand.lineIndex,
-				  ch: toExpand.suffixIndex + this.settings.suffix.length });
+				expansion,
+				{ line: shortcutPosition.lineIndex,
+				  ch: shortcutPosition.prefixIndex },
+				{ line: shortcutPosition.lineIndex,
+				  ch: shortcutPosition.suffixIndex + this.settings.suffix.length });
 		}
 	};
 
-	MyPlugin.prototype.getPatternsFromFile = async function(filename)
+	MyPlugin.prototype.getShortcutsFromFile = async function(filename)
 	{
 		if (!filename) { return []; }
 		let file = this.app.vault.fileMap[filename + ".md"];
 		if (!file) { return null; }
-		if (!this.patternFilesCache.hasOwnProperty(filename) ||
-		    this.patternFilesCache[filename].modDate < file.stat.mtime)
+		if (!this.shortcutFilesCache.hasOwnProperty(filename) ||
+		    this.shortcutFilesCache[filename].modDate < file.stat.mtime)
 		{
-			let patternText = await this.app.vault.read(file);
-			try
+			let shortcuts = await this.app.vault.read(file); // start as string
+			try // try to parse json
 			{
-				let patterns = JSON.parse(patternText);
-				this.patternFilesCache[filename] =
-					{ patterns: patterns, modDate: file.stat.mtime};
+				shortcuts = JSON.parse(shortcuts);
+				this.shortcutFilesCache[filename] =
+					{ shortcuts: shortcuts, modDate: file.stat.mtime};
 			}
 			catch (e)
 			{
@@ -165,23 +173,13 @@ var MyPlugin = (function(_super)
 				return null;
 			}
 		}
-		return this.patternFilesCache[filename].patterns;
+		return this.shortcutFilesCache[filename].shortcuts;
 	};
 
-	MyPlugin.prototype.refreshIsEventTrackingEnabled = function()
+	MyPlugin.prototype.refreshCodeMirrorState = function(cm)
 	{
-		for (let i = 0; i < this._codeMirrors.length; i++)
-		{
-			if (this._isEnabled)
-			{
-				this._codeMirrors[i].on('keydown', this._handleHotkey);
-			}
-			else
-			{
-				this._codeMirrors[i].off('keydown', this._handleHotkey);
-			}
-		}
-	};
+		cm[this._isEnabled ? "on" : "off"]('keydown', this._handleHotkey);
+	}
 
 	MyPlugin.prototype.refreshCss = async function()
 	{
@@ -213,17 +211,9 @@ var MyPlugin = (function(_super)
 		// Create version that forces "this" to be "MyPlugin" for file access
 		this._handleHotkey = this.handleHotkey.bind(this);
 
-		this._codeMirrors = this._codeMirrors || [];
-		this.registerCodeMirror((cm) =>
-		{
-			if (!this._codeMirrors.contains(cm))
-			{
-				this._codeMirrors.push(cm);
-				this.refreshIsEventTrackingEnabled();
-			}
-		});
+		this.registerCodeMirror(this.refreshCodeMirrorState.bind(this));
 
-		this.patternFilesCache = {};
+		this.shortcutFilesCache = {};
 
 		this.settings = null;
 		this.addSettingTab(new MySettings(this.app, this));
@@ -248,7 +238,7 @@ var MyPlugin = (function(_super)
 		this.refreshCss();
 
 		this._isEnabled = true;
-		this.refreshIsEventTrackingEnabled();
+		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
 		document.head.appendChild(this.cssFile.ui);
 		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
 	};
@@ -256,7 +246,7 @@ var MyPlugin = (function(_super)
 	MyPlugin.prototype.onunload = function ()
 	{
 		this._isEnabled = false;
-		this.refreshIsEventTrackingEnabled();
+		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
 		document.head.removeChild(this.cssFile.ui);
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
  	};
@@ -330,16 +320,16 @@ var MySettings = (function(_super)
 			.addButton((button) =>
 			{
 				return button
-					.setButtonText("Add file")
+					.setButtonText("Add file reference")
 					.onClick(() =>
 					{
-						addPatternFileUi();
+						addShortcutFileUi();
 					});
 			});
-		this.patternFileUis = c.createEl("div", { cls: "pattern-uis" });
-		var patternFileDeleteButtonClicked = function()
+		this.shortcutFileUis = c.createEl("div", { cls: "shortcuts" });
+		var shortcutFileDeleteButtonClicked = function()
 		{
-			new ConfirmModal(this.plugin.app, "Confirm unlinking a pattern file.",
+			new ConfirmModal(this.plugin.app, "Confirm removing a reference to a shortcut file.",
 			(confirmation) =>
 			{
 				if (confirmation)
@@ -349,40 +339,51 @@ var MySettings = (function(_super)
 				}
 			}).open();
 		};
-		var addPatternFileUi = (text) =>
+		var addShortcutFileUi = (text) =>
 		{
-			let isFirst = (this.patternFileUis.childNodes.length == 0);
-			let n = this.patternFileUis.createEl("input", { cls: "pattern-file-ui" });
+			let n = this.shortcutFileUis.createEl("input", { cls: "shortcut-file" });
 				n.setAttr("type", "text");
 				n.setAttr("placeholder", "Filename");
 				if (text) { n.setAttr("value", text); }
-			let b = this.patternFileUis.createEl("button", { cls: "delete-button" });
+			let b = this.shortcutFileUis.createEl("button", { cls: "delete-button" });
 				b.plugin = this.plugin;
 				b.assocText = n;
-				b.onclick = patternFileDeleteButtonClicked.bind(b);
-				if (isFirst) { b.style.visibility = "hidden"; }
+				b.onclick = shortcutFileDeleteButtonClicked.bind(b);
 		};
-		for (let i = 0; i < this.tmpSettings.patternFiles.length; i++)
+		for (let i = 0; i < this.tmpSettings.shortcutFiles.length; i++)
 		{
-			addPatternFileUi(this.tmpSettings.patternFiles[i]);
+			addShortcutFileUi(this.tmpSettings.shortcutFiles[i]);
 		}
-		if (this.tmpSettings.patternFiles.length <= 0) { addPatternFileUi(); }
 		new obsidian.Setting(c)
 			.setName("Shortcuts")
-			.setDesc("Shortcuts can be defined here (in addition to JSON files)")
+			.setDesc("Define shortcuts here (in addition to shortcut files)")
 			.addButton((button) =>
 			{
 				return button
 					.setButtonText("Add shortcut")
 					.onClick(() =>
 					{
-						addPatternUi();
+						addShortcutUi();
 					});
 			})
-		this.patternUis = c.createEl("div", { cls: "pattern-uis" });
-		var patternDeleteButtonClicked = function()
+			.addButton((button) =>
+			{
+				return button
+					.setButtonText("Add defaults")
+					.onClick(() =>
+					{
+						for (let i = 0;
+						     i < DEFAULT_SETTINGS.shortcuts.length;
+						     i++)
+						{
+							addShortcutUi(DEFAULT_SETTINGS.shortcuts[i]);
+						}
+					});
+			});
+		this.shortcutUis = c.createEl("div", { cls: "shortcuts" });
+		var shortcutDeleteButtonClicked = function()
 		{
-			new ConfirmModal(this.plugin.app, "Confirm deleting a pattern.",
+			new ConfirmModal(this.plugin.app, "Confirm deleting a shortcut.",
 			(confirmation) =>
 			{
 				if (confirmation)
@@ -391,32 +392,32 @@ var MySettings = (function(_super)
 				}
 			}).open();
 		};
-		var addPatternUi = (pattern) =>
+		var addShortcutUi = (shortcut) =>
 		{
-			let n = this.patternUis.createEl("div", { cls: "pattern-ui" });
+			let n = this.shortcutUis.createEl("div", { cls: "shortcut" });
 			n.plugin = this.plugin;
-			let regex = n.createEl("input", { cls: "pattern-ui-regex" });
-				regex.setAttr("type", "text");
-				regex.setAttr("placeholder", "Pattern (regex)");
-			let deleteBtn = n.createEl("button", { cls: "delete-button" });
-			deleteBtn.onclick = patternDeleteButtonClicked.bind(n);
-			let replacer = n.createEl("textarea", { cls: "pattern-ui-replacer" });
-				replacer.setAttr("placeholder", "Replacer script (javascript)");
-			if (pattern)
+			let regexUi = n.createEl("input", { cls: "shortcut-regex" });
+				regexUi.setAttr("type", "text");
+				regexUi.setAttr("placeholder", "Shortcut (regex)");
+			let deleteUi = n.createEl("button", { cls: "delete-button" });
+				deleteUi.onclick = shortcutDeleteButtonClicked.bind(n);
+			let expansionUi = n.createEl("textarea", { cls: "shortcut-expansion" });
+				expansionUi.setAttr("placeholder", "Expansion (javascript)");
+			if (shortcut)
 			{
-				regex.setAttr("value", pattern.regex);
-				replacer.value = pattern.replacer;
+				regexUi.value = shortcut.regex;
+				expansionUi.value = shortcut.expansion;
 			}
 		};
-		for (let i = 0; i < this.tmpSettings.patterns.length; i++)
+		for (let i = 0; i < this.tmpSettings.shortcuts.length; i++)
 		{
-			addPatternUi(this.tmpSettings.patterns[i]);
+			addShortcutUi(this.tmpSettings.shortcuts[i]);
 		}
 
 		c.createEl("h2", { text: "General Settings" });
 		new obsidian.Setting(c)
-			.setName("Shortcut expansion trigger")
-			.setDesc("When to expand a shortcut.")
+			.setName("Expansion trigger")
+			.setDesc("A shortcut is expanded when this happens.")
 			.addDropdown((dropdown) =>
 			{
 				return dropdown
@@ -431,7 +432,7 @@ var MySettings = (function(_super)
 			});
 		new obsidian.Setting(c)
 			.setName("CSS File")
-			.setDesc("File to load custom CSS from")
+			.setDesc("Global CSS, automatically updated when changed")
 			.addText((text) =>
 			{
 				return text
@@ -470,8 +471,9 @@ var MySettings = (function(_super)
 						refreshShortcutExample();
 						this.checkFormatErrs();
 					});
-			});
-		new obsidian.Setting(c)
+			})
+			.settingEl.toggleClass("setting-bundled-top", true);
+		let t = new obsidian.Setting(c)
 			.setName("Suffix")
 			.setDesc("What to type after a shortcut.")
 			.addText((text) =>
@@ -485,8 +487,9 @@ var MySettings = (function(_super)
 						refreshShortcutExample();
 						this.checkFormatErrs();
 					});
-			});
-		let exampleOuter = c.createEl("div", { cls: "setting-item" });
+			})
+			.settingEl.toggleClass("setting-bundled", true);
+		let exampleOuter = c.createEl("div", { cls: "setting-item setting-bundled" });
 		let exampleInfo = exampleOuter.createEl("div", { cls: "setting-item-info" });
 		exampleInfo.createEl("div", { text: "Example", cls: "setting-item-name" });
 		exampleInfo.createEl("div",
@@ -508,18 +511,13 @@ var MySettings = (function(_super)
 			this.tmpSettings.prefix = this.plugin.settings.prefix;
 			this.tmpSettings.suffix = this.plugin.settings.suffix;
 		}
-		else
+		this.tmpSettings.shortcutFiles = [];
+		for (let i = 0; i < this.shortcutFileUis.childNodes.length; i++)
 		{
-			this.plugin.shortcutEndCharacter =
-				this.tmpSettings.suffix.charAt(this.tmpSettings.suffix.length - 1);
-		}
-		this.tmpSettings.patternFiles = [];
-		for (let i = 0; i < this.patternFileUis.childNodes.length; i++)
-		{
-			if (this.patternFileUis.childNodes[i].value)
+			if (this.shortcutFileUis.childNodes[i].value)
 			{
-				this.tmpSettings.patternFiles.push(obsidian.normalizePath(
-					this.patternFileUis.childNodes[i].value));
+				this.tmpSettings.shortcutFiles.push(obsidian.normalizePath(
+					this.shortcutFileUis.childNodes[i].value));
 			}
 		}
 		this.tmpSettings.cssFile = this.tmpSettings.cssFile;
@@ -528,19 +526,21 @@ var MySettings = (function(_super)
 			this.tmpSettings.cssFile =
 				obsidian.normalizePath(this.tmpSettings.cssFile);
 		}
-		this.tmpSettings.patterns = [];
-		for (let i = 0; i < this.patternUis.childNodes.length; i++)
+		this.tmpSettings.shortcuts = [];
+		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
 		{
-			let patternUi = this.patternUis.childNodes[i];
-			if (patternUi.childNodes[2].value)
+			let shortcutUi = this.shortcutUis.childNodes[i];
+			if (shortcutUi.childNodes[2].value)
 			{
-				this.tmpSettings.patterns.push({
-					regex: patternUi.childNodes[0].value,
-					replacer: patternUi.childNodes[2].value
+				this.tmpSettings.shortcuts.push({
+					regex: shortcutUi.childNodes[0].value,
+					expansion: shortcutUi.childNodes[2].value
 				});
 			}
 		}
 		this.plugin.settings = this.tmpSettings;
+		this.shortcutEndCharacter =
+			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
 		this.plugin.refreshCss();
 		await this.plugin.saveSettings();
 	};

@@ -51,12 +51,14 @@ None
 ### 00.09.000
 - **Settings**: Shortcuts (definable directly in settings)
 - **Settings**: each shortcut file should have a delete button (no global "Remove file" button)
-- Test that it works properly on mobile
+- Get working on mobile
+
+### 00.10.000
 - Test functionality: create scripts for all of mythic and mythic variations II
 - Test that all mythic functionality works on mobile too
 - Fill in rest of readme (instructions)
 
-### 00.10.000
+### 00.11.000b
 - Submit to Obsidian community (beta)
 
 ### 01.00.000

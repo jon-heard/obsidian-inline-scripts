@@ -1,24 +1,24 @@
-.pattern-uis
+.shortcuts
 {
 	margin-bottom: 1em;
 	text-align: right;
 }
-.pattern-file-ui
+.shortcut-file
 {
 	width: calc(90% - 2.1em);
 	margin-bottom: 1em;
 }
-.pattern-ui
+.shortcut
 {
 	text-align: right;
 	width: 100%;
 	margin-bottom: 1em;
 }
-.pattern-ui-regex
+.shortcut-regex
 {
 	width: calc(90% - 2.1em);
 }
-.pattern-ui-replacer
+.shortcut-expansion
 {
 	width: 90%;
 	margin-top: 0.2em;
@@ -48,4 +48,12 @@
 	font-weight: bold;
 	margin: 0 1em;
 }
-
+.setting-bundled
+{
+    border: 0;
+    padding: 0;
+}
+.setting-bundled-top
+{
+    padding-bottom: 0;
+}
