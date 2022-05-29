@@ -53,19 +53,11 @@ var MyPlugin = (function(_super)
 {
 	__extends(MyPlugin, _super);
 
-	MyPlugin.prototype.handleHotkey = async function(cm, keydown)
+	MyPlugin.prototype.handleExpansionHotkey = async function(cm, keydown)
 	{
-		if (this.settings.hotkey != " " && event.key === this.settings.hotkey)
+		if (this.settings.hotkey == " " && event.key === this.shortcutEndCharacter)
 		{
-			let shortcutPosition = this.parseShortcutPosition(cm);
-			if (shortcutPosition)
-			{
-				event.preventDefault();
-				await this.expandShortcut(cm, shortcutPosition);
-			}
-		}
-		else if (this.settings.hotkey == " " && event.key === this.shortcutEndCharacter)
-		{
+			// Delay logic by a frame to allow key event to finish processing first
 			setTimeout(async () =>
 			{
 				let shortcutPosition = this.parseShortcutPosition(cm);
@@ -74,6 +66,15 @@ var MyPlugin = (function(_super)
 					await this.expandShortcut(cm, shortcutPosition);
 				}
 			}, 0);
+		}
+		else if (this.settings.hotkey != " " && event.key === this.settings.hotkey)
+		{
+			let shortcutPosition = this.parseShortcutPosition(cm);
+			if (shortcutPosition)
+			{
+				event.preventDefault();
+				await this.expandShortcut(cm, shortcutPosition);
+			}
 		}
 	};
 
@@ -178,7 +179,7 @@ var MyPlugin = (function(_super)
 
 	MyPlugin.prototype.refreshCodeMirrorState = function(cm)
 	{
-		cm[this._isEnabled ? "on" : "off"]('keydown', this._handleHotkey);
+		cm[this._isEnabled ? "on" : "off"]('keydown', this._handleExpansionHotkey);
 	}
 
 	MyPlugin.prototype.refreshCss = async function()
@@ -209,7 +210,7 @@ var MyPlugin = (function(_super)
 		this._isEnabled = false;
 
 		// Create version that forces "this" to be "MyPlugin" for file access
-		this._handleHotkey = this.handleHotkey.bind(this);
+		this._handleExpansionHotkey = this.handleExpansionHotkey.bind(this);
 
 		this.registerCodeMirror(this.refreshCodeMirrorState.bind(this));
 
