@@ -519,22 +519,25 @@ var MySettings = (function(_super)
 		});
 		refreshShortcutExample();
 
-		c.createEl("h2", { text: "Other Settings" });
-		new obsidian.Setting(c)
-			.setName("Expansion trigger")
-			.setDesc("A shortcut is expanded when this happens.")
-			.addDropdown((dropdown) =>
-			{
-				return dropdown
-					.addOption("Enter", "Enter / Return key")
-					.addOption("Tab", "Tab key")
-					.addOption(" ", "Shortcut typed")
-					.setValue(this.tmpSettings.hotkey)
-					.onChange((value) =>
-					{
-						this.tmpSettings.hotkey = value;
-					});
-			});
+		if (!this.plugin.app.isMobile)
+		{
+			c.createEl("h2", { text: "Other Settings" });
+			new obsidian.Setting(c)
+				.setName("Expansion trigger")
+				.setDesc("A shortcut is expanded when this happens.")
+				.addDropdown((dropdown) =>
+				{
+					return dropdown
+						.addOption("Enter", "Enter / Return key")
+						.addOption("Tab", "Tab key")
+						.addOption(" ", "Shortcut typed")
+						.setValue(this.tmpSettings.hotkey)
+						.onChange((value) =>
+						{
+							this.tmpSettings.hotkey = value;
+						});
+				});
+		}
 	};
 
 	MySettings.prototype.hide = function()
