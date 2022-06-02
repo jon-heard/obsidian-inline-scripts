@@ -9,10 +9,16 @@ This plugin allows the user to define text-entry shortcuts to be expanded into s
 ## Installation
 TBA
 
-## Settings
+## HOW-TO: Add a text-entry shortcut file to a vault
 TBA
 
-## Defining a text-entry shortcut
+## HOW-TO: Define a new text-entry shortcut
+TBA
+
+## HOW-TO: Creating a new text-entry shortcut file
+TBA (includes dev-mode)
+
+## REFERENCE: All Settings
 TBA
 
 ## Known Issues
@@ -20,8 +26,8 @@ None
 
 ## Credits
 - This project was inspired by description of Obsidian on the RPG Tips youtube video <a href='https://www.youtube.com/watch?v=XTFFzuZVcPk' target='_blank'>How I play my games in 2021</a>.
-
-- This project was made with some reference and allusion to the <a href='https://github.com/konodyuk/obsidian-text-expander' target='_blank'>obsidian-text-expander</a> plugin.
+- This project was made with awareness of and deference to the <a href='https://github.com/konodyuk/obsidian-text-expander' target='_blank'>obsidian-text-expander</a> plugin (which has a more basic feature set, but includes running external scripts).
+- In both cases, the goal of this plugin is to fulfill a need for effortless cross-platform operability of advanced text-expansion features.
 
 ## Release notes
 
@@ -54,6 +60,7 @@ None
 - Get working on mobile
 
 ### 00.10.000
+- **Settings**: Developer mode: monitor shortcut files for changes
 - Test functionality: create scripts for all of mythic and mythic variations II
 - Test that all mythic functionality works on mobile too
 - Fill in rest of readme (instructions)

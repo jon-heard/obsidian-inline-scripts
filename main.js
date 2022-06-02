@@ -1,6 +1,7 @@
-'use strict';
+"use strict";
 
-var obsidian = require('obsidian');
+var obsidian = require("obsidian");
+var state = require("@codemirror/state");
 
 const DEFAULT_SETTINGS =
 {
@@ -8,7 +9,6 @@ const DEFAULT_SETTINGS =
 	suffix: ";",
 	hotkey: " ",
 	shortcutFiles: [],
-	cssFile: "",
 	shortcuts: [
 	  {
 	    regex: "^[p|P][d|D]([0-9]+)",
@@ -19,17 +19,15 @@ const DEFAULT_SETTINGS =
 	    expansion: "\"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + Math.trunc(Math.random() * $1 + 1) + \"</b> /\" + $1 + \"</span>\""
 	  }
 	]
-}
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-var extendStatics = function(d, b) {
+var extendStatics = function(d, b)
+{
 	extendStatics =
 		Object.setPrototypeOf ||
-		(
-			{ __proto__: [] } instanceof Array &&
-			function (d, b) { d.__proto__ = b; }
-		) ||
+		({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
 		function (d, b)
 		{
 			for (var p in b)
@@ -38,13 +36,11 @@ var extendStatics = function(d, b) {
 		};
 	return extendStatics(d, b);
 };
-function __extends(d, b) {
+function __extends(d, b)
+{
 	extendStatics(d, b);
 	function __() { this.constructor = d; }
-	d.prototype =
-		b === null ?
-		Object.create(b) :
-		(__.prototype = b.prototype, new __());
+	d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,27 +49,27 @@ var MyPlugin = (function(_super)
 {
 	__extends(MyPlugin, _super);
 
-	MyPlugin.prototype.handleExpansionHotkey = async function(cm, keydown)
+	MyPlugin.prototype.handleExpansionTrigger_cm5 = function(cm, keydown)
 	{
-		if (this.settings.hotkey == " " && event.key === this.shortcutEndCharacter)
+		if (this.settings.hotkey == " " && event.key == this.shortcutEndCharacter)
 		{
 			// Delay logic by a frame to allow key event to finish processing first
-			setTimeout(async () =>
+			setTimeout(() =>
 			{
 				let shortcutPosition = this.parseShortcutPosition(cm);
 				if (shortcutPosition)
 				{
-					await this.expandShortcut(cm, shortcutPosition);
+					this.expandShortcut(cm, shortcutPosition);
 				}
 			}, 0);
 		}
-		else if (this.settings.hotkey != " " && event.key === this.settings.hotkey)
+		else if (this.settings.hotkey != " " && event.key == this.settings.hotkey)
 		{
 			let shortcutPosition = this.parseShortcutPosition(cm);
 			if (shortcutPosition)
 			{
 				event.preventDefault();
-				await this.expandShortcut(cm, shortcutPosition);
+				this.expandShortcut(cm, shortcutPosition);
 			}
 		}
 	};
@@ -93,39 +89,18 @@ var MyPlugin = (function(_super)
 		}
 		if (result.prefixIndex == -1 || result.suffixIndex == -1) { result = null; }
 		return result;
-	}
+	};
 
-	MyPlugin.prototype.expandShortcut = async function(cm, shortcutPosition)
+	MyPlugin.prototype.expandShortcut = function(cm, shortcutPosition)
 	{
-		// Gather full shortcuts list
-		let shortcuts = JSON.parse(JSON.stringify(this.settings.shortcuts));
-		for (let i = 0; i < this.settings.shortcutFiles.length; i++)
-		{
-			if (!this.app.vault.fileMap[this.settings.shortcutFiles[i] + ".md"])
-			{
-				new obsidian.Notice("Missing shortcut file\n" +
-					this.settings.shortcutFiles[i], 8 * 1000);
-				continue;
-			}
-			let newShortcuts =
-				await this.getShortcutsFromFile(this.settings.shortcutFiles[i]);
-			if (!newShortcuts)
-			{
-				new obsidian.Notice("Malformed shortcut file\n" +
-					this.settings.shortcutFiles[i], 8 * 1000);
-				continue;
-			}
-			shortcuts = shortcuts.concat(newShortcuts);
-		}
-
 		// Find and use the right shortcuts
 		let text = cm.getLine(shortcutPosition.lineIndex).substring(
 			shortcutPosition.prefixIndex + this.settings.prefix.length,
 			shortcutPosition.suffixIndex);
 		let expansion = "";
-		for (let i = 0; i < shortcuts.length; i++)
+		for (let i = 0; i < this.shortcuts.length; i++)
 		{
-			let matchInfo = text.match(shortcuts[i].regex);
+			let matchInfo = text.match(this.shortcuts[i].regex);
 			if (!matchInfo) { continue; }
 
 			for (let k = 1; k < matchInfo.length; k++)
@@ -133,15 +108,27 @@ var MyPlugin = (function(_super)
 				expansion += "let $" + k + " = " + matchInfo[k] + ";\n";
 			}
 			expansion +=
-				Array.isArray(shortcuts[i].expansion) ?
-				shortcuts[i].expansion.join("\n") + "\n" :
-				shortcuts[i].expansion + "\n";
-			if (shortcuts[i].regex)
+				Array.isArray(this.shortcuts[i].expansion) ?
+				this.shortcuts[i].expansion.join("\n") + "\n" :
+				this.shortcuts[i].expansion + "\n";
+			if (this.shortcuts[i].regex)
 			{
 				break;
 			}
 		}
-		expansion = eval(expansion);
+		try
+		{
+			expansion = eval(expansion);
+		}
+		catch (e)
+		{
+			console.error(e);
+			console.error("Malformed shortcut expansion:\n" + expansion);
+			new obsidian.Notice(
+				"Malformed shortcut expansion",
+				8 * 1000);
+			expansion = null;
+		}
 		if (expansion)
 		{
 			cm.replaceRange(
@@ -149,57 +136,80 @@ var MyPlugin = (function(_super)
 				{ line: shortcutPosition.lineIndex,
 				  ch: shortcutPosition.prefixIndex },
 				{ line: shortcutPosition.lineIndex,
-				  ch: shortcutPosition.suffixIndex + this.settings.suffix.length });
+				  ch: shortcutPosition.suffixIndex +
+				      this.settings.suffix.length });
 		}
 	};
 
-	MyPlugin.prototype.getShortcutsFromFile = async function(filename)
+	MyPlugin.prototype.handleExpansionTrigger_cm6 = function(tr)
 	{
-		if (!filename) { return []; }
-		let file = this.app.vault.fileMap[filename + ".md"];
-		if (!file) { return null; }
-		if (!this.shortcutFilesCache.hasOwnProperty(filename) ||
-		    this.shortcutFilesCache[filename].modDate < file.stat.mtime)
+		if (!tr.isUserEvent("input.type") || !tr.docChanged)
 		{
-			let shortcuts = await this.app.vault.read(file); // start as string
-			try // try to parse json
-			{
-				shortcuts = JSON.parse(shortcuts);
-				this.shortcutFilesCache[filename] =
-					{ shortcuts: shortcuts, modDate: file.stat.mtime};
-			}
-			catch (e)
-			{
-				console.error(e);
-				return null;
-			}
+			return tr;
 		}
-		return this.shortcutFilesCache[filename].shortcuts;
+
+		tr.changes.iterChanges((fromA, toA, fromB, toB, inserted) =>
+		{
+			if (inserted.text[0] != this.shortcutEndCharacter) { return; }
+			let result = {};
+			result.lineIndex = tr.newDoc.lineAt(fromA).number - 1;
+			let lineText = tr.newDoc.text[result.lineIndex];
+			result.prefixIndex = lineText.lastIndexOf(this.settings.prefix, fromA);
+			result.suffixIndex = lineText.indexOf(
+				this.settings.suffix,
+				result.prefixIndex + this.settings.prefix.length);
+			if (result.prefixIndex != -1 && result.suffixIndex != -1)
+			{
+				console.log(lineText.substring(
+					result.prefixIndex, result.suffixIndex + 1));
+			}
+		});
+
+		return tr;
 	};
 
 	MyPlugin.prototype.refreshCodeMirrorState = function(cm)
 	{
-		cm[this._isEnabled ? "on" : "off"]('keydown', this._handleExpansionHotkey);
-	}
-
-	MyPlugin.prototype.refreshCss = async function()
-	{
-		let file = this.app.vault.fileMap[this.settings.cssFile + ".md"];
-		if (!file)
+		if (this._loaded && !cm.tejs_handled)
 		{
-			if (this.cssFile.filename)
-			{
-				this.cssFile.filename = this.cssFile.modDate = null;
-				this.cssFile.ui.innerHTML = "";
-			}
+			console.log("keydown on");
+			cm.on("keydown", this._handleExpansionTrigger_cm5);
+			cm.tejs_handled = true;
 		}
-		else if (!this.cssFile.filename || !this.cssFile.modDate ||
-		    this.cssFile.filename != this.settings.cssFile ||
-		    this.cssFile.modDate < file.stat.mtime)
+		else if (!this._loaded && cm.tejs_handled)
 		{
-			this.cssFile.filename = this.settings.cssFile;
-			this.cssFile.modDate = file.stat.mtime;
-			this.cssFile.ui.innerHTML = await this.app.vault.read(file);
+			console.log("keydown off");
+			cm.off("keydown", this._handleExpansionTrigger_cm5);
+			cm.tejs_handled = false;
+		}
+	};
+
+	MyPlugin.prototype.setupShortcuts = function()
+	{
+		this.shortcuts = this.settings.shortcuts.slice();
+		for (let i = 0; i < this.shortcutDfc.files.length; i++)
+		{
+			if (this.shortcutDfc.files[i].content == null)
+			{
+				new obsidian.Notice(
+					"Missing shortcut file\n" + this.shortcutDfc.files[i].name,
+					8 * 1000);
+				continue;
+			}
+			try
+			{
+				let newShortcuts =
+					JSON.parse(this.shortcutDfc.files[i].content);
+				this.shortcuts = this.shortcuts.concat(newShortcuts);
+			}
+			catch (e)
+			{
+				console.error(e);
+				new obsidian.Notice(
+					"Malformed shortcut file\n" +
+					this.shortcutDfc.files[i].name,
+					8 * 1000);
+			}
 		}
 	};
 
@@ -207,25 +217,13 @@ var MyPlugin = (function(_super)
 	{
 		let result = _super !== null && _super.apply(this, arguments) || this;
 
-		this._isEnabled = false;
-
-		// Create version that forces "this" to be "MyPlugin" for file access
-		this._handleExpansionHotkey = this.handleExpansionHotkey.bind(this);
-
+		this._handleExpansionTrigger_cm5 = this.handleExpansionTrigger_cm5.bind(this);
 		this.registerCodeMirror(this.refreshCodeMirrorState.bind(this));
 
-		this.shortcutFilesCache = {};
+		this.shortcuts = [];
 
 		this.settings = null;
 		this.addSettingTab(new MySettings(this.app, this));
-
-		this.cssFile = {
-			filename: null,
-			modDate: null,
-			ui: document.createElement("style")
-		};
-
-		this.shortcutEndCharacter = null;
 
 		return result;
 	}
@@ -235,26 +233,27 @@ var MyPlugin = (function(_super)
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 		this.shortcutEndCharacter =
 			this.settings.suffix.charAt(this.settings.suffix.length - 1);
-		this.registerMarkdownPostProcessor(this.refreshCss.bind(this));
-		this.refreshCss();
-
-		this._isEnabled = true;
 		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
-		document.head.appendChild(this.cssFile.ui);
+		dfc.setup(this);
+		this.shortcutDfc =
+			dfc.create(this.settings.shortcutFiles, this.setupShortcuts.bind(this));
+		this.registerEditorExtension([
+			state.EditorState.transactionFilter.of(
+				this.handleExpansionTrigger_cm6.bind(this))
+		]);
+		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
 		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
 	};
 
-	MyPlugin.prototype.onunload = function ()
+	MyPlugin.prototype.onunload = function()
 	{
-		this._isEnabled = false;
 		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
-		document.head.removeChild(this.cssFile.ui);
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
  	};
 
-	MyPlugin.prototype.saveSettings = async function()
+	MyPlugin.prototype.saveSettings = function()
 	{
-		await this.saveData(this.settings);
+		this.saveData(this.settings);
 	};
 
 	return MyPlugin;
@@ -415,36 +414,6 @@ var MySettings = (function(_super)
 			addShortcutUi(this.tmpSettings.shortcuts[i]);
 		}
 
-		c.createEl("h2", { text: "General Settings" });
-		new obsidian.Setting(c)
-			.setName("Expansion trigger")
-			.setDesc("A shortcut is expanded when this happens.")
-			.addDropdown((dropdown) =>
-			{
-				return dropdown
-					.addOption("Enter", "Enter / Return key")
-					.addOption("Tab", "Tab key")
-					.addOption(" ", "Shortcut typed")
-					.setValue(this.tmpSettings.hotkey)
-					.onChange((value) =>
-					{
-						this.tmpSettings.hotkey = value;
-					});
-			});
-		new obsidian.Setting(c)
-			.setName("CSS File")
-			.setDesc("Global CSS, automatically updated when changed")
-			.addText((text) =>
-			{
-				return text
-					.setPlaceholder('Filename')
-					.setValue(this.tmpSettings.cssFile)
-					.onChange((value) =>
-					{
-						this.tmpSettings.cssFile = value;
-					});
-			});
-
 		c.createEl("h2", { text: "Shortcut format" });
 		var shortcutExample = null;
 		var refreshShortcutExample = () =>
@@ -480,7 +449,7 @@ var MySettings = (function(_super)
 			.addText((text) =>
 			{
 				return text
-					.setPlaceholder('Suffix')
+					.setPlaceholder("Suffix")
 					.setValue(this.tmpSettings.suffix)
 					.onChange((value) =>
 					{
@@ -503,15 +472,28 @@ var MySettings = (function(_super)
 			text: "", cls: "setting-item-control"
 		});
 		refreshShortcutExample();
+
+		c.createEl("h2", { text: "Other Settings" });
+		new obsidian.Setting(c)
+			.setName("Expansion trigger")
+			.setDesc("A shortcut is expanded when this happens.")
+			.addDropdown((dropdown) =>
+			{
+				return dropdown
+					.addOption("Enter", "Enter / Return key")
+					.addOption("Tab", "Tab key")
+					.addOption(" ", "Shortcut typed")
+					.setValue(this.tmpSettings.hotkey)
+					.onChange((value) =>
+					{
+						this.tmpSettings.hotkey = value;
+					});
+			});
 	};
 
-	MySettings.prototype.hide = async function()
+	MySettings.prototype.hide = function()
 	{
-		if (!this.checkFormatErrs())
-		{
-			this.tmpSettings.prefix = this.plugin.settings.prefix;
-			this.tmpSettings.suffix = this.plugin.settings.suffix;
-		}
+		// Shortcut files
 		this.tmpSettings.shortcutFiles = [];
 		for (let i = 0; i < this.shortcutFileUis.childNodes.length; i++)
 		{
@@ -521,12 +503,8 @@ var MySettings = (function(_super)
 					this.shortcutFileUis.childNodes[i].value));
 			}
 		}
-		this.tmpSettings.cssFile = this.tmpSettings.cssFile;
-		if (this.tmpSettings.cssFile)
-		{
-			this.tmpSettings.cssFile =
-				obsidian.normalizePath(this.tmpSettings.cssFile);
-		}
+
+		// Shortcut settings
 		this.tmpSettings.shortcuts = [];
 		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
 		{
@@ -539,11 +517,37 @@ var MySettings = (function(_super)
 				});
 			}
 		}
+
+		// Shortcuts refresh
+		let force =
+			this.plugin.shortcutDfc.files.length >
+			this.tmpSettings.shortcutFiles.length;
+		this.plugin.shortcutDfc.files.length = this.tmpSettings.shortcutFiles.length;
+		for (let i = 0; i < this.plugin.shortcutDfc.files.length; i++)
+		{
+			if (!this.plugin.shortcutDfc.files[i] ||
+			    !this.plugin.shortcutDfc.files[i].hasOwnProperty("name") ||
+			    this.plugin.shortcutDfc.files[i].name !=
+			    this.tmpSettings.shortcutFiles[i])
+			{
+				this.plugin.shortcutDfc.files[i] =
+					this.tmpSettings.shortcutFiles[i];
+			}
+		}
+		dfc.refreshInstance(this.plugin.shortcutDfc, force);
+
+		// Format
+		if (!this.checkFormatErrs())
+		{
+			this.tmpSettings.prefix = this.plugin.settings.prefix;
+			this.tmpSettings.suffix = this.plugin.settings.suffix;
+		}
+
+		// Wrapup
 		this.plugin.settings = this.tmpSettings;
 		this.shortcutEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
-		this.plugin.refreshCss();
-		await this.plugin.saveSettings();
+		this.plugin.saveSettings();
 	};
 
 	return MySettings;
@@ -594,6 +598,93 @@ var ConfirmModal = (function(_super)
 	};
 	return ConfirmModal;
 }(obsidian.Modal));
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Dynamic File Content (dfc)
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+var dfc = {
+	instances: [],
+	hasEditorSaved: false,
+	plugin: null,
+
+	setup: function(plugin)
+	{
+		dfc.plugin = plugin;
+		plugin.registerEvent(
+			plugin.app.vault.on("modify", () => { dfc.hasEditorSaved = true; }));
+		plugin.registerEvent(plugin.app.workspace.on("active-leaf-change", () =>
+		{
+			if (!dfc.hasEditorSaved) { return; }
+			for (let i = 0; i < dfc.instances.length; i++)
+			{
+				dfc.refreshInstance(dfc.instances[i]);
+			}
+			dfc.hasEditorSaved = false;
+		}));
+	},
+
+	create: function(filenames, onChangeCallback)
+	{
+		let result = { files: filenames.slice(), onChange: onChangeCallback };
+		dfc.instances.push(result);
+		dfc.refreshInstance(result);
+		return result;
+	},
+
+	addFile: function(instance, filename)
+	{
+		instance.files.push(filename);
+		dfc.refreshInstance(instance);
+	},
+
+	refreshInstance: async function(instance, force)
+	{
+		let hasChanged = !!force;
+
+		// Setup any new files
+		for (let i = 0; i < instance.files.length; i++)
+		{
+			if (typeof instance.files[i] === "string")
+			{
+				instance.files[i] =
+					{ name: instance.files[i], modDate: 0, content: null };
+				hasChanged = true;
+			}
+		}
+
+		// Update modified files
+		for (let i = 0; i < instance.files.length; i++)
+		{
+			let file = dfc.plugin.app.vault.fileMap[instance.files[i].name + ".md"];
+			if (file)
+			{
+				if (force || instance.files[i].modDate < file.stat.mtime)
+				{
+					instance.files[i].modDate = file.stat.mtime;
+					instance.files[i].content =
+						await dfc.plugin.app.vault.read(file);
+					hasChanged = true;
+				}
+			}
+			else
+			{
+				if (instance.files[i].content != null)
+				{
+					instance.files[i].modDate = 0;
+					instance.files[i].content = null;
+					hasChanged = true;
+				}
+			}
+		}
+
+		// On changed
+		if (hasChanged)
+		{
+			instance.onChange(instance);
+		}
+	}
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
