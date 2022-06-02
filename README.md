@@ -31,6 +31,11 @@ None
 
 ## Release notes
 
+### 00.09.000
+- **Settings**: Shortcuts (definable directly in settings)
+- **Settings**: each shortcut file should have a delete button (no global "Remove file" button)
+- Get working on mobile
+
 ### 00.08.000
 - **Settings**: Custom CSS filename
 - Replace "alert" with alternative that doesn't mess up caret
@@ -54,13 +59,13 @@ None
 
 ## TODO
 
-### 00.09.000
-- **Settings**: Shortcuts (definable directly in settings)
-- **Settings**: each shortcut file should have a delete button (no global "Remove file" button)
-- Get working on mobile
-
 ### 00.10.000
 - **Settings**: Developer mode: monitor shortcut files for changes
+- Resolve unfinished expansion trigger options for mobile
+	- finish options
+	- remove option for mobile
+	- remove option for all platforms (!!!)
+- check one last time for a way to keep the shortcut suffix on undo
 - Test functionality: create scripts for all of mythic and mythic variations II
 - Test that all mythic functionality works on mobile too
 - Fill in rest of readme (instructions)

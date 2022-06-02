@@ -11,11 +11,11 @@ const DEFAULT_SETTINGS =
 	shortcutFiles: [],
 	shortcuts: [
 	  {
-	    regex: "^[p|P][d|D]([0-9]+)",
+	    regex: "^[p|P][d|D]([0-9]+)$",
 	    expansion: "\"🎲 \" + Math.trunc(Math.random() * $1 + 1) + \" /\" + $1"
 	  },
 	  {
-	    regex: "^[d|D]([0-9]+)",
+	    regex: "^[d|D]([0-9]+)$",
 	    expansion: "\"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + Math.trunc(Math.random() * $1 + 1) + \"</b> /\" + $1 + \"</span>\""
 	  }
 	]
@@ -97,6 +97,21 @@ var MyPlugin = (function(_super)
 		let text = cm.getLine(shortcutPosition.lineIndex).substring(
 			shortcutPosition.prefixIndex + this.settings.prefix.length,
 			shortcutPosition.suffixIndex);
+		let expansion = this.getExpansion(text);
+		if (expansion)
+		{
+			cm.replaceRange(
+				expansion,
+				{ line: shortcutPosition.lineIndex,
+				  ch: shortcutPosition.prefixIndex },
+				{ line: shortcutPosition.lineIndex,
+				  ch: shortcutPosition.suffixIndex +
+				      this.settings.suffix.length });
+		}
+	};
+
+	MyPlugin.prototype.getExpansion = function(text)
+	{
 		let expansion = "";
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
@@ -129,56 +144,84 @@ var MyPlugin = (function(_super)
 				8 * 1000);
 			expansion = null;
 		}
-		if (expansion)
-		{
-			cm.replaceRange(
-				expansion,
-				{ line: shortcutPosition.lineIndex,
-				  ch: shortcutPosition.prefixIndex },
-				{ line: shortcutPosition.lineIndex,
-				  ch: shortcutPosition.suffixIndex +
-				      this.settings.suffix.length });
-		}
+		return expansion;
 	};
 
 	MyPlugin.prototype.handleExpansionTrigger_cm6 = function(tr)
 	{
-		if (!tr.isUserEvent("input.type") || !tr.docChanged)
-		{
-			return tr;
-		}
+		if (!tr.isUserEvent("input.type") || !tr.docChanged) { return tr; }
+
+		const changes = [];
+		const reverts = [];
+		let newSelection = tr.selection;
 
 		tr.changes.iterChanges((fromA, toA, fromB, toB, inserted) =>
 		{
 			if (inserted.text[0] != this.shortcutEndCharacter) { return; }
-			let result = {};
-			result.lineIndex = tr.newDoc.lineAt(fromA).number - 1;
-			let lineText = tr.newDoc.text[result.lineIndex];
-			result.prefixIndex = lineText.lastIndexOf(this.settings.prefix, fromA);
-			result.suffixIndex = lineText.indexOf(
-				this.settings.suffix,
-				result.prefixIndex + this.settings.prefix.length);
-			if (result.prefixIndex != -1 && result.suffixIndex != -1)
-			{
-				console.log(lineText.substring(
-					result.prefixIndex, result.suffixIndex + 1));
-			}
-		});
 
-		return tr;
+			let lineIndex = tr.newDoc.lineAt(fromA).number - 1;
+			let lineText = tr.newDoc.text[lineIndex];
+			let prefixIndex = lineText.lastIndexOf(this.settings.prefix, fromA);
+			let suffixIndex = lineText.indexOf(
+				this.settings.suffix,
+				prefixIndex + this.settings.prefix.length);
+			if (prefixIndex == -1 || suffixIndex == -1) { return; }
+
+			const original =
+				lineText.substring(prefixIndex, suffixIndex + 1);
+			let expansion = original.substring(
+				this.settings.prefix.length,
+				original.length - this.settings.suffix.length);
+			expansion = this.getExpansion(expansion);
+			if (!expansion) { return; }
+
+			const replacementLengthAdjust = original.length - 1;
+			const insertionPoint = fromA - replacementLengthAdjust;
+			const reversionPoint = fromB - replacementLengthAdjust;
+			changes.push({
+				from: insertionPoint,
+				to: insertionPoint + replacementLengthAdjust,
+				insert: expansion });
+			reverts.push({
+				from: reversionPoint,
+				to: reversionPoint + expansion.length,
+				insert: original });
+			const selectionAdjustment = original.length - expansion.length;
+			newSelection = state.EditorSelection.create(newSelection.ranges.map((r) =>
+				state.EditorSelection.range(
+					r.anchor - selectionAdjustment,
+					r.head - selectionAdjustment)));
+		}, false);
+
+		if (changes.length)
+		{
+			return [{
+				effects: this.storeTransaction.of({
+					effects: this.storeTransaction.of(null),
+					selection: tr.selection,
+					scrollIntoView: tr.scrollIntoView,
+					changes: reverts,
+				}),
+				selection: newSelection,
+				scrollIntoView: tr.scrollIntoView,
+				changes: changes,
+			}];
+		}
+		else
+		{
+			return tr;
+		}
 	};
 
 	MyPlugin.prototype.refreshCodeMirrorState = function(cm)
 	{
 		if (this._loaded && !cm.tejs_handled)
 		{
-			console.log("keydown on");
 			cm.on("keydown", this._handleExpansionTrigger_cm5);
 			cm.tejs_handled = true;
 		}
 		else if (!this._loaded && cm.tejs_handled)
 		{
-			console.log("keydown off");
 			cm.off("keydown", this._handleExpansionTrigger_cm5);
 			cm.tejs_handled = false;
 		}
@@ -225,6 +268,8 @@ var MyPlugin = (function(_super)
 		this.settings = null;
 		this.addSettingTab(new MySettings(this.app, this));
 
+		this.storeTransaction = state.StateEffect.define();
+
 		return result;
 	}
 
@@ -235,8 +280,9 @@ var MyPlugin = (function(_super)
 			this.settings.suffix.charAt(this.settings.suffix.length - 1);
 		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
 		dfc.setup(this);
-		this.shortcutDfc =
-			dfc.create(this.settings.shortcutFiles, this.setupShortcuts.bind(this));
+		this.shortcutDfc = dfc.create(
+			this.settings.shortcutFiles, this.setupShortcuts.bind(this), true);
+		dfc.refreshInstance(this.shortcutDfc, true);
 		this.registerEditorExtension([
 			state.EditorState.transactionFilter.of(
 				this.handleExpansionTrigger_cm6.bind(this))
@@ -520,8 +566,24 @@ var MySettings = (function(_super)
 
 		// Shortcuts refresh
 		let force =
-			this.plugin.shortcutDfc.files.length >
-			this.tmpSettings.shortcutFiles.length;
+			(this.plugin.settings.shortcuts.length !=
+				this.tmpSettings.shortcuts.length) ||
+			(this.plugin.shortcutDfc.files.length !=
+		                  this.tmpSettings.shortcutFiles.length);
+		if (!force)
+		{
+			for (let i = 0; i < this.tmpSettings.shortcuts.length; i++)
+			{
+				if (this.tmpSettings.shortcuts[i].regex !=
+				    this.plugin.settings.shortcuts[i].regex ||
+				    this.tmpSettings.shortcuts[i].expansion !=
+				    this.plugin.settings.shortcuts[i].expansion)
+				{
+					force = true;
+					break;
+				}
+			}
+		}
 		this.plugin.shortcutDfc.files.length = this.tmpSettings.shortcutFiles.length;
 		for (let i = 0; i < this.plugin.shortcutDfc.files.length; i++)
 		{
@@ -534,7 +596,6 @@ var MySettings = (function(_super)
 					this.tmpSettings.shortcutFiles[i];
 			}
 		}
-		dfc.refreshInstance(this.plugin.shortcutDfc, force);
 
 		// Format
 		if (!this.checkFormatErrs())
@@ -545,6 +606,7 @@ var MySettings = (function(_super)
 
 		// Wrapup
 		this.plugin.settings = this.tmpSettings;
+		dfc.refreshInstance(this.plugin.shortcutDfc, force);
 		this.shortcutEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
 		this.plugin.saveSettings();
@@ -624,18 +686,15 @@ var dfc = {
 		}));
 	},
 
-	create: function(filenames, onChangeCallback)
+	create: function(filenames, onChangeCallback, skipRefresh)
 	{
 		let result = { files: filenames.slice(), onChange: onChangeCallback };
 		dfc.instances.push(result);
-		dfc.refreshInstance(result);
+		if (!skipRefresh)
+		{
+			dfc.refreshInstance(result, true);
+		}
 		return result;
-	},
-
-	addFile: function(instance, filename)
-	{
-		instance.files.push(filename);
-		dfc.refreshInstance(instance);
 	},
 
 	refreshInstance: async function(instance, force)
