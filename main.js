@@ -18,7 +18,8 @@ const DEFAULT_SETTINGS =
 	    regex: "^[d|D]([0-9]+)$",
 	    expansion: "\"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + Math.trunc(Math.random() * $1 + 1) + \"</b> /\" + $1 + \"</span>\""
 	  }
-	]
+	],
+	devMode: false
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,28 +231,22 @@ var MyPlugin = (function(_super)
 	MyPlugin.prototype.setupShortcuts = function()
 	{
 		this.shortcuts = this.settings.shortcuts.slice();
-		for (let i = 0; i < this.shortcutDfc.files.length; i++)
+		for (let key in this.shortcutDfc.files)
 		{
-			if (this.shortcutDfc.files[i].content == null)
+			if (this.shortcutDfc.files[key].content == null)
 			{
-				new obsidian.Notice(
-					"Missing shortcut file\n" + this.shortcutDfc.files[i].name,
-					8 * 1000);
+				new obsidian.Notice("Missing shortcut file\n" + key, 8 * 1000);
 				continue;
 			}
 			try
 			{
-				let newShortcuts =
-					JSON.parse(this.shortcutDfc.files[i].content);
+				let newShortcuts = JSON.parse(this.shortcutDfc.files[key].content);
 				this.shortcuts = this.shortcuts.concat(newShortcuts);
 			}
 			catch (e)
 			{
 				console.error(e);
-				new obsidian.Notice(
-					"Malformed shortcut file\n" +
-					this.shortcutDfc.files[i].name,
-					8 * 1000);
+				new obsidian.Notice( "Malformed shortcut file\n" + key, 8 * 1000);
 			}
 		}
 	};
@@ -281,8 +276,8 @@ var MyPlugin = (function(_super)
 		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
 		dfc.setup(this);
 		this.shortcutDfc = dfc.create(
-			this.settings.shortcutFiles, this.setupShortcuts.bind(this), true);
-		dfc.refreshInstance(this.shortcutDfc, true);
+			this.settings.shortcutFiles, this.setupShortcuts.bind(this),
+			this.settings.devMode);
 		this.registerEditorExtension([
 			state.EditorState.transactionFilter.of(
 				this.handleExpansionTrigger_cm6.bind(this))
@@ -372,25 +367,41 @@ var MySettings = (function(_super)
 						addShortcutFileUi();
 					});
 			});
-		this.shortcutFileUis = c.createEl("div", { cls: "shortcuts" });
+		this.shortcutFileUis = c.createEl("div", { cls: "shortcutFiles" });
+		this.shortcutFileUis.createEl("div", {
+			text: "Red input means the file does not exist.",
+			cls: "setting-item-description extraMessage onSiblings"
+		});
 		var shortcutFileDeleteButtonClicked = function()
 		{
-			new ConfirmModal(this.plugin.app, "Confirm removing a reference to a shortcut file.",
-			(confirmation) =>
-			{
-				if (confirmation)
+			new ConfirmModal(
+				this.plugin.app,
+				"Confirm removing a reference to a shortcut file.",
+				(confirmation) =>
 				{
-					this.assocText.remove();
-					this.remove();
-				}
-			}).open();
+					if (confirmation)
+					{
+						this.assocText.remove();
+						this.remove();
+					}
+				}).open();
 		};
 		var addShortcutFileUi = (text) =>
 		{
+			text = text.substr(0, text.length - 3);
 			let n = this.shortcutFileUis.createEl("input", { cls: "shortcut-file" });
 				n.setAttr("type", "text");
 				n.setAttr("placeholder", "Filename");
+				n.plugin = this.plugin;
+				n.addEventListener("input", function()
+				{
+					let isBadInput =
+						this.value &&
+						!this.plugin.app.vault.fileMap[this.value+".md"]
+					this.toggleClass("badInput", isBadInput);
+				});
 				if (text) { n.setAttr("value", text); }
+				n.dispatchEvent(new Event("input"));
 			let b = this.shortcutFileUis.createEl("button", { cls: "delete-button" });
 				b.plugin = this.plugin;
 				b.assocText = n;
@@ -519,9 +530,9 @@ var MySettings = (function(_super)
 		});
 		refreshShortcutExample();
 
+		c.createEl("h2", { text: "Other Settings" });
 		if (!this.plugin.app.isMobile)
 		{
-			c.createEl("h2", { text: "Other Settings" });
 			new obsidian.Setting(c)
 				.setName("Expansion trigger")
 				.setDesc("A shortcut is expanded when this happens.")
@@ -538,6 +549,18 @@ var MySettings = (function(_super)
 						});
 				});
 		}
+		new obsidian.Setting(c)
+			.setName("Developer mode")
+			.setDesc("Shortcut files are monitored for updates.")
+			.addToggle((toggle) =>
+			{
+				return toggle
+					.setValue(this.tmpSettings.devMode)
+					.onChange((value) =>
+					{
+						this.tmpSettings.devMode = value;
+					});
+			});
 	};
 
 	MySettings.prototype.hide = function()
@@ -549,7 +572,7 @@ var MySettings = (function(_super)
 			if (this.shortcutFileUis.childNodes[i].value)
 			{
 				this.tmpSettings.shortcutFiles.push(obsidian.normalizePath(
-					this.shortcutFileUis.childNodes[i].value));
+					this.shortcutFileUis.childNodes[i].value + ".md"));
 			}
 		}
 
@@ -570,9 +593,7 @@ var MySettings = (function(_super)
 		// Shortcuts refresh
 		let force =
 			(this.plugin.settings.shortcuts.length !=
-				this.tmpSettings.shortcuts.length) ||
-			(this.plugin.shortcutDfc.files.length !=
-		                  this.tmpSettings.shortcutFiles.length);
+				this.tmpSettings.shortcuts.length);
 		if (!force)
 		{
 			for (let i = 0; i < this.tmpSettings.shortcuts.length; i++)
@@ -587,18 +608,8 @@ var MySettings = (function(_super)
 				}
 			}
 		}
-		this.plugin.shortcutDfc.files.length = this.tmpSettings.shortcutFiles.length;
-		for (let i = 0; i < this.plugin.shortcutDfc.files.length; i++)
-		{
-			if (!this.plugin.shortcutDfc.files[i] ||
-			    !this.plugin.shortcutDfc.files[i].hasOwnProperty("name") ||
-			    this.plugin.shortcutDfc.files[i].name !=
-			    this.tmpSettings.shortcutFiles[i])
-			{
-				this.plugin.shortcutDfc.files[i] =
-					this.tmpSettings.shortcutFiles[i];
-			}
-		}
+		dfc.updateFileList(
+			this.plugin.shortcutDfc, this.tmpSettings.shortcutFiles, force);
 
 		// Format
 		if (!this.checkFormatErrs())
@@ -607,9 +618,11 @@ var MySettings = (function(_super)
 			this.tmpSettings.suffix = this.plugin.settings.suffix;
 		}
 
+		// Dev mode
+		this.plugin.shortcutDfc.isMonitored = this.tmpSettings.devMode;
+
 		// Wrapup
 		this.plugin.settings = this.tmpSettings;
-		dfc.refreshInstance(this.plugin.shortcutDfc, force);
 		this.shortcutEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
 		this.plugin.saveSettings();
@@ -665,83 +678,119 @@ var ConfirmModal = (function(_super)
 }(obsidian.Modal));
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Dynamic File Content (dfc)
+// Dynamic File Content (dfc) - Maintain a list of files to (optionally) monitor for updates
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 var dfc = {
 	instances: [],
 	hasEditorSaved: false,
 	plugin: null,
+	currentFile: null,
 
 	setup: function(plugin)
 	{
 		dfc.plugin = plugin;
 		plugin.registerEvent(
 			plugin.app.vault.on("modify", () => { dfc.hasEditorSaved = true; }));
-		plugin.registerEvent(plugin.app.workspace.on("active-leaf-change", () =>
+		plugin.registerEvent(
+			plugin.app.workspace.on("active-leaf-change", dfc.onActiveLeafChange));
+
+		// If run on app start, active file won't be available yet
+		if (plugin.app.workspace.getActiveFile())
 		{
-			if (!dfc.hasEditorSaved) { return; }
-			for (let i = 0; i < dfc.instances.length; i++)
-			{
-				dfc.refreshInstance(dfc.instances[i]);
-			}
-			dfc.hasEditorSaved = false;
-		}));
+			dfc.currentFile = plugin.app.workspace.getActiveFile().path;
+		}
 	},
 
-	create: function(filenames, onChangeCallback, skipRefresh)
+	onActiveLeafChange: function(leaf)
 	{
-		let result = { files: filenames.slice(), onChange: onChangeCallback };
-		dfc.instances.push(result);
-		if (!skipRefresh)
+		if (dfc.hasEditorSaved)
 		{
-			dfc.refreshInstance(result, true);
+			for (let i = 0; i < dfc.instances.length; i++)
+			{
+				let instance = dfc.instances[i];
+				if (instance.isMonitored &&
+				    instance.files.hasOwnProperty(dfc.currentFile))
+				{
+					dfc.refreshInstance(dfc.instances[i]);
+				}
+			}
 		}
+		dfc.hasEditorSaved = false;
+		dfc.currentFile = leaf.workspace.getActiveFile().path;
+	},
+
+	create: function(filenames, onChangeCallback, isMonitored)
+	{
+		let result = {
+			files: {},
+			onChange: onChangeCallback,
+			isMonitored: isMonitored
+		};
+
+		// Delay final steps to allow assignment of return value before refreshing
+		setTimeout(() =>
+		{
+			dfc.updateFileList(result, filenames, true);
+			dfc.instances.push(result);
+		}, 0);
+
 		return result;
+	},
+
+	updateFileList: function(instance, newFileList, force)
+	{
+		let hasChanged = false;
+		for (let key in instance.files)
+		{
+			if (!newFileList.contains(key))
+			{
+				delete instance.files[key];
+				hasChanged = true;
+			}
+		}
+		for (let i = 0; i < newFileList.length; i++)
+		{
+			let file = dfc.plugin.app.vault.fileMap[newFileList[i]];
+			if (!instance.files.hasOwnProperty(newFileList[i]))
+			{
+				instance.files[newFileList[i]] = {
+					modDate: Number.MIN_SAFE_INTEGER,
+					content: null
+				};
+				hasChanged = true;
+			}
+		}
+		dfc.refreshInstance(instance, hasChanged || force);
 	},
 
 	refreshInstance: async function(instance, force)
 	{
-		let hasChanged = !!force;
+		let hasChanged = false;
 
-		// Setup any new files
-		for (let i = 0; i < instance.files.length; i++)
+		for (let key in instance.files)
 		{
-			if (typeof instance.files[i] === "string")
+			let file = dfc.plugin.app.vault.fileMap[key];
+			if (file)
 			{
-				instance.files[i] =
-					{ name: instance.files[i], modDate: 0, content: null };
+				if (instance.files[key].modDate < file.stat.mtime || force)
+				{
+					instance.files[key] = {
+						modDate: file.stat.mtime,
+						content: await dfc.plugin.app.vault.read(file)
+					};
+				}
+				hasChanged = true;
+			}
+			else if (instance.files[key].content)
+			{
+				instance.files[key].modDate = Number.MIN_SAFE_INTEGER;
+				instance.files[key].content = null;
 				hasChanged = true;
 			}
 		}
 
-		// Update modified files
-		for (let i = 0; i < instance.files.length; i++)
-		{
-			let file = dfc.plugin.app.vault.fileMap[instance.files[i].name + ".md"];
-			if (file)
-			{
-				if (force || instance.files[i].modDate < file.stat.mtime)
-				{
-					instance.files[i].modDate = file.stat.mtime;
-					instance.files[i].content =
-						await dfc.plugin.app.vault.read(file);
-					hasChanged = true;
-				}
-			}
-			else
-			{
-				if (instance.files[i].content != null)
-				{
-					instance.files[i].modDate = 0;
-					instance.files[i].content = null;
-					hasChanged = true;
-				}
-			}
-		}
-
-		// On changed
-		if (hasChanged)
+		if ((hasChanged || force) && instance.onChange)
 		{
 			instance.onChange(instance);
 		}

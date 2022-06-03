@@ -60,17 +60,19 @@ None
 ## TODO
 
 ### 00.10.000
+- Remove "expansion trigger" option for mobile
 - **Settings**: Developer mode: monitor shortcut files for changes
-- Resolve unfinished expansion trigger options for mobile
-	- finish options
-	- remove option for mobile
-	- remove option for all platforms (!!!)
 - check one last time for a way to keep the shortcut suffix on undo
+- fix settings ui on mobile
+
+### 00.11.000
+- test that it works ok with split views
 - Test functionality: create scripts for all of mythic and mythic variations II
 - Test that all mythic functionality works on mobile too
 - Fill in rest of readme (instructions)
+- polish code
 
-### 00.11.000b
+### 00.12.000b
 - Submit to Obsidian community (beta)
 
 ### 01.00.000

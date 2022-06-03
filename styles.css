@@ -1,3 +1,20 @@
+.extraMessage
+{
+	text-align: left;
+	width: 90%;
+	display: inline-block;
+	margin-bottom: 0.5em;
+}
+.onSiblings:only-child
+{
+	display: none;
+}
+.shortcutFiles
+{
+	margin-bottom: 1em;
+	text-align: right;
+	margin-top: -1em;
+}
 .shortcuts
 {
 	margin-bottom: 1em;
@@ -50,10 +67,14 @@
 }
 .setting-bundled
 {
-    border: 0;
-    padding: 0;
+	border: 0;
+	padding: 0;
 }
 .setting-bundled-top
 {
-    padding-bottom: 0;
+	padding-bottom: 0;
+}
+.badInput
+{
+	background-color: darkred !important;
 }
