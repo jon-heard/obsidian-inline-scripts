@@ -21,6 +21,7 @@ const DEFAULT_SETTINGS =
 	],
 	devMode: false
 };
+var IS_MOBILE = false;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -255,6 +256,8 @@ var MyPlugin = (function(_super)
 	{
 		let result = _super !== null && _super.apply(this, arguments) || this;
 
+		IS_MOBILE = this.app.isMobile;
+
 		this._handleExpansionTrigger_cm5 = this.handleExpansionTrigger_cm5.bind(this);
 		this.registerCodeMirror(this.refreshCodeMirrorState.bind(this));
 
@@ -388,7 +391,7 @@ var MySettings = (function(_super)
 		};
 		var addShortcutFileUi = (text) =>
 		{
-			text = text.substr(0, text.length - 3);
+			if (text) { text = text.substr(0, text.length - 3); }
 			let n = this.shortcutFileUis.createEl("input", { cls: "shortcut-file" });
 				n.setAttr("type", "text");
 				n.setAttr("placeholder", "Filename");
@@ -531,7 +534,7 @@ var MySettings = (function(_super)
 		refreshShortcutExample();
 
 		c.createEl("h2", { text: "Other Settings" });
-		if (!this.plugin.app.isMobile)
+		if (!IS_MOBILE)
 		{
 			new obsidian.Setting(c)
 				.setName("Expansion trigger")
