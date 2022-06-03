@@ -1,3 +1,7 @@
+textarea
+{
+	background: var(--background-modifier-form-field);
+}
 .extraMessage
 {
 	text-align: left;
@@ -5,6 +9,10 @@
 	display: inline-block;
 	margin-bottom: 0.5em;
 	font-style: italic;
+}
+.is-mobile .extraMessage
+{
+    margin-top: 1em;
 }
 .onSiblings:only-child
 {
@@ -23,8 +31,13 @@
 }
 .shortcut-file
 {
-	width: calc(90% - 2.1em);
+	width: calc(90% - 2.1em) !important;
 	margin-bottom: 1em;
+	display: inline !important;
+}
+.badInput
+{
+	background-color: darkred !important;
 }
 .shortcut
 {
@@ -34,23 +47,30 @@
 }
 .shortcut-regex
 {
-	width: calc(90% - 2.1em);
+	width: calc(90% - 2.1em) !important;
+	display: inline !important;
 }
 .shortcut-expansion
 {
 	width: 90%;
 	margin-top: 0.2em;
+	background: var(--background-modifier-form-field);
 }
 .delete-button
 {
 	margin: 0;
 	margin-left: 0.2em;
 	padding: 0.5em;
+	width: auto !important;
 }
 .delete-button:before
 {
 	content: "🗑";
 	display: inline;
+}
+.is-mobile .setting-item button
+{
+	margin: 0 6px;
 }
 .err-msg-container
 {
@@ -75,7 +95,20 @@
 {
 	padding-bottom: 0;
 }
-.badInput
+.labelControl
 {
-	background-color: darkred !important;
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-normal);
+	font-family: inherit;
+	padding: 5px 14px;
+	font-size: 16px;
+	border-radius: 4px;
+	outline: none;
+	height: 30px;
+	width: 252px;
+	text-align: left;
+}
+.is-mobile .labelControl
+{
+	width: 100%;
 }

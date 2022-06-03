@@ -372,7 +372,7 @@ var MySettings = (function(_super)
 			});
 		this.shortcutFileUis = c.createEl("div", { cls: "shortcutFiles" });
 		this.shortcutFileUis.createEl("div", {
-			text: "Red input means the file does not exist.",
+			text: "Red means the file does not exist.",
 			cls: "setting-item-description extraMessage onSiblings"
 		});
 		var shortcutFileDeleteButtonClicked = function()
@@ -502,7 +502,7 @@ var MySettings = (function(_super)
 						this.checkFormatErrs();
 					});
 			})
-			.settingEl.toggleClass("setting-bundled-top", true);
+			.settingEl.toggleClass("setting-bundled-top", !IS_MOBILE);
 		let t = new obsidian.Setting(c)
 			.setName("Suffix")
 			.setDesc("What to type after a shortcut.")
@@ -518,8 +518,9 @@ var MySettings = (function(_super)
 						this.checkFormatErrs();
 					});
 			})
-			.settingEl.toggleClass("setting-bundled", true);
-		let exampleOuter = c.createEl("div", { cls: "setting-item setting-bundled" });
+			.settingEl.toggleClass("setting-bundled", !IS_MOBILE);
+		let exampleOuter = c.createEl("div", { cls: "setting-item" });
+			exampleOuter.toggleClass("setting-bundled", !IS_MOBILE);
 		let exampleInfo = exampleOuter.createEl("div", { cls: "setting-item-info" });
 		exampleInfo.createEl("div", { text: "Example", cls: "setting-item-name" });
 		exampleInfo.createEl("div",
@@ -527,10 +528,9 @@ var MySettings = (function(_super)
 			text: "How to write the shortcut \"D100\"",
 			cls: "setting-item-description"
 		});
-		shortcutExample = exampleOuter.createEl("div",
-		{
-			text: "", cls: "setting-item-control"
-		});
+		let exampleItemControl =
+			exampleOuter.createEl("div", { cls: "setting-item-control" });
+		shortcutExample = exampleItemControl.createEl("div", { cls: "labelControl" });
 		refreshShortcutExample();
 
 		c.createEl("h2", { text: "Other Settings" });
