@@ -22,7 +22,7 @@ TBA (includes dev-mode)
 TBA
 
 ## Known Issues
-None
+- Undo of expansion doesn't work the same on mobile vs PC.  On mobile, the triggering character doesn't show on undo.
 
 ## Credits
 - This project was inspired by description of Obsidian on the RPG Tips youtube video <a href='https://www.youtube.com/watch?v=XTFFzuZVcPk' target='_blank'>How I play my games in 2021</a>.
@@ -30,6 +30,14 @@ None
 - In both cases, the goal of this plugin is to fulfill a need for effortless cross-platform operability of advanced text-expansion features.
 
 ## Release notes
+
+### 00.10.000
+- Remove "expansion trigger" option for mobile
+- **Settings**: Developer mode: monitor shortcut files for changes
+- polish settings ui on mobile
+- Default settings different on mobile vs non-mobile (prefix/suffix)
+- bug fix: expansion incorrect with non-1-sized suffix
+- fix bug: changing prefix/suffix requires plugin reload
 
 ### 00.09.000
 - **Settings**: Shortcuts (definable directly in settings)
@@ -59,13 +67,8 @@ None
 
 ## TODO
 
-### 00.10.000
-- Remove "expansion trigger" option for mobile
-- **Settings**: Developer mode: monitor shortcut files for changes
-- check one last time for a way to keep the shortcut suffix on undo
-- fix settings ui on mobile
-
 ### 00.11.000
+- confirm plugin works on iphone
 - test that it works ok with split views
 - Test functionality: create scripts for all of mythic and mythic variations II
 - Test that all mythic functionality works on mobile too

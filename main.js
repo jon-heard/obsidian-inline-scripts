@@ -3,7 +3,7 @@
 var obsidian = require("obsidian");
 var state = require("@codemirror/state");
 
-const DEFAULT_SETTINGS =
+var DEFAULT_SETTINGS =
 {
 	prefix: ";;",
 	suffix: ";",
@@ -20,6 +20,11 @@ const DEFAULT_SETTINGS =
 	  }
 	],
 	devMode: false
+};
+var DEFAULT_SETTINGS_MOBILE =
+{
+	prefix: "!!",
+	suffix: "!"
 };
 var IS_MOBILE = false;
 
@@ -169,20 +174,21 @@ var MyPlugin = (function(_super)
 				prefixIndex + this.settings.prefix.length);
 			if (prefixIndex == -1 || suffixIndex == -1) { return; }
 
-			const original =
-				lineText.substring(prefixIndex, suffixIndex + 1);
+			const original = lineText.substring(
+				prefixIndex,
+				suffixIndex + this.settings.suffix.length);
 			let expansion = original.substring(
 				this.settings.prefix.length,
 				original.length - this.settings.suffix.length);
 			expansion = this.getExpansion(expansion);
 			if (!expansion) { return; }
 
-			const replacementLengthAdjust = original.length - 1;
-			const insertionPoint = fromA - replacementLengthAdjust;
-			const reversionPoint = fromB - replacementLengthAdjust;
+			const replacementLength = original.length - 1;
+			const insertionPoint = fromA - replacementLength;
+			const reversionPoint = fromB - replacementLength;
 			changes.push({
 				from: insertionPoint,
-				to: insertionPoint + replacementLengthAdjust,
+				to: insertionPoint + replacementLength,
 				insert: expansion });
 			reverts.push({
 				from: reversionPoint,
@@ -257,6 +263,10 @@ var MyPlugin = (function(_super)
 		let result = _super !== null && _super.apply(this, arguments) || this;
 
 		IS_MOBILE = this.app.isMobile;
+		if (IS_MOBILE)
+		{
+			DEFAULT_SETTINGS = Object.assign(DEFAULT_SETTINGS, DEFAULT_SETTINGS_MOBILE);
+		}
 
 		this._handleExpansionTrigger_cm5 = this.handleExpansionTrigger_cm5.bind(this);
 		this.registerCodeMirror(this.refreshCodeMirrorState.bind(this));
@@ -626,7 +636,7 @@ var MySettings = (function(_super)
 
 		// Wrapup
 		this.plugin.settings = this.tmpSettings;
-		this.shortcutEndCharacter =
+		this.plugin.shortcutEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
 		this.plugin.saveSettings();
 	};
