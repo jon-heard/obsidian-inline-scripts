@@ -11,12 +11,16 @@ var DEFAULT_SETTINGS =
 	shortcutFiles: [],
 	shortcuts: [
 	  {
+	    regex: "",
+	    expansion: "function roll(max) { return Math.trunc(Math.random() * max + 1); }"
+	  },
+	  {
 	    regex: "^[p|P][d|D]([0-9]+)$",
-	    expansion: "\"🎲 \" + Math.trunc(Math.random() * $1 + 1) + \" /\" + $1"
+	    expansion: "return \"🎲 \" + roll($1) + \" /\" + $1;"
 	  },
 	  {
 	    regex: "^[d|D]([0-9]+)$",
-	    expansion: "\"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + Math.trunc(Math.random() * $1 + 1) + \"</b> /\" + $1 + \"</span>\""
+	    expansion: "return \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /\" + $1 + \"</span>\";"
 	  }
 	],
 	devMode: false
@@ -127,7 +131,7 @@ var MyPlugin = (function(_super)
 
 			for (let k = 1; k < matchInfo.length; k++)
 			{
-				expansion += "let $" + k + " = " + matchInfo[k] + ";\n";
+				expansion += "let $" + k + " = \"" + matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
 			}
 			expansion +=
 				Array.isArray(this.shortcuts[i].expansion) ?
@@ -140,12 +144,13 @@ var MyPlugin = (function(_super)
 		}
 		try
 		{
-			expansion = eval(expansion);
+			expansion = eval("(function(){" + expansion + "})();");
 		}
 		catch (e)
 		{
-			console.error(e);
-			console.error("Malformed shortcut expansion:\n" + expansion);
+			console.error(
+				"Shortcut expansion error: " + e.message +
+				"\n----------\n" + expansion);
 			new obsidian.Notice(
 				"Malformed shortcut expansion",
 				8 * 1000);
@@ -777,36 +782,40 @@ var dfc = {
 		dfc.refreshInstance(instance, hasChanged || force);
 	},
 
-	refreshInstance: async function(instance, force)
+	refreshInstance: function(instance, force)
 	{
-		let hasChanged = false;
-
-		for (let key in instance.files)
+		dfc.plugin.app.workspace.onLayoutReady(async () =>
 		{
-			let file = dfc.plugin.app.vault.fileMap[key];
-			if (file)
+			let hasChanged = false;
+
+			for (let key in instance.files)
 			{
-				if (instance.files[key].modDate < file.stat.mtime || force)
+				let file = dfc.plugin.app.vault.fileMap[key];
+				if (file)
 				{
-					instance.files[key] = {
-						modDate: file.stat.mtime,
-						content: await dfc.plugin.app.vault.read(file)
-					};
+					if (instance.files[key].modDate < file.stat.mtime || force)
+					{
+						instance.files[key] = {
+							modDate: file.stat.mtime,
+							content: await
+								dfc.plugin.app.vault.read(file)
+						};
+					}
+					hasChanged = true;
 				}
-				hasChanged = true;
+				else if (instance.files[key].content)
+				{
+					instance.files[key].modDate = Number.MIN_SAFE_INTEGER;
+					instance.files[key].content = null;
+					hasChanged = true;
+				}
 			}
-			else if (instance.files[key].content)
-			{
-				instance.files[key].modDate = Number.MIN_SAFE_INTEGER;
-				instance.files[key].content = null;
-				hasChanged = true;
-			}
-		}
 
-		if ((hasChanged || force) && instance.onChange)
-		{
-			instance.onChange(instance);
-		}
+			if ((hasChanged || force) && instance.onChange)
+			{
+				instance.onChange(instance);
+			}
+		});
 	}
 };
 
