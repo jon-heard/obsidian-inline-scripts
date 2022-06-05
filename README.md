@@ -68,14 +68,13 @@ TBA
 ## TODO
 
 ### 00.11.000
-- Decent error messaging for parsing shortcut files
+/ Decent error messaging for parsing shortcut files
+/ add details substring to Detail check (and italicized substrings)
+/ "regex" to "shortcut"
+- check everything works ok with multiple panes
 - Test functionality: create scripts for all of mythic and mythic variations II
-	- TEJS_state shortcut file
-		- make all state stuff in one var
-		- string storage
 	- behaviour check
 	- une file
-- Look into how much systems are wanted in a lets play
 - Test that all shortcut files work on mobile too
 - confirm plugin works on iphone
 - Fill in rest of readme (instructions)

@@ -11,15 +11,15 @@ var DEFAULT_SETTINGS =
 	shortcutFiles: [],
 	shortcuts: [
 	  {
-	    regex: "",
+	    shortcut: "",
 	    expansion: "function roll(max) { return Math.trunc(Math.random() * max + 1); }"
 	  },
 	  {
-	    regex: "^[p|P][d|D]([0-9]+)$",
+	    shortcut: "^[p|P][d|D]([0-9]+)$",
 	    expansion: "return \"🎲 \" + roll($1) + \" /\" + $1;"
 	  },
 	  {
-	    regex: "^[d|D]([0-9]+)$",
+	    shortcut: "^[d|D]([0-9]+)$",
 	    expansion: "return \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /\" + $1 + \"</span>\";"
 	  }
 	],
@@ -126,7 +126,7 @@ var MyPlugin = (function(_super)
 		let expansion = "";
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
-			let matchInfo = text.match(this.shortcuts[i].regex);
+			let matchInfo = text.match(this.shortcuts[i].shortcut);
 			if (!matchInfo) { continue; }
 
 			for (let k = 1; k < matchInfo.length; k++)
@@ -136,7 +136,7 @@ var MyPlugin = (function(_super)
 					matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
 			}
 			expansion += this.shortcuts[i].expansion + "\n";
-			if (this.shortcuts[i].regex)
+			if (this.shortcuts[i].shortcut)
 			{
 				break;
 			}
@@ -342,7 +342,7 @@ var MyPlugin = (function(_super)
 					{
 						newShortcuts[i].expansion = newShortcuts[i].expansion.join("\n");
 					}
-					if (newShortcuts[i].regex == "^tejs setup$")
+					if (newShortcuts[i].shortcut == "^tejs setup$")
 					{
 						try
 						{
@@ -579,16 +579,16 @@ var MySettings = (function(_super)
 		{
 			let n = this.shortcutUis.createEl("div", { cls: "shortcut" });
 			n.plugin = this.plugin;
-			let regexUi = n.createEl("input", { cls: "shortcut-regex" });
-				regexUi.setAttr("type", "text");
-				regexUi.setAttr("placeholder", "Shortcut (regex)");
+			let shortcutUi = n.createEl("input", { cls: "shortcut-regex" });
+				shortcutUi.setAttr("type", "text");
+				shortcutUi.setAttr("placeholder", "Shortcut (regex)");
 			let deleteUi = n.createEl("button", { cls: "delete-button" });
 				deleteUi.onclick = shortcutDeleteButtonClicked.bind(n);
 			let expansionUi = n.createEl("textarea", { cls: "shortcut-expansion" });
 				expansionUi.setAttr("placeholder", "Expansion (javascript)");
 			if (shortcut)
 			{
-				regexUi.value = shortcut.regex;
+				shortcutUi.value = shortcut.shortcut;
 				expansionUi.value = shortcut.expansion;
 			}
 		};
@@ -710,7 +710,7 @@ var MySettings = (function(_super)
 			if (shortcutUi.childNodes[2].value)
 			{
 				this.tmpSettings.shortcuts.push({
-					regex: shortcutUi.childNodes[0].value,
+					shortcut: shortcutUi.childNodes[0].value,
 					expansion: shortcutUi.childNodes[2].value
 				});
 			}
@@ -724,8 +724,8 @@ var MySettings = (function(_super)
 		{
 			for (let i = 0; i < this.tmpSettings.shortcuts.length; i++)
 			{
-				if (this.tmpSettings.shortcuts[i].regex !=
-				    this.plugin.settings.shortcuts[i].regex ||
+				if (this.tmpSettings.shortcuts[i].shortcut !=
+				    this.plugin.settings.shortcuts[i].shortcut ||
 				    this.tmpSettings.shortcuts[i].expansion !=
 				    this.plugin.settings.shortcuts[i].expansion)
 				{
