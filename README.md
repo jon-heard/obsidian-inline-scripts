@@ -18,7 +18,7 @@ TBA
 ## HOW-TO: Creating a new text-entry shortcut file
 TBA (includes dev-mode)
 
-## REFERENCE: All Settings
+## REFERENCE: Settings
 TBA
 
 ## Known Issues
@@ -68,10 +68,16 @@ TBA
 ## TODO
 
 ### 00.11.000
-- confirm plugin works on iphone
-- test that it works ok with split views
+- Decent error messaging for parsing shortcut files
 - Test functionality: create scripts for all of mythic and mythic variations II
-- Test that all mythic functionality works on mobile too
+	- TEJS_state shortcut file
+		- make all state stuff in one var
+		- string storage
+	- behaviour check
+	- une file
+- Look into how much systems are wanted in a lets play
+- Test that all shortcut files work on mobile too
+- confirm plugin works on iphone
 - Fill in rest of readme (instructions)
 - polish code
 

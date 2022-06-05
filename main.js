@@ -131,7 +131,9 @@ var MyPlugin = (function(_super)
 
 			for (let k = 1; k < matchInfo.length; k++)
 			{
-				expansion += "let $" + k + " = \"" + matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
+				expansion +=
+					"let $" + k + " = \"" +
+					matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
 			}
 			expansion +=
 				Array.isArray(this.shortcuts[i].expansion) ?
@@ -240,6 +242,88 @@ var MyPlugin = (function(_super)
 		}
 	};
 
+	const extraLineCount = 3;
+	MyPlugin.prototype.createErrorMessage = function(code, errIndex)
+	{
+		// Display this # lines to either side of error line
+		let lines = [];
+		let lineIndex = -1; // Start at -1 incrementing logic works
+		let lineOffset = 0;
+
+		let index1 = code.lastIndexOf("\n", errIndex);
+		let index2 = code.indexOf("\n", errIndex);
+		for (let i = 0; i < extraLineCount+1; i++)
+		{
+			// Prevent error at code bounds
+			if (index1 < 0) index1 = 0;
+			if (index2 < 0) index2 = code.length;
+			if (code.charAt(index1) == "\n") index1++;
+			if (code.charAt(index2) == "\n") index2--;
+			lines.unshift(code.substring(index1, index2+1));
+			lineIndex++;
+
+			// Get error character's position in the line
+			if (i == 0) lineOffset = errIndex - index1 + 1;
+
+			if (index1 == 0) break;
+			do
+			{
+				index1--;
+			}
+			while (index1 > 0 && code.charAt(index1) == "\n");
+			index2 = index1;
+			index1 = code.lastIndexOf("\n", index1);
+		}
+
+		index1 = code.indexOf("\n", errIndex)+1;
+		index2 = code.indexOf("\n", index1)-1;
+		for (let i = 0; i < extraLineCount; i++)
+		{
+			if (index1 < 0) break;
+			if (index2 < 0) index2 = code.length;
+			lines.push(code.substring(index1, index2+1));
+			index1 = index2 + 2;
+			index2 = code.indexOf("\n", index1) - 1;
+		}
+
+		// Trim prefix whitespace common to all lines
+		for (let i = 0; i < lines.length; i++)
+		{
+			lines[i] = lines[i].replaceAll("\t", " ");
+		}
+		let commonWhitespaceCount = 0;
+		while (true)
+		{
+			let inWhitespace = true;
+			for (let i = 0; i < lines.length; i++)
+			{
+				if (lines[i][commonWhitespaceCount] != " ")
+				{
+					inWhitespace = false;
+					break;
+				}
+			}
+			if (!inWhitespace) break;
+			commonWhitespaceCount++;
+		}
+		for (let i = 0; i < lines.length; i++)
+		{
+			lines[i] = lines[i].substr(commonWhitespaceCount);
+		}
+		lineOffset -= commonWhitespaceCount;
+
+		// Add lines to message (including pointer lines arround error line)
+		let result = "";
+		for (let i = 0; i < lines.length; i++)
+		{
+			let isErrLine = (i == lineIndex);
+			if (isErrLine) result += "\n" + " ".repeat(lineOffset) + "v";
+			result += "\n" /*+ (isErrLine ? " => " : "    ")*/ + lines[i];
+			if (isErrLine) result += "\n" + " ".repeat(lineOffset) + "^";
+		}
+		return result;
+	}
+
 	MyPlugin.prototype.setupShortcuts = function()
 	{
 		this.shortcuts = this.settings.shortcuts.slice();
@@ -250,14 +334,25 @@ var MyPlugin = (function(_super)
 				new obsidian.Notice("Missing shortcut file\n" + key, 8 * 1000);
 				continue;
 			}
+			let code = this.shortcutDfc.files[key].content;
 			try
 			{
-				let newShortcuts = JSON.parse(this.shortcutDfc.files[key].content);
+				let newShortcuts = JSON.parse(code);
 				this.shortcuts = this.shortcuts.concat(newShortcuts);
 			}
 			catch (e)
 			{
-				console.error(e);
+				// Build error message
+				let message =
+					"Error in shortcut file \"" + key + "\"\n" + e.message;
+				let regexResult = e.message.match("at position ([0-9]+)");
+				if (regexResult)
+				{
+					// -1 fixes error message offset
+					let errCharacter = Number(regexResult[1]) - 1
+					message += this.createErrorMessage(code, errCharacter);
+				}
+				console.error(message);
 				new obsidian.Notice( "Malformed shortcut file\n" + key, 8 * 1000);
 			}
 		}
@@ -270,7 +365,8 @@ var MyPlugin = (function(_super)
 		IS_MOBILE = this.app.isMobile;
 		if (IS_MOBILE)
 		{
-			DEFAULT_SETTINGS = Object.assign(DEFAULT_SETTINGS, DEFAULT_SETTINGS_MOBILE);
+			DEFAULT_SETTINGS =
+				Object.assign(DEFAULT_SETTINGS, DEFAULT_SETTINGS_MOBILE);
 		}
 
 		this._handleExpansionTrigger_cm5 = this.handleExpansionTrigger_cm5.bind(this);
@@ -722,7 +818,9 @@ var dfc = {
 
 	onActiveLeafChange: function(leaf)
 	{
-		if (dfc.hasEditorSaved)
+		// In practice, it's easier to recalculate even on no changes.  This allows user to
+		// see an error without needing to make token changes.
+		if (dfc.hasEditorSaved || true)
 		{
 			for (let i = 0; i < dfc.instances.length; i++)
 			{
