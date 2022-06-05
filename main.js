@@ -135,10 +135,7 @@ var MyPlugin = (function(_super)
 					"let $" + k + " = \"" +
 					matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
 			}
-			expansion +=
-				Array.isArray(this.shortcuts[i].expansion) ?
-				this.shortcuts[i].expansion.join("\n") + "\n" :
-				this.shortcuts[i].expansion + "\n";
+			expansion += this.shortcuts[i].expansion + "\n";
 			if (this.shortcuts[i].regex)
 			{
 				break;
@@ -339,6 +336,21 @@ var MyPlugin = (function(_super)
 			{
 				let newShortcuts = JSON.parse(code);
 				this.shortcuts = this.shortcuts.concat(newShortcuts);
+				for (let i = 0; i < newShortcuts.length; i++)
+				{
+					if (Array.isArray(newShortcuts[i].expansion))
+					{
+						newShortcuts[i].expansion = newShortcuts[i].expansion.join("\n");
+					}
+					if (newShortcuts[i].regex == "^tejs setup$")
+					{
+						try
+						{
+							eval(newShortcuts[i].expansion);
+						}
+						catch (e) {}
+					}
+				}
 			}
 			catch (e)
 			{
