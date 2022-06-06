@@ -9,21 +9,11 @@ var DEFAULT_SETTINGS =
 	suffix: ";",
 	hotkey: " ",
 	shortcutFiles: [],
-	shortcuts: [
-	  {
-	    shortcut: "",
-	    expansion: "function roll(max) { return Math.trunc(Math.random() * max + 1); }"
-	  },
-	  {
-	    shortcut: "^[p|P][d|D]([0-9]+)$",
-	    expansion: "return \"🎲 \" + roll($1) + \" /\" + $1;"
-	  },
-	  {
-	    shortcut: "^[d|D]([0-9]+)$",
-	    expansion: "return \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /\" + $1 + \"</span>\";"
-	  }
-	],
-	devMode: false
+	shortcuts:
+		"~~\n        ~~\n    function roll(max) { return Math.trunc(Math.random() * max + 1); }\n\n" +
+		"~~\n    ^[p|P][d|D]([0-9]+)$    \n~~\n    return \"🎲 \" + roll($1) + \" /\" + $1;\n\n" +
+		"~~\n    ^[d|D]([0-9]+)$    \n~~\n    return \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /\" + $1 + \"</span>\";\n"
+	, devMode: false
 };
 var DEFAULT_SETTINGS_MOBILE =
 {
@@ -141,20 +131,11 @@ var MyPlugin = (function(_super)
 				break;
 			}
 		}
-		try
-		{
-			expansion = eval("(function(){" + expansion + "})();");
-		}
-		catch (e)
-		{
-			console.error(
-				"Shortcut expansion error: " + e.message +
-				"\n----------\n" + expansion);
-			new obsidian.Notice(
-				"Malformed shortcut expansion",
-				8 * 1000);
-			expansion = null;
-		}
+		this._expansion = expansion;
+		window.addEventListener('error', this._handleExpansionError);
+		expansion = Function(expansion)();
+		window.removeEventListener('error', this._handleExpansionError);
+		this._expansion = null;
 		return expansion;
 	};
 
@@ -225,6 +206,31 @@ var MyPlugin = (function(_super)
 		}
 	};
 
+	MyPlugin.prototype.handleExpansionError = function(e)
+	{
+		window.removeEventListener('error', this._handleExpansionError);
+		e.preventDefault();
+
+		// Insert line numbers and arrows into code
+		this._expansion = this._expansion.split("\n");
+		for (let i = 0; i < this._expansion.length; i++)
+		{
+			this._expansion[i] =
+				String(i+1).padStart(4, '0') + " " + this._expansion[i];
+		}
+		this._expansion .splice(e.lineno-2, 0, "^".repeat(e.colno + 5) + "^");
+		this._expansion .splice(e.lineno-3, 0, "v".repeat(e.colno + 5) + "v");
+		this._expansion  = this._expansion .join("\n");
+
+		// Notify user of error
+		console.error(
+			"Error in Shortcut expansion: " + e.message +
+			"\nline: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
+			"─".repeat(20) + "\n" + this._expansion);
+		new obsidian.Notice( "Error in shortcut expansion", 8 * 1000);
+		this._expansion = null;
+	};
+
 	MyPlugin.prototype.refreshCodeMirrorState = function(cm)
 	{
 		if (this._loaded && !cm.tejs_handled)
@@ -239,91 +245,22 @@ var MyPlugin = (function(_super)
 		}
 	};
 
-	const extraLineCount = 3;
-	MyPlugin.prototype.createErrorMessage = function(code, errIndex)
+	MyPlugin.prototype.parseShortcutList = function(content)
 	{
-		// Display this # lines to either side of error line
-		let lines = [];
-		let lineIndex = -1; // Start at -1 incrementing logic works
-		let lineOffset = 0;
-
-		let index1 = code.lastIndexOf("\n", errIndex);
-		let index2 = code.indexOf("\n", errIndex);
-		for (let i = 0; i < extraLineCount+1; i++)
+		content = content.split("~~").map((v) => v.trim());
+		let result = [];
+		let i = 1;
+		while (i < content.length)
 		{
-			// Prevent error at code bounds
-			if (index1 < 0) index1 = 0;
-			if (index2 < 0) index2 = code.length;
-			if (code.charAt(index1) == "\n") index1++;
-			if (code.charAt(index2) == "\n") index2--;
-			lines.unshift(code.substring(index1, index2+1));
-			lineIndex++;
-
-			// Get error character's position in the line
-			if (i == 0) lineOffset = errIndex - index1 + 1;
-
-			if (index1 == 0) break;
-			do
-			{
-				index1--;
-			}
-			while (index1 > 0 && code.charAt(index1) == "\n");
-			index2 = index1;
-			index1 = code.lastIndexOf("\n", index1);
-		}
-
-		index1 = code.indexOf("\n", errIndex)+1;
-		index2 = code.indexOf("\n", index1)-1;
-		for (let i = 0; i < extraLineCount; i++)
-		{
-			if (index1 < 0) break;
-			if (index2 < 0) index2 = code.length;
-			lines.push(code.substring(index1, index2+1));
-			index1 = index2 + 2;
-			index2 = code.indexOf("\n", index1) - 1;
-		}
-
-		// Trim prefix whitespace common to all lines
-		for (let i = 0; i < lines.length; i++)
-		{
-			lines[i] = lines[i].replaceAll("\t", " ");
-		}
-		let commonWhitespaceCount = 0;
-		while (true)
-		{
-			let inWhitespace = true;
-			for (let i = 0; i < lines.length; i++)
-			{
-				if (lines[i][commonWhitespaceCount] != " ")
-				{
-					inWhitespace = false;
-					break;
-				}
-			}
-			if (!inWhitespace) break;
-			commonWhitespaceCount++;
-		}
-		for (let i = 0; i < lines.length; i++)
-		{
-			lines[i] = lines[i].substr(commonWhitespaceCount);
-		}
-		lineOffset -= commonWhitespaceCount;
-
-		// Add lines to message (including pointer lines arround error line)
-		let result = "";
-		for (let i = 0; i < lines.length; i++)
-		{
-			let isErrLine = (i == lineIndex);
-			if (isErrLine) result += "\n" + " ".repeat(lineOffset) + "v";
-			result += "\n" /*+ (isErrLine ? " => " : "    ")*/ + lines[i];
-			if (isErrLine) result += "\n" + " ".repeat(lineOffset) + "^";
+			result.push({ shortcut: content[i], expansion: content[i+1] });
+			i += 2;
 		}
 		return result;
-	}
+	};
 
 	MyPlugin.prototype.setupShortcuts = function()
 	{
-		this.shortcuts = this.settings.shortcuts.slice();
+		this.shortcuts = this.parseShortcutList(this.settings.shortcuts);
 		for (let key in this.shortcutDfc.files)
 		{
 			if (this.shortcutDfc.files[key].content == null)
@@ -331,41 +268,19 @@ var MyPlugin = (function(_super)
 				new obsidian.Notice("Missing shortcut file\n" + key, 8 * 1000);
 				continue;
 			}
-			let code = this.shortcutDfc.files[key].content;
-			try
+			let content = this.shortcutDfc.files[key].content;
+			let newShortcuts = this.parseShortcutList(content)
+			this.shortcuts = this.shortcuts.concat(newShortcuts);
+			for (let i = 0; i < newShortcuts.length; i++)
 			{
-				let newShortcuts = JSON.parse(code);
-				this.shortcuts = this.shortcuts.concat(newShortcuts);
-				for (let i = 0; i < newShortcuts.length; i++)
+				if (newShortcuts[i].shortcut == "^tejs setup$")
 				{
-					if (Array.isArray(newShortcuts[i].expansion))
-					{
-						newShortcuts[i].expansion = newShortcuts[i].expansion.join("\n");
-					}
-					if (newShortcuts[i].shortcut == "^tejs setup$")
-					{
-						try
-						{
-							eval(newShortcuts[i].expansion);
-						}
-						catch (e) {}
-					}
+					this._expansion = newShortcuts[i].expansion;
+					window.addEventListener('error', this._handleExpansionError);
+					Function(newShortcuts[i].expansion)();
+					window.removeEventListener('error', this._handleExpansionError);
+					this._expansion = null;
 				}
-			}
-			catch (e)
-			{
-				// Build error message
-				let message =
-					"Error in shortcut file \"" + key + "\"\n" + e.message;
-				let regexResult = e.message.match("at position ([0-9]+)");
-				if (regexResult)
-				{
-					// -1 fixes error message offset
-					let errCharacter = Number(regexResult[1]) - 1
-					message += this.createErrorMessage(code, errCharacter);
-				}
-				console.error(message);
-				new obsidian.Notice( "Malformed shortcut file\n" + key, 8 * 1000);
 			}
 		}
 	};
@@ -383,6 +298,7 @@ var MyPlugin = (function(_super)
 
 		this._handleExpansionTrigger_cm5 = this.handleExpansionTrigger_cm5.bind(this);
 		this.registerCodeMirror(this.refreshCodeMirrorState.bind(this));
+		this._handleExpansionError = this.handleExpansionError.bind(this);
 
 		this.shortcuts = [];
 
@@ -592,9 +508,10 @@ var MySettings = (function(_super)
 				expansionUi.value = shortcut.expansion;
 			}
 		};
-		for (let i = 0; i < this.tmpSettings.shortcuts.length; i++)
+		let shortcuts = this.plugin.parseShortcutList(this.tmpSettings.shortcuts);
+		for (let i = 0; i < shortcuts.length; i++)
 		{
-			addShortcutUi(this.tmpSettings.shortcuts[i]);
+			addShortcutUi(shortcuts[i]);
 		}
 
 		c.createEl("h2", { text: "Shortcut format" });
@@ -703,16 +620,15 @@ var MySettings = (function(_super)
 		}
 
 		// Shortcut settings
-		this.tmpSettings.shortcuts = [];
+		this.tmpSettings.shortcuts = "";
 		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
 		{
 			let shortcutUi = this.shortcutUis.childNodes[i];
 			if (shortcutUi.childNodes[2].value)
 			{
-				this.tmpSettings.shortcuts.push({
-					shortcut: shortcutUi.childNodes[0].value,
-					expansion: shortcutUi.childNodes[2].value
-				});
+				this.tmpSettings.shortcuts +=
+					"~~\n    " + shortcutUi.childNodes[0].value +
+					"    \n~~\n    " + shortcutUi.childNodes[2].value + "\n\n";
 			}
 		}
 

@@ -71,7 +71,9 @@ TBA
 / Decent error messaging for parsing shortcut files
 / add details substring to Detail check (and italicized substrings)
 / "regex" to "shortcut"
-- check everything works ok with multiple panes
+/ change shortcut from json to custom format "~~" separates
+- new format needs error for incorrect format (count "~~", best we can do.  Console output shows all regex's)
+- get obsidian setup for how ben wants to use it
 - Test functionality: create scripts for all of mythic and mythic variations II
 	- behaviour check
 	- une file
