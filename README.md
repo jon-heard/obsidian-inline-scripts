@@ -72,9 +72,8 @@ TBA
 / add details substring to Detail check (and italicized substrings)
 / "regex" to "shortcut"
 / change shortcut from json to custom format "~~" separates
-- new format needs error for incorrect format (count "~~", best we can do.  Console output shows all regex's)
 - get obsidian setup for how ben wants to use it
-- Test functionality: create scripts for all of mythic and mythic variations II
+- Test functionality: create scripts
 	- behaviour check
 	- une file
 - Test that all shortcut files work on mobile too

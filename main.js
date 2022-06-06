@@ -227,7 +227,7 @@ var MyPlugin = (function(_super)
 			"Error in Shortcut expansion: " + e.message +
 			"\nline: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
 			"─".repeat(20) + "\n" + this._expansion);
-		new obsidian.Notice( "Error in shortcut expansion", 8 * 1000);
+		new obsidian.Notice("Error in shortcut expansion", 8 * 1000);
 		this._expansion = null;
 	};
 
@@ -245,7 +245,7 @@ var MyPlugin = (function(_super)
 		}
 	};
 
-	MyPlugin.prototype.parseShortcutList = function(content)
+	MyPlugin.prototype.parseShortcutList = function(filename, content)
 	{
 		content = content.split("~~").map((v) => v.trim());
 		let result = [];
@@ -255,12 +255,27 @@ var MyPlugin = (function(_super)
 			result.push({ shortcut: content[i], expansion: content[i+1] });
 			i += 2;
 		}
+
+		// Check for obvious error
+		if (!(content.length % 2))
+		{
+			let shortcutList = "";
+			for (let i = 0; i < result.length; i++)
+			{
+				shortcutList += "\n\t" + result[i].shortcut;
+			}
+			new obsidian.Notice("Bad shortcut file format:\n" + filename, 8 * 1000);
+			console.error(
+				"\"" + filename + "\" has a bad shortcut file format.\n" +
+				"List of recognized shortcuts in this file:" + shortcutList);
+		}
+
 		return result;
 	};
 
 	MyPlugin.prototype.setupShortcuts = function()
 	{
-		this.shortcuts = this.parseShortcutList(this.settings.shortcuts);
+		this.shortcuts = this.parseShortcutList("Settings", this.settings.shortcuts);
 		for (let key in this.shortcutDfc.files)
 		{
 			if (this.shortcutDfc.files[key].content == null)
@@ -269,7 +284,7 @@ var MyPlugin = (function(_super)
 				continue;
 			}
 			let content = this.shortcutDfc.files[key].content;
-			let newShortcuts = this.parseShortcutList(content)
+			let newShortcuts = this.parseShortcutList(key, content)
 			this.shortcuts = this.shortcuts.concat(newShortcuts);
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
@@ -508,7 +523,7 @@ var MySettings = (function(_super)
 				expansionUi.value = shortcut.expansion;
 			}
 		};
-		let shortcuts = this.plugin.parseShortcutList(this.tmpSettings.shortcuts);
+		let shortcuts = this.plugin.parseShortcutList("Settings", this.tmpSettings.shortcuts);
 		for (let i = 0; i < shortcuts.length; i++)
 		{
 			addShortcutUi(shortcuts[i]);
