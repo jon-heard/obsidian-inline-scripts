@@ -11,8 +11,8 @@ var DEFAULT_SETTINGS =
 	shortcutFiles: [],
 	shortcuts:
 		"~~\n        ~~\n    function roll(max) { return Math.trunc(Math.random() * max + 1); }\n\n" +
-		"~~\n    ^[p|P][d|D]([0-9]+)$    \n~~\n    return \"🎲 \" + roll($1) + \" /\" + $1;\n\n" +
-		"~~\n    ^[d|D]([0-9]+)$    \n~~\n    return \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /\" + $1 + \"</span>\";\n"
+		"~~\n    ^[d|D]([0-9]+)$    \n~~\n    return \"🎲 \" + roll($1) + \" /\" + $1;\n\n" +
+		"~~\n    ^[f|F][d|D]([0-9]+)$    \n~~\n    return \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /\" + $1 + \"</span>\";\n"
 	, devMode: false
 };
 var DEFAULT_SETTINGS_MOBILE =
