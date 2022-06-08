@@ -52,7 +52,7 @@ var MyPlugin = (function(_super)
 
 	MyPlugin.prototype.handleExpansionTrigger_cm5 = function(cm, keydown)
 	{
-		if (this.settings.hotkey == " " && event.key == this.shortcutEndCharacter)
+		if (this.settings.hotkey == " " && event.key == this.suffixEndCharacter)
 		{
 			// Delay logic by a frame to allow key event to finish processing first
 			setTimeout(() =>
@@ -116,7 +116,7 @@ var MyPlugin = (function(_super)
 		let expansion = "";
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
-			let matchInfo = text.match(this.shortcuts[i].shortcut);
+			let matchInfo = text.match(this.shortcuts[i].test);
 			if (!matchInfo) { continue; }
 
 			for (let k = 1; k < matchInfo.length; k++)
@@ -126,7 +126,7 @@ var MyPlugin = (function(_super)
 					matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
 			}
 			expansion += this.shortcuts[i].expansion + "\n";
-			if (this.shortcuts[i].shortcut)
+			if (this.shortcuts[i].test)
 			{
 				break;
 			}
@@ -136,6 +136,11 @@ var MyPlugin = (function(_super)
 		expansion = Function(expansion)();
 		window.removeEventListener('error', this._handleExpansionError);
 		this._expansion = null;
+		if (expansion === undefined)
+		{
+			console.warn("Shortcut text unidentified: \"" + text + "\"");
+			new obsidian.Notice("Shortcut text unidentified:\n" + text);
+		}
 		return expansion;
 	};
 
@@ -149,7 +154,7 @@ var MyPlugin = (function(_super)
 
 		tr.changes.iterChanges((fromA, toA, fromB, toB, inserted) =>
 		{
-			if (inserted.text[0] != this.shortcutEndCharacter) { return; }
+			if (inserted.text[0] != this.suffixEndCharacter) { return; }
 
 			let lineIndex = tr.newDoc.lineAt(fromA).number - 1;
 			let lineText = tr.newDoc.text[lineIndex];
@@ -252,7 +257,7 @@ var MyPlugin = (function(_super)
 		let i = 1;
 		while (i < content.length)
 		{
-			result.push({ shortcut: content[i], expansion: content[i+1] });
+			result.push({ test: content[i], expansion: content[i+1] });
 			i += 2;
 		}
 
@@ -288,7 +293,7 @@ var MyPlugin = (function(_super)
 			this.shortcuts = this.shortcuts.concat(newShortcuts);
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
-				if (newShortcuts[i].shortcut == "^tejs setup$")
+				if (newShortcuts[i].test == "^tejs setup$")
 				{
 					this._expansion = newShortcuts[i].expansion;
 					window.addEventListener('error', this._handleExpansionError);
@@ -328,7 +333,7 @@ var MyPlugin = (function(_super)
 	MyPlugin.prototype.onload = async function()
 	{
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-		this.shortcutEndCharacter =
+		this.suffixEndCharacter =
 			this.settings.suffix.charAt(this.settings.suffix.length - 1);
 		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
 		dfc.setup(this);
@@ -510,16 +515,16 @@ var MySettings = (function(_super)
 		{
 			let n = this.shortcutUis.createEl("div", { cls: "shortcut" });
 			n.plugin = this.plugin;
-			let shortcutUi = n.createEl("input", { cls: "shortcut-regex" });
-				shortcutUi.setAttr("type", "text");
-				shortcutUi.setAttr("placeholder", "Shortcut (regex)");
+			let testUi = n.createEl("input", { cls: "shortcut-test" });
+				testUi.setAttr("type", "text");
+				testUi.setAttr("placeholder", "Test (regex)");
 			let deleteUi = n.createEl("button", { cls: "delete-button" });
 				deleteUi.onclick = shortcutDeleteButtonClicked.bind(n);
 			let expansionUi = n.createEl("textarea", { cls: "shortcut-expansion" });
 				expansionUi.setAttr("placeholder", "Expansion (javascript)");
 			if (shortcut)
 			{
-				shortcutUi.value = shortcut.shortcut;
+				testUi.value = shortcut.test;
 				expansionUi.value = shortcut.expansion;
 			}
 		};
@@ -657,7 +662,7 @@ var MySettings = (function(_super)
 		{
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
-				if (newShortcuts[i].shortcut != oldShortcuts[i].shortcut ||
+				if (newShortcuts[i].test != oldShortcuts[i].test ||
 				    newShortcuts[i].expansion != oldShortcuts[i].expansion)
 				{
 					force = true;
@@ -680,7 +685,7 @@ var MySettings = (function(_super)
 		this.plugin.settings = this.tmpSettings;
 		dfc.updateFileList(	// Must wait to do this AFTER plugin.settings is updated
 			this.plugin.shortcutDfc, this.tmpSettings.shortcutFiles, force);
-		this.plugin.shortcutEndCharacter =
+		this.plugin.suffixEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
 		this.plugin.saveSettings();
 	};
