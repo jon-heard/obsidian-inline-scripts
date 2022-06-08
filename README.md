@@ -169,7 +169,7 @@ One more feature worth mentioning: if you write a shortcut with the Test string 
 - / Bug fix: settings-based shortcuts aren't registered until the plugin is power-cycled
 - / add console error when shortcut is not expanded
 - / change name of shortcut-regex to test-regex.  A shortcut having a shortcut is confusing.
-- there is something odd when undoing an expansion.  It erases the last character... or something
+- / there is something odd when undoing an expansion.  It erases the last character... or something
 - Fill in rest of readme (instructions)
 - confirm plugin works on iphone
 - polish code

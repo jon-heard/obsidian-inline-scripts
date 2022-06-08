@@ -157,8 +157,29 @@ var MyPlugin = (function(_super)
 			if (inserted.text[0] != this.suffixEndCharacter) { return; }
 
 			let lineIndex = tr.newDoc.lineAt(fromA).number - 1;
-			let lineText = tr.newDoc.text[lineIndex];
-			let prefixIndex = lineText.lastIndexOf(this.settings.prefix, fromA);
+			let lineText = null;
+			if (tr.newDoc.hasOwnProperty("text"))
+			{
+				lineText = tr.newDoc.text[lineIndex];
+			}
+			else if (tr.newDoc.hasOwnProperty("children"))
+			{
+				let i = 0;
+				while (lineIndex >= tr.newDoc.children[i].text.length)
+				{
+					lineIndex -= tr.newDoc.children[i].text.length;
+					i++;
+				}
+				lineText = tr.newDoc.children[i].text[lineIndex];
+			}
+			if (lineText === null)
+			{
+				console.error(
+					"Text Expander JS: CM6: newDoc has no text or children.");
+			}
+			let lineStart = tr.newDoc.lineAt(fromA).from;
+			let prefixIndex =
+				lineText.lastIndexOf(this.settings.prefix, fromA - lineStart + 1);
 			let suffixIndex = lineText.indexOf(
 				this.settings.suffix,
 				prefixIndex + this.settings.prefix.length);
@@ -174,8 +195,8 @@ var MyPlugin = (function(_super)
 			if (!expansion) { return; }
 
 			const replacementLength = original.length - 1;
-			const insertionPoint = fromA - replacementLength;
-			const reversionPoint = fromB - replacementLength;
+			const insertionPoint = lineStart + prefixIndex;
+			const reversionPoint = lineStart + prefixIndex;
 			changes.push({
 				from: insertionPoint,
 				to: insertionPoint + replacementLength,
@@ -296,9 +317,11 @@ var MyPlugin = (function(_super)
 				if (newShortcuts[i].test == "^tejs setup$")
 				{
 					this._expansion = newShortcuts[i].expansion;
-					window.addEventListener('error', this._handleExpansionError);
+					window.addEventListener(
+						'error', this._handleExpansionError);
 					Function(newShortcuts[i].expansion)();
-					window.removeEventListener('error', this._handleExpansionError);
+					window.removeEventListener(
+						'error', this._handleExpansionError);
 					this._expansion = null;
 				}
 			}
