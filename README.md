@@ -161,12 +161,16 @@ One more feature worth mentioning: if you write a shortcut with the Test string 
 ## TODO
 
 ### 00.11.000
-/ Decent error messaging for parsing shortcut files
-/ add details substring to Detail check (and italicized substrings)
-/ "regex" to "shortcut"
-/ change shortcut from json to custom format "~~" separates
-/ create scripts
-/ Fill in rest of readme (instructions)
+- / Decent error messaging for parsing shortcut files
+- / add details substring to Detail check (and italicized substrings)
+- / "regex" to "shortcut"
+- / change shortcut from json to custom format "~~" separates
+- / create scripts
+- / Bug fix: settings-based shortcuts aren't registered until the plugin is power-cycled
+- there is something odd when undoing an expansion.  It erases the last character... or something
+- add console error when shortcut is not expanded
+- change name of shortcut-regex to test-regex.  A shortcut having a shortcut is confusing.
+- Fill in rest of readme (instructions)
 - confirm plugin works on iphone
 - polish code
 

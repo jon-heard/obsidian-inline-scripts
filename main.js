@@ -642,31 +642,29 @@ var MySettings = (function(_super)
 			if (shortcutUi.childNodes[2].value)
 			{
 				this.tmpSettings.shortcuts +=
-					"~~\n    " + shortcutUi.childNodes[0].value +
-					"    \n~~\n    " + shortcutUi.childNodes[2].value + "\n\n";
+					"~~\n" + shortcutUi.childNodes[0].value + "\n~~\n" +
+					shortcutUi.childNodes[2].value + "\n";
 			}
 		}
 
 		// Shortcuts refresh
-		let force =
-			(this.plugin.settings.shortcuts.length !=
-				this.tmpSettings.shortcuts.length);
+		let oldShortcuts =
+			this.plugin.parseShortcutList("", this.plugin.settings.shortcuts);
+		let newShortcuts =
+			this.plugin.parseShortcutList("", this.tmpSettings.shortcuts);
+		let force = (newShortcuts.length != oldShortcuts.length);
 		if (!force)
 		{
-			for (let i = 0; i < this.tmpSettings.shortcuts.length; i++)
+			for (let i = 0; i < newShortcuts.length; i++)
 			{
-				if (this.tmpSettings.shortcuts[i].shortcut !=
-				    this.plugin.settings.shortcuts[i].shortcut ||
-				    this.tmpSettings.shortcuts[i].expansion !=
-				    this.plugin.settings.shortcuts[i].expansion)
+				if (newShortcuts[i].shortcut != oldShortcuts[i].shortcut ||
+				    newShortcuts[i].expansion != oldShortcuts[i].expansion)
 				{
 					force = true;
 					break;
 				}
 			}
 		}
-		dfc.updateFileList(
-			this.plugin.shortcutDfc, this.tmpSettings.shortcutFiles, force);
 
 		// Format
 		if (!this.checkFormatErrs())
@@ -680,6 +678,8 @@ var MySettings = (function(_super)
 
 		// Wrapup
 		this.plugin.settings = this.tmpSettings;
+		dfc.updateFileList(	// Must wait to do this AFTER plugin.settings is updated
+			this.plugin.shortcutDfc, this.tmpSettings.shortcutFiles, force);
 		this.plugin.shortcutEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
 		this.plugin.saveSettings();
