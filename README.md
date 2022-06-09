@@ -134,6 +134,14 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 
 ## Release notes
 
+### 00.11.000
+- Decent error messaging for parsing shortcut files and when shortcut isn't recognized
+- change shortcut from json to custom format: "~~"
+- create scripts to playtest
+- Fill in rest of readme instructions
+- confirm plugin works on iphone
+- polish code
+
 ### 00.10.000
 - Remove "expansion trigger" option for mobile
 - **Settings**: Developer mode: monitor shortcut files for changes
@@ -169,20 +177,6 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 - Basic implementation.  All settings hardwired
 
 ## TODO
-
-### 00.11.000
-- / Decent error messaging for parsing shortcut files
-- / add details substring to Detail check (and italicized substrings)
-- / "regex" to "shortcut"
-- / change shortcut from json to custom format "~~" separates
-- / create scripts
-- / Bug fix: settings-based shortcuts aren't registered until the plugin is power-cycled
-- / add console error when shortcut is not expanded
-- / change name of shortcut-regex to test-regex.  A shortcut having a shortcut is confusing.
-- / there is something odd when undoing an expansion.  It erases the last character... or something
-- Fill in rest of readme (instructions)
-- confirm plugin works on iphone
-- polish code
 
 ### 00.12.000b
 - Submit to Obsidian community (beta)

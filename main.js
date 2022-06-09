@@ -10,10 +10,11 @@ var DEFAULT_SETTINGS =
 	hotkey: " ",
 	shortcutFiles: [],
 	shortcuts:
-		"~~\n        ~~\n    function roll(max) { return Math.trunc(Math.random() * max + 1); }\n\n" +
-		"~~\n    ^[d|D]([0-9]+)$    \n~~\n    return \"🎲 \" + roll($1) + \" /\" + $1;\n\n" +
-		"~~\n    ^[f|F][d|D]([0-9]+)$    \n~~\n    return \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /\" + $1 + \"</span>\";\n"
-	, devMode: false
+		"~~\n~~\nfunction roll(max) { return Math.trunc(Math.random() * max + 1); }\n\n" +
+		"~~\n^[d|D]([0-9]+)$\n~~\nreturn \"🎲 \" + roll($1) + \" /\" + $1;\n\n" +
+		"~~\n^[f|F][d|D]([0-9]+)$\n~~\nreturn \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /\" + $1 + \"</span>\";\n"
+	,
+	devMode: false
 };
 var DEFAULT_SETTINGS_MOBILE =
 {
@@ -24,6 +25,7 @@ var IS_MOBILE = false;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Boilerplate code (coming from typescript)
 var extendStatics = function(d, b)
 {
 	extendStatics =
@@ -50,8 +52,10 @@ var MyPlugin = (function(_super)
 {
 	__extends(MyPlugin, _super);
 
+	// React to key-down by checking for a shortcut at the caret
 	MyPlugin.prototype.handleExpansionTrigger_cm5 = function(cm, keydown)
 	{
+		// React to key-down of shortcut suffix's final key
 		if (this.settings.hotkey == " " && event.key == this.suffixEndCharacter)
 		{
 			// Delay logic by a frame to allow key event to finish processing first
@@ -64,6 +68,7 @@ var MyPlugin = (function(_super)
 				}
 			}, 0);
 		}
+		// React to user-determined hotkey to expand a shortcut
 		else if (this.settings.hotkey != " " && event.key == this.settings.hotkey)
 		{
 			let shortcutPosition = this.parseShortcutPosition(cm);
@@ -75,6 +80,7 @@ var MyPlugin = (function(_super)
 		}
 	};
 
+	// If a shortcut is at the caret, return its start and end positions, else return null
 	MyPlugin.prototype.parseShortcutPosition = function(cm)
 	{
 		let cursor = cm.getCursor();
@@ -92,6 +98,7 @@ var MyPlugin = (function(_super)
 		return result;
 	};
 
+	// Expand a shortcut based on its start/end positions
 	MyPlugin.prototype.expandShortcut = function(cm, shortcutPosition)
 	{
 		// Find and use the right shortcuts
@@ -111,6 +118,7 @@ var MyPlugin = (function(_super)
 		}
 	};
 
+	// Take a shortcut string and return the proper expansion string
 	MyPlugin.prototype.getExpansion = function(text)
 	{
 		let expansion = "";
@@ -144,6 +152,7 @@ var MyPlugin = (function(_super)
 		return expansion;
 	};
 
+	// Handle shortcut expansion for codemirror 6 (newer editor and mobile platforms)
 	MyPlugin.prototype.handleExpansionTrigger_cm6 = function(tr)
 	{
 		if (!tr.isUserEvent("input.type") || !tr.docChanged) { return tr; }
@@ -232,6 +241,8 @@ var MyPlugin = (function(_super)
 		}
 	};
 
+	// Called when something goes wrong during shortcut expansion.  Generates a useful
+	// error in the console and notification popup.
 	MyPlugin.prototype.handleExpansionError = function(e)
 	{
 		window.removeEventListener('error', this._handleExpansionError);
@@ -257,6 +268,7 @@ var MyPlugin = (function(_super)
 		this._expansion = null;
 	};
 
+	// Toggle reacting to keydown events for codemirror 5 (older editors) based on plugin state
 	MyPlugin.prototype.refreshCodeMirrorState = function(cm)
 	{
 		if (this._loaded && !cm.tejs_handled)
@@ -271,6 +283,7 @@ var MyPlugin = (function(_super)
 		}
 	};
 
+	// Parses a shortcut list (found in shortcut files) and produces the shortcuts
 	MyPlugin.prototype.parseShortcutList = function(filename, content)
 	{
 		content = content.split("~~").map((v) => v.trim());
@@ -299,6 +312,7 @@ var MyPlugin = (function(_super)
 		return result;
 	};
 
+	// Creates all the shortcuts based on shortcut lists from shortcut files and settings.
 	MyPlugin.prototype.setupShortcuts = function()
 	{
 		this.shortcuts = this.parseShortcutList("Settings", this.settings.shortcuts);
@@ -328,6 +342,7 @@ var MyPlugin = (function(_super)
 		}
 	};
 
+	// Constructor - initializes most of the member variables
 	function MyPlugin()
 	{
 		let result = _super !== null && _super.apply(this, arguments) || this;
