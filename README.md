@@ -38,7 +38,7 @@ Each shortcut is defined by a pair of strings.
 - __Test string__ - This is a regex.  That means that it is a code used to identify a pattern in another string.  The Test string is regex used to determine whether a shortcut the user has typed matches _this_ shortcut.
 - __Expansion string__ - This is a javascript script.  It is used to define what this shortcut expands into.  If the user types a shortcut, and it is accepted by the Test string, the Expansion string script is called and the result is added to the note, replacing the user-typed shortcut.
 
-### Example
+### Examples
 | Test | Expansion | Overview |
 | ---- | --------- | -------- |
 | greet | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | At its most basic, a Test string can just be the shortcut itself.  This shortcut will be triggered when the user types `;;greet;` (or `!!greet!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this case the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;greet;` or `!!greet!`) will be replaced by `Hello! How are you?`. |
@@ -46,7 +46,7 @@ Each shortcut is defined by a pair of strings.
 | ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; |  This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These collect whatever is recognized within them and put them into a variable.  The first parenthesis make variable `$1`, a second parenthesis would make the variable `$2`, and so on.  These variables are available to the Expansion string.  In this case the Expansion string _does_ reference variable `$1`.  The result of this shortcut is: if the user types `;;age 3;` (or `!!age 3!` on mobile) the shortcut expands to `I am 3 years old.`  If the user types `;;age 21;` (or `!!age 21!`), the expansion produces `I am 21 years old.` |
 
 ### Empty Test strings
-If you add a shortcut with an empty Test string, then that shortcut's Expansion string will be prepended to the Expansion string of any shortcut after it.  This feature lets you write helper shortcuts that other shortcuts can use.
+If you add a shortcut with an empty Test string, then that shortcut's Expansion string will be added to the top of the Expansion string for all shortcuts after it.  This feature lets you write helper shortcuts that other shortcuts can use.
 
 Here is an example:
 | Test  | Expansion |
@@ -56,7 +56,7 @@ Here is an example:
 | d10   | return "Rolled " + roll(10) + " on a D10.";                    |
 | d20   | return "Rolled " + roll(20) + " on a D20.";                    |
 
-In this list of shortcuts, the second one has an empty test string.  That means that its expansion string (which defines the `roll` function) is prepended to all shortcuts after it.  The result is that the final two shortcuts can use the `roll` function as if they had defined it themselves.  The first shortcut, however, cannot.
+In this list of shortcuts, the second one has an empty test string.  That means that its Expansion string (which defines the `roll` function) is added to the top of all shortcuts after it.  The result is that the final two shortcuts can use the `roll` function as if they had defined it themselves.  The first shortcut, however, cannot.
 
 ### Adding a shortcut, step by step
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see HOW-TO: Install and enable the plugin.)
@@ -121,7 +121,7 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 - __Prefix & Suffix__ - These settings let you define what to type on either side of a shortcut to signify it as a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
-- __Expansion trigger__ _(not available in mobile)_ - This lets you define when a shortcut is expanded.  By default, a shortcut expands as soon as it's typed.  The other options let you trigger expansion with a key-press.
+- __Expansion trigger__ _(not available in mobile)_ - This lets you define when a shortcut is expanded.  By default, a shortcut expands as soon as it's typed.  The other options let you trigger Expansion with a key-press.
 - __Developer mode__ - When turned on, the shortcut files will be reloaded whenever you change from one note to another.  This adds a bit of delay, but lets you develop shortcut files more rapidly, as they are auto-refreshed when moving to a testing note to try out changes.
 
 ## Known Issues
