@@ -134,7 +134,7 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 
 ## Release notes
 
-### 00.11.000
+### 0.11.0
 - Decent error messaging for parsing shortcut files and when shortcut isn't recognized
 - change shortcut from json to custom format: "~~"
 - create scripts to playtest
@@ -142,7 +142,7 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 - confirm plugin works on iphone
 - polish code
 
-### 00.10.000
+### 0.10.0
 - Remove "expansion trigger" option for mobile
 - **Settings**: Developer mode: monitor shortcut files for changes
 - polish settings ui on mobile
@@ -150,36 +150,36 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 - bug fix: expansion incorrect with non-1-sized suffix
 - fix bug: changing prefix/suffix requires plugin reload
 
-### 00.09.000
+### 0.9.0
 - **Settings**: Shortcuts (definable directly in settings)
 - **Settings**: each shortcut file should have a delete button (no global "Remove file" button)
 - Get working on mobile
 
-### 00.08.000
+### 0.8.0
 - **Settings**: Custom CSS filename
 - Replace "alert" with alternative that doesn't mess up caret
 - CSS file added for settings UI (replaces inline styles)
 
-### 00.07.000
+### 0.7.0
 - Adjust version format (final digit has 3 spaces, not 4)
 - Fix ";;"/";" bookends to work when caret is on prefix
 - **Settings**: Shortcut prefix & postfix
 - **Settings**: Shortcut definitions filename
 - **Settings**: Shortcut expansion hotkey
 
-### 00.06.000
+### 0.6.0
 - Allow building a result from multiple shortcuts (to allow common code)
 - Allow replacer to be either a string, or an array of strings to be concatenated together
 - Console log when loading/unloading plugin
 - Have version follow format convention (##.##.####)
 
-### 00.05.000
+### 0.5.0
 - Basic implementation.  All settings hardwired
 
 ## TODO
 
-### 00.12.000b
+### 0.12.0
 - Submit to Obsidian community (beta)
 
-### 01.00.000
-- Respond to Obsidian community feedback for a month
+### 1.0.0
+- From beta to release (after responding to Obsidian community for, hopefully, a month)
