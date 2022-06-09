@@ -3,7 +3,7 @@
 	"name": "Text Expander JS",
 	"version": "0.11.0",
 	"minAppVersion": "0.12.0",
-	"description": "Expand text shortcuts into strings built using javascript.",
+	"description": "Write text shortcuts that expand into javascript generated strings.",
 	"author": "Jonathan Heard",
 	"authorUrl": "https://github.com/jon-heard",
 	"isDesktopOnly": false
