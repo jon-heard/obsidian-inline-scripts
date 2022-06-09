@@ -1,5 +1,5 @@
 # Obsidian Plugin - Text Expander JS
-This plugin allows the user to type custom "shortcut" texts, which are then replaced (or "expanded") into javascript generated text.
+This Obsidian plugin allows the user to type text shortcuts that are replaced (or "expand") into javascript generated text.
 
 ## Examples:
 - Typing `;;date;` can cause the text to expand into `6/7/2021`
