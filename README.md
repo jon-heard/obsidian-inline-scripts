@@ -8,7 +8,9 @@ This Obsidian plugin allows the user to type text shortcuts that are replaced (o
 ## Overview
 Shortcuts are defined in shortcut files, to be added to the vault as notes.  When one or more shortcut-file notes are in the vault and connected to this plugin, their shortcuts will expand when they are typed into any note in the vault.  Users can download prewritten shortcut files into their vault, or write their own.  A sample of shortcut files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_mythicV2.md) file contains shortcuts to perform actions defined by the [Mythic GME RPG system](https://www.drivethrurpg.com/product/229391/Mythic-Variations-2?manufacturers_id=480).
 
-Individual shortcuts can also be defined in the settings.  This is useful for one-off shortcuts as it requires less work and file clutter.  It is also less flexible with shortcut organization and transfer.  This plugin, __Text Expander JS__, comes with a few shortcuts predefined in the settings.  Try typing `;;d100;` (or `!!d100!` on mobile) in a note to see a shortcut in action.
+Individual shortcuts can also be defined in the settings.  This is useful for one-off shortcuts as it requires less work and file clutter.  It is also less flexible with shortcut organization and transfer.  __Text Expander JS__ comes with a few shortcuts predefined in the settings.  Try typing `;;d100;` (or `!!d100!` on mobile) in a note to see a shortcut in action.
+
+NOTE: Each shortcut file should have a "help" shortcut that expands to a list of all shortcuts in the file.  The shortcut `;;help;` expands to a list of these "help" shortcuts.
 
 ## HOW-TO: Install and enable the plugin
 TBA
@@ -104,6 +106,8 @@ Here is another, more meaty, example:
 
 This shortcut file starts with some comments, then ocontains two shortcuts.  Notice that the first `~~` is placed after the comments.  Every shortcut file has a place at the top for comments.  This includes the minimal example before this one, though in that case the comments are empty.  Also notice that there are empty lines between sections.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut files.
 
+It is _highly_ recommended that every shortcut file contain a "help *" shortcut.  For example, the states shortcut file includes a shortcut "help state".  A help shortcut test _must_ use this pattern: "^help name$", where "name" is specific to the shortcut file.
+
 The `## HOW-TO: Define a new text-entry shortcut` introduced the javascript console, which is a useful tool while developing shortcuts and shortcut files.  Another useful tool is "Developer mode", which can be turned on in the __Text Expander JS__ plugin options.  When "Developer mode" is on, all shortcut files will be reloaded each time you move from one note to another.  This lets you edit a shortcut file, then move to a testing note to immediately try out your changes without manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut file.
 
 The `## HOW-TO: Define a new text-entry shortcut` also discusses shortcuts with empty Test strings.  This feature is quite useful for larger shortcut files.
@@ -179,7 +183,11 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 ## TODO
 
 ### 0.12.0
-- Submit to Obsidian community (beta)
+- Add empty shortcut clears out shortcut addition.  It is auto-added to the end of each shortcut file
+	- don't forget to update documentation about this
+- / add an automatic "help" shortcut that lists all "* help" lines.
+- add a mention of submitting shortcut files to readme
+- React to community feedback until plugin is accepted into the community.
 
 ### 1.0.0
 - From beta to release (after responding to Obsidian community for, hopefully, a month)

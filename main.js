@@ -21,7 +21,7 @@ var DEFAULT_SETTINGS_MOBILE =
 	prefix: "!!",
 	suffix: "!"
 };
-var IS_MOBILE = false;
+var IS_MOBILE = false;	// NOTE: this is set automatically during code execution
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -315,7 +315,9 @@ var MyPlugin = (function(_super)
 	// Creates all the shortcuts based on shortcut lists from shortcut files and settings.
 	MyPlugin.prototype.setupShortcuts = function()
 	{
+		// Add shortcuts defined directly in the settings
 		this.shortcuts = this.parseShortcutList("Settings", this.settings.shortcuts);
+
 		for (let key in this.shortcutDfc.files)
 		{
 			if (this.shortcutDfc.files[key].content == null)
@@ -340,6 +342,27 @@ var MyPlugin = (function(_super)
 				}
 			}
 		}
+
+		// Search all shortcuts for the "help" shortcuts
+		let helpShortcuts = [];
+		let helpRegex = new RegExp(/^\^(help [a-z]+)\$$/);
+		for (let i = 0; i < this.shortcuts.length; i++)
+		{
+			let r = this.shortcuts[i].test.match(helpRegex);
+			if (r)
+			{
+				helpShortcuts.push(r[1]);
+			}
+		}
+
+		// Manually add the generic "help" shortcut
+		let helpExpansion =
+			"return \"These shortcuts provide detailed help:\\n" +
+			(helpShortcuts.length ?
+				( "- " + helpShortcuts.join("\\n- ") ) :
+				"NONE AVAILABLE") +
+			"\\n\\n\";"
+		this.shortcuts.unshift({ test: "^help$", expansion: helpExpansion });
 	};
 
 	// Constructor - initializes most of the member variables
