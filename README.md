@@ -114,6 +114,8 @@ The `## HOW-TO: Define a new text-entry shortcut` also discusses shortcuts with 
 
 One more feature worth mentioning: if a shortcut-file contains a shortcut with the Test string of `^tejs setup$`, then that shortcut's Expansion script will be run whenever the shortcut is loaded, including when switching notes while "Developer mode" is turned on.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
 
+### NOTE: If you make a shortcut-file you think others would like, it'd be great if you could submit it to this repository as a discussion.  If it is decently polished then I'll add it to the list of shortcut-files [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).
+
 ## REFERENCE: Settings
 - __Shortcut files__ - A list of addresses to notes with shortcut-file contents.
     - The "Add file reference" button adds a new textbox for a shortcut-file reference.
@@ -186,7 +188,7 @@ One more feature worth mentioning: if a shortcut-file contains a shortcut with t
 - Add empty shortcut clears out shortcut addition.  It is auto-added to the end of each shortcut-file
 	- don't forget to update documentation about this
 - / add an automatic "help" shortcut that lists all "* help" lines.
-- add a mention of submitting shortcut-files to readme
+- / add a mention of submitting shortcut-files to readme
 - React to community feedback until plugin is accepted into the community.
 
 ### 1.0.0
