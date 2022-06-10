@@ -49,19 +49,21 @@ Each shortcut is defined by a pair of strings.
 
 ### Helper scripts
 If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  Helper scripts provide common code that other shortcuts can use, specifically shortcuts that are listed after the helper script itself.
+
 If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper block".  It prevents any helper scripts above it from being available to any shortcuts after it.
+
 Here is an example:
 
-| Test  | Expansion                                                      |
-| ----  | -------------------------------------------------------------- |
-| greet | return "Hello!  How are you?";                                 |
-|       | function roll(x) { return Math.trunc(Math.random() * x) + 1; } |
-| d10   | return "Rolled " + roll(10) + " on a D10.";                    |
-| d20   | return "Rolled " + roll(20) + " on a D20.";                    |
-|       |                                                                |
-| bye   | return "Goodbye.  Thanks for your time!";                      |
+| Test id | Test  | Expansion                                                      |
+| ------- | ----  | -------------------------------------------------------------- |
+|    1    | greet | return "Hello!  How are you?";                                 |
+|    2    |       | function roll(x) { return Math.trunc(Math.random() * x) + 1; } |
+|    3    | d10   | return "Rolled " + roll(10) + " on a D10.";                    |
+|    4    | d20   | return "Rolled " + roll(20) + " on a D20.";                    |
+|    5    |       |                                                                |
+|    6    | bye   | return "Goodbye.  Thanks for your time!";                      |
 
-In this list of shortcuts, the second shortcut has an empty Test string.  That means that it is a "helper script". It's code (a function called "roll") is available to shortcuts after it.  The fifth shortcut in this list is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  This means that the third and fourth shortcuts have access to the second helper script, but the first and sixth shortcuts do not.
+In this list of shortcuts, the second shortcut has an empty Test string.  That means that it is a "helper script". It's code (a function called "roll") is available to shortcuts after it.  The fifth shortcut in this list is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  This means that the third and fourth shortcuts have access to the helper script in shortcut 2, but the first and sixth shortcuts do not.
 
 ### Adding a shortcut, step by step
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see HOW-TO: Install and enable the plugin.)
