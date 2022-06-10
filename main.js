@@ -211,7 +211,7 @@ var MyPlugin = (function(_super)
 				this.settings.prefix.length,
 				original.length - this.settings.suffix.length);
 			expansion = this.getExpansion(expansion);
-			if (!expansion) { return; }
+			if (!(typeof expansion === "string")) { return; }
 
 			const replacementLength = original.length - 1;
 			const insertionPoint = lineStart + prefixIndex;
