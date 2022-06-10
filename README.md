@@ -14,7 +14,7 @@ This Obsidian plugin allows the user to type text shortcuts that are replaced (o
 - [Release notes](#release-notes)
 - [TODO](#todo)
 
-## Examples:
+## Examples
 - Typing `;;date;` can cause the text to expand into `6/7/2021`
 - Typing `;;name male european;` can cause the text to expand into -> `Bill Harrington`
 
