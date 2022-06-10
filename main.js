@@ -10,6 +10,9 @@ var DEFAULT_SETTINGS =
 	hotkey: " ",
 	shortcutFiles: [],
 	shortcuts:
+		"~~\n^date$\n~~\nreturn new Date().toLocaleDateString();\n\n" +
+		"~~\n^time$\n~~\nreturn new Date().toLocaleTimeString();\n\n" +
+		"~~\n^datetime$\n~~\nreturn new Date().toLocaleString();\n\n" +
 		"~~\n~~\nfunction roll(max) { return Math.trunc(Math.random() * max + 1); }\n\n" +
 		"~~\n^[d|D]([0-9]+)$\n~~\nreturn \"🎲 \" + roll($1) + \" /\" + $1;\n\n" +
 		"~~\n^[f|F][d|D]([0-9]+)$\n~~\nreturn \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /\" + $1 + \"</span>\";\n"

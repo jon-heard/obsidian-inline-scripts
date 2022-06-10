@@ -212,6 +212,7 @@ One other feature worth mentioning: if a shortcut-file contains a shortcut with 
 - / Add empty shortcut clears out shortcut addition.  It is auto-added to the end of each shortcut file
 - / add an automatic "help" shortcut that lists all "* help" lines.
 - / add a mention of submitting shortcut files to readme
+- / add to default shortcuts: date, time, datetime
 - React to community feedback until plugin is accepted into the community.
 
 ### 1.0.0
