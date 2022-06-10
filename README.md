@@ -47,18 +47,21 @@ Each shortcut is defined by a pair of strings.
 | ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | This Test string is a bit more involved.  The symbols `^` and `$` are regex code to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in your shortcuts, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  When the user types `;;date;` (or `!!date!` on mobile) it will be replaced with the current date. |
 | ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; |  This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These collect whatever is recognized within them and put them into a variable.  The first parenthesis make variable `$1`, a second parenthesis would make the variable `$2`, and so on.  These variables are available to the Expansion string.  In this case the Expansion string _does_ reference variable `$1`.  The result of this shortcut is: if the user types `;;age 3;` (or `!!age 3!` on mobile) the shortcut expands to `I am 3 years old.`  If the user types `;;age 21;` (or `!!age 21!`), the expansion produces `I am 21 years old.` |
 
-### Empty Test strings
-If you add a shortcut with an empty Test string, then that shortcut's Expansion string will be added to the top of the Expansion string for all shortcuts after it.  This feature lets you write helper shortcuts that other shortcuts can use.
-
+### Helper scripts
+If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  Helper scripts provide common code that other shortcuts can use, specifically shortcuts that are listed after the helper script itself.
+If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper block".  It prevents any helper scripts above it from being available to any shortcuts after it.
 Here is an example:
-| Test  | Expansion |
-| ----  | --------- |
+
+| Test  | Expansion                                                      |
+| ----  | -------------------------------------------------------------- |
 | greet | return "Hello!  How are you?";                                 |
 |       | function roll(x) { return Math.trunc(Math.random() * x) + 1; } |
 | d10   | return "Rolled " + roll(10) + " on a D10.";                    |
 | d20   | return "Rolled " + roll(20) + " on a D20.";                    |
+|       |                                                                |
+| bye   | return "Goodbye.  Thanks for your time!";                      |
 
-In this list of shortcuts, the second one has an empty test string.  That means that its Expansion string (which defines the `roll` function) is added to the top of all shortcuts after it.  The result is that the final two shortcuts can use the `roll` function as if they had defined it themselves.  The first shortcut, however, cannot.
+In this list of shortcuts, the second shortcut has an empty Test string.  That means that it is a "helper script". It's code (a function called "roll") is available to shortcuts after it.  The fifth shortcut in this list is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  This means that the third and fourth shortcuts have access to the second helper script, but the first and sixth shortcuts do not.
 
 ### Adding a shortcut, step by step
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see HOW-TO: Install and enable the plugin.)
@@ -108,9 +111,9 @@ This shortcut file starts with some comments, then ocontains two shortcuts.  Not
 
 It is _highly_ recommended that every shortcut file contain a "help *" shortcut.  For example, the states shortcut file includes a shortcut "help state".  A help shortcut test _must_ use this pattern: "^help name$", where "name" is specific to the shortcut file.
 
-The `## HOW-TO: Define a new text-entry shortcut` introduced the javascript console, which is a useful tool while developing shortcuts and shortcut files.  Another useful tool is "Developer mode", which can be turned on in the __Text Expander JS__ plugin options.  When "Developer mode" is on, all shortcut files will be reloaded each time you move from one note to another.  This lets you edit a shortcut file, then move to a testing note to immediately try out your changes without manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut file.
+The `HOW-TO: Define a new text-entry shortcut` introduced the javascript console, which is a useful tool while developing shortcuts and shortcut files.  Another useful tool is "Developer mode", which can be turned on in the __Text Expander JS__ plugin options.  When "Developer mode" is on, all shortcut files will be reloaded each time you move from one note to another.  This lets you edit a shortcut file, then move to a testing note to immediately try out your changes without manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut file.
 
-The `## HOW-TO: Define a new text-entry shortcut` also discusses shortcuts with empty Test strings.  This feature is quite useful for larger shortcut files.
+The `HOW-TO: Define a new text-entry shortcut` also discusses helper scripts and helper blocks.  This feature is quite useful for larger shortcut files.
 
 One more feature worth mentioning: if a shortcut file contains a shortcut with the Test string of `^tejs setup$`, then that shortcut's Expansion script will be run whenever the shortcut is loaded, including when switching notes while "Developer mode" is turned on.  This feature is useful if your shortcut file requires initialization before its shortcuts will work.
 
@@ -183,10 +186,9 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 ## TODO
 
 ### 0.12.0
-- Add empty shortcut clears out shortcut addition.  It is auto-added to the end of each shortcut file
-	- don't forget to update documentation about this
+- / Add empty shortcut clears out shortcut addition.  It is auto-added to the end of each shortcut file
 - / add an automatic "help" shortcut that lists all "* help" lines.
-- add a mention of submitting shortcut files to readme
+- / add a mention of submitting shortcut files to readme
 - React to community feedback until plugin is accepted into the community.
 
 ### 1.0.0

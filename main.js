@@ -127,6 +127,13 @@ var MyPlugin = (function(_super)
 			let matchInfo = text.match(this.shortcuts[i].test);
 			if (!matchInfo) { continue; }
 
+			// Helper blocks (blank Test and Expansion) erase all before
+			if (!this.shortcuts[i].test && !this.shortcuts[i].expansion)
+			{
+				expansion = "";
+				continue;
+			}
+
 			for (let k = 1; k < matchInfo.length; k++)
 			{
 				expansion +=
@@ -317,6 +324,8 @@ var MyPlugin = (function(_super)
 	{
 		// Add shortcuts defined directly in the settings
 		this.shortcuts = this.parseShortcutList("Settings", this.settings.shortcuts);
+		// Add a helper block
+		this.shortcuts.push({});
 
 		for (let key in this.shortcutDfc.files)
 		{
@@ -328,6 +337,11 @@ var MyPlugin = (function(_super)
 			let content = this.shortcutDfc.files[key].content;
 			let newShortcuts = this.parseShortcutList(key, content)
 			this.shortcuts = this.shortcuts.concat(newShortcuts);
+
+			// Add a helper block
+			this.shortcuts.push({});
+
+			// Look for a setup shortcut
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
 				if (newShortcuts[i].test == "^tejs setup$")
@@ -348,6 +362,7 @@ var MyPlugin = (function(_super)
 		let helpRegex = new RegExp(/^\^(help [a-z]+)\$$/);
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
+			if (!this.shortcuts[i].test) { continue; }
 			let r = this.shortcuts[i].test.match(helpRegex);
 			if (r)
 			{
