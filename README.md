@@ -6,26 +6,24 @@ This Obsidian plugin allows the user to type text shortcuts that are replaced (o
 - Typing `;;name male european;` can cause the text to expand into -> `Bill Harrington`
 
 ## Overview
-Shortcuts are defined in shortcut files, to be added to the vault as notes.  When one or more shortcut-file notes are in the vault and connected to this plugin, their shortcuts will expand when they are typed into any note in the vault.  Users can download prewritten shortcut files into their vault, or write their own.  A sample of shortcut files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_mythicV2.md) file contains shortcuts to perform actions defined by the [Mythic GME RPG system](https://www.drivethrurpg.com/product/229391/Mythic-Variations-2?manufacturers_id=480).
+Shortcuts are defined in shortcut-files, to be added to the vault as notes.  When one or more shortcut-file notes are in the vault and connected to this plugin, their shortcuts will expand when they are typed into any note in the vault.  Users can download prewritten shortcut-files into their vault, or write their own.  A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_mythicV2.md) file contains shortcuts to perform actions defined by the [Mythic GME RPG system](https://www.drivethrurpg.com/product/229391/Mythic-Variations-2?manufacturers_id=480).
 
 Individual shortcuts can also be defined in the settings.  This is useful for one-off shortcuts as it requires less work and file clutter.  It is also less flexible with shortcut organization and transfer.  __Text Expander JS__ comes with a few shortcuts predefined in the settings.  Try typing `;;d100;` (or `!!d100!` on mobile) in a note to see a shortcut in action.
-
-NOTE: Each shortcut file should have a "help" shortcut that expands to a list of all shortcuts in the file.  The shortcut `;;help;` expands to a list of these "help" shortcuts.
 
 ## HOW-TO: Install and enable the plugin
 TBA
 
-## HOW-TO: Add a text-entry shortcut file to a vault
+## HOW-TO: Add a text-entry shortcut-file to a vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see HOW-TO: Install and enable the plugin.)
-2. Get the contents of a shortcut file into a note in your vault.  You can do this one of two ways.
-    - copy the shortcut file's text content into an empty note.
-    - copy the shortcut file directly into your vault's folder.
+2. Get the contents of a shortcut-file into a note in your vault.  You can do this one of two ways.
+    - copy the shortcut-file's text content into an empty note.
+    - copy the shortcut-file directly into your vault's folder.
 3. Determine and remember the shortcut-file note's address.  This is the note's folder-path, followed by the note's name.
     - Example: `support/TEJS/TEJS_mythicV2`.  The name of this shortcut-file note is `TEJS_mythicV2`, the folder-path is `support/TEJS`.
 4. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This pops up the settings panel.
     2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
-5. Add a reference to the shortcut file.
+5. Add a reference to the shortcut-file.
     1. Find the "Shortcut files" setting.  It is in plugin options, beneath "Shortcut Sources".
     2. In the "Shortcut files" setting, click the "Add file reference" button on the right side.  This adds an empty textbox to the bottom of the "Shortcut files" setting.  The new textbox should show the word "Filename" in grey text.
     3. Click on the new textbox and type in the shortcut-file note's address, determined in step 3.  The textbox will be red until a valid note address is fully entered.
@@ -33,7 +31,9 @@ TBA
 6. Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
-7. The shortcuts defined in the shortcut file should now work.  Try typing one of the shortcuts to confirm this.
+7. The shortcuts defined in the shortcut-file should now work.  Try typing one of the shortcuts to confirm this.
+
+NOTE: Each shortcut-file should have a "help" shortcut that lists all the shortcuts provided by the file.  For example, the "state" shortcut-file includes the shortcut `help state`.  __Text Expander JS__ includes a hardcoded shortcut `help` which lists of all of the help shortcuts currently active in the vault.
 
 ## HOW-TO: Define a new text-entry shortcut
 Each shortcut is defined by a pair of strings.
@@ -77,21 +77,21 @@ In this list of shortcuts, the second one has an empty test string.  That means 
     2. Review the console contents for a clue as to what is going wrong with the shortcut.
     3. Try typing out the shortcut while the console is open to see if an error is generated.  You can review the error message to help discover what's wrong.
 
-## HOW-TO: Create a new text-entry shortcut file
-This HOW-TO assumes that you have read and understood `HOW-TO: Define a new text-entry shortcut`, and are at least aware that `HOW-TO: Add a text-entry shortcut file to a vault` shows how to setup an existing shortcut file.
+## HOW-TO: Create a new text-entry shortcut-file
+This HOW-TO assumes that you have read and understood `HOW-TO: Define a new text-entry shortcut`, and are at least aware that `HOW-TO: Add a text-entry shortcut-file to a vault` shows how to setup an existing shortcut-file.
 
-A shortcut file contains multiple shortcuts.  Each shortcut contains a Test string and an Expansion string.  A shortcut file will typically bundle collections of shortcuts that work toward a common goal, such as particular functionality (saving & loading) or particular systems (the Mythic RPG system).
+A shortcut-file contains multiple shortcuts.  Each shortcut contains a Test string and an Expansion string.  A shortcut-file will typically bundle collections of shortcuts that work toward a common goal, such as particular functionality (saving & loading) or particular systems (the Mythic RPG system).
 
-Here is a minimal example of a shortcut file's contents:
+Here is a minimal example of a shortcut-file's contents:
 > ~~<br/>
 > test<br/>
 > ~~<br/>
 > return "The test worked.";<br/>
 
-This shortcut file contains a single shortcut.  Notice that `~~` separate each section.
+This shortcut-file contains a single shortcut.  Notice that `~~` separate each section.
 
 Here is another, more meaty, example:
-> This is a test shortcut file.<br/>
+> This is a test shortcut-file.<br/>
 > It was written as an example for the plugin's HOW-TO documentation.<br/>
 > <br/>
 > ~~<br/>
@@ -104,21 +104,21 @@ Here is another, more meaty, example:
 > ~~<br/>
 > return $1.repeat(10);<br/>
 
-This shortcut file starts with some comments, then ocontains two shortcuts.  Notice that the first `~~` is placed after the comments.  Every shortcut file has a place at the top for comments.  This includes the minimal example before this one, though in that case the comments are empty.  Also notice that there are empty lines between sections.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut files.
+This shortcut-file starts with some comments, then ocontains two shortcuts.  Notice that the first `~~` is placed after the comments.  Every shortcut-file has a place at the top for comments.  This includes the minimal example before this one, though in that case the comments are empty.  Also notice that there are empty lines between sections.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
 
-It is _highly_ recommended that every shortcut file contain a "help *" shortcut.  For example, the states shortcut file includes a shortcut "help state".  A help shortcut test _must_ use this pattern: "^help name$", where "name" is specific to the shortcut file.
+It is _highly_ recommended that every shortcut-file contain a "help" shortcut, preferrably as the first shortcut in the file.  For example, the "state" shortcut-file includes the shortcut `help state`.  When making a help shortcut, use "^help name$" for its Test string, where "name" is specific to the shortcut-file.  This pattern lets the system recognize "help" shortcuts.
 
-The `## HOW-TO: Define a new text-entry shortcut` introduced the javascript console, which is a useful tool while developing shortcuts and shortcut files.  Another useful tool is "Developer mode", which can be turned on in the __Text Expander JS__ plugin options.  When "Developer mode" is on, all shortcut files will be reloaded each time you move from one note to another.  This lets you edit a shortcut file, then move to a testing note to immediately try out your changes without manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut file.
+The `## HOW-TO: Define a new text-entry shortcut` introduced the javascript console, which is a useful tool while developing shortcuts and shortcut-files.  Another useful tool is "Developer mode", which can be turned on in the __Text Expander JS__ plugin options.  When "Developer mode" is on, all shortcut-files will be reloaded each time you move from one note to another.  This lets you edit a shortcut-file, then move to a testing note to immediately try out your changes without manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
 
-The `## HOW-TO: Define a new text-entry shortcut` also discusses shortcuts with empty Test strings.  This feature is quite useful for larger shortcut files.
+The `## HOW-TO: Define a new text-entry shortcut` also discusses shortcuts with empty Test strings.  This feature is quite useful for larger shortcut-files.
 
-One more feature worth mentioning: if a shortcut file contains a shortcut with the Test string of `^tejs setup$`, then that shortcut's Expansion script will be run whenever the shortcut is loaded, including when switching notes while "Developer mode" is turned on.  This feature is useful if your shortcut file requires initialization before its shortcuts will work.
+One more feature worth mentioning: if a shortcut-file contains a shortcut with the Test string of `^tejs setup$`, then that shortcut's Expansion script will be run whenever the shortcut is loaded, including when switching notes while "Developer mode" is turned on.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
 
 ## REFERENCE: Settings
-- __Shortcut files__ - A list of addresses to notes with shortcut file contents.
-    - The "Add file reference" button adds a new textbox for a shortcut file reference.
-    - To the right of each shortcut file textbox is a trashcan button.  This button lets you delete the textbox.
-- __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, whithout needing a shortcut file.
+- __Shortcut files__ - A list of addresses to notes with shortcut-file contents.
+    - The "Add file reference" button adds a new textbox for a shortcut-file reference.
+    - To the right of each shortcut-file textbox is a trashcan button.  This button lets you delete the textbox.
+- __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, whithout needing a shortcut-file.
     - The "Add shortcut" button adds a blank entry for a new shortcut to the bottom of the Shortcuts setting.
     - The "Add defaults" button adds the default shortcuts to the end of Shortcut setting.
     - To the right of each shortcut entry is a trashcan button.  This button lets you delete the associated shortcut.
@@ -126,7 +126,7 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
 - __Expansion trigger__ _(not available in mobile)_ - This lets you define when a shortcut is expanded.  By default, a shortcut expands as soon as it's typed.  The other options let you trigger Expansion with a key-press.
-- __Developer mode__ - When turned on, the shortcut files will be reloaded whenever you change from one note to another.  This adds a bit of delay, but lets you develop shortcut files more rapidly, as they are auto-refreshed when moving to a testing note to try out changes.
+- __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you change from one note to another.  This adds a bit of delay, but lets you develop shortcut-files more rapidly, as they are auto-refreshed when moving to a testing note to try out changes.
 
 ## Known Issues
 - Undo of expansion works a bit differently between mobile and PC.  On mobile, the triggering character doesn't show on undo.
@@ -139,7 +139,7 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 ## Release notes
 
 ### 0.11.0
-- Decent error messaging for parsing shortcut files and when shortcut isn't recognized
+- Decent error messaging for parsing shortcut-files and when shortcut isn't recognized
 - change shortcut from json to custom format: "~~"
 - create scripts to playtest
 - Fill in rest of readme instructions
@@ -148,7 +148,7 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 
 ### 0.10.0
 - Remove "expansion trigger" option for mobile
-- **Settings**: Developer mode: monitor shortcut files for changes
+- **Settings**: Developer mode: monitor shortcut-files for changes
 - polish settings ui on mobile
 - Default settings different on mobile vs non-mobile (prefix/suffix)
 - bug fix: expansion incorrect with non-1-sized suffix
@@ -156,7 +156,7 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 
 ### 0.9.0
 - **Settings**: Shortcuts (definable directly in settings)
-- **Settings**: each shortcut file should have a delete button (no global "Remove file" button)
+- **Settings**: each shortcut-file should have a delete button (no global "Remove file" button)
 - Get working on mobile
 
 ### 0.8.0
@@ -183,10 +183,10 @@ One more feature worth mentioning: if a shortcut file contains a shortcut with t
 ## TODO
 
 ### 0.12.0
-- Add empty shortcut clears out shortcut addition.  It is auto-added to the end of each shortcut file
+- Add empty shortcut clears out shortcut addition.  It is auto-added to the end of each shortcut-file
 	- don't forget to update documentation about this
 - / add an automatic "help" shortcut that lists all "* help" lines.
-- add a mention of submitting shortcut files to readme
+- add a mention of submitting shortcut-files to readme
 - React to community feedback until plugin is accepted into the community.
 
 ### 1.0.0
