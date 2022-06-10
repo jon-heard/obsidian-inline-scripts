@@ -1,22 +1,42 @@
 # Obsidian Plugin - Text Expander JS
 This Obsidian plugin allows the user to type text shortcuts that are replaced (or "expanded") into javascript generated text.
 
+## Table of contents
+- [Examples](#examples)
+- [Overview](#overview)
+- [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out)
+- [HOW-TO: Add an existing shortcut-file to a vault](#how-to-add-an-existing-shortcut-file-to-a-vault)
+- [HOW-TO: Create a new shortcut](#how-to-create-a-new-shortcut)
+- [HOW-TO: Create a new shortcut-file](#how-to-create-a-new-shortcut-file)
+- [REFERENCE: Settings](#reference-settings)
+- [Known Issues](#known-issues)
+- [Credits](#credits)
+- [Release notes](#release-notes)
+- [TODO](#todo)
+
 ## Examples:
 - Typing `;;date;` can cause the text to expand into `6/7/2021`
 - Typing `;;name male european;` can cause the text to expand into -> `Bill Harrington`
 
 ## Overview
-Shortcuts are defined in shortcut-files, to be added to the vault as notes.  When one or more shortcut-file notes are in the vault and connected to this plugin, their shortcuts will expand when they are typed into any note in the vault.  Users can download prewritten shortcut-files into their vault, or write their own.  A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_mythicV2.md) file contains shortcuts to perform actions defined by the [Mythic GME RPG system](https://www.drivethrurpg.com/product/229391/Mythic-Variations-2?manufacturers_id=480).
+Shortcuts are defined in shortcut-files, to be added to the vault as notes.  When one or more shortcut-file notes are in the vault and connected to this plugin, their shortcuts will expand when they are typed into any note in the vault.  Users can download prewritten shortcut-files into their vault, or write their own.
 
 Individual shortcuts can also be defined in the settings.  This is useful for one-off shortcuts as it requires less work and file clutter.  It is also less flexible with shortcut organization and transfer.  __Text Expander JS__ comes with a few shortcuts predefined in the settings.  Try typing `;;d100;` (or `!!d100!` on mobile) in a note to see a shortcut in action.
 
-## HOW-TO: Install and enable the plugin
-TBA
+## HOW-TO: Setup the plugin and try it out
+1.  Walk through the process of installing and enabling the plugin (TBD once this plugin is part of the community).
+2.  Open a note to try out the plugin
+3.  In the note, type `;;d100;` (or `!!d100!` on mobile).
+4.  Note that the shortcut expands to a roll result as soon as you've finished typing it.
+5.  Repeat step 3.  Note that the roll result is (most likely) different.  If it is not different then you are just lucky.  Try step 3 again.
 
-## HOW-TO: Add a text-entry shortcut-file to a vault
-1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see HOW-TO: Install and enable the plugin.)
+## HOW-TO: Add an existing shortcut-file to a vault
+A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_mythicV2.md) file contains shortcuts to perform actions defined by the [Mythic GME RPG system](https://www.drivethrurpg.com/product/229391/Mythic-Variations-2?manufacturers_id=480).
+
+1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
 2. Get the contents of a shortcut-file into a note in your vault.  You can do this one of two ways.
     - copy the shortcut-file's text content into an empty note.
+        - if copying from github, make sure you are copying the "raw" version of the shortcut-file.
     - copy the shortcut-file directly into your vault's folder.
 3. Determine and remember the shortcut-file note's address.  This is the note's folder-path, followed by the note's name.
     - Example: `support/TEJS/TEJS_mythicV2`.  The name of this shortcut-file note is `TEJS_mythicV2`, the folder-path is `support/TEJS`.
@@ -33,9 +53,9 @@ TBA
     - You can click outside of the settings panel to close it.
 7. The shortcuts defined in the shortcut-file should now work.  Try typing one of the shortcuts to confirm this.
 
-NOTE: Each shortcut-file should have a "help" shortcut that lists all the shortcuts provided by the file.  For example, the "state" shortcut-file includes the shortcut `help state`.  __Text Expander JS__ includes a hardcoded shortcut `help` which lists of all of the help shortcuts currently active in the vault.
+NOTE: Each shortcut-file should have a "help" shortcut that lists all the shortcuts provided by the file.  For example, the "state" shortcut-file includes the shortcut `help state`.  __Text Expander JS__ includes a hardcoded shortcut `help` which lists all of the help shortcuts currently active in the vault.
 
-## HOW-TO: Define a new text-entry shortcut
+## HOW-TO: Create a new shortcut
 Each shortcut is defined by a pair of strings.
 - __Test string__ - This is a regex.  That means that it is a code used to identify a pattern in another string.  The Test string is regex used to determine whether a shortcut the user has typed matches _this_ shortcut.
 - __Expansion string__ - This is a javascript script.  It is used to define what this shortcut expands into.  If the user types a shortcut, and it is accepted by the Test string, the Expansion string script is called and the result is added to the note, replacing the user-typed shortcut.
@@ -66,7 +86,7 @@ Here is an example:
 In this list of shortcuts, the second shortcut has an empty Test string.  That means that it is a "helper script". It's code (a function called "roll") is available to shortcuts after it.  The fifth shortcut in this list is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  This means that the third and fourth shortcuts have access to the helper script in shortcut 2, but the first and sixth shortcuts do not.
 
 ### Adding a shortcut, step by step
-1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see HOW-TO: Install and enable the plugin.)
+1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
 2. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This pops up the settings panel.
     2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
@@ -82,7 +102,7 @@ In this list of shortcuts, the second shortcut has an empty Test string.  That m
     2. Review the console contents for a clue as to what is going wrong with the shortcut.
     3. Try typing out the shortcut while the console is open to see if an error is generated.  You can review the error message to help discover what's wrong.
 
-## HOW-TO: Create a new text-entry shortcut-file
+## HOW-TO: Create a new shortcut-file
 This HOW-TO assumes that you have read and understood `HOW-TO: Define a new text-entry shortcut`, and are at least aware that `HOW-TO: Add a text-entry shortcut-file to a vault` shows how to setup an existing shortcut-file.
 
 A shortcut-file contains multiple shortcuts.  Each shortcut contains a Test string and an Expansion string.  A shortcut-file will typically bundle collections of shortcuts that work toward a common goal, such as particular functionality (saving & loading) or particular systems (the Mythic RPG system).
