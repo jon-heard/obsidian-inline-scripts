@@ -505,12 +505,12 @@ const TextExpanderJsPluginSettings = (function(_super)
 
 		if (!err)
 		{
-			this.errMsgContainer.toggleClass("err-msg-container-shown", false);
+			this.errMsgContainer.toggleClass("tejs_errMsgContainerShown", false);
 			return true;
 		}
 		else
 		{
-			this.errMsgContainer.toggleClass("err-msg-container-shown", true);
+			this.errMsgContainer.toggleClass("tejs_errMsgContainerShown", true);
 			this.errMsgContent.innerText = err;
 			return false;
 		}
@@ -540,10 +540,10 @@ const TextExpanderJsPluginSettings = (function(_super)
 						addShortcutFileUi();
 					});
 			});
-		this.shortcutFileUis = c.createEl("div", { cls: "shortcutFiles" });
+		this.shortcutFileUis = c.createEl("div", { cls: "tejs_shortcutFiles" });
 		this.shortcutFileUis.createEl("div", {
 			text: "Red means the file does not exist.",
-			cls: "setting-item-description extraMessage onSiblings"
+			cls: "setting-item-description tejs_extraMessage tejs_onSiblings"
 		});
 		const shortcutFileDeleteButtonClicked = function()
 		{
@@ -562,7 +562,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		const addShortcutFileUi = (text) =>
 		{
 			if (text) { text = text.substr(0, text.length - 3); }
-			let n = this.shortcutFileUis.createEl("input", { cls: "shortcut-file" });
+			let n = this.shortcutFileUis.createEl("input", { cls: "tejs_shortcutFile" });
 				n.setAttr("type", "text");
 				n.setAttr("placeholder", "Filename");
 				n.plugin = this.plugin;
@@ -571,11 +571,11 @@ const TextExpanderJsPluginSettings = (function(_super)
 					const isBadInput =
 						this.value &&
 						!this.plugin.app.vault.fileMap[this.value+".md"]
-					this.toggleClass("badInput", isBadInput);
+					this.toggleClass("tejs_badInput", isBadInput);
 				});
 				if (text) { n.setAttr("value", text); }
 				n.dispatchEvent(new Event("input"));
-			let b = this.shortcutFileUis.createEl("button", { cls: "delete-button" });
+			let b = this.shortcutFileUis.createEl("button", { cls: "tejs_deleteButton" });
 				b.plugin = this.plugin;
 				b.assocText = n;
 				b.onclick = shortcutFileDeleteButtonClicked.bind(b);
@@ -610,7 +610,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 						}
 					});
 			});
-		this.shortcutUis = c.createEl("div", { cls: "shortcuts" });
+		this.shortcutUis = c.createEl("div", { cls: "tejs_shortcuts" });
 		const shortcutDeleteButtonClicked = function()
 		{
 			new ConfirmDialogBox(this.plugin.app, "Confirm deleting a shortcut.",
@@ -624,14 +624,14 @@ const TextExpanderJsPluginSettings = (function(_super)
 		};
 		const addShortcutUi = (shortcut) =>
 		{
-			let n = this.shortcutUis.createEl("div", { cls: "shortcut" });
+			let n = this.shortcutUis.createEl("div", { cls: "tejs_shortcut" });
 			n.plugin = this.plugin;
-			let testUi = n.createEl("input", { cls: "shortcut-test" });
+			let testUi = n.createEl("input", { cls: "tejs_shortcutTest" });
 				testUi.setAttr("type", "text");
 				testUi.setAttr("placeholder", "Test (regex)");
-			let deleteUi = n.createEl("button", { cls: "delete-button" });
+			let deleteUi = n.createEl("button", { cls: "tejs_deleteButton" });
 				deleteUi.onclick = shortcutDeleteButtonClicked.bind(n);
-			let expansionUi = n.createEl("textarea", { cls: "shortcut-expansion" });
+			let expansionUi = n.createEl("textarea", { cls: "tejs_shortcutExpansion" });
 				expansionUi.setAttr("placeholder", "Expansion (javascript)");
 			if (shortcut)
 			{
@@ -657,9 +657,9 @@ const TextExpanderJsPluginSettings = (function(_super)
 				"D100" +
 				this.tmpSettings.suffix;
 		};
-		this.errMsgContainer = c.createEl("div", { cls: "err-msg-container" });
+		this.errMsgContainer = c.createEl("div", { cls: "tejs_errMsgContainer" });
 		const errMsgTitle = this.errMsgContainer.createEl(
-			"span", { text: "ERROR", cls: "err-msg-title" });
+			"span", { text: "ERROR", cls: "tejs_errMsgTitle" });
 		this.errMsgContent = this.errMsgContainer.createEl("span");
 		new obsidian.Setting(c)
 			.setName("Prefix")
@@ -676,7 +676,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 						this.checkFormatErrs();
 					});
 			})
-			.settingEl.toggleClass("setting-bundled-top", !IS_MOBILE);
+			.settingEl.toggleClass("tejs_settingBundledTop", !IS_MOBILE);
 		new obsidian.Setting(c)
 			.setName("Suffix")
 			.setDesc("What to type after a shortcut.")
@@ -692,9 +692,9 @@ const TextExpanderJsPluginSettings = (function(_super)
 						this.checkFormatErrs();
 					});
 			})
-			.settingEl.toggleClass("setting-bundled", !IS_MOBILE);
-		const exampleOuter = c.createEl("div", { cls: "setting-item" });
-			exampleOuter.toggleClass("setting-bundled", !IS_MOBILE);
+			.settingEl.toggleClass("tejs_settingBundled", !IS_MOBILE);
+		const exampleOuter = c.createEl("div", { cls: "tejs_settingItem" });
+			exampleOuter.toggleClass("tejs_settingBundled", !IS_MOBILE);
 		const exampleInfo = exampleOuter.createEl("div", { cls: "setting-item-info" });
 		exampleInfo.createEl("div", { text: "Example", cls: "setting-item-name" });
 		exampleInfo.createEl("div",
@@ -704,7 +704,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		});
 		const exampleItemControl =
 			exampleOuter.createEl("div", { cls: "setting-item-control" });
-		shortcutExample = exampleItemControl.createEl("div", { cls: "labelControl" });
+		shortcutExample = exampleItemControl.createEl("div", { cls: "tejs_labelControl" });
 		refreshShortcutExample();
 
 		////////////////////
