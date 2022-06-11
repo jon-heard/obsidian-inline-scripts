@@ -3,7 +3,7 @@
 var obsidian = require("obsidian");
 var state = require("@codemirror/state");
 
-var DEFAULT_SETTINGS =
+const DEFAULT_SETTINGS =
 {
 	prefix: ";;",
 	suffix: ";",
@@ -19,12 +19,16 @@ var DEFAULT_SETTINGS =
 	,
 	devMode: false
 };
-var DEFAULT_SETTINGS_MOBILE =
+const DEFAULT_SETTINGS_MOBILE =
 {
 	prefix: "!!",
 	suffix: "!"
 };
-var IS_MOBILE = false;	// NOTE: this is set automatically during code execution
+const LONG_NOTE_TIME = 8 * 1000;
+var IS_MOBILE = false;	// This is set when plugin starts
+
+Object.freeze(DEFAULT_SETTINGS);
+Object.freeze(DEFAULT_SETTINGS_MOBILE);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,11 +58,69 @@ function __extends(d, b)
 var TextExpanderJsPlugin = (function(_super)
 {
 	__extends(TextExpanderJsPlugin, _super);
+	function TextExpanderJsPlugin()
+	{
+		return _super !== null && _super.apply(this, arguments) || this;
+	}
+	TextExpanderJsPlugin.prototype.saveSettings = function() { this.saveData(this.settings); };
+
+	TextExpanderJsPlugin.prototype.onload = async function()
+	{
+		// Define whether on mobile platform
+		IS_MOBILE = this.app.isMobile;
+
+		// Load settings
+		let currentDefaultSettings =
+			IS_MOBILE ?
+			Object.assign(DEFAULT_SETTINGS, DEFAULT_SETTINGS_MOBILE) :
+			DEFAULT_SETTINGS;
+		this.settings = Object.assign({}, currentDefaultSettings, await this.loadData());
+
+		// Now that settings are loaded, track the suffix's finishing character
+		this.suffixEndCharacter =
+			this.settings.suffix.charAt(this.settings.suffix.length - 1);
+
+		// Attach settings UI
+		this.addSettingTab(new TextExpanderJsPluginSettings(this.app, this));
+
+		//Setup bound versons of these function for persistant use
+		this._handleExpansionTrigger_cm5 = this.handleExpansionTrigger_cm5.bind(this);
+		this._handleExpansionError = this.handleExpansionError.bind(this);
+
+		// Setup a dfc to keep track of shortcut-file notes.
+		dfc.setup(this);
+		this.shortcutDfc = dfc.create(
+			this.settings.shortcutFiles, this.setupShortcuts.bind(this),
+			this.settings.devMode);
+
+		// Setup "code mirror 6" editor extension management
+		this.storeTransaction = state.StateEffect.define();
+		this.registerEditorExtension([
+			state.EditorState.transactionFilter.of(
+				this.handleExpansionTrigger_cm6.bind(this))
+		]);
+
+		// Connect "code mirror 5" instances to this plugin
+		this.registerCodeMirror(this.refreshCodeMirrorState.bind(this));
+
+		// Log starting the plugin
+		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
+	};
+
+	TextExpanderJsPlugin.prototype.onunload = function()
+	{
+		// Disconnect "code mirror 5" instances from this plugin
+		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
+
+		// Log starting the plugin
+		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
+	};
+
 
 	// React to key-down by checking for a shortcut at the caret
 	TextExpanderJsPlugin.prototype.handleExpansionTrigger_cm5 = function(cm, keydown)
 	{
-		// React to key-down of shortcut suffix's final key
+		// React to key-down of shortcut suffix's ending character
 		if (this.settings.hotkey == " " && event.key == this.suffixEndCharacter)
 		{
 			// Delay logic by a frame to allow key event to finish processing first
@@ -77,7 +139,7 @@ var TextExpanderJsPlugin = (function(_super)
 			let shortcutPosition = this.parseShortcutPosition(cm);
 			if (shortcutPosition)
 			{
-				event.preventDefault();
+				event.preventDefault(); // Key used as hotkey, block normal usage
 				this.expandShortcut(cm, shortcutPosition);
 			}
 		}
@@ -130,52 +192,73 @@ var TextExpanderJsPlugin = (function(_super)
 			let matchInfo = text.match(this.shortcuts[i].test);
 			if (!matchInfo) { continue; }
 
-			// Helper blocks (blank Test and Expansion) erase all before
+			// Helper block (blank Test and Expansion) erase all before it
 			if (!this.shortcuts[i].test && !this.shortcuts[i].expansion)
 			{
 				expansion = "";
 				continue;
 			}
 
+			// Translate regex groups into variables for the expansion
 			for (let k = 1; k < matchInfo.length; k++)
 			{
 				expansion +=
 					"let $" + k + " = \"" +
 					matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
 			}
+
+			// Add the shortcut's expansion script to the total expanson script
 			expansion += this.shortcuts[i].expansion + "\n";
+
+			// If not a helper script, stop scanning shortcuts, we're done
 			if (this.shortcuts[i].test)
 			{
 				break;
 			}
 		}
+
+		// Prepare to react to a script error
 		this._expansion = expansion;
 		window.addEventListener('error', this._handleExpansionError);
+
+		// Run the expansion script
 		expansion = Function(expansion)();
+
+		// Clean up script error preparations  (it wouldn't have got here if we'd hit one)
 		window.removeEventListener('error', this._handleExpansionError);
 		this._expansion = null;
+
+		// Shortcut parsing amounted to nothing.  Notify user of their bad shortcut entry.
 		if (expansion === undefined)
 		{
 			console.warn("Shortcut text unidentified: \"" + text + "\"");
 			new obsidian.Notice("Shortcut text unidentified:\n" + text);
 		}
+
 		return expansion;
 	};
 
 	// Handle shortcut expansion for codemirror 6 (newer editor and mobile platforms)
 	TextExpanderJsPlugin.prototype.handleExpansionTrigger_cm6 = function(tr)
 	{
+		// Only bother with key inputs that have changed the document
 		if (!tr.isUserEvent("input.type") || !tr.docChanged) { return tr; }
 
+		// Maintain all changes, all reverts and final selection
 		const changes = [];
 		const reverts = [];
 		let newSelection = tr.selection;
 
+		// Go over each change made to the document
 		tr.changes.iterChanges((fromA, toA, fromB, toB, inserted) =>
 		{
+			// Only bother processing if the shortcut suffix's end character was hit
 			if (inserted.text[0] != this.suffixEndCharacter) { return; }
 
+			// Line number of change
 			let lineIndex = tr.newDoc.lineAt(fromA).number - 1;
+
+			// Get text of the line with the change
 			let lineText = null;
 			if (tr.newDoc.hasOwnProperty("text"))
 			{
@@ -196,41 +279,50 @@ var TextExpanderJsPlugin = (function(_super)
 				console.error(
 					"Text Expander JS: CM6: newDoc has no text or children.");
 			}
+
+			// Work out typed shortcut's bounding indices
 			let lineStart = tr.newDoc.lineAt(fromA).from;
 			let prefixIndex =
 				lineText.lastIndexOf(this.settings.prefix, fromA - lineStart + 1);
 			let suffixIndex = lineText.indexOf(
 				this.settings.suffix,
 				prefixIndex + this.settings.prefix.length);
+
+			// If we couldn't find bounding indices, we're not on a shortcut
 			if (prefixIndex == -1 || suffixIndex == -1) { return; }
 
-			const original = lineText.substring(
+			// Original typed shortcut (including prefix and suffix)
+			const originalText = lineText.substring(
 				prefixIndex,
 				suffixIndex + this.settings.suffix.length);
-			let expansion = original.substring(
-				this.settings.prefix.length,
-				original.length - this.settings.suffix.length);
-			expansion = this.getExpansion(expansion);
-			if (!(typeof expansion === "string")) { return; }
 
-			const replacementLength = original.length - 1;
+			// Get the shortcut's equivalent expansion string
+			let expansionText = originalText.substring(
+				this.settings.prefix.length,
+				originalText.length - this.settings.suffix.length);
+			expansionText = this.getExpansion(expansionText);
+			if (!(typeof expansionText === "string")) { return; }
+
+			// Add the changes and selection to growing list
+			const replacementLength = originalText.length - 1;
 			const insertionPoint = lineStart + prefixIndex;
 			const reversionPoint = lineStart + prefixIndex;
 			changes.push({
 				from: insertionPoint,
 				to: insertionPoint + replacementLength,
-				insert: expansion });
+				insert: expansionText });
 			reverts.push({
 				from: reversionPoint,
-				to: reversionPoint + expansion.length,
-				insert: original });
-			const selectionAdjustment = original.length - expansion.length;
+				to: reversionPoint + expansionText.length,
+				insert: originalText });
+			const selectionAdjustment = originalText.length - expansionText.length;
 			newSelection = state.EditorSelection.create(newSelection.ranges.map((r) =>
 				state.EditorSelection.range(
 					r.anchor - selectionAdjustment,
 					r.head - selectionAdjustment)));
 		}, false);
 
+		// If we had changes, send them in to take effect
 		if (changes.length)
 		{
 			return [{
@@ -245,6 +337,7 @@ var TextExpanderJsPlugin = (function(_super)
 				changes: changes,
 			}];
 		}
+		// ... else do the default
 		else
 		{
 			return tr;
@@ -255,7 +348,7 @@ var TextExpanderJsPlugin = (function(_super)
 	// error in the console and notification popup.
 	TextExpanderJsPlugin.prototype.handleExpansionError = function(e)
 	{
-		window.removeEventListener('error', this._handleExpansionError);
+		// Block default error handling
 		e.preventDefault();
 
 		// Insert line numbers and arrows into code
@@ -265,8 +358,8 @@ var TextExpanderJsPlugin = (function(_super)
 			this._expansion[i] =
 				String(i+1).padStart(4, '0') + " " + this._expansion[i];
 		}
-		this._expansion .splice(e.lineno-2, 0, "^".repeat(e.colno + 5) + "^");
-		this._expansion .splice(e.lineno-3, 0, "v".repeat(e.colno + 5) + "v");
+		this._expansion .splice(e.lineno-2, 0, "-".repeat(e.colno + 5) + "^");
+		this._expansion .splice(e.lineno-3, 0, "-".repeat(e.colno + 5) + "v");
 		this._expansion  = this._expansion .join("\n");
 
 		// Notify user of error
@@ -274,13 +367,17 @@ var TextExpanderJsPlugin = (function(_super)
 			"Error in Shortcut expansion: " + e.message +
 			"\nline: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
 			"─".repeat(20) + "\n" + this._expansion);
-		new obsidian.Notice("Error in shortcut expansion", 8 * 1000);
+		new obsidian.Notice("Error in shortcut expansion", LONG_NOTE_TIME);
+
+		// Clean up script error preparations (now that the error is handled)
+		window.removeEventListener('error', this._handleExpansionError);
 		this._expansion = null;
 	};
 
-	// Toggle reacting to keydown events for codemirror 5 (older editors) based on plugin state
+	// Toggle to keydown event handling for codemirror 5 (older editors) based on plugin state
 	TextExpanderJsPlugin.prototype.refreshCodeMirrorState = function(cm)
 	{
+		// cm.tejs_handled is to make sure we only do this once per change to "_loaded"
 		if (this._loaded && !cm.tejs_handled)
 		{
 			cm.on("keydown", this._handleExpansionTrigger_cm5);
@@ -293,7 +390,7 @@ var TextExpanderJsPlugin = (function(_super)
 		}
 	};
 
-	// Parses a shortcut list (found in shortcut files) and produces the shortcuts
+	// Parses a shortcut-file contents and produces the shortcuts
 	TextExpanderJsPlugin.prototype.parseShortcutList = function(filename, content)
 	{
 		content = content.split("~~").map((v) => v.trim());
@@ -305,7 +402,7 @@ var TextExpanderJsPlugin = (function(_super)
 			i += 2;
 		}
 
-		// Check for obvious error
+		// Check for the obvious error of misnumbered "~~"
 		if (!(content.length % 2))
 		{
 			let shortcutList = "";
@@ -313,46 +410,57 @@ var TextExpanderJsPlugin = (function(_super)
 			{
 				shortcutList += "\n\t" + result[i].shortcut;
 			}
-			new obsidian.Notice("Bad shortcut file format:\n" + filename, 8 * 1000);
+			new obsidian.Notice(
+				"Bad shortcut file format:\n" + filename, LONG_NOTE_TIME);
 			console.error(
 				"\"" + filename + "\" has a bad shortcut file format.\n" +
-				"List of recognized shortcuts in this file:" + shortcutList);
+				"List of recognized shortcut tests in this file:" + shortcutList);
 		}
 
 		return result;
 	};
 
-	// Creates all the shortcuts based on shortcut lists from shortcut files and settings.
+	// Creates all the shortcuts based on shortcut lists from shortcut files and settings
 	TextExpanderJsPlugin.prototype.setupShortcuts = function()
 	{
 		// Add shortcuts defined directly in the settings
 		this.shortcuts = this.parseShortcutList("Settings", this.settings.shortcuts);
-		// Add a helper block
+		// Add a helper block to segment helper scripts
 		this.shortcuts.push({});
 
+		// Go over all shortcut-files
 		for (let key in this.shortcutDfc.files)
 		{
+			// If shortcut-file has no content, it's missing.
 			if (this.shortcutDfc.files[key].content == null)
 			{
-				new obsidian.Notice("Missing shortcut file\n" + key, 8 * 1000);
+				new obsidian.Notice(
+					"Missing shortcut file\n" + key, LONG_NOTE_TIME);
 				continue;
 			}
+
+			// Parse shortcut-file contents and add new shortcuts to list
 			let content = this.shortcutDfc.files[key].content;
 			let newShortcuts = this.parseShortcutList(key, content)
 			this.shortcuts = this.shortcuts.concat(newShortcuts);
 
-			// Add a helper block
+			// Add a helper block to segment helper scripts
 			this.shortcuts.push({});
 
-			// Look for a setup shortcut
+			// Look for a "setup" script to run right now
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
 				if (newShortcuts[i].test == "^tejs setup$")
 				{
+					// Prepare to react to a script error
 					this._expansion = newShortcuts[i].expansion;
 					window.addEventListener(
 						'error', this._handleExpansionError);
+
+					// Run "setup" script
 					Function(newShortcuts[i].expansion)();
+
+					// Clean up script error preparations
 					window.removeEventListener(
 						'error', this._handleExpansionError);
 					this._expansion = null;
@@ -360,7 +468,7 @@ var TextExpanderJsPlugin = (function(_super)
 			}
 		}
 
-		// Search all shortcuts for the "help" shortcuts
+		// Get list of all "help" shortcuts in list of shortcuts
 		let helpShortcuts = [];
 		let helpRegex = new RegExp(/^\^(help [a-z]+)\$$/);
 		for (let i = 0; i < this.shortcuts.length; i++)
@@ -373,69 +481,16 @@ var TextExpanderJsPlugin = (function(_super)
 			}
 		}
 
-		// Manually add the generic "help" shortcut
+		// Manually build and add generic "help" shortcut based on "help" shortcuts list
 		let helpExpansion =
 			"return \"These shortcuts provide detailed help:\\n" +
 			(helpShortcuts.length ?
 				( "- " + helpShortcuts.join("\\n- ") ) :
 				"NONE AVAILABLE") +
 			"\\n\\n\";"
+
+		// Put generic "help" shortcut in line first so it can't be short-circuited
 		this.shortcuts.unshift({ test: "^help$", expansion: helpExpansion });
-	};
-
-	// Constructor - initializes most of the member variables
-	function TextExpanderJsPlugin()
-	{
-		let result = _super !== null && _super.apply(this, arguments) || this;
-
-		IS_MOBILE = this.app.isMobile;
-		if (IS_MOBILE)
-		{
-			DEFAULT_SETTINGS =
-				Object.assign(DEFAULT_SETTINGS, DEFAULT_SETTINGS_MOBILE);
-		}
-
-		this._handleExpansionTrigger_cm5 = this.handleExpansionTrigger_cm5.bind(this);
-		this.registerCodeMirror(this.refreshCodeMirrorState.bind(this));
-		this._handleExpansionError = this.handleExpansionError.bind(this);
-
-		this.shortcuts = [];
-
-		this.settings = null;
-		this.addSettingTab(new TextExpanderJsPluginSettings(this.app, this));
-
-		this.storeTransaction = state.StateEffect.define();
-
-		return result;
-	}
-
-	TextExpanderJsPlugin.prototype.onload = async function()
-	{
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-		this.suffixEndCharacter =
-			this.settings.suffix.charAt(this.settings.suffix.length - 1);
-		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
-		dfc.setup(this);
-		this.shortcutDfc = dfc.create(
-			this.settings.shortcutFiles, this.setupShortcuts.bind(this),
-			this.settings.devMode);
-		this.registerEditorExtension([
-			state.EditorState.transactionFilter.of(
-				this.handleExpansionTrigger_cm6.bind(this))
-		]);
-		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
-		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
-	};
-
-	TextExpanderJsPlugin.prototype.onunload = function()
-	{
-		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
-		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
- 	};
-
-	TextExpanderJsPlugin.prototype.saveSettings = function()
-	{
-		this.saveData(this.settings);
 	};
 
 	return TextExpanderJsPlugin;
@@ -495,6 +550,9 @@ var TextExpanderJsPluginSettings = (function(_super)
 		var c = this.containerEl;
 		c.empty();
 
+		//////////////////////
+		// SHORTCUT SOURCES //
+		//////////////////////
 		c.createEl("h2", { text: "Shortcut Sources" });
 		new obsidian.Setting(c)
 			.setName("Shortcut-files")
@@ -515,7 +573,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 		});
 		var shortcutFileDeleteButtonClicked = function()
 		{
-			new ConfirmModal(
+			new ConfirmDialogBox(
 				this.plugin.app,
 				"Confirm removing a reference to a shortcut file.",
 				(confirmation) =>
@@ -581,7 +639,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 		this.shortcutUis = c.createEl("div", { cls: "shortcuts" });
 		var shortcutDeleteButtonClicked = function()
 		{
-			new ConfirmModal(this.plugin.app, "Confirm deleting a shortcut.",
+			new ConfirmDialogBox(this.plugin.app, "Confirm deleting a shortcut.",
 			(confirmation) =>
 			{
 				if (confirmation)
@@ -613,6 +671,9 @@ var TextExpanderJsPluginSettings = (function(_super)
 			addShortcutUi(shortcuts[i]);
 		}
 
+		/////////////////////
+		// SHORTCUT FORMAT //
+		/////////////////////
 		c.createEl("h2", { text: "Shortcut format" });
 		var shortcutExample = null;
 		var refreshShortcutExample = () =>
@@ -672,6 +733,9 @@ var TextExpanderJsPluginSettings = (function(_super)
 		shortcutExample = exampleItemControl.createEl("div", { cls: "labelControl" });
 		refreshShortcutExample();
 
+		////////////////////
+		// OTHER SETTINGS //
+		////////////////////
 		c.createEl("h2", { text: "Other Settings" });
 		if (!IS_MOBILE)
 		{
@@ -705,9 +769,10 @@ var TextExpanderJsPluginSettings = (function(_super)
 			});
 	};
 
+	// THIS is where settings are saved!
 	TextExpanderJsPluginSettings.prototype.hide = function()
 	{
-		// Shortcut files
+		// Build shortcut files list from UI
 		this.tmpSettings.shortcutFiles = [];
 		for (let i = 0; i < this.shortcutFileUis.childNodes.length; i++)
 		{
@@ -718,7 +783,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 			}
 		}
 
-		// Shortcut settings
+		// Build Shortcuts string from UI
 		this.tmpSettings.shortcuts = "";
 		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
 		{
@@ -731,7 +796,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 			}
 		}
 
-		// Shortcuts refresh
+		// If changes to settings-based shortcuts, "force" is set
 		let oldShortcuts =
 			this.plugin.parseShortcutList("", this.plugin.settings.shortcuts);
 		let newShortcuts =
@@ -750,7 +815,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 			}
 		}
 
-		// Format
+		// Only keep new prefix & suffix if they have no errors
 		if (!this.checkFormatErrs())
 		{
 			this.tmpSettings.prefix = this.plugin.settings.prefix;
@@ -760,9 +825,9 @@ var TextExpanderJsPluginSettings = (function(_super)
 		// Dev mode
 		this.plugin.shortcutDfc.isMonitored = this.tmpSettings.devMode;
 
-		// Wrapup
+		// Store new settings
 		this.plugin.settings = this.tmpSettings;
-		dfc.updateFileList(	// Must wait to do this AFTER plugin.settings is updated
+		dfc.updateFileList(	// Must do this AFTER plugin.settings is updated
 			this.plugin.shortcutDfc, this.tmpSettings.shortcutFiles, force);
 		this.plugin.suffixEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
@@ -775,16 +840,16 @@ var TextExpanderJsPluginSettings = (function(_super)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-var ConfirmModal = (function(_super)
+var ConfirmDialogBox = (function(_super)
 {
-	__extends(ConfirmModal, _super);
-	function ConfirmModal(app, message, callback) {
+	__extends(ConfirmDialogBox, _super);
+	function ConfirmDialogBox(app, message, callback) {
 		let result = _super.call(this, app) || this;
 		this.message = message;
 		this.callback = callback;
 		return result;
 	}
-	ConfirmModal.prototype.onOpen = function ()
+	ConfirmDialogBox.prototype.onOpen = function ()
 	{
 		this.titleEl.setText(this.message);
 		let s = new obsidian.Setting(this.contentEl)
@@ -811,11 +876,11 @@ var ConfirmModal = (function(_super)
 			});
 		s.settingEl.style.padding = "0";
 	};
-	ConfirmModal.prototype.onClose = function ()
+	ConfirmDialogBox.prototype.onClose = function ()
 	{
 		this.contentEl.empty();
 	};
-	return ConfirmModal;
+	return ConfirmDialogBox;
 }(obsidian.Modal));
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
