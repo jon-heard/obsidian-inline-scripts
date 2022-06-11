@@ -51,12 +51,12 @@ function __extends(d, b)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-var MyPlugin = (function(_super)
+var TextExpanderJsPlugin = (function(_super)
 {
-	__extends(MyPlugin, _super);
+	__extends(TextExpanderJsPlugin, _super);
 
 	// React to key-down by checking for a shortcut at the caret
-	MyPlugin.prototype.handleExpansionTrigger_cm5 = function(cm, keydown)
+	TextExpanderJsPlugin.prototype.handleExpansionTrigger_cm5 = function(cm, keydown)
 	{
 		// React to key-down of shortcut suffix's final key
 		if (this.settings.hotkey == " " && event.key == this.suffixEndCharacter)
@@ -84,7 +84,7 @@ var MyPlugin = (function(_super)
 	};
 
 	// If a shortcut is at the caret, return its start and end positions, else return null
-	MyPlugin.prototype.parseShortcutPosition = function(cm)
+	TextExpanderJsPlugin.prototype.parseShortcutPosition = function(cm)
 	{
 		let cursor = cm.getCursor();
 		let result = { lineIndex: cursor.line, prefixIndex: -1, suffixIndex: -1 };
@@ -102,7 +102,7 @@ var MyPlugin = (function(_super)
 	};
 
 	// Expand a shortcut based on its start/end positions
-	MyPlugin.prototype.expandShortcut = function(cm, shortcutPosition)
+	TextExpanderJsPlugin.prototype.expandShortcut = function(cm, shortcutPosition)
 	{
 		// Find and use the right shortcuts
 		let text = cm.getLine(shortcutPosition.lineIndex).substring(
@@ -122,7 +122,7 @@ var MyPlugin = (function(_super)
 	};
 
 	// Take a shortcut string and return the proper expansion string
-	MyPlugin.prototype.getExpansion = function(text)
+	TextExpanderJsPlugin.prototype.getExpansion = function(text)
 	{
 		let expansion = "";
 		for (let i = 0; i < this.shortcuts.length; i++)
@@ -163,7 +163,7 @@ var MyPlugin = (function(_super)
 	};
 
 	// Handle shortcut expansion for codemirror 6 (newer editor and mobile platforms)
-	MyPlugin.prototype.handleExpansionTrigger_cm6 = function(tr)
+	TextExpanderJsPlugin.prototype.handleExpansionTrigger_cm6 = function(tr)
 	{
 		if (!tr.isUserEvent("input.type") || !tr.docChanged) { return tr; }
 
@@ -253,7 +253,7 @@ var MyPlugin = (function(_super)
 
 	// Called when something goes wrong during shortcut expansion.  Generates a useful
 	// error in the console and notification popup.
-	MyPlugin.prototype.handleExpansionError = function(e)
+	TextExpanderJsPlugin.prototype.handleExpansionError = function(e)
 	{
 		window.removeEventListener('error', this._handleExpansionError);
 		e.preventDefault();
@@ -279,7 +279,7 @@ var MyPlugin = (function(_super)
 	};
 
 	// Toggle reacting to keydown events for codemirror 5 (older editors) based on plugin state
-	MyPlugin.prototype.refreshCodeMirrorState = function(cm)
+	TextExpanderJsPlugin.prototype.refreshCodeMirrorState = function(cm)
 	{
 		if (this._loaded && !cm.tejs_handled)
 		{
@@ -294,7 +294,7 @@ var MyPlugin = (function(_super)
 	};
 
 	// Parses a shortcut list (found in shortcut files) and produces the shortcuts
-	MyPlugin.prototype.parseShortcutList = function(filename, content)
+	TextExpanderJsPlugin.prototype.parseShortcutList = function(filename, content)
 	{
 		content = content.split("~~").map((v) => v.trim());
 		let result = [];
@@ -323,7 +323,7 @@ var MyPlugin = (function(_super)
 	};
 
 	// Creates all the shortcuts based on shortcut lists from shortcut files and settings.
-	MyPlugin.prototype.setupShortcuts = function()
+	TextExpanderJsPlugin.prototype.setupShortcuts = function()
 	{
 		// Add shortcuts defined directly in the settings
 		this.shortcuts = this.parseShortcutList("Settings", this.settings.shortcuts);
@@ -384,7 +384,7 @@ var MyPlugin = (function(_super)
 	};
 
 	// Constructor - initializes most of the member variables
-	function MyPlugin()
+	function TextExpanderJsPlugin()
 	{
 		let result = _super !== null && _super.apply(this, arguments) || this;
 
@@ -402,14 +402,14 @@ var MyPlugin = (function(_super)
 		this.shortcuts = [];
 
 		this.settings = null;
-		this.addSettingTab(new MySettings(this.app, this));
+		this.addSettingTab(new TextExpanderJsPluginSettings(this.app, this));
 
 		this.storeTransaction = state.StateEffect.define();
 
 		return result;
 	}
 
-	MyPlugin.prototype.onload = async function()
+	TextExpanderJsPlugin.prototype.onload = async function()
 	{
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 		this.suffixEndCharacter =
@@ -427,28 +427,28 @@ var MyPlugin = (function(_super)
 		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
 	};
 
-	MyPlugin.prototype.onunload = function()
+	TextExpanderJsPlugin.prototype.onunload = function()
 	{
 		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
  	};
 
-	MyPlugin.prototype.saveSettings = function()
+	TextExpanderJsPlugin.prototype.saveSettings = function()
 	{
 		this.saveData(this.settings);
 	};
 
-	return MyPlugin;
+	return TextExpanderJsPlugin;
 
 }(obsidian.Plugin));
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-var MySettings = (function(_super)
+var TextExpanderJsPluginSettings = (function(_super)
 {
-	__extends(MySettings, _super);
+	__extends(TextExpanderJsPluginSettings, _super);
 
-	function MySettings(app, plugin)
+	function TextExpanderJsPluginSettings(app, plugin)
 	{
 		let result = _super !== null && _super.apply(this, arguments) || this;
 		this.plugin = plugin;
@@ -458,7 +458,7 @@ var MySettings = (function(_super)
 		return result;
 	}
 
-	MySettings.prototype.checkFormatErrs = function()
+	TextExpanderJsPluginSettings.prototype.checkFormatErrs = function()
 	{
 		let err = "";
 		if (!this.tmpSettings.prefix)
@@ -488,7 +488,7 @@ var MySettings = (function(_super)
 	};
 
 
-	MySettings.prototype.display = function()
+	TextExpanderJsPluginSettings.prototype.display = function()
 	{
 		this.tmpSettings = JSON.parse(JSON.stringify(this.plugin.settings));
 
@@ -705,7 +705,7 @@ var MySettings = (function(_super)
 			});
 	};
 
-	MySettings.prototype.hide = function()
+	TextExpanderJsPluginSettings.prototype.hide = function()
 	{
 		// Shortcut files
 		this.tmpSettings.shortcutFiles = [];
@@ -769,7 +769,7 @@ var MySettings = (function(_super)
 		this.plugin.saveSettings();
 	};
 
-	return MySettings;
+	return TextExpanderJsPluginSettings;
 
 }(obsidian.PluginSettingTab));
 
@@ -947,4 +947,4 @@ var dfc = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports = MyPlugin;
+module.exports = TextExpanderJsPlugin;
