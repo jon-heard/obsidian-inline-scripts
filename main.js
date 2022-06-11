@@ -1,7 +1,7 @@
 "use strict";
 
-var obsidian = require("obsidian");
-var state = require("@codemirror/state");
+const obsidian = require("obsidian");
+const state = require("@codemirror/state");
 
 const DEFAULT_SETTINGS =
 {
@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS_MOBILE =
 	suffix: "!"
 };
 const LONG_NOTE_TIME = 8 * 1000;
-var IS_MOBILE = false;	// This is set when plugin starts
+let IS_MOBILE = false;	// This is set when plugin starts
 
 Object.freeze(DEFAULT_SETTINGS);
 Object.freeze(DEFAULT_SETTINGS_MOBILE);
@@ -33,29 +33,29 @@ Object.freeze(DEFAULT_SETTINGS_MOBILE);
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Boilerplate code (coming from typescript)
-var extendStatics = function(d, b)
+const extendStatics = function(d, b)
 {
-	extendStatics =
+	const extendStatics =
 		Object.setPrototypeOf ||
 		({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
 		function (d, b)
 		{
-			for (var p in b)
+			for (let p in b)
 				if (Object.prototype.hasOwnProperty.call(b, p))
 					d[p] = b[p];
 		};
 	return extendStatics(d, b);
 };
-function __extends(d, b)
+const __extends = function(d, b)
 {
 	extendStatics(d, b);
 	function __() { this.constructor = d; }
 	d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-var TextExpanderJsPlugin = (function(_super)
+const TextExpanderJsPlugin = (function(_super)
 {
 	__extends(TextExpanderJsPlugin, _super);
 	function TextExpanderJsPlugin()
@@ -70,7 +70,7 @@ var TextExpanderJsPlugin = (function(_super)
 		IS_MOBILE = this.app.isMobile;
 
 		// Load settings
-		let currentDefaultSettings =
+		const currentDefaultSettings =
 			IS_MOBILE ?
 			Object.assign(DEFAULT_SETTINGS, DEFAULT_SETTINGS_MOBILE) :
 			DEFAULT_SETTINGS;
@@ -128,7 +128,7 @@ var TextExpanderJsPlugin = (function(_super)
 			// Delay logic by a frame to allow key event to finish processing first
 			setTimeout(() =>
 			{
-				let shortcutPosition = this.parseShortcutPosition(cm);
+				const shortcutPosition = this.parseShortcutPosition(cm);
 				if (shortcutPosition)
 				{
 					this.expandShortcut(cm, shortcutPosition);
@@ -138,7 +138,7 @@ var TextExpanderJsPlugin = (function(_super)
 		// React to user-determined hotkey to expand a shortcut
 		else if (this.settings.hotkey != " " && event.key == this.settings.hotkey)
 		{
-			let shortcutPosition = this.parseShortcutPosition(cm);
+			const shortcutPosition = this.parseShortcutPosition(cm);
 			if (shortcutPosition)
 			{
 				event.preventDefault(); // Key used as hotkey, block normal usage
@@ -150,9 +150,9 @@ var TextExpanderJsPlugin = (function(_super)
 	// If a shortcut is at the caret, return its start and end positions, else return null
 	TextExpanderJsPlugin.prototype.parseShortcutPosition = function(cm)
 	{
-		let cursor = cm.getCursor();
+		const cursor = cm.getCursor();
 		let result = { lineIndex: cursor.line, prefixIndex: -1, suffixIndex: -1 };
-		let lineText = cm.getLine(cursor.line);
+		const lineText = cm.getLine(cursor.line);
 		result.prefixIndex = lineText.lastIndexOf(this.settings.prefix, cursor.ch);
 		result.suffixIndex = lineText.indexOf(
 			this.settings.suffix,
@@ -169,10 +169,10 @@ var TextExpanderJsPlugin = (function(_super)
 	TextExpanderJsPlugin.prototype.expandShortcut = function(cm, shortcutPosition)
 	{
 		// Find and use the right shortcuts
-		let text = cm.getLine(shortcutPosition.lineIndex).substring(
+		const text = cm.getLine(shortcutPosition.lineIndex).substring(
 			shortcutPosition.prefixIndex + this.settings.prefix.length,
 			shortcutPosition.suffixIndex);
-		let expansion = this.getExpansion(text);
+		const expansion = this.getExpansion(text);
 		if (expansion)
 		{
 			cm.replaceRange(
@@ -191,7 +191,7 @@ var TextExpanderJsPlugin = (function(_super)
 		let expansion = "";
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
-			let matchInfo = text.match(this.shortcuts[i].test);
+			const matchInfo = text.match(this.shortcuts[i].test);
 			if (!matchInfo) { continue; }
 
 			// Helper block (blank Test and Expansion) erase all before it
@@ -247,8 +247,8 @@ var TextExpanderJsPlugin = (function(_super)
 		if (!tr.isUserEvent("input.type") || !tr.docChanged) { return tr; }
 
 		// Maintain all changes, all reverts and final selection
-		const changes = [];
-		const reverts = [];
+		let changes = [];
+		let reverts = [];
 		let newSelection = tr.selection;
 
 		// Go over each change made to the document
@@ -283,10 +283,10 @@ var TextExpanderJsPlugin = (function(_super)
 			}
 
 			// Work out typed shortcut's bounding indices
-			let lineStart = tr.newDoc.lineAt(fromA).from;
-			let prefixIndex =
+			const lineStart = tr.newDoc.lineAt(fromA).from;
+			const prefixIndex =
 				lineText.lastIndexOf(this.settings.prefix, fromA - lineStart + 1);
-			let suffixIndex = lineText.indexOf(
+			const suffixIndex = lineText.indexOf(
 				this.settings.suffix,
 				prefixIndex + this.settings.prefix.length);
 
@@ -426,8 +426,8 @@ var TextExpanderJsPlugin = (function(_super)
 			}
 
 			// Parse shortcut-file contents and add new shortcuts to list
-			let content = this.shortcutDfc.files[key].content;
-			let newShortcuts = this.parseShortcutList(key, content)
+			const content = this.shortcutDfc.files[key].content;
+			const newShortcuts = this.parseShortcutList(key, content)
 			this.shortcuts = this.shortcuts.concat(newShortcuts);
 
 			// Add a helper block to segment helper scripts
@@ -456,11 +456,11 @@ var TextExpanderJsPlugin = (function(_super)
 
 		// Get list of all "help" shortcuts in list of shortcuts
 		let helpShortcuts = [];
-		let helpRegex = new RegExp(/^\^(help [a-z]+)\$$/);
+		const helpRegex = new RegExp(/^\^(help [a-z]+)\$$/);
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
 			if (!this.shortcuts[i].test) { continue; }
-			let r = this.shortcuts[i].test.match(helpRegex);
+			const r = this.shortcuts[i].test.match(helpRegex);
 			if (r)
 			{
 				helpShortcuts.push(r[1]);
@@ -468,7 +468,7 @@ var TextExpanderJsPlugin = (function(_super)
 		}
 
 		// Manually build and add generic "help" shortcut based on "help" shortcuts list
-		let helpExpansion =
+		const helpExpansion =
 			"return \"These shortcuts provide detailed help:\\n" +
 			(helpShortcuts.length ?
 				( "- " + helpShortcuts.join("\\n- ") ) :
@@ -485,13 +485,13 @@ var TextExpanderJsPlugin = (function(_super)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-var TextExpanderJsPluginSettings = (function(_super)
+const TextExpanderJsPluginSettings = (function(_super)
 {
 	__extends(TextExpanderJsPluginSettings, _super);
 
 	function TextExpanderJsPluginSettings(app, plugin)
 	{
-		let result = _super !== null && _super.apply(this, arguments) || this;
+		const result = _super !== null && _super.apply(this, arguments) || this;
 		this.plugin = plugin;
 		this.tmpSettings = null;
 		this.errMsgContainer = null;
@@ -533,7 +533,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 	{
 		this.tmpSettings = JSON.parse(JSON.stringify(this.plugin.settings));
 
-		var c = this.containerEl;
+		const c = this.containerEl;
 		c.empty();
 
 		//////////////////////
@@ -557,7 +557,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 			text: "Red means the file does not exist.",
 			cls: "setting-item-description extraMessage onSiblings"
 		});
-		var shortcutFileDeleteButtonClicked = function()
+		const shortcutFileDeleteButtonClicked = function()
 		{
 			new ConfirmDialogBox(
 				this.plugin.app,
@@ -571,7 +571,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 					}
 				}).open();
 		};
-		var addShortcutFileUi = (text) =>
+		const addShortcutFileUi = (text) =>
 		{
 			if (text) { text = text.substr(0, text.length - 3); }
 			let n = this.shortcutFileUis.createEl("input", { cls: "shortcut-file" });
@@ -580,7 +580,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 				n.plugin = this.plugin;
 				n.addEventListener("input", function()
 				{
-					let isBadInput =
+					const isBadInput =
 						this.value &&
 						!this.plugin.app.vault.fileMap[this.value+".md"]
 					this.toggleClass("badInput", isBadInput);
@@ -623,7 +623,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 					});
 			});
 		this.shortcutUis = c.createEl("div", { cls: "shortcuts" });
-		var shortcutDeleteButtonClicked = function()
+		const shortcutDeleteButtonClicked = function()
 		{
 			new ConfirmDialogBox(this.plugin.app, "Confirm deleting a shortcut.",
 			(confirmation) =>
@@ -634,7 +634,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 				}
 			}).open();
 		};
-		var addShortcutUi = (shortcut) =>
+		const addShortcutUi = (shortcut) =>
 		{
 			let n = this.shortcutUis.createEl("div", { cls: "shortcut" });
 			n.plugin = this.plugin;
@@ -651,7 +651,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 				expansionUi.value = shortcut.expansion;
 			}
 		};
-		let shortcuts = this.plugin.parseShortcutList("Settings", this.tmpSettings.shortcuts);
+		const shortcuts = this.plugin.parseShortcutList("Settings", this.tmpSettings.shortcuts);
 		for (let i = 0; i < shortcuts.length; i++)
 		{
 			addShortcutUi(shortcuts[i]);
@@ -661,8 +661,8 @@ var TextExpanderJsPluginSettings = (function(_super)
 		// SHORTCUT FORMAT //
 		/////////////////////
 		c.createEl("h2", { text: "Shortcut format" });
-		var shortcutExample = null;
-		var refreshShortcutExample = () =>
+		let shortcutExample = null;
+		const refreshShortcutExample = () =>
 		{
 			shortcutExample.innerText =
 				this.tmpSettings.prefix +
@@ -670,7 +670,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 				this.tmpSettings.suffix;
 		};
 		this.errMsgContainer = c.createEl("div", { cls: "err-msg-container" });
-		let errMsgTitle = this.errMsgContainer.createEl(
+		const errMsgTitle = this.errMsgContainer.createEl(
 			"span", { text: "ERROR", cls: "err-msg-title" });
 		this.errMsgContent = this.errMsgContainer.createEl("span");
 		new obsidian.Setting(c)
@@ -689,7 +689,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 					});
 			})
 			.settingEl.toggleClass("setting-bundled-top", !IS_MOBILE);
-		let t = new obsidian.Setting(c)
+		new obsidian.Setting(c)
 			.setName("Suffix")
 			.setDesc("What to type after a shortcut.")
 			.addText((text) =>
@@ -705,16 +705,16 @@ var TextExpanderJsPluginSettings = (function(_super)
 					});
 			})
 			.settingEl.toggleClass("setting-bundled", !IS_MOBILE);
-		let exampleOuter = c.createEl("div", { cls: "setting-item" });
+		const exampleOuter = c.createEl("div", { cls: "setting-item" });
 			exampleOuter.toggleClass("setting-bundled", !IS_MOBILE);
-		let exampleInfo = exampleOuter.createEl("div", { cls: "setting-item-info" });
+		const exampleInfo = exampleOuter.createEl("div", { cls: "setting-item-info" });
 		exampleInfo.createEl("div", { text: "Example", cls: "setting-item-name" });
 		exampleInfo.createEl("div",
 		{
 			text: "How to write the shortcut \"D100\"",
 			cls: "setting-item-description"
 		});
-		let exampleItemControl =
+		const exampleItemControl =
 			exampleOuter.createEl("div", { cls: "setting-item-control" });
 		shortcutExample = exampleItemControl.createEl("div", { cls: "labelControl" });
 		refreshShortcutExample();
@@ -773,7 +773,7 @@ var TextExpanderJsPluginSettings = (function(_super)
 		this.tmpSettings.shortcuts = "";
 		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
 		{
-			let shortcutUi = this.shortcutUis.childNodes[i];
+			const shortcutUi = this.shortcutUis.childNodes[i];
 			if (shortcutUi.childNodes[2].value)
 			{
 				this.tmpSettings.shortcuts +=
@@ -783,9 +783,9 @@ var TextExpanderJsPluginSettings = (function(_super)
 		}
 
 		// If changes to settings-based shortcuts, "force" is set
-		let oldShortcuts =
+		const oldShortcuts =
 			this.plugin.parseShortcutList("", this.plugin.settings.shortcuts);
-		let newShortcuts =
+		const newShortcuts =
 			this.plugin.parseShortcutList("", this.tmpSettings.shortcuts);
 		let force = (newShortcuts.length != oldShortcuts.length);
 		if (!force)
@@ -826,11 +826,11 @@ var TextExpanderJsPluginSettings = (function(_super)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-var ConfirmDialogBox = (function(_super)
+const ConfirmDialogBox = (function(_super)
 {
 	__extends(ConfirmDialogBox, _super);
 	function ConfirmDialogBox(app, message, callback) {
-		let result = _super.call(this, app) || this;
+		const result = _super.call(this, app) || this;
 		this.message = message;
 		this.callback = callback;
 		return result;
@@ -838,7 +838,7 @@ var ConfirmDialogBox = (function(_super)
 	ConfirmDialogBox.prototype.onOpen = function ()
 	{
 		this.titleEl.setText(this.message);
-		let s = new obsidian.Setting(this.contentEl)
+		new obsidian.Setting(this.contentEl)
 			.addButton((btn) =>
 			{
 				btn
@@ -859,8 +859,8 @@ var ConfirmDialogBox = (function(_super)
 						this.callback(false);
 						this.close();
 					})
-			});
-		s.settingEl.style.padding = "0";
+			})
+			.settingEl.style.padding = "0";
 	};
 	ConfirmDialogBox.prototype.onClose = function ()
 	{
@@ -873,7 +873,7 @@ var ConfirmDialogBox = (function(_super)
 // Dynamic File Content (dfc) - Maintain a list of files to (optionally) monitor for updates
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-var dfc = {
+const dfc = {
 	instances: [],
 	hasEditorSaved: false,
 	plugin: null,
@@ -902,7 +902,7 @@ var dfc = {
 		{
 			for (let i = 0; i < dfc.instances.length; i++)
 			{
-				let instance = dfc.instances[i];
+				const instance = dfc.instances[i];
 				if (instance.isMonitored &&
 				    instance.files.hasOwnProperty(dfc.currentFile))
 				{
@@ -911,13 +911,13 @@ var dfc = {
 			}
 		}
 		dfc.hasEditorSaved = false;
-		let activeFile = leaf.workspace.getActiveFile();
+		const activeFile = leaf.workspace.getActiveFile();
 		dfc.currentFile = activeFile ? activeFile.path : "";
 	},
 
 	create: function(filenames, onChangeCallback, isMonitored)
 	{
-		let result = {
+		const result = {
 			files: {},
 			onChange: onChangeCallback,
 			isMonitored: isMonitored
@@ -946,7 +946,6 @@ var dfc = {
 		}
 		for (let i = 0; i < newFileList.length; i++)
 		{
-			let file = dfc.plugin.app.vault.fileMap[newFileList[i]];
 			if (!instance.files.hasOwnProperty(newFileList[i]))
 			{
 				instance.files[newFileList[i]] = {
@@ -967,7 +966,7 @@ var dfc = {
 
 			for (let key in instance.files)
 			{
-				let file = dfc.plugin.app.vault.fileMap[key];
+				const file = dfc.plugin.app.vault.fileMap[key];
 				if (file)
 				{
 					if (instance.files[key].modDate < file.stat.mtime || force)
