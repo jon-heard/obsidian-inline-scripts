@@ -860,7 +860,8 @@ var dfc = {
 			}
 		}
 		dfc.hasEditorSaved = false;
-		dfc.currentFile = leaf.workspace.getActiveFile().path;
+		let activeFile = leaf.workspace.getActiveFile();
+		dfc.currentFile = activeFile ? activeFile.path : "";
 	},
 
 	create: function(filenames, onChangeCallback, isMonitored)
