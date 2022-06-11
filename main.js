@@ -7,7 +7,6 @@ const DEFAULT_SETTINGS =
 {
 	prefix: ";;",
 	suffix: ";",
-	hotkey: " ",
 	shortcutFiles: [],
 	shortcuts:
 		"~~\n^date$\n~~\nreturn new Date().toLocaleDateString();\n\n" +
@@ -122,8 +121,7 @@ const TextExpanderJsPlugin = (function(_super)
 	// React to key-down by checking for a shortcut at the caret
 	TextExpanderJsPlugin.prototype.handleExpansionTrigger_cm5 = function(cm, keydown)
 	{
-		// React to key-down of shortcut suffix's ending character
-		if (this.settings.hotkey == " " && event.key == this.suffixEndCharacter)
+		if (event.key == this.suffixEndCharacter)
 		{
 			// Delay logic by a frame to allow key event to finish processing first
 			setTimeout(() =>
@@ -134,16 +132,6 @@ const TextExpanderJsPlugin = (function(_super)
 					this.expandShortcut(cm, shortcutPosition);
 				}
 			}, 0);
-		}
-		// React to user-determined hotkey to expand a shortcut
-		else if (this.settings.hotkey != " " && event.key == this.settings.hotkey)
-		{
-			const shortcutPosition = this.parseShortcutPosition(cm);
-			if (shortcutPosition)
-			{
-				event.preventDefault(); // Key used as hotkey, block normal usage
-				this.expandShortcut(cm, shortcutPosition);
-			}
 		}
 	};
 
@@ -723,24 +711,6 @@ const TextExpanderJsPluginSettings = (function(_super)
 		// OTHER SETTINGS //
 		////////////////////
 		c.createEl("h2", { text: "Other Settings" });
-		if (!IS_MOBILE)
-		{
-			new obsidian.Setting(c)
-				.setName("Expansion trigger")
-				.setDesc("A shortcut is expanded when this happens.")
-				.addDropdown((dropdown) =>
-				{
-					return dropdown
-						.addOption("Enter", "Enter / Return key")
-						.addOption("Tab", "Tab key")
-						.addOption(" ", "Shortcut typed")
-						.setValue(this.tmpSettings.hotkey)
-						.onChange((value) =>
-						{
-							this.tmpSettings.hotkey = value;
-						});
-				});
-		}
 		new obsidian.Setting(c)
 			.setName("Developer mode")
 			.setDesc("Shortcut files are monitored for updates.")
