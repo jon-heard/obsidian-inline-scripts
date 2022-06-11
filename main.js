@@ -101,7 +101,8 @@ var TextExpanderJsPlugin = (function(_super)
 		]);
 
 		// Connect "code mirror 5" instances to this plugin
-		this.registerCodeMirror(this.refreshCodeMirrorState.bind(this));
+		this.registerCodeMirror(
+			cm => cm.on("keydown", this._handleExpansionTrigger_cm5));
 
 		// Log starting the plugin
 		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
@@ -110,7 +111,8 @@ var TextExpanderJsPlugin = (function(_super)
 	TextExpanderJsPlugin.prototype.onunload = function()
 	{
 		// Disconnect "code mirror 5" instances from this plugin
-		this.app.workspace.iterateCodeMirrors(this.refreshCodeMirrorState.bind(this));
+		this.app.workspace.iterateCodeMirrors(
+			cm => cm.off("keydown", this._handleExpansionTrigger_cm5));
 
 		// Log starting the plugin
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
@@ -372,22 +374,6 @@ var TextExpanderJsPlugin = (function(_super)
 		// Clean up script error preparations (now that the error is handled)
 		window.removeEventListener('error', this._handleExpansionError);
 		this._expansion = null;
-	};
-
-	// Toggle to keydown event handling for codemirror 5 (older editors) based on plugin state
-	TextExpanderJsPlugin.prototype.refreshCodeMirrorState = function(cm)
-	{
-		// cm.tejs_handled is to make sure we only do this once per change to "_loaded"
-		if (this._loaded && !cm.tejs_handled)
-		{
-			cm.on("keydown", this._handleExpansionTrigger_cm5);
-			cm.tejs_handled = true;
-		}
-		else if (!this._loaded && cm.tejs_handled)
-		{
-			cm.off("keydown", this._handleExpansionTrigger_cm5);
-			cm.tejs_handled = false;
-		}
 	};
 
 	// Parses a shortcut-file contents and produces the shortcuts
