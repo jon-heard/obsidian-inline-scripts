@@ -497,8 +497,8 @@ var MySettings = (function(_super)
 
 		c.createEl("h2", { text: "Shortcut Sources" });
 		new obsidian.Setting(c)
-			.setName("Shortcut files")
-			.setDesc("JSON files containing shortcuts to use.")
+			.setName("Shortcut-files")
+			.setDesc("Addresses of notes containing shortcut-file content.")
 			.addButton((button) =>
 			{
 				return button
@@ -554,7 +554,7 @@ var MySettings = (function(_super)
 		}
 		new obsidian.Setting(c)
 			.setName("Shortcuts")
-			.setDesc("Define shortcuts here (in addition to shortcut files)")
+			.setDesc("Define shortcuts here (in addition to shortcut-files)")
 			.addButton((button) =>
 			{
 				return button

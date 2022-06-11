@@ -43,8 +43,8 @@ A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsi
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
     2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
 5. Add a reference to the shortcut-file.
-    1. Find the "Shortcut files" setting.  It is in plugin options, just beneath "Shortcut Sources".
-    2. In the "Shortcut files" setting, click the "Add file reference" button on the right side.  This adds an empty textbox to the bottom of the "Shortcut files" setting.  The new textbox should show the word "Filename" in grey text.
+    1. Find the "Shortcut-files" setting.  It is in plugin options, just beneath "Shortcut Sources".
+    2. In the "Shortcut-files" setting, click the "Add file reference" button on the right side.  This adds an empty textbox to the bottom of the "Shortcut-files" setting.  The new textbox should show the word "Filename" in grey text.
     3. Click on the new textbox and type in the shortcut-file note's address, determined in step 3.  The textbox will be red until a valid note address is entered.
         - Example: `support/tejs/TEJS_mythicV2`.
 6. Close the settings panel.
@@ -69,7 +69,7 @@ Each shortcut is defined by a pair of strings.
 ### Helper scripts
 If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  Helper scripts provide common code that other shortcuts can use, specifically shortcuts that are listed after the helper script itself.
 
-If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper block".  It prevents any helper scripts above it from being available to any shortcuts after it.  You probably won't need helper blocks, but they are there in case you do.  They are also used to separate shortcut files so one shortcut-file's helper scripts don't affect another shortcut-file.
+If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper block".  It prevents any helper scripts above it from being available to any shortcuts after it.  You probably won't need helper blocks, but they are there in case you do.  They are also used to separate shortcut-files so that the helper scripts in one shortcut-file don't affect those of other files.
 
 Here is an example:
 
@@ -89,7 +89,7 @@ In this list of shortcuts, the second shortcut has an empty Test string.  That m
 2. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
     2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
-3. Go down to the "Shortcuts" setting.  It's the second setting in the panel, just after "Shortcut files".
+3. Go down to the "Shortcuts" setting.  It's the second setting in the panel, just after "Shortcut-files".
 4. The setting has two buttons: "Add shortcut" and "Add defaults".  Click on the "Add shortcut" button.  This adds a shortcut entry to the bottom of the "Shortcuts" setting.  The new entry should include two textboxes with the words "Test (regex)" and "Expansion (javascript)" in grey text.
 5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: Test=`test` and Expansion=`return "The test worked.";`.
 6. Close the settings panel.
@@ -132,16 +132,16 @@ This shortcut-file starts with some comments, then ocontains two shortcuts.  Not
 
 It is _highly_ recommended that every shortcut-file contain a "help" shortcut, preferrably as the first shortcut in the file.  For example, the "state" shortcut-file includes the shortcut `help state`.  When making a help shortcut, use "^help name$" for its Test string, where "name" is specific to the shortcut-file.  This pattern lets the system recognize "help" shortcuts.
 
-The `HOW-TO: Define a new text-entry shortcut` section discusses the javascript console: a useful tool while developing shortcuts and shortcut files.  It also discusses helper scripts: a useful feature for larger shortcut files.
+The `HOW-TO: Define a new text-entry shortcut` section discusses the javascript console: a useful tool while developing shortcuts and shortcut-files.  It also discusses helper scripts: a useful feature for larger shortcut-files.
 
-Another useful tool is "Developer mode", which can be turned on in the __Text Expander JS__ plugin options.  When "Developer mode" is on, all shortcut files will be reloaded each time you move from one note to another.  This lets you edit a shortcut file, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut file.
+Another useful tool is "Developer mode", which can be turned on in the __Text Expander JS__ plugin options.  When "Developer mode" is on, all shortcut-files will be reloaded each time you move from one note to another.  This lets you edit a shortcut-file, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
 
 One other feature worth mentioning: if a shortcut-file contains a shortcut with the Test string of `^tejs setup$`, then that shortcut's Expansion script will be run whenever the shortcut is loaded, including when switching notes while "Developer mode" is turned on.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
 
 ### NOTE: If you make a shortcut-file you think others would like, it'd be great if you could submit it to this repository as a discussion.  If it is decently polished then I'll add it to the list of shortcut-files [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).
 
 ## REFERENCE: Settings
-- __Shortcut files__ - A list of addresses to notes containing shortcut-files.
+- __Shortcut-files__ - A list of addresses to notes containing shortcut-files.
     - The "Add file reference" button adds a new textbox for a shortcut-file address.
     - To the right of each shortcut-file textbox is a trashcan button.  This button lets you delete the textbox.
 - __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, whithout needing a shortcut-file.
@@ -165,7 +165,7 @@ One other feature worth mentioning: if a shortcut-file contains a shortcut with 
 ## Release notes
 
 ### 0.12.0
-- Empty shortcut is "helperblock": it clears out helper scripts.  It is auto-added to the end of each shortcut file
+- Empty shortcut is "helperblock": it clears out helper scripts.  It is auto-added to the end of each shortcut-file
 - add an automatic "help" shortcut that lists all "* help" lines.
 - add to default shortcuts: date, time, datetime
 
