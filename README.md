@@ -151,7 +151,6 @@ One other feature worth mentioning: if a shortcut-file contains a shortcut with 
 - __Prefix & Suffix__ - These settings let you define what to type on either side of a shortcut to signify it as a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
-- __Expansion trigger__ _(not available in mobile)_ - This lets you define when a shortcut is expanded.  By default, a shortcut expands as soon as it's typed.  The other options let you trigger Expansion with a key-press.
 - __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you change from one note to another.  This adds a slight delay, but lets you develop shortcut-files more rapidly, as they are auto-refreshed when changing notes to try out changes to shortcuts.
 
 ## Known Issues
@@ -168,6 +167,10 @@ One other feature worth mentioning: if a shortcut-file contains a shortcut with 
 - Empty shortcut is "helperblock": it clears out helper scripts.  It is auto-added to the end of each shortcut-file
 - add an automatic "help" shortcut that lists all "* help" lines.
 - add to default shortcuts: date, time, datetime
+- Replaced MyPlugin and MySettings titles
+- Removed expansion trigger options (now only expands on final key hit)
+- shortcut tests are now stored as regexp objects, instead of strings
+- All CSS classes now prefixed with "tejs_" to avoid overlap with other plugins
 
 ### 0.11.0
 - Decent error messaging for parsing shortcut-files and when shortcut isn't recognized

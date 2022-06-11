@@ -5,8 +5,6 @@ const state = require("@codemirror/state");
 
 const DEFAULT_SETTINGS =
 {
-	prefix: ";;",
-	suffix: ";",
 	shortcutFiles: [],
 	shortcuts:
 		"~~\n^date$\n~~\nreturn new Date().toLocaleDateString();\n\n" +
@@ -16,6 +14,8 @@ const DEFAULT_SETTINGS =
 		"~~\n^[d|D]([0-9]+)$\n~~\nreturn \"🎲 \" + roll($1) + \" /\" + $1;\n\n" +
 		"~~\n^[f|F][d|D]([0-9]+)$\n~~\nreturn \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /\" + $1 + \"</span>\";\n"
 	,
+	prefix: ";;",
+	suffix: ";",
 	devMode: false
 };
 const DEFAULT_SETTINGS_MOBILE =
@@ -201,7 +201,7 @@ const TextExpanderJsPlugin = (function(_super)
 			expansion += this.shortcuts[i].expansion + "\n";
 
 			// If not a helper script, stop scanning shortcuts, we're done
-			if (this.shortcuts[i].test)
+			if (this.shortcuts[i].test.source != "(?:)")
 			{
 				break;
 			}
@@ -348,8 +348,8 @@ const TextExpanderJsPlugin = (function(_super)
 			this._expansion[i] =
 				String(i+1).padStart(4, '0') + " " + this._expansion[i];
 		}
-		this._expansion .splice(e.lineno-2, 0, "-".repeat(e.colno + 5) + "^");
-		this._expansion .splice(e.lineno-3, 0, "-".repeat(e.colno + 5) + "v");
+		this._expansion .splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
+		this._expansion .splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
 		this._expansion  = this._expansion .join("\n");
 
 		// Notify user of error
@@ -370,31 +370,50 @@ const TextExpanderJsPlugin = (function(_super)
 		content = content.split("~~").map((v) => v.trim());
 		let result = [];
 		let i = 1;
-		while (i < content.length)
-		{
-			result.push({ test: content[i], expansion: content[i+1] });
-			i += 2;
-		}
+		let fileHasErrors = false;
 
 		// Check for the obvious error of misnumbered "~~"
 		if (!(content.length % 2))
 		{
-			let shortcutList = "";
-			for (let i = 0; i < result.length; i++)
-			{
-				shortcutList += "\n\t" + result[i].shortcut;
-			}
-			new obsidian.Notice(
-				"Bad shortcut file format:\n" + filename, LONG_NOTE_TIME);
 			console.error(
-				"\"" + filename + "\" has a bad shortcut file format.\n" +
-				"List of recognized shortcut tests in this file:" + shortcutList);
+				"'Misnumbered section count' error in Shortcut-file \"" +
+				filename + "\".");
+			fileHasErrors = true;
+		}
+
+		// Parse each shortcut in the file
+		while (i < content.length)
+		{
+			let testString = null;
+			try
+			{
+				testString = new RegExp(content[i]);
+			}
+			catch (e)
+			{
+				console.error(
+					"'Bad test string' error in shortcut-file \"" +
+					filename + "\"." + "  Test: " + content[i]);
+				fileHasErrors = true;
+			}
+			if (testString)
+			{
+				result.push({ test: testString, expansion: content[i+1] });
+			}
+			i += 2;
+		}
+
+		if (fileHasErrors)
+		{
+			new obsidian.Notice(
+				"Shortcut-file has errors\n" + filename +
+				"\n\n(see console for details)", LONG_NOTE_TIME);
 		}
 
 		return result;
 	};
 
-	// Creates all the shortcuts based on shortcut lists from shortcut files and settings
+	// Creates all the shortcuts based on shortcut lists from shortcut-files and settings
 	TextExpanderJsPlugin.prototype.setupShortcuts = function()
 	{
 		// Add shortcuts defined directly in the settings
@@ -409,7 +428,7 @@ const TextExpanderJsPlugin = (function(_super)
 			if (this.shortcutDfc.files[key].content == null)
 			{
 				new obsidian.Notice(
-					"Missing shortcut file\n" + key, LONG_NOTE_TIME);
+					"Missing shortcut-file\n" + key, LONG_NOTE_TIME);
 				continue;
 			}
 
@@ -448,7 +467,7 @@ const TextExpanderJsPlugin = (function(_super)
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
 			if (!this.shortcuts[i].test) { continue; }
-			const r = this.shortcuts[i].test.match(helpRegex);
+			const r = this.shortcuts[i].test.source.match(helpRegex);
 			if (r)
 			{
 				helpShortcuts.push(r[1]);
@@ -549,7 +568,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		{
 			new ConfirmDialogBox(
 				this.plugin.app,
-				"Confirm removing a reference to a shortcut file.",
+				"Confirm removing a reference to a shortcut-file.",
 				(confirmation) =>
 				{
 					if (confirmation)
@@ -635,7 +654,11 @@ const TextExpanderJsPluginSettings = (function(_super)
 				expansionUi.setAttr("placeholder", "Expansion (javascript)");
 			if (shortcut)
 			{
-				testUi.value = shortcut.test;
+				testUi.value = shortcut.test.source;
+				if (testUi.value == "(?:)")
+				{
+					testUi.value = "";
+				}
 				expansionUi.value = shortcut.expansion;
 			}
 		};
@@ -713,7 +736,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		c.createEl("h2", { text: "Other Settings" });
 		new obsidian.Setting(c)
 			.setName("Developer mode")
-			.setDesc("Shortcut files are monitored for updates.")
+			.setDesc("Shortcut-files are monitored for updates.")
 			.addToggle((toggle) =>
 			{
 				return toggle
@@ -728,7 +751,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 	// THIS is where settings are saved!
 	TextExpanderJsPluginSettings.prototype.hide = function()
 	{
-		// Build shortcut files list from UI
+		// Build shortcut-files list from UI
 		this.tmpSettings.shortcutFiles = [];
 		for (let i = 0; i < this.shortcutFileUis.childNodes.length; i++)
 		{
