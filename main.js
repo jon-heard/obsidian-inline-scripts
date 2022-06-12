@@ -440,10 +440,10 @@ const TextExpanderJsPlugin = (function(_super)
 			// Add a helper block to segment helper scripts
 			this.shortcuts.push({});
 
-			// Look for a "setup" script to run right now
+			// Look for a "setup" script to run
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
-				if (newShortcuts[i].test == "^tejs setup$")
+				if (newShortcuts[i].test.source == "^tejs setup$")
 				{
 					// Prepare to react to a script error
 					this._expansion = newShortcuts[i].expansion;

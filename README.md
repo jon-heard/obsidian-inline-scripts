@@ -136,7 +136,7 @@ The `HOW-TO: Define a new text-entry shortcut` section discusses the javascript 
 
 Another useful tool is "Developer mode", which can be turned on in the __Text Expander JS__ plugin options.  When "Developer mode" is on, all shortcut-files will be reloaded each time you move from one note to another.  This lets you edit a shortcut-file, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
 
-One other feature worth mentioning: if a shortcut-file contains a shortcut with the Test string of `^tejs setup$`, then that shortcut's Expansion script will be run whenever the shortcut is loaded, including when switching notes while "Developer mode" is turned on.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
+One other feature worth mentioning: shortcut-files can contain a "setup script".  A setup script will run whenever the shortuct-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with the Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
 
 ### NOTE: If you make a shortcut-file you think others would like, it'd be great if you could submit it to this repository as a discussion.  If it is decently polished then I'll add it to the list of shortcut-files [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).
 
