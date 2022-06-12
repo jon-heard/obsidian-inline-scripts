@@ -365,7 +365,7 @@ const TextExpanderJsPlugin = (function(_super)
 	};
 
 	// Parses a shortcut-file contents and produces the shortcuts
-	TextExpanderJsPlugin.prototype.parseShortcutList = function(filename, content)
+	TextExpanderJsPlugin.prototype.parseShortcutList = function(filename, content, keepFencing)
 	{
 		content = content.split("~~").map((v) => v.trim());
 		let result = [];
@@ -398,7 +398,18 @@ const TextExpanderJsPlugin = (function(_super)
 			}
 			if (testString)
 			{
-				result.push({ test: testString, expansion: content[i+1] });
+				let c = content[i+1];
+
+				// Handle the expansion being in a javascript fenced code-block
+				if (!keepFencing)
+				{
+					if (c.startsWith("```js") && c.endsWith("```"))
+					{
+						c = c.substring(5, c.length-3).trim();
+					}
+				}
+
+				result.push({ test: testString, expansion: c });
 			}
 			i += 2;
 		}
@@ -662,7 +673,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 				expansionUi.value = shortcut.expansion;
 			}
 		};
-		const shortcuts = this.plugin.parseShortcutList("Settings", this.tmpSettings.shortcuts);
+		const shortcuts = this.plugin.parseShortcutList("Settings", this.tmpSettings.shortcuts, true);
 		for (let i = 0; i < shortcuts.length; i++)
 		{
 			addShortcutUi(shortcuts[i]);
@@ -777,9 +788,9 @@ const TextExpanderJsPluginSettings = (function(_super)
 
 		// If changes to settings-based shortcuts, "force" is set
 		const oldShortcuts =
-			this.plugin.parseShortcutList("", this.plugin.settings.shortcuts);
+			this.plugin.parseShortcutList("", this.plugin.settings.shortcuts, true);
 		const newShortcuts =
-			this.plugin.parseShortcutList("", this.tmpSettings.shortcuts);
+			this.plugin.parseShortcutList("", this.tmpSettings.shortcuts, true);
 		let force = (newShortcuts.length != oldShortcuts.length);
 		if (!force)
 		{
