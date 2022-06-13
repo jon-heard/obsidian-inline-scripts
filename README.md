@@ -1,4 +1,6 @@
 # Obsidian Plugin - Text Expander JS
+![Demo animation](readmeMedia/demo.gif)
+***
 This Obsidian plugin allows the user to type text shortcuts that are replaced by (or "expanded into") javascript generated text.
 
 ## Table of contents
@@ -52,12 +54,20 @@ A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsi
     - Example: `support/tejs/TEJS_state`.  The name of this shortcut-file note is `TEJS_state`, the folder-path is `support/tejs`.
 4. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
-    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
+    
+        ![Settings button](readmeMedia/settings.png)
+    
+    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for
+__Text Expander JS__.
+
+        ![Plugin options](readmeMedia/pluginOptions.png)
 5. Add a reference to the shortcut-file.
-    1. Find the "Shortcut-files" setting.  It is in plugin options, just beneath "Shortcut Sources".
-    2. In the "Shortcut-files" setting, click the "Add file reference" button on the right side.  This adds an empty textbox to the bottom of the "Shortcut-files" setting.  The new textbox should show the word "Filename" in grey text.
-    3. Click on the new textbox and type in the shortcut-file note's address, determined in step 3.  The textbox will be red until a valid note address is entered.
+    1. Find the "Shortcut-files" setting.  It is in plugin options, just beneath "Shortcut Sources" _(see picture below)_.
+    2. In the "Shortcut-files" setting, click the "Add file reference" button on the right side.  This adds an empty textbox to the bottom of the "Shortcut-files" setting.  The new textbox should show the word "Filename" in grey text. _(see picture below)_
+    3. Click on the new textbox and type in the shortcut-file note's address, determined in step 3.  The textbox will be red until a valid note address is entered. _(see picture below)_
         - Example: `support/tejs/TEJS_mythicV2`.
+        
+        ![Shortcut-files setting](readmeMedia/shortcutFiles.png)
 6. Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
@@ -72,14 +82,22 @@ Each shortcut-file should have a "help" shortcut that lists the shortcuts provid
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
 2. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
-    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
-3. Go down to the "Shortcuts" setting.  It's the second setting in the panel, just after "Shortcut-files".
-4. The setting has two buttons: "Add shortcut" and "Add defaults".  Click on the "Add shortcut" button.  This adds a shortcut entry to the bottom of the "Shortcuts" setting.  The new entry should include two textboxes with the words "Test (regex)" and "Expansion (javascript)" in grey text.
-5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: Test=`test` and Expansion=`return "The test worked.";`.
-6. Close the settings panel.
+    
+        ![Settings button](readmeMedia/settings.png)
+    
+    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for
+__Text Expander JS__.
+
+        ![Plugin options](readmeMedia/pluginOptions.png)
+3. Go down to the "Shortcuts" setting.  It's the second setting in the panel, just after "Shortcut-files". _(see picture below)_
+4. The setting has two buttons: "Add shortcut" and "Add defaults".  Click on the "Add shortcut" button.  This adds a shortcut entry to the bottom of the "Shortcuts" setting.  The new entry should include two textboxes with the words "Test (regex)" and "Expansion (javascript)" in grey text. _(see picture below)_
+5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: Test=`test` and Expansion=`return "The test worked.";`. _(see picture below)_
+
+    ![Shortcuts](readmeMedia/shortcuts.png)
+7. Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
-7. Try typing your new shortcut into a note to make sure it works.
+8. Try typing your new shortcut into a note to make sure it works.
 
 ### Shortcut components
 Each shortcut is defined by a pair of strings.
@@ -95,11 +113,13 @@ Each shortcut is defined by a pair of strings.
 
 ### The console
 If the new shortcut doesn't work and it's not clear why, then the javascript console can help you.
-1. Type ctrl-shift-i to open the dev-tools panel.
-2. Click on the "Console" tab at the top of the dev-tools panel.
-3. Review the console contents for a clue as to what is going wrong with the shortcut.
+1. Type ctrl-shift-i to open the dev-tools panel. _(see picture below)_
+2. Click on the "Console" tab at the top of the dev-tools panel. _(see picture below)_
+3. Review the console contents for a clue as to what is going wrong with the shortcut. _(see picture below)_
 4. Try typing the shortcut into a note while the console is open to see if an error is added to the console.  You can review the error message to help discover what's wrong.
-5. If you are struggling with too much information in the console, you can always clear it.  There's a button to do so on the top-left of the dev-tools panel.
+5. If you are struggling with too much information in the console, you can always clear it.  There's a button to do so on the top-left of the dev-tools panel. _(see picture below)_
+
+    ![Console](readmeMedia/console.png)
 
 ### Helper scripts
 If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  A helper script provides common code that any shortcuts listed after it can use.
@@ -153,7 +173,9 @@ Here is another, more meaty, example:
 This shortcut-file begins with some comments, then it contains two shortcuts.  Notice that the first `~~` is placed after the comments.  Every shortcut-file has a section at the top for comments.  This includes the minimal example before this one, though in that case the comments section is empty.  Also notice that there are empty lines between sections.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
 
 ### Developer mode
-Developer mode is an on/off setting available in the __Text Expander JS__ plugin options.  When "Developer mode" is on, all shortcut-files will be reloaded each time you move from one note to another.  This lets you edit a shortcut-file note, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
+Developer mode is an on/off setting available in the __Text Expander JS__ plugin options _(see picture below)_.  When "Developer mode" is on, all shortcut-files will be reloaded each time you move from one note to another.  This lets you edit a shortcut-file note, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
+
+![Developer mode](readmeMedia/devMode.png)
 
 ### Help shortcuts
 It is _highly_ recommended that every shortcut-file contain a "help" shortcut, preferrably as the first shortcut in the file.  A "help" shortcut is written to provide a reference to users of the shortcut-file.  It should expand into a list of the shortcuts and a brief description for each.  When writing a help shortcut, use "^help name$" for its Test string, where "name" is specific to the shortcut-file.  For example, the "state" shortcut-file includes the shortcut `help state`.  This pattern lets the system recognize "help" shortcuts.
