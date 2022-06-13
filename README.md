@@ -3,6 +3,8 @@
 ***
 This Obsidian plugin allows the user to type text shortcuts that are replaced by (or "expanded into") javascript generated text.
 
+This plugin works on all platforms, including mobile.
+
 ## Table of contents
 - [Examples](#examples)
 - [Overview](#overview)
@@ -248,9 +250,13 @@ If you...
 ... then visit the [discussions page](https://github.com/jon-heard/obsidian-text-expander-js/discussions).
 
 ### Donations
-If you've found this plugin useful, then a small donation would let me know that I should keep it up.  Click below.
+If you've found this plugin useful, then a small donation lets me know that I should keep it up.  Thanks!
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/jonheard99?country.x=US&locale.x=en_US)
+
+***
+
+***
 
 ## Release notes
 
