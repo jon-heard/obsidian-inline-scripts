@@ -21,27 +21,35 @@ This Obsidian plugin allows the user to type text shortcuts that are replaced by
 ## Overview
 Shortcuts are defined in shortcut-files, to be added to the vault as notes.  When one or more shortcut-file notes are in the vault and connected to this plugin, their shortcuts will expand when they are typed into any note in the vault.  Users can download prewritten shortcut-files into their vault, or write their own.
 
-Individual shortcuts can also be defined in the settings.  This is useful for one-off shortcuts as it requires less work and file clutter.  It is also less flexible with shortcut organization and transfer.  __Text Expander JS__ starts with a few sample shortcuts defined in the settings.
+Individual shortcuts can also be defined in the settings.  This is useful for one-off shortcuts as it requires less work and file clutter.  It is also less flexible with shortcut organization and transfer.
 
 ## HOW-TO: Setup the plugin and try it out
 1.  Walk through the process of installing and enabling the plugin (TBD once this plugin is part of the community).
-2.  Open a note to try out the plugin
+2.  Open a note to try out the plugin.
 3.  In the note, type `;;d100;` (or `!!d100!` on mobile).
 4.  Note that the shortcut expands to a roll-result as soon as you've finished typing it.
 5.  Repeat step 3.  Note that the roll result is (most likely) different.  If it is not different then you are just lucky.  Try step 3 again.
 
+__Text Expander JS__ comes with the following shortcuts as defaults:
+- date
+- time
+- datetime
+- d{max} - dice roll.  Examples - d3, d20, d57, d999, etc.
+- fd{max} - same as d{max}, but with fancier formatting.
+
 ## HOW-TO: Add an existing shortcut-file to a vault
 
 ### Shortcut-file sources
-A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_mythicV2.md) file contains shortcuts to perform actions defined by the [Mythic GME RPG system](https://www.drivethrurpg.com/product/229391/Mythic-Variations-2?manufacturers_id=480).
+A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_state.md) file contains shortcuts related to storing and reproducing "clips" of text as well as shortcuts related to saving and loading state, including stored "clips" of text.
 
 ### Step-by-step: Adding a shortcut-file to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
 2. Get the contents of a shortcut-file into a note in your vault.  You can do this one of two ways.
-    - copy the shortcut-file's text content into an empty note.
-    - copy the shortcut-file directly into your vault's folder.
+    - Copy the shortcut-file's text content into an empty note.
+        - If the text is from github, I suggest copying from the raw file, though this isn't mandatory.
+    - Copy the shortcut-file directly into your vault's folder.
 3. Determine and remember the shortcut-file note's address.  This is the note's folder-path, followed by the note's name.
-    - Example: `support/tejs/TEJS_mythicV2`.  The name of this shortcut-file note is `TEJS_mythicV2`, the folder-path is `support/tejs`.
+    - Example: `support/tejs/TEJS_state`.  The name of this shortcut-file note is `TEJS_state`, the folder-path is `support/tejs`.
 4. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
     2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
