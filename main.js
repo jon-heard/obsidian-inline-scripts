@@ -628,15 +628,18 @@ const TextExpanderJsPluginSettings = (function(_super)
 			{
 				return button
 					.setButtonText("Add defaults")
-					.onClick(() =>
+					.onClick(function()
 					{
+						let shortcuts =
+							this.plugin.parseShortcutList("Settings",
+							DEFAULT_SETTINGS.shortcuts, true);
 						for (let i = 0;
-						     i < DEFAULT_SETTINGS.shortcuts.length;
+						     i < shortcuts.length;
 						     i++)
 						{
-							addShortcutUi(DEFAULT_SETTINGS.shortcuts[i]);
+							addShortcutUi(shortcuts[i]);
 						}
-					});
+					}.bind(this));
 			});
 		this.shortcutUis = c.createEl("div", { cls: "tejs_shortcuts" });
 		const shortcutDeleteButtonClicked = function()
