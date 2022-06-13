@@ -1,0 +1,518 @@
+# Text Expander JS - Test
+## Instruction
+1) Make sure that shortcut-file references are as follows:
+	- support/TEJS_support
+	- support/TEJS_state
+	- support/TEJS_mythicV2
+	- support/TEJS_une
+1) Copy this text into a note
+2) Add a ";" to the end of each line with a shortcut.  Start from the bottom and don't skip ANY!
+3) Copy the entire document into a dif application
+4) Diff against "expected.txt"
+***
+
+__Fate check (50/50)__
+NO
+_fateRoll1=7 fateRoll1=3 chaosRoll=7 oddsAdjust=0 chaosAdjust=0_
+
+
+Mythic details are ENABLED
+
+
+Mythic details are ENABLED
+
+
+__Fate check (50/50)__
+EXTREME NO
+__Event__
+NPC POSITIVE - TRANSFORM _(of)_ STATUS_QUO
+
+
+Mythic details are DISABLED
+
+
+Mythic details are DISABLED
+
+
+Mythic details are ENABLED
+
+
+__TEJS state__
+{"clips":{"a":"first","c":"third"},"mythic":{"chaos":4,"scene":1,"showDetails":true,"lists":{"pcs":[],"npcs":[],"threads":[]}}}
+
+
+***
+
+
+### SCENE 1
+__Setup__: 
+__Action__
+CHANGE "ACTIVITY" DESCRIPTOR. IT IS ACTIVATED & DECIDES NEXT ACTION.
++2/0/-2 DISPOSITION TO MATCH ACTION.
+_table1Roll=10 table2Roll1=2 table2Roll2=6 dispositionAdjust=2 tableAdjust=4 descriptorRoll=3_
+
+
+__Action__
+NEW ACTION BASED ON THEME
+_table1Roll=2_
+
+
+__Action__
+TRY TO END ENCOUNTER
++2/0/-2 DISPOSITION TO MATCH ACTION.
+_table1Roll=10 table2Roll1=2 table2Roll2=2 dispositionAdjust=4 tableAdjust=4_
+
+
+__Action__
+CONTINUE CURRENT ACTION
+_table1Roll=5_
+
+
+__Action__
+NEW ACTION BASED ON THEME
+_table1Roll=1_
+
+
+__Action__
+GIVE SOMETHING TO THE PC
++2/0/-2 DISPOSITION TO MATCH ACTION.
+_table1Roll=9 table2Roll1=4 table2Roll2=7 dispositionAdjust=4 tableAdjust=-4_
+
+
+__Action__
+NEW ACTION BASED ON THEME
+_table1Roll=2_
+
+
+__Action__
+NEW ACTION BASED ON THEME
+_table1Roll=1_
+
+
+__Action__
+CONTINUE CURRENT ACTION
+_table1Roll=5_
+
+
+__Action__
+CONTINUE CURRENT ACTION, +2 DISPOSITION
+_table1Roll=6_
+
+
+__Action__
+CONTINUE CURRENT ACTION
+_table1Roll=5_
+
+
+__Action__
+NEW ACTION BASED ON THEME
+_table1Roll=2_
+
+
+__Disposition__
+MODERATE (0)
+_base=10 descriptorAdjust=0_
+
+
+__Disposition__
+ACTIVE (+2)
+_base=10 descriptorAdjust=4_
+
+
+__Disposition__
+AGGRESSIVE (+4) - BASE=15
+_roll1=6 roll2=9 descriptorAdjust=4_
+
+
+__Descriptor__
+Personality: DIMLY SMELLY
+Activity: CRUELTY _(of)_ INTRIGUES
+_descriptorRoll1=27 descriptorRoll2=89 actionRoll1=78 actionRoll2=65_
+
+
+Chaos remains at 3 (minimum).
+
+
+Chaos lowered to 3.
+
+
+Chaos set to 4.
+
+
+Chaos remains at 6 (maximum).
+
+
+Chaos raised to 6.
+
+
+Chaos is 5.
+
+
+Chaos lowered to 5.
+
+***
+
+
+
+### SCENE 12
+***
+Scene replaced
+__Event__
+NPC POSITIVE - RETURN _(of)_ THE_PHYSICAL
+_sceneCheck=2 eventRoll=94 actionRoll1=35 actionRoll2=26_
+***
+__Setup__: 
+Chaos remains at 6 (maximum).
+
+***
+
+
+
+### SCENE 11
+***
+Scene modified
+***
+__Setup__: 
+The current scene is 10.
+
+
+__Lists__
+pcs, threads
+
+
+List "npcs" removed.
+
+
+__Lists__
+pcs, npcs, threads
+
+
+List "newList" removed.
+
+
+__Lists__
+pcs, npcs, threads, newList
+
+
+Failed to remove list "notAList".  List does not exist.
+
+
+__Lists__
+pcs, npcs, threads, newList
+
+
+__List "npcs"__
+Becca, Pramod, Becca
+
+
+"Sarah Heard" removed from list "npcs".
+
+
+Failed to remove "notAListItem" from list "notAList".  Not found in list.
+
+
+Failed to remove "notAListItem" from list "npcs".  Not found in list.
+
+
+Failed to pick from list "notAList".  List is empty.
+
+
+"Becca" picked from list "npcs".
+
+
+__List "newList"__
+newListItem
+
+
+__Lists__
+pcs, npcs, threads, newList
+
+
+"newListItem" added to list "newList".
+
+
+__List "npcs"__
+Becca, Pramod, Sarah Heard, Becca
+
+
+"Becca" added to list "npcs".
+
+
+__List "npcs"__
+Becca, Pramod, Sarah Heard
+
+
+"Sarah Heard" added to list "npcs".
+
+
+__List "threads"__
+eat, sleep
+
+
+__List "npcs"__
+Becca, Pramod
+
+
+__List "pcs"__
+Jon, Ben
+
+
+__Lists__
+pcs, npcs, threads
+
+
+__Meaning (action)__
+HARM _(of)_ DISRUPTION
+_actionRoll1=49 actionRoll2=62_
+
+
+__Meaning (description)__
+FEROCIOUSLY DELICATE
+_descriptorRoll1=34 descriptorRoll2=18_
+
+
+__Meaning (action)__
+TRANSFORM _(of)_ ILLUSIONS
+_actionRoll1=97 actionRoll2=88_
+
+
+__Fate check (50/50)__
+YES
+_fateRoll1=9 fateRoll1=10 chaosRoll=7 oddsAdjust=0 chaosAdjust=2_
+
+
+__Fate check (impossible)__
+NO
+_fateRoll1=10 fateRoll1=3 chaosRoll=5 oddsAdjust=-8 chaosAdjust=-2_
+
+
+__Fate check (has to be)__
+YES
+_fateRoll1=2 fateRoll1=3 chaosRoll=7 oddsAdjust=8 chaosAdjust=-2_
+
+
+__Fate check (50/50)__
+YES
+_fateRoll1=8 fateRoll1=9 chaosRoll=2 oddsAdjust=0 chaosAdjust=-2_
+
+
+__Event__
+THREAD END (eat) - OPPOSE _(of)_ MESSAGES
+_eventRoll=54 threads=1 actionRoll1=8 actionRoll2=21_
+
+
+__Detail__
+THREAD NEGATIVE (eat)
+_roll1=6 roll2=3 chaosAdjust=-2 threads=1_
+
+
+### MYTHIC SHORTCUTS HELP
+- __help mythic__ - Display this help text.
+- __reset mythic__ - Reset mythic state to defaults and displays scene heading.
+- __mythic details__ - Displays "details" mode state.  If "details" mode is enabled, expansions include the rolls behind the results.
+- __mythic details {state}__ - Sets "details" mode based on {state}.
+    - If {state} is 'y' then "details" mode is enabled
+	- if {state} is 'n' then "details" mode is disabled.
+***
+- __detail__ - Make a detail check.
+- __event__ - Make an event check.
+- __fate {odds} {wanted}__ - Make a fate check based on {odds}: an optional number from -4 (impossible) to 4 (has to be), defaulting to 0 (50/50).  This is also based on {wanted}: an optional value of either 'n' or 'y', defaulting to 'y'.  The value {wanted} specifies the direction of the chaos modifier.
+- __meaning action__ - Roll on the action meaning table.
+- __meaning discription__ - Roll on the description meaning table.
+- __meaning__ - Roll on the action meaning table. (short for "meaning action")
+***
+- __list__ - Show all lists.
+- __list {listName}__ - Show all items in the list {listName}.
+- __listadd {listName} {item}__ - Add {item} to the end of the list {listName}.
+- __listget {listName}__ - Get a random item from the list named {listName}.
+- __listremove {listName} {item}__ - Remove last instance of {item} from the list {listName}.
+- __listremoveall {listName}__ - Remove the entire list of {listName}.
+***
+- __scene__ - Show the current scene.
+- __scene {chaosAdjust}__ - Shift the chaos value by {chaosAdjust} (1 or -1), then increment the current scene.
+- __chaos__ - Show the current chaos value.
+- __chaos++__ - Increase the chaos value by 1 (maximum of 6).
+- __chaos--__ - Decrease the chaos value by 1 (minimum of 3).
+- __chaos={value}__ - Set the chaos value to {value}.
+***
+- __descriptor__ - Generates a personality and activity descriptor for an NPC.
+- __disposition {descriptorCount}__ - Rolls for an NPC's disposition, modified by {descriptorCount}.
+- __disposition {base} {descriptorCount}__ - Displays the NPC disposition determined by the {base} disposition, modified by {descriptorCount}.
+- __action {dispositionAdjust}__ - Makes an NPC behavior check, modified by {dispositionAdjust}, the NPC's disposition.
+
+
+***
+__Character focus__
+THE PC'S WEAPONS
+
+
+__Character bearing__
+SCHEMING: BARGAIN
+
+
+__Character bearing__
+MYSTERIOUS: ENIGMA
+
+
+__Character mood__
+SOCIABLE
+
+
+__Character mood__
+CAUTIOUS
+
+
+__Character motive__
+- DISCOURAGE MILITARY 
+- PREPARE SCIENCE 
+- REVIEW HATE 
+
+
+__Character power level__
+COMPARABLE
+
+
+__Character power level__
+COMPARABLE
+
+
+__Character identity__
+PRYING GOVERNOR
+
+
+__Interact__
+__Mood__: NEUTRAL
+__Bearing__: SCHEMING: MEANS
+__Focus__: THE PC'S PARENTS
+
+
+__Interact__
+__Mood__: NEUTRAL
+__Bearing__: HOSTILE: JUDGMENT
+__Focus__: THE PC'S SKILLS
+
+
+__Character__
+__Identity__: ESTABLISHED ASTROLOGER
+__Power__: COMPARABLE
+__Motive__:
+- DRIVE VALOR 
+- SPOIL HARDSHIP 
+- ACHIEVE STORIES 
+
+
+__Character__
+__Identity__: PLEBEIAN GUNMAN
+__Power__: COMPARABLE
+__Motive__:
+- PROGRESS FAMILY 
+- PURSUE SCIENCE 
+- REPORT LUST 
+
+
+__Character__
+__Identity__: UNSEEMLY MERCHANT
+__Power__: COMPARABLE
+__Motive__:
+- PUBLICIZE COMPASSION 
+- IMPLEMENT HATE 
+- IMPLEMENT THE_POPULOUS 
+***
+__Interact__
+__Mood__: SOCIABLE
+__Bearing__: SCHEMING: ARRANGEMENT
+__Focus__: THE PC'S LAST_STORY
+
+
+__Character__
+__Identity__: INCONSIDERATE BEGGAR
+__Power__: COMPARABLE
+__Motive__:
+- INFORM OLD_RELIGIONS 
+- ASSOCIATE HARMONY 
+- CONCEIVE VALOR 
+***
+__Interact__
+__Mood__: CAUTIOUS
+__Bearing__: KNOWING: REPORT
+__Focus__: THE PC'S POWER
+
+
+### UNE SHORTCUTS HELP ###
+- __help une__ - Display this help text.
+***
+- __une {randomness} {relationship to pc} {demeanor}__ - Runs "une character" and "une interact" together.  {randomness} is an optional value for "une character".  {relationship to pc} and {demeanor} are optional values for "une interact".
+***
+- __une character {randomness}__ - Runs "identity", "power" and "motive" together.  {randomness} is an optional value for "power".
+- __une interact {relationship to pc} {demeanor}__ - Runs "mood", "bearing" and "focus" together.  {relationship to pc} is an optional value for "mood".  {demeanor} is an optional value for "bearing".
+***
+- __une identity__ - Generates a 2-word description for a character.
+- __une power {randomness}__ - Generates a character's power level relative to pc's power level, based on {randomness}: an optional number from 1 (order), to 5 (chaos), defaulting to 3 (standard).
+- __une motive__ - Generates three 2-word descriptions for a character's motivations.
+***
+- __une mood {relationship to pc}__ - Generates a character's willingness to socialize for this interaction, based on {relationship to pc}: a optional number from 1 (love), to 7 (hate), defaulting to 4 (neutral).
+- __une bearing {demeanor}__ - Generate a character's attitude for this interaction, based on {demeanor}: an optional number from 1-8, defaulting to random and meaning one of the following:
+    1 - sceming       2 - insane       3 - friendly          4 - hostile
+    5 - inquisitive    6 - knowing    7 - mysterious    8 - prejudiced.
+- __une focus__ - Generate a character's primary interest for this interaction.
+
+
+***
+__Clips__
+a, c
+
+
+Clip "b" removed.
+
+
+2-second
+__Clip "b" set to__
+2-second
+
+
+third
+__Clips__
+a, b, c
+
+
+__Clip "c" set to__
+third
+
+
+
+second
+first
+__Clips__
+a, b
+
+
+TEJS state loaded.
+
+
+__TEJS state__
+{"clips":{"a":"first","c":"third"},"mythic":{"chaos":6,"scene":10,"showDetails":true,"lists":{"pcs":["Jon","Ben"],"npcs":["Becca","Pramod"],"threads":["eat","sleep"]}}}
+
+
+### TEJS STATE SHORTCUTS HELP
+- __help state__ - Display this help text.
+***
+- __state__ - Expands to the current state (for session saving).
+- __state {state}__ - Sets the current state based on {state}: a string created previously with the "state" shortcut.
+***
+- __clip__ - List all stored clips.
+- __clip {name}__ - Expands to the value stored in clip {name}.
+- __clipadd {name} {value}__ - Creates a clip {name} that stores {value}.
+- __clipremove {name}__ - Removes the clip {name}.
+
+
+***
+These shortcuts provide detailed help:
+- help support
+- help state
+- help mythic
+- help une
+
+
+Random number generator set up with seed 1
+
+

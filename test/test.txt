@@ -1,0 +1,116 @@
+# Text Expander JS - Test
+## Instruction
+1) Make sure that shortcut-file references are as follows:
+	- support/TEJS_support
+	- support/TEJS_state
+	- support/TEJS_mythicV2
+	- support/TEJS_une
+1) Copy this text into a note
+2) Add a ";" to the end of each line with a shortcut.  Start from the bottom and don't skip ANY!
+3) Copy the entire document into a dif application
+4) Diff against "expected.txt"
+***
+
+;;fate
+;;mythic details
+;;mythic details y
+;;fate
+;;mythic details
+;;mythic details n
+;;mythic details
+;;state
+;;reset mythic
+;;action 2
+;;action 4
+;;action 4
+;;action 4
+;;action 4
+;;action 4
+;;action 4
+;;action 4
+;;action 4
+;;action 4
+;;action 4
+;;action 4
+;;disposition 10 0
+;;disposition 10 2
+;;disposition 2
+;;descriptor
+;;chaos--
+;;chaos--
+;;chaos=4
+;;chaos++
+;;chaos++
+;;chaos
+;;scene -1
+;;scene 1
+;;scene
+;;list
+;;listremoveall npcs
+;;list
+;;listremoveall newList
+;;list
+;;listremoveall notAList
+;;list
+;;list npcs
+;;listremove npcs Sarah Heard
+;;listremove notAList notAListItem
+;;listremove npcs notAListItem
+;;listget notAList
+;;listget npcs
+;;list newList
+;;list
+;;listadd newList newListItem
+;;list npcs
+;;listadd npcs Becca
+;;list npcs
+;;listadd npcs Sarah Heard
+;;list threads
+;;list npcs
+;;list pcs
+;;list
+;;meaning
+;;meaning description
+;;meaning action
+;;fate 0 n
+;;fate -4 y
+;;fate 4
+;;fate
+;;event
+;;detail
+;;help mythic
+***
+;;une focus
+;;une bearing 1
+;;une bearing
+;;une mood 1
+;;une mood
+;;une motive
+;;une power 1
+;;une power
+;;une identity
+;;une interact 1 1
+;;une interact
+;;une character 1
+;;une character
+;;une 1 1 1
+;;une
+;;help une
+***
+;;clip
+;;clipremove b
+;;clip b
+;;clipadd b 2-second
+;;clip c
+;;clip
+;;clipadd c third
+;;clip c
+;;clip b
+;;clip a
+;;clip
+;;state {"clips":{"a":"first","b":"second"},"mythic":{"chaos":6,"scene":10,"showDetails":true,"lists":{"pcs":["Jon","Ben"],"npcs":["Becca","Pramod"],"threads":["eat","sleep"]}}}
+;;state
+;;help state
+***
+;;help
+;;rngSeed 1
