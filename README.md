@@ -13,6 +13,7 @@ This Obsidian plugin allows the user to type text shortcuts that are replaced by
 - [REFERENCE: Settings](#reference-settings)
 - [Known Issues](#known-issues)
 - [Credits](#credits)
+- [User support, bugs, feedback, dontations, etc.](#user-support-bugs-feedback-donations-etc)
 - [Release notes](#release-notes)
 - [TODO](#todo)
 
@@ -141,7 +142,7 @@ In this list of shortcuts, the second shortcut has an empty Test string.  That m
 
 ## HOW-TO: Create a new shortcut-file
 
-### NOTE: If you make a shortcut-file you think others would like, it'd be great if you could submit it to this repository as a discussion.  If it is decently polished then I'll even add it to the list of shortcut-files [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).
+### NOTE: If you make a shortcut-file you think others would like, it'd be real nice of you to share it [here](https://github.com/jon-heard/obsidian-text-expander-js/discussions)!  If it is polished and generally useful, then I'll even add it to the [main list of shortcut-files](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).
 
 This HOW-TO assumes that you have read and understood `HOW-TO: Define a new text-entry shortcut`, and are at least aware that `HOW-TO: Add a text-entry shortcut-file to a vault` shows how to setup an existing shortcut-file.
 
@@ -234,6 +235,22 @@ Shortcut-files can contain a "setup script".  A setup script will run whenever t
 - This project was inspired by the description of Obsidian on the RPG Tips youtube video <a href='https://www.youtube.com/watch?v=XTFFzuZVcPk' target='_blank'>How I play my games in 2021</a>.
 - This project was made with awareness of and deference to the <a href='https://github.com/konodyuk/obsidian-text-expander' target='_blank'>obsidian-text-expander</a> plugin (which has a more rudamentary feature set, but allows running external scripts).
 - In both cases, the goal of this plugin is to fulfill a need for effortless cross-system, cross-platform operability of advanced text-expansion features.
+
+## User support, bugs, feedback, donations, etc.
+
+### Communication
+If you...
+- Need help with this plugin
+- Have a bug or issue to report
+- Want to share a script-file
+- Want to offer feedback
+
+... then visit the [discussions page](https://github.com/jon-heard/obsidian-text-expander-js/discussions).
+
+### Donations
+If you've found this plugin useful, then a small donation would let me know that I should keep it up.  Click below.
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/jonheard99?country.x=US&locale.x=en_US)
 
 ## Release notes
 
