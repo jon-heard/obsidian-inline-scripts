@@ -157,48 +157,46 @@ const TextExpanderJsPlugin = (function(_super)
 	TextExpanderJsPlugin.prototype.expandShortcut = function(cm, shortcutPosition)
 	{
 		// Find and use the right shortcuts
-		const text = cm.getLine(shortcutPosition.lineIndex).substring(
+		const sourceText = cm.getLine(shortcutPosition.lineIndex).substring(
 			shortcutPosition.prefixIndex + this.settings.prefix.length,
 			shortcutPosition.suffixIndex);
-		const expansion = this.getExpansion(text);
-		if (expansion)
-		{
-			cm.replaceRange(
-				expansion,
-				{ line: shortcutPosition.lineIndex,
-				  ch: shortcutPosition.prefixIndex },
-				{ line: shortcutPosition.lineIndex,
-				  ch: shortcutPosition.suffixIndex +
-				      this.settings.suffix.length });
-		}
+		const expansionText = this.getExpansion(sourceText);
+		if (expansionText === undefined) { return; }
+		cm.replaceRange(
+			expansionText,
+			{ line: shortcutPosition.lineIndex,
+			  ch: shortcutPosition.prefixIndex },
+			{ line: shortcutPosition.lineIndex,
+			  ch: shortcutPosition.suffixIndex +
+			      this.settings.suffix.length });
 	};
 
 	// Take a shortcut string and return the proper expansion string
 	TextExpanderJsPlugin.prototype.getExpansion = function(text)
 	{
-		let expansion = "";
+		let expansionText = "";
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
 			const matchInfo = text.match(this.shortcuts[i].test);
 			if (!matchInfo) { continue; }
 
-			// Helper block (blank Test and Expansion) erase all before it
+			// Helper block (empty shortcut) erases helper scripts before it
 			if (!this.shortcuts[i].test && !this.shortcuts[i].expansion)
 			{
-				expansion = "";
+				expansionText = "";
 				continue;
 			}
 
-			// Translate regex groups into variables for the expansion
+			// Translate regex groups into variables
 			for (let k = 1; k < matchInfo.length; k++)
 			{
-				expansion +=
+				expansionText +=
 					"let $" + k + " = \"" +
 					matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
 			}
 
-			// Add the shortcut's expansion script to the total expanson script
-			expansion += this.shortcuts[i].expansion + "\n";
+			// Add the shortcut's Expansion string to the total Expanson script
+			expansionText += this.shortcuts[i].expansion + "\n";
 
 			// If not a helper script, stop scanning shortcuts, we're done
 			if (this.shortcuts[i].test.source != "(?:)")
@@ -208,24 +206,24 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 
 		// Prepare to react to a script error
-		this._expansion = expansion;
+		this._expansionText = expansionText;
 		window.addEventListener('error', this._handleExpansionError);
 
-		// Run the expansion script
-		expansion = Function(expansion)();
+		// Run the Expansion script
+		expansionText = Function(expansionText)();
 
 		// Clean up script error preparations  (it wouldn't have got here if we'd hit one)
 		window.removeEventListener('error', this._handleExpansionError);
-		this._expansion = null;
+		this._expansionText = null;
 
 		// Shortcut parsing amounted to nothing.  Notify user of their bad shortcut entry.
-		if (expansion === undefined)
+		if (expansionText === undefined)
 		{
 			console.warn("Shortcut text unidentified: \"" + text + "\"");
 			new obsidian.Notice("Shortcut text unidentified:\n" + text);
 		}
 
-		return expansion;
+		return expansionText;
 	};
 
 	// Handle shortcut expansion for codemirror 6 (newer editor and mobile platforms)
@@ -291,7 +289,7 @@ const TextExpanderJsPlugin = (function(_super)
 				this.settings.prefix.length,
 				originalText.length - this.settings.suffix.length);
 			expansionText = this.getExpansion(expansionText);
-			if (!(typeof expansionText === "string")) { return; }
+			if (expansionText === undefined) { return; }
 
 			// Add the changes and selection to growing list
 			const replacementLength = originalText.length - 1;
@@ -342,26 +340,26 @@ const TextExpanderJsPlugin = (function(_super)
 		e.preventDefault();
 
 		// Insert line numbers and arrows into code
-		this._expansion = this._expansion.split("\n");
-		for (let i = 0; i < this._expansion.length; i++)
+		this._expansionText = this._expansionText.split("\n");
+		for (let i = 0; i < this._expansionText.length; i++)
 		{
-			this._expansion[i] =
-				String(i+1).padStart(4, '0') + " " + this._expansion[i];
+			this._expansionText[i] =
+				String(i+1).padStart(4, '0') + " " + this._expansionText[i];
 		}
-		this._expansion .splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
-		this._expansion .splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
-		this._expansion  = this._expansion .join("\n");
+		this._expansionText.splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
+		this._expansionText.splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
+		this._expansionText = this._expansionText.join("\n");
 
 		// Notify user of error
 		console.error(
 			"Error in Shortcut expansion: " + e.message +
 			"\nline: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
-			"─".repeat(20) + "\n" + this._expansion);
+			"─".repeat(20) + "\n" + this._expansionText);
 		new obsidian.Notice("Error in shortcut expansion", LONG_NOTE_TIME);
 
 		// Clean up script error preparations (now that the error is handled)
 		window.removeEventListener('error', this._handleExpansionError);
-		this._expansion = null;
+		this._expansionText = null;
 	};
 
 	// Parses a shortcut-file contents and produces the shortcuts
@@ -457,7 +455,7 @@ const TextExpanderJsPlugin = (function(_super)
 				if (newShortcuts[i].test.source == "^tejs setup$")
 				{
 					// Prepare to react to a script error
-					this._expansion = newShortcuts[i].expansion;
+					this._expansionText = newShortcuts[i].expansion;
 					window.addEventListener(
 						'error', this._handleExpansionError);
 
@@ -467,7 +465,7 @@ const TextExpanderJsPlugin = (function(_super)
 					// Clean up script error preparations
 					window.removeEventListener(
 						'error', this._handleExpansionError);
-					this._expansion = null;
+					this._expansionText = null;
 				}
 			}
 		}
