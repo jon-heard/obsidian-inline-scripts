@@ -129,7 +129,7 @@ const TextExpanderJsPlugin = (function(_super)
 				const shortcutPosition = this.parseShortcutPosition(cm);
 				if (shortcutPosition)
 				{
-					this.expandShortcut(cm, shortcutPosition);
+					this.expandShortcutPosition(cm, shortcutPosition);
 				}
 			}, 0);
 		}
@@ -154,7 +154,7 @@ const TextExpanderJsPlugin = (function(_super)
 	};
 
 	// Expand a shortcut based on its start/end positions
-	TextExpanderJsPlugin.prototype.expandShortcut = function(cm, shortcutPosition)
+	TextExpanderJsPlugin.prototype.expandShortcutPosition = function(cm, shortcutPosition)
 	{
 		// Find and use the right shortcuts
 		const sourceText = cm.getLine(shortcutPosition.lineIndex).substring(
@@ -162,6 +162,7 @@ const TextExpanderJsPlugin = (function(_super)
 			shortcutPosition.suffixIndex);
 		const expansionText = this.getExpansion(sourceText);
 		if (expansionText === undefined) { return; }
+		if (Array.isArray(expansionText)) { expansionText = expansionText.join(""); }
 		cm.replaceRange(
 			expansionText,
 			{ line: shortcutPosition.lineIndex,
@@ -205,16 +206,7 @@ const TextExpanderJsPlugin = (function(_super)
 			}
 		}
 
-		// Prepare to react to a script error
-		this._expansionText = expansionText;
-		window.addEventListener('error', this._handleExpansionError);
-
-		// Run the Expansion script
-		expansionText = Function(expansionText)();
-
-		// Clean up script error preparations  (it wouldn't have got here if we'd hit one)
-		window.removeEventListener('error', this._handleExpansionError);
-		this._expansionText = null;
+		expansionText = this.runExpansionScript(expansionText);
 
 		// Shortcut parsing amounted to nothing.  Notify user of their bad shortcut entry.
 		if (expansionText === undefined)
@@ -224,6 +216,25 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 
 		return expansionText;
+	};
+
+	// Runs an expansion script, including error handling
+	TextExpanderJsPlugin.prototype.runExpansionScript = function(expansionScript)
+	{
+		// Prepare to react to a script error
+		this._expansionText = expansionScript;
+		window.addEventListener('error', this._handleExpansionError);
+
+		// Run the Expansion script
+		expansionScript =
+			(new Function("getExpansion", expansionScript))
+			(this.getExpansion.bind(this));
+
+		// Clean up script error preparations  (it wouldn't have got here if we'd hit one)
+		window.removeEventListener('error', this._handleExpansionError);
+		this._expansionText = null;
+
+		return expansionScript;
 	};
 
 	// Handle shortcut expansion for codemirror 6 (newer editor and mobile platforms)
@@ -290,6 +301,10 @@ const TextExpanderJsPlugin = (function(_super)
 				originalText.length - this.settings.suffix.length);
 			expansionText = this.getExpansion(expansionText);
 			if (expansionText === undefined) { return; }
+			if (Array.isArray(expansionText))
+			{
+				expansionText = expansionText.join("");
+			}
 
 			// Add the changes and selection to growing list
 			const replacementLength = originalText.length - 1;
@@ -454,18 +469,7 @@ const TextExpanderJsPlugin = (function(_super)
 			{
 				if (newShortcuts[i].test.source == "^tejs setup$")
 				{
-					// Prepare to react to a script error
-					this._expansionText = newShortcuts[i].expansion;
-					window.addEventListener(
-						'error', this._handleExpansionError);
-
-					// Run "setup" script
-					Function(newShortcuts[i].expansion)();
-
-					// Clean up script error preparations
-					window.removeEventListener(
-						'error', this._handleExpansionError);
-					this._expansionText = null;
+					this.runExpansionScript(newShortcuts[i].expansion);
 				}
 			}
 		}
