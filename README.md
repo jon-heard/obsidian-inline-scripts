@@ -44,6 +44,9 @@ __Text Expander JS__ comes with the following shortcuts as defaults:
 
 ## HOW-TO: Add an existing shortcut-file to a vault
 
+### A warning
+Shortcuts, by their Javscript nature, have a risk of being malicious.  Make sure you trust a shortcut or shortcut-file before using it.
+
 ### Shortcut-file sources
 A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_state.md) file contains shortcuts related to storing and reproducing "clips" of text as well as shortcuts related to saving and loading state, including stored "clips" of text.
 
@@ -215,6 +218,17 @@ __Warning__: The code block opening _must_ be ` ```js `.  ` ```javascript `, ` `
 
 ### Setup scripts
 Shortcut-files can contain a "setup script".  A setup script will run whenever the shortuct-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with the Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
+
+### Chaining shortcuts
+There are two features that work in tandem to allow you to chain shortcuts together.  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then use the expansion result.
+
+Firstly, am Expansion script can, and typically does, return a string.  This string is what replaces the user typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets automatically joined into a single string to replace the user typed shortcut.
+
+Secondly, within an Expansion script you can call the "getExpansion(text)" method.  This method takes the given text and tries to: find a matching shortcut, create an expansion result for it, and return that expansion result.  It works exactly like the shortcut text you type into a note, except that it returns the string or string array, _instead_ of writing it to the note.
+
+Given these features, here's how you can chain a set of shortcuts.  The first shortcut that is called calls getExpansion(), passing in the second shortcut's text.  What it gets back is either the expansion text or the array of strings for the second shortcut.  It can then use that result, or whatever piece of the result it needs.
+
+Here's an example.  Say you had shortcuts "firstname", "lastname" and "fullname".  "firstname" and "lastname" each return an array with a label text (such as "Firstname: ") and then the actual name (such as "Bob").  "fullname" then returns an array with: a label (such as "Fullname: "), getExpansion("firstname")[1] and getExpansion("lastname")[1].  Notice that both calls to getExpansion end with [1].  That is because we only care about the second element of the array: the actual name.
 
 ## REFERENCE: Settings
 - __Shortcut-files__ - A list of addresses to notes containing shortcut-files.
