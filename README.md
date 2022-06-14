@@ -236,6 +236,7 @@ Here's an example shortcut list:
 |  3 | fullname | return [ "FullName: ", getExpansion("firstname")[1], " ", getExpansion("lastname")[1] ]; |
 
 Notice that shortcut #1 returns an array of strings, but if you expand it, by typing `;;firstname;` (or `!!firstname!` on mobile), the result is "FirstName: John".  This is true for shortcut #2 as well (it outputs "LastName: Smith").
+
 When you expand shortcut #3, "fullname", the result is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the array result from shortcuts #1 and #2, then the `[1]` turns that into just the second string of the array.
 
 ## REFERENCE: Settings
