@@ -226,9 +226,17 @@ Firstly, am Expansion script can, and typically does, return a string.  This str
 
 Secondly, within an Expansion script you can call the "getExpansion(text)" method.  This method takes the given text and tries to: find a matching shortcut, create an expansion result for it, and return that expansion result.  It works exactly like the shortcut text you type into a note, except that it returns the string or string array, _instead_ of writing it to the note.
 
-Given these features, here's how you can chain a set of shortcuts.  The first shortcut that is called calls getExpansion(), passing in the second shortcut's text.  What it gets back is either the expansion text or the array of strings for the second shortcut.  It can then use that result, or whatever piece of the result it needs.
+Given these features, here's how you can chain a set of shortcuts.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut's text.  What it gets back is the second shortcut's Expansion result: either a string or an array of strings.  It can then use that result, or whatever piece of that result it needs.
 
-Here's an example.  Say you had shortcuts "firstname", "lastname" and "fullname".  "firstname" and "lastname" each return an array with a label text (such as "Firstname: ") and then the actual name (such as "Bob").  "fullname" then returns an array with: a label (such as "Fullname: "), getExpansion("firstname")[1] and getExpansion("lastname")[1].  Notice that both calls to getExpansion end with [1].  That is because we only care about the second element of the array: the actual name.
+Here's an example shortcut list:
+| id | Test | Expansion |
+| -- | ---- | --------- |
+|  1 | firstname | return ["FirstName: ", "John"]; |
+|  2 | lastname | return ["LastName: ", "Smith"]; |
+|  3 | fullname | return [ "FullName: ", getExpansion("firstname")[1], " ", getExpansion("lastname")[1] ]; |
+
+Notice that shortcut #1 returns an array of strings, but if you expand it, by typing `;;firstname;` (or `!!firstname!` on mobile), the result is "FirstName: John".  This is true for shortcut #2 as well (it outputs "LastName: Smith").
+When you expand shortcut #3, "fullname", the result is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the array result from shortcuts #1 and #2, then the `[1]` turns that into just the second string of the array.
 
 ## REFERENCE: Settings
 - __Shortcut-files__ - A list of addresses to notes containing shortcut-files.
