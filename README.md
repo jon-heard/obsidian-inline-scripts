@@ -46,7 +46,7 @@ Individual shortcuts can also be defined in the settings.  This is useful for on
 4.  Note that the shortcut expands to a roll-result as soon as you've finished typing it.
 5.  Repeat step 3.  Note that the roll result is (most likely) different.  If it is not different then you are just lucky.  Try step 3 again.
 
-__Text Expander JS__ comes with the following shortcuts as defaults:
+__Text Expander JS__ comes with the following shortcuts defined by default:
 - date
 - time
 - datetime
@@ -67,9 +67,9 @@ A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsi
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
 2. Get the contents of a shortcut-file into a note in your vault.  You can do this one of two ways.
     - Copy the shortcut-file's text content into an empty note.
-        - If the text is from github, I suggest copying from the raw file, though this isn't mandatory.
+        - If the shortcut-file is on github, I suggest copying from the "raw file", though this isn't mandatory.
     - Copy the shortcut-file directly into your vault's folder.
-3. Determine and remember the shortcut-file note's address.  This is the note's folder-path, followed by the note's name.
+3. Determine and remember the shortcut-file note's address in your vault.  This is the note's folder-path, followed by the note's name.
     - Example: `support/tejs/TEJS_state`.  The name of this shortcut-file note is `TEJS_state`, the folder-path is `support/tejs`.
 4. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
@@ -84,7 +84,7 @@ __Text Expander JS__.
     1. Find the "Shortcut-files" setting.  It is in plugin options, just beneath "Shortcut Sources" _(see picture below)_.
     2. In the "Shortcut-files" setting, click the "Add file reference" button on the right side.  This adds an empty textbox to the bottom of the "Shortcut-files" setting.  The new textbox should show the word "Filename" in grey text. _(see picture below)_
     3. Click on the new textbox and type in the shortcut-file note's address, determined in step 3.  The textbox will be red until a valid note address is entered. _(see picture below)_
-        - Example: `support/tejs/TEJS_mythicV2`.
+        - Example: `support/tejs/TEJS_state`.
         
         ![Shortcut-files setting](readmeMedia/shortcutFiles.png)
 6. Close the settings panel.
@@ -136,11 +136,11 @@ Each shortcut is defined by a pair of strings.
 
 ## HOW-TO: Create a new shortcut-file
 
-### NOTE: If you make a shortcut-file you think others would like, it'd be real nice of you to share it [here](https://github.com/jon-heard/obsidian-text-expander-js/discussions)!  If it is polished and generally useful, then I'll even add it to the [main list of shortcut-files](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).
+### NOTE: If you make a shortcut-file you think others would like, it'd be real nice if you could share it [here](https://github.com/jon-heard/obsidian-text-expander-js/discussions)!  If it is polished and generally useful, then I'll even add it to the [main list of shortcut-files](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).
 
-This HOW-TO assumes that you have read and understood `HOW-TO: Define a new text-entry shortcut`, and are at least aware that `HOW-TO: Add a text-entry shortcut-file to a vault` shows how to setup an existing shortcut-file.
+This HOW-TO assumes that you have read and understood [HOW-TO: Create a new shortcut](#how-to-create-a-new-shortcut), and are at least aware that [HOW-TO: Add an existing shortcut-file to a vault](#how-to-add-an-existing-shortcut-file-to-a-vault) shows how to setup an existing shortcut-file.
 
-A shortcut-file contains multiple shortcuts.  Each shortcut contains a Test string and an Expansion string.  A shortcut-file will typically bundle collections of shortcuts that work toward a common goal, such as particular functionality (saving & loading) or particular systems (the Mythic RPG system).
+A shortcut-file contains multiple shortcuts.  Each shortcut contains a Test string and an Expansion string.  A shortcut-file will typically bundle collections of shortcuts that work toward a common goal, such as a particular functionality (saving & loading) or a particular system (a tabletop RPG system).
 
 ### Examples
 Here is a minimal example of a shortcut-file's contents:
@@ -165,7 +165,7 @@ Here is another, more meaty, example:
 > ~~<br/>
 > return $1.repeat(10);<br/>
 
-This shortcut-file begins with some comments, then it contains two shortcuts.  Notice that the first `~~` is placed after the comments.  Every shortcut-file has a section at the top for comments.  This includes the minimal example before this one, though in that case the comments section is empty.  Also notice that there are empty lines between sections.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
+This shortcut-file begins with some comments, then it contains two shortcuts.  Notice that the first `~~` is placed after the initial comments.  Every shortcut-file starts with a secion for comments.  This includes the minimal example before this one, though in that case the comments section is empty.  Also notice that there are empty lines between sections.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
 
 ### Developer mode
 Developer mode is an on/off setting available in the __Text Expander JS__ plugin options _(see picture below)_.  When "Developer mode" is on, all shortcut-files will be reloaded each time you move from one note to another.  This lets you edit a shortcut-file note, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
@@ -173,7 +173,7 @@ Developer mode is an on/off setting available in the __Text Expander JS__ plugin
 ![Developer mode](readmeMedia/devMode.png)
 
 ### Help shortcuts
-It is _highly_ recommended that every shortcut-file contain a "help" shortcut, preferrably as the first shortcut in the file.  A "help" shortcut is written to provide a reference to users of the shortcut-file.  It should expand into a list of the shortcuts and a brief description for each.  When writing a help shortcut, use "^help name$" for its Test string, where "name" is specific to the shortcut-file.  For example, the "state" shortcut-file includes the shortcut `help state`.  This pattern lets the system recognize "help" shortcuts.
+It is _highly_ recommended that every shortcut-file contain a "help" shortcut, preferrably as the first shortcut in the file.  A "help" shortcut is written to provide a reference to users of the shortcut-file.  It should expand into a list of the shortcuts and a brief description of each.  When writing a help shortcut, use "^help name$" for its Test string, where "name" is specific to the shortcut-file.  For example, the "state" shortcut-file includes the shortcut `help state`.  This pattern lets the system recognize "help" shortcuts.
 
 ***
 
@@ -185,22 +185,22 @@ It is _highly_ recommended that every shortcut-file contain a "help" shortcut, p
     - The "Add shortcut" button adds a blank entry for a new shortcut to the bottom of the Shortcuts setting.
     - The "Add defaults" button adds the default shortcuts to the end of Shortcut setting.
     - To the right of each shortcut entry is a trashcan button.  This button lets you delete the shortcut entry.
-- __Prefix & Suffix__ - These settings let you define what to type on either side of a shortcut to signify it as a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
+- __Prefix & Suffix__ - These settings let you define what a typed shortcut starts and ends with to signify that it is a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
-    - Any errors with the prefix & suffix entries will trigger a red "error" box with a description of what is wrong.  Check for that before leaving the __Text Expander JS__ plugin options.
-- __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you change from one note to another.  This adds a slight delay, but lets you develop shortcut-files more rapidly, as they are auto-refreshed when changing notes to try out changes to shortcuts.
+    - If there are any errors with the prefix & suffix entries, a red box with an error text will appear above the prefix & suffix textboxes.
+- __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you change from one note to another.  This adds a slight delay, but lets you develop shortcut-files more rapidly.
 
 ***
 
 ## Advanced Shortcut and Shortcut-file development
 
 ### The console
-If the new shortcut doesn't work and it's not clear why, then the javascript console can help you.
+If a new shortcut doesn't work and it's not clear why, then the javascript console can help.
 1. Type ctrl-shift-i to open the dev-tools panel. _(see picture below)_
 2. Click on the "Console" tab at the top of the dev-tools panel. _(see picture below)_
 3. Review the console contents for a clue as to what is going wrong with the shortcut. _(see picture below)_
-4. Try typing the shortcut into a note while the console is open to see if an error is added to the console.  You can review the error message to help discover what's wrong.
+4. Try typing the shortcut into a note while the console is open to see if an error is added to the console.  You can review the error message for a clue as to what's wrong.
 5. If you are struggling with too much information in the console, you can always clear it.  There's a button to do so on the top-left of the dev-tools panel. _(see picture below)_
 
     ![Console](readmeMedia/console.png)
@@ -230,7 +230,7 @@ Cons:
 - Takes longer to write
 - Takes up more space
 
-__Warning__: The code block opening _must_ be ` ```js `.  ` ```javascript `, ` ```JS `, or anything else will break the Expansion string.
+__Warning__: The code block opening _must_ be ` ```js `!  ` ```javascript `, ` ```JS `, or anything else will break the Expansion string.
 
 ### Helper scripts
 If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  A helper script provides common code that any shortcuts listed after it can use.
@@ -248,7 +248,7 @@ Here is an example of helper scripts:
 |    5    |       |                                                                |
 |    6    | bye   | return "Goodbye.  Thanks for your time!";                      |
 
-In this list of shortcuts, the second shortcut has an empty Test string.  That means that it is a "helper script". The code in its Expansion string (a function called "roll") is available to shortcuts after it.  The fifth shortcut in this list is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  The net effect is that the third and fourth shortcuts have access to the helper script in shortcut 2, while the first and sixth shortcuts do not.
+In this list of shortcuts, the shortcut #2 has an empty Test string.  That means that it is a "helper script". The code in its Expansion string (a function called "roll") is available to shortcuts after it.  Shortcut #5 is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  The net effect is that shortcuts #3 and #4 have access to the helper script in shortcut #2, while shortcuts #1 and #6 do not.
 
 ### Setup scripts
 Shortcut-files can contain a "setup script".  A setup script will run whenever the shortuct-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with the Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
@@ -256,22 +256,22 @@ Shortcut-files can contain a "setup script".  A setup script will run whenever t
 ### Chaining shortcuts
 There are two features that work in tandem to allow you to chain shortcuts together.  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then use the expansion result.
 
-Firstly, am Expansion script can, and typically does, return a string.  This string is what replaces the user typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets automatically joined into a single string to replace the user typed shortcut.
+Firstly, an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when replacing a user-typed shortcut.
 
-Secondly, within an Expansion script you can call the "getExpansion(text)" method.  This method takes the given text and tries to: find a matching shortcut, create an expansion result for it, and return that expansion result.  It works exactly like the shortcut text you type into a note, except that it returns the string or string array, _instead_ of writing it to the note.
+Secondly, within an Expansion script you can call the function "getExpansion(text)".  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like the shortcut text you type into a note, except that it returns the string or string array, _instead_ of writing it to the note.
 
-Given these features, here's how you can chain a set of shortcuts.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut's text.  What it gets back is the second shortcut's Expansion result: either a string or an array of strings.  It can then use that result, or whatever piece of that result it needs.
+Given these features, here's how you can chain a set of shortcuts.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut's text.  What it gets back is the second shortcut's Expansion result: either a string or an array of strings.  It can then use that result, or a piece of that result as needed.
 
-Here's an example shortcut list:
-| id | Test | Expansion |
-| -- | ---- | --------- |
+Here's an example:
+| Test id | Test | Expansion |
+| ------- | ---- | --------- |
 |  1 | firstname | return ["FirstName: ", "John"]; |
 |  2 | lastname | return ["LastName: ", "Smith"]; |
 |  3 | fullname | return [ "FullName: ", getExpansion("firstname")[1], " ", getExpansion("lastname")[1] ]; |
 
-Notice that shortcut #1 returns an array of strings, but if you expand it, by typing `;;firstname;` (or `!!firstname!` on mobile), the result is "FirstName: John".  This is true for shortcut #2 as well (it outputs "LastName: Smith").
+Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (`!!firstname!` on mobile), then the expansion is "FirstName: John".  This is true for shortcut #2 as well (expanding into "LastName: Smith").
 
-When you expand shortcut #3, "fullname", the result is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the array result from shortcuts #1 and #2, then the `[1]` turns that into just the second string of the array.
+If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the `[1]` turns the array into just the second string of the array.
 
 ***
 
@@ -317,7 +317,9 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 - Removed expansion trigger options (now only expands on final key hit)
 - shortcut tests are now stored as regexp objects, instead of strings
 - All CSS classes now prefixed with "tejs_" to avoid overlap with other plugins
-- Expansions can now be surrounded with a javascript fenced code block
+- Expansions strings can now be surrounded with a javascript fenced code block
+- Expansion scripts can now return an array of strings.  This allows segmentation of the data, though the string array is joined during expansion.
+- Expansion scripts now have access to "getExpansion(text)" to allow calling other shortcuts and using their results.
 
 ### 0.11.0
 - Decent error messaging for parsing shortcut-files and when shortcut isn't recognized
