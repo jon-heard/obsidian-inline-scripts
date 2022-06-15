@@ -85,6 +85,7 @@ const TextExpanderJsPlugin = (function(_super)
 		//Setup bound versons of these function for persistant use
 		this._cm5_handleExpansionTrigger = this.cm5_handleExpansionTrigger.bind(this);
 		this._handleExpansionError = this.handleExpansionError.bind(this);
+		this._getExpansion = this.getExpansion.bind(this);
 
 		// Setup a dfc to keep track of shortcut-file notes.
 		dfc.setup(this);
@@ -98,9 +99,6 @@ const TextExpanderJsPlugin = (function(_super)
 			state.EditorState.transactionFilter.of(
 				this.cm6_handleExpansionTrigger.bind(this))
 		]);
-
-		// Expansions can call expansions.  This keeps track of how far down we are.
-		this.expansionNestLevel = 0;
 
 		// Connect "code mirror 5" instances to this plugin
 		this.registerCodeMirror(
@@ -163,7 +161,7 @@ const TextExpanderJsPlugin = (function(_super)
 		const sourceText = cm.getLine(shortcutPosition.lineIndex).substring(
 			shortcutPosition.prefixIndex + this.settings.prefix.length,
 			shortcutPosition.suffixIndex);
-		const expansionText = this.getExpansion(sourceText);
+		const expansionText = this.getExpansion(sourceText, true);
 		if (expansionText === undefined) { return; }
 		if (Array.isArray(expansionText)) { expansionText = expansionText.join(""); }
 		cm.replaceRange(
@@ -225,7 +223,7 @@ const TextExpanderJsPlugin = (function(_super)
 			let expansionText = originalText.substring(
 				this.settings.prefix.length,
 				originalText.length - this.settings.suffix.length);
-			expansionText = this.getExpansion(expansionText);
+			expansionText = this.getExpansion(expansionText, true);
 			if (expansionText === undefined) { return; }
 			if (Array.isArray(expansionText))
 			{
@@ -310,7 +308,7 @@ const TextExpanderJsPlugin = (function(_super)
 	};
 
 	// Take a shortcut string and return the proper expansion string
-	TextExpanderJsPlugin.prototype.getExpansion = function(text)
+	TextExpanderJsPlugin.prototype.getExpansion = function(text, isUserTriggered)
 	{
 		if (!text) { return; }
 		let expansionText = "";
@@ -344,7 +342,7 @@ const TextExpanderJsPlugin = (function(_super)
 			}
 		}
 
-		expansionText = this.runExpansionScript(expansionText);
+		expansionText = this.runExpansionScript(expansionText, isUserTriggered);
 
 		// Shortcut parsing amounted to nothing.  Notify user of their bad shortcut entry.
 		if (expansionText === undefined)
@@ -357,22 +355,19 @@ const TextExpanderJsPlugin = (function(_super)
 	};
 
 	// Runs an expansion script, including error handling
-	TextExpanderJsPlugin.prototype.runExpansionScript = function(expansionScript)
+	TextExpanderJsPlugin.prototype.runExpansionScript =
+		function(expansionScript, isUserTriggered)
 	{
-		var isSubExpansion = !this.expansionNestLevel;
-
 		// Prepare to react to a script error
 		this._expansionText = expansionScript;
 		window.addEventListener('error', this._handleExpansionError);
-		this.expansionNestLevel++;
 
-		// Run the Expansion script.  Pass getExpansion function and isSubExpansion flag.
+		// Run the Expansion script.  Pass getExpansion function and isUserTriggered flag.
 		expansionScript =
-			(new Function("getExpansion", "isSubExpansion", expansionScript))
-			(this.getExpansion.bind(this), isSubExpansion);
+			(new Function("getExpansion", "isUserTriggered", expansionScript))
+			(this._getExpansion, isUserTriggered);
 
 		// Clean up script error preparations  (it wouldn't have got here if we'd hit one)
-		this.expansionNestLevel--;
 		window.removeEventListener('error', this._handleExpansionError);
 		delete this._expansionText;
 
@@ -406,7 +401,6 @@ const TextExpanderJsPlugin = (function(_super)
 		new obsidian.Notice("Error in shortcut expansion", LONG_NOTE_TIME);
 
 		// Clean up script error preparations (now that the error is handled)
-		this.expansionNestLevel--;
 		window.removeEventListener('error', this._handleExpansionError);
 		this._expansionText = null;
 	};

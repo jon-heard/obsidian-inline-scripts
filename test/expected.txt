@@ -1,10 +1,10 @@
 # Text Expander JS - Test
 ## Instruction
 1) Make sure that shortcut-file references are as follows:
-	- support/TEJS_support
 	- support/TEJS_state
 	- support/TEJS_mythicV2
 	- support/TEJS_une
+	- support/TEJS_support
 1) Copy this text into a note
 2) Add a ";" to the end of each line with a shortcut.  Start from the bottom and don't skip ANY!
 3) Copy the entire document into a dif application
@@ -12,20 +12,57 @@
 ***
 
 __Fate check (50/50)__
-NO
-_fateRoll1=7 fateRoll1=3 chaosRoll=7 oddsAdjust=0 chaosAdjust=0_
+YES
+_fateRoll1=6 fateRoll2=5 chaosRoll=8 oddsAdjust=0 chaosAdjust=0_
 
 
 Mythic details are ENABLED
 
 
 Mythic details are ENABLED
+
+
+__Action__
+CONTINUE CURRENT ACTION
+
+
+__Disposition__
+MODERATE (0) - BASE=10
+
+
+__Descriptor__
+Personality: BLEAKLY SMALL
+Activity: TRANSFORM _(of)_ ENVIRONMENT
+
+
+***
+
+
+
+### SCENE 2
+***
+__Setup__: 
+Failed to pick from list "pcs".  List is empty.
+
+
+__Meaning (description)__
+BRAVELY EXOTIC
+
+
+__Meaning (action)__
+WASTE _(of)_ VEHICLE
 
 
 __Fate check (50/50)__
-EXTREME NO
+YES
+
+
 __Event__
-NPC POSITIVE - TRANSFORM _(of)_ STATUS_QUO
+NPC ACTS - OVERTHROW _(of)_ THE_MUNDANE
+
+
+__Detail__
+CALM
 
 
 Mythic details are DISABLED
@@ -35,6 +72,9 @@ Mythic details are DISABLED
 
 
 Mythic details are ENABLED
+
+
+Random number generator set up with seed ' 1'.
 
 
 __TEJS state__
@@ -46,67 +86,81 @@ __TEJS state__
 
 ### SCENE 1
 __Setup__: 
+***
+
+
+
+### SCENE 14
+***
+__Scene modified__
+_sceneCheck=1_
+***
+__Setup__: 
+Chaos is lowered to 5.
+***
+
+
+
+### SCENE 13
+***
+_sceneCheck=7_
+***
+__Setup__: 
+Chaos remains at 6 (maximum).
+***
+
+
+
+### SCENE 12
+***
+__Scene modified__
+_sceneCheck=3_
+***
+__Setup__: 
+Chaos remains at 6 (maximum).
+***
+
+
+
+### SCENE 11
+***
+__Scene replaced__
+__Event__ - NPC ACTS - INTOLERANCE _(of)_ GOOD
+_sceneCheck=6 eventRoll=19 actionRoll1=79 actionRoll2=10_
+***
+__Setup__: 
+The current scene is 10.
+
+
+Chaos set to 6.
+
+
+Random number generator set up with seed ' 8'.
+
+
 __Action__
 CHANGE "ACTIVITY" DESCRIPTOR. IT IS ACTIVATED & DECIDES NEXT ACTION.
 +2/0/-2 DISPOSITION TO MATCH ACTION.
-_table1Roll=10 table2Roll1=2 table2Roll2=6 dispositionAdjust=2 tableAdjust=4 descriptorRoll=3_
+_table1Roll=10 table2Roll1=2 table2Roll2=8 dispositionAdjust=0 tableAdjust=4 descriptorRoll=3_
 
 
 __Action__
-NEW ACTION BASED ON THEME
-_table1Roll=2_
+CONTINUE CURRENT ACTION, -2 DISPOSITION
+_table1Roll=7_
 
 
 __Action__
-TRY TO END ENCOUNTER
+CONTINUE CURRENT ACTION, -2 DISPOSITION
+_table1Roll=7_
+
+
+__Action__
+TALK / EXPOSITION
 +2/0/-2 DISPOSITION TO MATCH ACTION.
-_table1Roll=10 table2Roll1=2 table2Roll2=2 dispositionAdjust=4 tableAdjust=4_
+_table1Roll=9 table2Roll1=2 table2Roll2=3 dispositionAdjust=4 tableAdjust=-4_
 
 
-__Action__
-CONTINUE CURRENT ACTION
-_table1Roll=5_
-
-
-__Action__
-NEW ACTION BASED ON THEME
-_table1Roll=1_
-
-
-__Action__
-GIVE SOMETHING TO THE PC
-+2/0/-2 DISPOSITION TO MATCH ACTION.
-_table1Roll=9 table2Roll1=4 table2Roll2=7 dispositionAdjust=4 tableAdjust=-4_
-
-
-__Action__
-NEW ACTION BASED ON THEME
-_table1Roll=2_
-
-
-__Action__
-NEW ACTION BASED ON THEME
-_table1Roll=1_
-
-
-__Action__
-CONTINUE CURRENT ACTION
-_table1Roll=5_
-
-
-__Action__
-CONTINUE CURRENT ACTION, +2 DISPOSITION
-_table1Roll=6_
-
-
-__Action__
-CONTINUE CURRENT ACTION
-_table1Roll=5_
-
-
-__Action__
-NEW ACTION BASED ON THEME
-_table1Roll=2_
+Random number generator set up with seed ' 34'.
 
 
 __Disposition__
@@ -120,20 +174,23 @@ _base=10 descriptorAdjust=4_
 
 
 __Disposition__
-AGGRESSIVE (+4) - BASE=15
-_roll1=6 roll2=9 descriptorAdjust=4_
+AGGRESSIVE (+4) - BASE=17
+_roll1=8 roll2=9 descriptorAdjust=4_
 
 
 __Descriptor__
-Personality: DIMLY SMELLY
-Activity: CRUELTY _(of)_ INTRIGUES
-_descriptorRoll1=27 descriptorRoll2=89 actionRoll1=78 actionRoll2=65_
+Personality: MISERABLY WATERY
+Activity: RELEASE _(of)_ FAME
+_descriptorRoll1=71 descriptorRoll2=98 actionRoll1=21 actionRoll2=98_
+
+
+Random number generator set up with seed ' 1'.
 
 
 Chaos remains at 3 (minimum).
 
 
-Chaos lowered to 3.
+Chaos is lowered to 3.
 
 
 Chaos set to 4.
@@ -142,38 +199,13 @@ Chaos set to 4.
 Chaos remains at 6 (maximum).
 
 
-Chaos raised to 6.
+Chaos is raised to 6.
 
 
-Chaos is 5.
+Chaos set to 5.
 
 
-Chaos lowered to 5.
-
-***
-
-
-
-### SCENE 12
-***
-Scene replaced
-__Event__
-NPC POSITIVE - RETURN _(of)_ THE_PHYSICAL
-_sceneCheck=2 eventRoll=94 actionRoll1=35 actionRoll2=26_
-***
-__Setup__: 
-Chaos remains at 6 (maximum).
-
-***
-
-
-
-### SCENE 11
-***
-Scene modified
-***
-__Setup__: 
-The current scene is 10.
+Chaos is 6.
 
 
 __Lists__
@@ -218,6 +250,7 @@ Failed to pick from list "notAList".  List is empty.
 
 
 "Becca" picked from list "npcs".
+_pickRoll=4_
 
 
 __List "newList"__
@@ -262,48 +295,88 @@ pcs, npcs, threads
 
 
 __Meaning (action)__
-HARM _(of)_ DISRUPTION
-_actionRoll1=49 actionRoll2=62_
+MISTRUST _(of)_ TECHNOLOGY
+_actionRoll1=76 actionRoll2=85_
 
 
 __Meaning (description)__
-FEROCIOUSLY DELICATE
-_descriptorRoll1=34 descriptorRoll2=18_
+CURIOUSLY WATERY
+_descriptorRoll1=21 descriptorRoll2=98_
 
 
 __Meaning (action)__
-TRANSFORM _(of)_ ILLUSIONS
-_actionRoll1=97 actionRoll2=88_
+TRICK _(of)_ FAME
+_actionRoll1=71 actionRoll2=98_
+
+
+Random number generator set up with seed ' 1'.
+
+
+__Fate check (impossible)__
+EXTREME NO
+_fateRoll1=7 fateRoll2=3 chaosRoll=2 oddsAdjust=-8 chaosAdjust=-2_
 
 
 __Fate check (50/50)__
-YES
-_fateRoll1=9 fateRoll1=10 chaosRoll=7 oddsAdjust=0 chaosAdjust=2_
+NO
+_fateRoll1=1 fateRoll2=7 chaosRoll=7 oddsAdjust=0 chaosAdjust=2_
 
 
 __Fate check (impossible)__
 NO
-_fateRoll1=10 fateRoll1=3 chaosRoll=5 oddsAdjust=-8 chaosAdjust=-2_
-
-
-__Fate check (has to be)__
-YES
-_fateRoll1=2 fateRoll1=3 chaosRoll=7 oddsAdjust=8 chaosAdjust=-2_
+_fateRoll1=5 fateRoll2=6 chaosRoll=8 oddsAdjust=-8 chaosAdjust=-2_
 
 
 __Fate check (50/50)__
 YES
-_fateRoll1=8 fateRoll1=9 chaosRoll=2 oddsAdjust=0 chaosAdjust=-2_
+_fateRoll1=5 fateRoll2=8 chaosRoll=3 oddsAdjust=0 chaosAdjust=2_
+
+
+__Fate check (50/50)__
+YES
+_fateRoll1=8 fateRoll2=5 chaosRoll=6 oddsAdjust=0 chaosAdjust=-2_
+
+
+__Fate check (50/50)__
+YES
+_fateRoll1=10 fateRoll2=1 chaosRoll=2 oddsAdjust=0 chaosAdjust=2_
+
+
+__Fate check (impossible)__
+NO
+__Event__ - NPC ACTS (Pramod) - OPPOSE _(of)_ ILLUSIONS
+_fateRoll1=2 fateRoll2=8 chaosRoll=1 oddsAdjust=-8 chaosAdjust=-2 eventRoll=28 npcsList=2 actionRoll1=8 actionRoll2=88_
+
+
+__Fate check (has to be)__
+EXTREME YES
+_fateRoll1=9 fateRoll2=9 chaosRoll=6 oddsAdjust=8 chaosAdjust=-2_
+
+
+__Fate check (50/50)__
+YES
+_fateRoll1=3 fateRoll2=10 chaosRoll=8 oddsAdjust=0 chaosAdjust=-2_
+
+
+Random number generator set up with seed ' 3'.
 
 
 __Event__
-THREAD END (eat) - OPPOSE _(of)_ MESSAGES
-_eventRoll=54 threads=1 actionRoll1=8 actionRoll2=21_
+NPC NEGATIVE (Pramod) - AGREE _(of)_ NEW_IDEAS
+_eventRoll=85 npcsList=2 actionRoll1=59 actionRoll2=19_
 
 
 __Detail__
-THREAD NEGATIVE (eat)
-_roll1=6 roll2=3 chaosAdjust=-2 threads=1_
+FOCUS PC (Ben)
+_roll1=3 roll2=10 chaosAdjust=-2 pcs=2_
+
+
+__Detail__
+COURAGE
+_roll1=8 roll2=10 chaosAdjust=-2_
+
+
+Random number generator set up with seed ' 1'.
 
 
 ### MYTHIC SHORTCUTS HELP
@@ -317,9 +390,10 @@ _roll1=6 roll2=3 chaosAdjust=-2 threads=1_
 - __detail__ - Make a detail check.
 - __event__ - Make an event check.
 - __fate {odds} {wanted}__ - Make a fate check based on {odds}: an optional number from -4 (impossible) to 4 (has to be), defaulting to 0 (50/50).  This is also based on {wanted}: an optional value of either 'n' or 'y', defaulting to 'y'.  The value {wanted} specifies the direction of the chaos modifier.
+- __f {odds} {wanted}__ - Shorthand for "fate  {odds} {wanted}".
 - __meaning action__ - Roll on the action meaning table.
-- __meaning discription__ - Roll on the description meaning table.
-- __meaning__ - Roll on the action meaning table. (short for "meaning action")
+- __meaning description__ - Roll on the description meaning table.
+- __meaning__ - Shorthand for "meaning action".
 ***
 - __list__ - Show all lists.
 - __list {listName}__ - Show all items in the list {listName}.
@@ -329,7 +403,7 @@ _roll1=6 roll2=3 chaosAdjust=-2 threads=1_
 - __listremoveall {listName}__ - Remove the entire list of {listName}.
 ***
 - __scene__ - Show the current scene.
-- __scene {chaosAdjust}__ - Shift the chaos value by {chaosAdjust} (1 or -1), then increment the current scene.
+- __scene {chaosAdjust}__ - Shift the chaos value by {chaosAdjust} (1, 0 or -1), then increment the current scene.
 - __chaos__ - Show the current chaos value.
 - __chaos++__ - Increase the chaos value by 1 (maximum of 6).
 - __chaos--__ - Decrease the chaos value by 1 (minimum of 3).
@@ -347,11 +421,11 @@ THE PC'S WEAPONS
 
 
 __Character bearing__
-SCHEMING: BARGAIN
+SCHEMING - BARGAIN
 
 
 __Character bearing__
-MYSTERIOUS: ENIGMA
+MYSTERIOUS - ENIGMA
 
 
 __Character mood__
@@ -382,13 +456,13 @@ PRYING GOVERNOR
 
 __Interact__
 __Mood__: NEUTRAL
-__Bearing__: SCHEMING: MEANS
+__Bearing__: SCHEMING - MEANS
 __Focus__: THE PC'S PARENTS
 
 
 __Interact__
 __Mood__: NEUTRAL
-__Bearing__: HOSTILE: JUDGMENT
+__Bearing__: HOSTILE - JUDGMENT
 __Focus__: THE PC'S SKILLS
 
 
@@ -420,7 +494,7 @@ __Motive__:
 ***
 __Interact__
 __Mood__: SOCIABLE
-__Bearing__: SCHEMING: ARRANGEMENT
+__Bearing__: SCHEMING - ARRANGEMENT
 __Focus__: THE PC'S LAST_STORY
 
 
@@ -434,8 +508,11 @@ __Motive__:
 ***
 __Interact__
 __Mood__: CAUTIOUS
-__Bearing__: KNOWING: REPORT
+__Bearing__: KNOWING - REPORT
 __Focus__: THE PC'S POWER
+
+
+Random number generator set up with seed ' 1'.
 
 
 ### UNE SHORTCUTS HELP ###
@@ -486,11 +563,18 @@ __Clips__
 a, b
 
 
+__TEJS state__
+{"clips":{"a":"first","b":"second"},"mythic":{"chaos":6,"scene":10,"showDetails":true,"lists":{"pcs":["Jon","Ben"],"npcs":["Becca","Pramod"],"threads":["eat","sleep"]}}}
+
+
 TEJS state loaded.
 
 
 __TEJS state__
-{"clips":{"a":"first","c":"third"},"mythic":{"chaos":6,"scene":10,"showDetails":true,"lists":{"pcs":["Jon","Ben"],"npcs":["Becca","Pramod"],"threads":["eat","sleep"]}}}
+{}
+
+
+TEJS state loaded.
 
 
 ### TEJS STATE SHORTCUTS HELP
@@ -507,12 +591,9 @@ __TEJS state__
 
 ***
 These shortcuts provide detailed help:
-- help support
 - help state
 - help mythic
 - help une
-
-
-Random number generator set up with seed 1
+- help support
 
 

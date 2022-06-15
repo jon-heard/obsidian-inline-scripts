@@ -1,10 +1,10 @@
 # Text Expander JS - Test
 ## Instruction
 1) Make sure that shortcut-file references are as follows:
-	- support/TEJS_support
 	- support/TEJS_state
 	- support/TEJS_mythicV2
 	- support/TEJS_une
+	- support/TEJS_support
 1) Copy this text into a note
 2) Add a ";" to the end of each line with a shortcut.  Start from the bottom and don't skip ANY!
 3) Copy the entire document into a dif application
@@ -14,37 +14,46 @@
 ;;fate
 ;;mythic details
 ;;mythic details y
+;;action 0
+;;disposition 0
+;;descriptor
+;;scene 0
+;;listget pcs
+;;meaning description
+;;meaning action
 ;;fate
+;;event
+;;detail
 ;;mythic details
 ;;mythic details n
 ;;mythic details
+;;rngseed 1
 ;;state
 ;;reset mythic
+;;scene 0
+;;scene -1
+;;scene 1
+;;scene 1
+;;scene
+;;chaos=6
+;;rngseed 8
+;;action 0
+;;action -2
 ;;action 2
 ;;action 4
-;;action 4
-;;action 4
-;;action 4
-;;action 4
-;;action 4
-;;action 4
-;;action 4
-;;action 4
-;;action 4
-;;action 4
+;;rngseed 34
 ;;disposition 10 0
 ;;disposition 10 2
 ;;disposition 2
 ;;descriptor
+;;rngseed 1
 ;;chaos--
 ;;chaos--
 ;;chaos=4
 ;;chaos++
 ;;chaos++
+;;chaos=5
 ;;chaos
-;;scene -1
-;;scene 1
-;;scene
 ;;list
 ;;listremoveall npcs
 ;;list
@@ -72,12 +81,21 @@
 ;;meaning
 ;;meaning description
 ;;meaning action
+;;rngseed 1
+;;f -4 y
+;;f 0 n
+;;f-4y
+;;f0n
+;;f
 ;;fate 0 n
 ;;fate -4 y
 ;;fate 4
 ;;fate
+;;rngseed 3
 ;;event
 ;;detail
+;;detail
+;;rngseed 1
 ;;help mythic
 ***
 ;;une focus
@@ -95,6 +113,7 @@
 ;;une character
 ;;une 1 1 1
 ;;une
+;;rngseed 1
 ;;help une
 ***
 ;;clip
@@ -108,9 +127,10 @@
 ;;clip b
 ;;clip a
 ;;clip
+;;state
 ;;state {"clips":{"a":"first","b":"second"},"mythic":{"chaos":6,"scene":10,"showDetails":true,"lists":{"pcs":["Jon","Ben"],"npcs":["Becca","Pramod"],"threads":["eat","sleep"]}}}
 ;;state
+;;state {}
 ;;help state
 ***
 ;;help
-;;rngSeed 1

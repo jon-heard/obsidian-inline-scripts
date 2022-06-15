@@ -293,7 +293,7 @@ Notice that shortcut #1 returns an array of strings, but if you type `;;firstnam
 
 If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the `[1]` gets the second string of that array.
 
-Note: There is a variable "isSubExpansion" accessible from any Expansion script.  It is true if the Expansion script was triggered from another Expansion script (by calling "getExpansion(text)").
+Note: There is a variable "isUserTriggered" accessible from any Expansion script.  It is true if the Expansion script was triggered directly by a user-typed shortcut, rather than from another Expansion script.
 
 ***
 ***
