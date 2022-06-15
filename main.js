@@ -99,6 +99,9 @@ const TextExpanderJsPlugin = (function(_super)
 				this.handleExpansionTrigger_cm6.bind(this))
 		]);
 
+		// Expansions can call expansions.  This keeps track of how far down we are.
+		this.expansionNestLevel = 0;
+
 		// Connect "code mirror 5" instances to this plugin
 		this.registerCodeMirror(
 			cm => cm.on("keydown", this._handleExpansionTrigger_cm5));
@@ -175,6 +178,7 @@ const TextExpanderJsPlugin = (function(_super)
 	// Take a shortcut string and return the proper expansion string
 	TextExpanderJsPlugin.prototype.getExpansion = function(text)
 	{
+		if (!text) { return; }
 		let expansionText = "";
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
@@ -221,20 +225,56 @@ const TextExpanderJsPlugin = (function(_super)
 	// Runs an expansion script, including error handling
 	TextExpanderJsPlugin.prototype.runExpansionScript = function(expansionScript)
 	{
+		var isSubExpansion = !!this.expansionNestLevel;
+
 		// Prepare to react to a script error
 		this._expansionText = expansionScript;
 		window.addEventListener('error', this._handleExpansionError);
+		this.expansionNestLevel++;
 
-		// Run the Expansion script
+		// Run the Expansion script.  Pass getExpansion function and isSubExpansion flag.
 		expansionScript =
-			(new Function("getExpansion", expansionScript))
-			(this.getExpansion.bind(this));
+			(new Function("getExpansion", "isSubExpansion", expansionScript))
+			(this.getExpansion.bind(this), isSubExpansion);
 
 		// Clean up script error preparations  (it wouldn't have got here if we'd hit one)
+		this.expansionNestLevel--;
 		window.removeEventListener('error', this._handleExpansionError);
-		this._expansionText = null;
+		delete this._expansionText;
 
 		return expansionScript;
+	};
+
+
+	// Called when something goes wrong during shortcut expansion.  Generates a useful
+	// error in the console and notification popup.
+	TextExpanderJsPlugin.prototype.handleExpansionError = function(e)
+	{
+		// Block default error handling
+		e.preventDefault();
+
+		// Insert line numbers and arrows into code
+		this._expansionText = this._expansionText.split("\n");
+		for (let i = 0; i < this._expansionText.length; i++)
+		{
+			this._expansionText[i] =
+				String(i+1).padStart(4, '0') + " " + this._expansionText[i];
+		}
+		this._expansionText.splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
+		this._expansionText.splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
+		this._expansionText = this._expansionText.join("\n");
+
+		// Notify user of error
+		console.error(
+			"Error in Shortcut expansion: " + e.message +
+			"\nline: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
+			"─".repeat(20) + "\n" + this._expansionText);
+		new obsidian.Notice("Error in shortcut expansion", LONG_NOTE_TIME);
+
+		// Clean up script error preparations (now that the error is handled)
+		this.expansionNestLevel--;
+		window.removeEventListener('error', this._handleExpansionError);
+		this._expansionText = null;
 	};
 
 	// Handle shortcut expansion for codemirror 6 (newer editor and mobile platforms)
@@ -345,36 +385,6 @@ const TextExpanderJsPlugin = (function(_super)
 		{
 			return tr;
 		}
-	};
-
-	// Called when something goes wrong during shortcut expansion.  Generates a useful
-	// error in the console and notification popup.
-	TextExpanderJsPlugin.prototype.handleExpansionError = function(e)
-	{
-		// Block default error handling
-		e.preventDefault();
-
-		// Insert line numbers and arrows into code
-		this._expansionText = this._expansionText.split("\n");
-		for (let i = 0; i < this._expansionText.length; i++)
-		{
-			this._expansionText[i] =
-				String(i+1).padStart(4, '0') + " " + this._expansionText[i];
-		}
-		this._expansionText.splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
-		this._expansionText.splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
-		this._expansionText = this._expansionText.join("\n");
-
-		// Notify user of error
-		console.error(
-			"Error in Shortcut expansion: " + e.message +
-			"\nline: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
-			"─".repeat(20) + "\n" + this._expansionText);
-		new obsidian.Notice("Error in shortcut expansion", LONG_NOTE_TIME);
-
-		// Clean up script error preparations (now that the error is handled)
-		window.removeEventListener('error', this._handleExpansionError);
-		this._expansionText = null;
 	};
 
 	// Parses a shortcut-file contents and produces the shortcuts

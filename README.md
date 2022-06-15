@@ -273,16 +273,16 @@ In this list of shortcuts, the shortcut #2 has an empty Test string.  That means
 ### Setup scripts
 Shortcut-files can contain a "setup script".  A setup script will run whenever the shortuct-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with the Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
 
-### Chaining shortcuts
-There are two features that work in tandem to allow you to chain shortcuts together.  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then use the expansion result.
+### Nesting shortcuts
+There are two features that work in tandem to allow you to nest shortcuts (i.e. use shortcut results as part of other shortcuts).  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then use the result.
 
-Firstly, an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when replacing a user-typed shortcut.
+Firstly: an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when expanding a user-typed shortcut.
 
-Secondly, within an Expansion script you can call the function "getExpansion(text)".  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like the shortcut text you type into a note, except that it returns the string or string array, _instead_ of writing it to the note.
+Secondly: within an Expansion script you can call the function "getExpansion(text)".  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like the shortcut text you type into a note, except that it returns the result (a string or a string array), _instead_ of writing the result to the note.
 
 Given these features, here's how you can chain a set of shortcuts.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut's text.  What it gets back is the second shortcut's Expansion result: either a string or an array of strings.  It can then use that result, or a piece of that result as needed.
 
-Here's an example:
+Here's an example of nesting shortcuts:
 | Test id | Test | Expansion |
 | ------- | ---- | --------- |
 |  1 | firstname | return ["FirstName: ", "John"]; |
@@ -291,7 +291,9 @@ Here's an example:
 
 Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (`!!firstname!` on mobile), then the expansion is "FirstName: John".  This is true for shortcut #2 as well (expanding into "LastName: Smith").
 
-If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the `[1]` turns the array into just the second string of the array.
+If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the `[1]` gets the second string of that array.
+
+Note: There is a variable "isSubExpansion" accessible from any Expansion script.  It is true if the Expansion script was triggered from another Expansion script (by calling "getExpansion(text)").
 
 ***
 ***
