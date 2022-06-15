@@ -70,6 +70,7 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/jonheard99?country.x=US&locale.x=en_US)
 
 ***
+***
 
 ## HOW-TO: Setup the plugin and try it out
 1.  Walk through the process of installing and enabling the plugin (TBD once this plugin is part of the community).
