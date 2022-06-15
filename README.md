@@ -10,32 +10,64 @@ This plugin works on all platforms, including mobile.
 ***
 
 ## Table of contents
-- [Examples](#examples)
 - [Overview](#overview)
+- [REFERENCE: Settings](#reference-settings)
+- [User support, bugs, feedback, dontations, etc.](#user-support-bugs-feedback-donations-etc)
 - [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out)
 - [HOW-TO: Add an existing shortcut-file to a vault](#how-to-add-an-existing-shortcut-file-to-a-vault)
 - [HOW-TO: Create a new shortcut](#how-to-create-a-new-shortcut)
 - [HOW-TO: Create a new shortcut-file](#how-to-create-a-new-shortcut-file)
-- [REFERENCE: Settings](#reference-settings)
-- [Advanced shortcut and shortcut-file development](#advanced-shortcut-and-shortcut-file-development)
+- [ADVANCED: shortcut and shortcut-file development](#advanced-shortcut-and-shortcut-file-development)
 - [Known Issues](#known-issues)
 - [Credits](#credits)
-- [User support, bugs, feedback, dontations, etc.](#user-support-bugs-feedback-donations-etc)
 - [Release notes](#release-notes)
 - [TODO](#todo)
 
 ***
 
-## Examples
+## Overview
+
+__Text Expander JS__ expands typed shortucts into predefined results, for example:
 - Typing `;;date;` can cause the text to expand into `6/7/2021`
 - Typing `;;name male european;` can cause the text to expand into -> `Bill Harrington`
 
-***
+The second example shows how shortcuts can include text to be considered when creating the expansion result.
 
-## Overview
-Shortcuts are defined in shortcut-files, to be added to the vault as notes.  When one or more shortcut-file notes are in the vault and connected to this plugin, their shortcuts will expand when they are typed into any note in the vault.  Users can download prewritten shortcut-files into their vault, or write their own.
+Shortcuts are defined in shortcut-files, to be added to the vault as notes.  When one or more shortcut-file notes are in the vault and connected to this plugin, their shortcuts will expand whenever they are typed into a note in the vault.  Users can download prewritten shortcut-files into their vault, or write their own.
 
 Individual shortcuts can also be defined in the settings.  This is useful for one-off shortcuts as it requires less work and file clutter.  It is also less flexible with shortcut organization and transfer.
+
+***
+
+## REFERENCE: Settings
+- __Shortcut-files__ - A list of addresses to notes containing shortcut-files.
+    - The "Add file reference" button adds a new textbox for a shortcut-file address.
+    - To the right of each shortcut-file textbox is a trashcan button.  This button lets you delete the textbox.
+- __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, whithout needing a shortcut-file.
+    - The "Add shortcut" button adds a blank entry for a new shortcut to the bottom of the Shortcuts setting.
+    - The "Add defaults" button adds the default shortcuts to the end of Shortcut setting.
+    - To the right of each shortcut entry is a trashcan button.  This button lets you delete the shortcut entry.
+- __Prefix & Suffix__ - These settings let you define what a typed shortcut starts and ends with to signify that it is a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
+    - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
+    - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
+    - If there are any errors with the prefix & suffix entries, a red box with an error text will appear above the prefix & suffix textboxes.
+- __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you change from one note to another.  This adds a slight delay, but lets you develop shortcut-files more rapidly.
+
+***
+
+## User support, bugs, feedback, donations, etc.
+If you...
+- Need help with this plugin
+- Have a bug or issue to report
+- Want to share a script-file or extra-useful script
+- Want to offer feedback
+
+... then visit the [discussions page](https://github.com/jon-heard/obsidian-text-expander-js/discussions).
+
+### Donations
+If you've found this plugin useful, then a small donation lets me know that I should keep it up.  Thanks!
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/jonheard99?country.x=US&locale.x=en_US)
 
 ***
 
@@ -53,6 +85,7 @@ __Text Expander JS__ comes with the following shortcuts defined by default:
 - d{max} - dice roll.  Examples - d3, d20, d57, d999, etc.
 - fd{max} - same as d{max}, but with fancier formatting.
 
+***
 ***
 
 ## HOW-TO: Add an existing shortcut-file to a vault
@@ -96,6 +129,7 @@ __Text Expander JS__.
 Each shortcut-file should have a "help" shortcut that lists the shortcuts provided by the file.  For example, the "state" shortcut-file includes the shortcut `help state`.  __Text Expander JS__ includes a hardcoded shortcut `help` which lists all of the help shortcuts currently active in the vault.
 
 ***
+***
 
 ## HOW-TO: Create a new shortcut
 
@@ -132,6 +166,7 @@ Each shortcut is defined by a pair of strings.
 | ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in your shortcuts, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (or `!!date!` on mobile) it will be replaced with the current date. |
 | ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; |  This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis make variable `$1`, a second parenthesis would make the variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3;` (or `!!age 3!` on mobile) the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21;` (or `!!age 21!`), it will be replaced with `I am 21 years old.`
 
+***
 ***
 
 ## HOW-TO: Create a new shortcut-file
@@ -176,24 +211,9 @@ Developer mode is an on/off setting available in the __Text Expander JS__ plugin
 It is _highly_ recommended that every shortcut-file contain a "help" shortcut, preferrably as the first shortcut in the file.  A "help" shortcut is written to provide a reference to users of the shortcut-file.  It should expand into a list of the shortcuts and a brief description of each.  When writing a help shortcut, use "^help name$" for its Test string, where "name" is specific to the shortcut-file.  For example, the "state" shortcut-file includes the shortcut `help state`.  This pattern lets the system recognize "help" shortcuts.
 
 ***
-
-## REFERENCE: Settings
-- __Shortcut-files__ - A list of addresses to notes containing shortcut-files.
-    - The "Add file reference" button adds a new textbox for a shortcut-file address.
-    - To the right of each shortcut-file textbox is a trashcan button.  This button lets you delete the textbox.
-- __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, whithout needing a shortcut-file.
-    - The "Add shortcut" button adds a blank entry for a new shortcut to the bottom of the Shortcuts setting.
-    - The "Add defaults" button adds the default shortcuts to the end of Shortcut setting.
-    - To the right of each shortcut entry is a trashcan button.  This button lets you delete the shortcut entry.
-- __Prefix & Suffix__ - These settings let you define what a typed shortcut starts and ends with to signify that it is a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
-    - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
-    - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
-    - If there are any errors with the prefix & suffix entries, a red box with an error text will appear above the prefix & suffix textboxes.
-- __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you change from one note to another.  This adds a slight delay, but lets you develop shortcut-files more rapidly.
-
 ***
 
-## Advanced Shortcut and Shortcut-file development
+## ADVANCED: Shortcut and Shortcut-file development
 
 ### The console
 If a new shortcut doesn't work and it's not clear why, then the javascript console can help.
@@ -274,6 +294,7 @@ Notice that shortcut #1 returns an array of strings, but if you type `;;firstnam
 If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the `[1]` turns the array into just the second string of the array.
 
 ***
+***
 
 ## Known Issues
 - Undo of expansion works a bit differently between the old editor (CodeMirror 5, non-mobile) and the new editor (CodeMirror 6, mobile and new non-mobile).  When using the new editor, the triggering character does not show on undo.
@@ -284,26 +305,6 @@ If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullNa
 - This project was inspired by the description of Obsidian on the RPG Tips youtube video <a href='https://www.youtube.com/watch?v=XTFFzuZVcPk' target='_blank'>How I play my games in 2021</a>.
 - This project was made with awareness of and deference to the <a href='https://github.com/konodyuk/obsidian-text-expander' target='_blank'>obsidian-text-expander</a> plugin (which has a more rudamentary feature set, but allows running external scripts).
 - In both cases, the goal of this plugin is to fulfill a need for effortless cross-system, cross-platform operability of advanced text-expansion features.
-
-***
-
-## User support, bugs, feedback, donations, etc.
-
-### Communication
-If you...
-- Need help with this plugin
-- Have a bug or issue to report
-- Want to share a script-file
-- Want to offer feedback
-
-... then visit the [discussions page](https://github.com/jon-heard/obsidian-text-expander-js/discussions).
-
-### Donations
-If you've found this plugin useful, then a small donation lets me know that I should keep it up.  Thanks!
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/jonheard99?country.x=US&locale.x=en_US)
-
-***
 
 ***
 
