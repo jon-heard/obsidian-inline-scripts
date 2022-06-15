@@ -83,7 +83,7 @@ const TextExpanderJsPlugin = (function(_super)
 		this.addSettingTab(new TextExpanderJsPluginSettings(this.app, this));
 
 		//Setup bound versons of these function for persistant use
-		this._handleExpansionTrigger_cm5 = this.handleExpansionTrigger_cm5.bind(this);
+		this._cm5_handleExpansionTrigger = this.cm5_handleExpansionTrigger.bind(this);
 		this._handleExpansionError = this.handleExpansionError.bind(this);
 
 		// Setup a dfc to keep track of shortcut-file notes.
@@ -96,7 +96,7 @@ const TextExpanderJsPlugin = (function(_super)
 		this.storeTransaction = state.StateEffect.define();
 		this.registerEditorExtension([
 			state.EditorState.transactionFilter.of(
-				this.handleExpansionTrigger_cm6.bind(this))
+				this.cm6_handleExpansionTrigger.bind(this))
 		]);
 
 		// Expansions can call expansions.  This keeps track of how far down we are.
@@ -104,7 +104,7 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Connect "code mirror 5" instances to this plugin
 		this.registerCodeMirror(
-			cm => cm.on("keydown", this._handleExpansionTrigger_cm5));
+			cm => cm.on("keydown", this._cm5_handleExpansionTrigger));
 
 		// Log starting the plugin
 		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
@@ -114,7 +114,7 @@ const TextExpanderJsPlugin = (function(_super)
 	{
 		// Disconnect "code mirror 5" instances from this plugin
 		this.app.workspace.iterateCodeMirrors(
-			cm => cm.off("keydown", this._handleExpansionTrigger_cm5));
+			cm => cm.off("keydown", this._cm5_handleExpansionTrigger));
 
 		// Log starting the plugin
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
@@ -122,24 +122,24 @@ const TextExpanderJsPlugin = (function(_super)
 
 
 	// React to key-down by checking for a shortcut at the caret
-	TextExpanderJsPlugin.prototype.handleExpansionTrigger_cm5 = function(cm, keydown)
+	TextExpanderJsPlugin.prototype.cm5_handleExpansionTrigger = function(cm, keydown)
 	{
 		if (event.key == this.suffixEndCharacter)
 		{
 			// Delay logic by a frame to allow key event to finish processing first
 			setTimeout(() =>
 			{
-				const shortcutPosition = this.parseShortcutPosition(cm);
+				const shortcutPosition = this.cm5_parseShortcutPosition(cm);
 				if (shortcutPosition)
 				{
-					this.expandShortcutPosition(cm, shortcutPosition);
+					this.cm5_expandShortcutPosition(cm, shortcutPosition);
 				}
 			}, 0);
 		}
 	};
 
 	// If a shortcut is at the caret, return its start and end positions, else return null
-	TextExpanderJsPlugin.prototype.parseShortcutPosition = function(cm)
+	TextExpanderJsPlugin.prototype.cm5_parseShortcutPosition = function(cm)
 	{
 		const cursor = cm.getCursor();
 		let result = { lineIndex: cursor.line, prefixIndex: -1, suffixIndex: -1 };
@@ -157,7 +157,7 @@ const TextExpanderJsPlugin = (function(_super)
 	};
 
 	// Expand a shortcut based on its start/end positions
-	TextExpanderJsPlugin.prototype.expandShortcutPosition = function(cm, shortcutPosition)
+	TextExpanderJsPlugin.prototype.cm5_expandShortcutPosition = function(cm, shortcutPosition)
 	{
 		// Find and use the right shortcuts
 		const sourceText = cm.getLine(shortcutPosition.lineIndex).substring(
@@ -225,7 +225,7 @@ const TextExpanderJsPlugin = (function(_super)
 	// Runs an expansion script, including error handling
 	TextExpanderJsPlugin.prototype.runExpansionScript = function(expansionScript)
 	{
-		var isSubExpansion = !!this.expansionNestLevel;
+		var isSubExpansion = !this.expansionNestLevel;
 
 		// Prepare to react to a script error
 		this._expansionText = expansionScript;
@@ -278,7 +278,7 @@ const TextExpanderJsPlugin = (function(_super)
 	};
 
 	// Handle shortcut expansion for codemirror 6 (newer editor and mobile platforms)
-	TextExpanderJsPlugin.prototype.handleExpansionTrigger_cm6 = function(tr)
+	TextExpanderJsPlugin.prototype.cm6_handleExpansionTrigger = function(tr)
 	{
 		// Only bother with key inputs that have changed the document
 		if (!tr.isUserEvent("input.type") || !tr.docChanged) { return tr; }
@@ -298,25 +298,13 @@ const TextExpanderJsPlugin = (function(_super)
 			let lineIndex = tr.newDoc.lineAt(fromA).number - 1;
 
 			// Get text of the line with the change
-			let lineText = null;
-			if (tr.newDoc.hasOwnProperty("text"))
-			{
-				lineText = tr.newDoc.text[lineIndex];
-			}
-			else if (tr.newDoc.hasOwnProperty("children"))
-			{
-				let i = 0;
-				while (lineIndex >= tr.newDoc.children[i].text.length)
-				{
-					lineIndex -= tr.newDoc.children[i].text.length;
-					i++;
-				}
-				lineText = tr.newDoc.children[i].text[lineIndex];
-			}
-			if (lineText === null)
+			let lineText = this.cm6_getLineFromDoc(tr.newDoc, lineIndex);
+			if (!(typeof lineText === "string"))
 			{
 				console.error(
-					"Text Expander JS: CM6: newDoc has no text or children.");
+					"Text Expander JS: CM6: line " +
+					lineIndex + " not available.");
+				return;
 			}
 
 			// Work out typed shortcut's bounding indices
@@ -385,6 +373,42 @@ const TextExpanderJsPlugin = (function(_super)
 		{
 			return tr;
 		}
+	};
+
+	// Get a line of text from the given document
+	TextExpanderJsPlugin.prototype.cm6_getLineFromDoc = function(doc, lineIndex)
+	{
+		// A given doc can either have a "text", or "children" attribute.  .text is
+		// a list of text lines it contains.  .children is the list of docs it
+		// contains, each of which can either have a "text" or "children" attribute.
+		if (doc.hasOwnProperty("text"))
+		{
+			if (doc.text.length > lineIndex)
+			{
+				return doc.text[lineIndex];
+			}
+			else
+			{
+				return lineIndex - doc.text.length;
+			}
+		}
+		else if (doc.hasOwnProperty("children"))
+		{
+			for (let i = 0; i < doc.children.length; i++)
+			{
+				result = this.cm6_getLineFromDoc(doc.children[i], lineIndex);
+				if (typeof result === "string")
+				{
+					return result;
+				}
+				else
+				{
+					lineIndex = result;
+				}
+			}
+			return lineIndex;
+		}
+		return lineIndex;
 	};
 
 	// Parses a shortcut-file contents and produces the shortcuts
