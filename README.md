@@ -75,11 +75,14 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 ## HOW-TO: Setup the plugin and try it out
 1.  Walk through the process of installing and enabling the plugin (TBD once this plugin is part of the community).
 2.  Open a note to try out the plugin.
-3.  In the note, type `;;d100;` (or `!!d100!` on mobile).
-4.  Note that the shortcut expands to a roll-result as soon as you've finished typing it.
-5.  Repeat step 3.  Note that the roll result is (most likely) different.  If it is not different then you are just lucky.  Try step 3 again.
+3.  In the note, type `;;greet` (or `!!greet!` on mobile).
+4.  Note that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
+5.  In the note, type `;;d100;` (or `!!d100!` on mobile).
+6.  Note that the shortcut expands to a roll-result as soon as you've finished typing it.
+7.  Repeat step 5.  Note that the roll result is (most likely) different.  If it is not different then you are just lucky.  Try step 5 again.
 
 __Text Expander JS__ comes with the following shortcuts defined by default:
+- greet
 - date
 - time
 - datetime
