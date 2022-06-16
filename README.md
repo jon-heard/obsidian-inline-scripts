@@ -83,8 +83,9 @@ __Text Expander JS__ comes with the following shortcuts defined by default:
 - date
 - time
 - datetime
-- d{max} - dice roll.  Examples - d3, d20, d57, d999, etc.
-- fd{max} - same as d{max}, but with fancier formatting.
+- d{max} - Dice roll.  Examples - d3, d20, d57, d999, etc.
+- fd{max} - Same as d{max}, but with fancier formatting.
+- {count}d{max}{add} - Same as d{max}, but with optional {count} and {add}.  {count} is the number of dice to roll and add together.  {add} is `+` or `-` and a number to shift the result by.
 
 ***
 ***
