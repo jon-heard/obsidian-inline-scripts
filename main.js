@@ -73,7 +73,7 @@ const TextExpanderJsPlugin = (function(_super)
 		// Load settings
 		const currentDefaultSettings =
 			IS_MOBILE ?
-			Object.assign(DEFAULT_SETTINGS, DEFAULT_SETTINGS_MOBILE) :
+			Object.assign({}, DEFAULT_SETTINGS, DEFAULT_SETTINGS_MOBILE) :
 			DEFAULT_SETTINGS;
 		this.settings = Object.assign({}, currentDefaultSettings, await this.loadData());
 
@@ -89,11 +89,15 @@ const TextExpanderJsPlugin = (function(_super)
 		this._handleExpansionError = this.handleExpansionError.bind(this);
 		this._getExpansion = this.getExpansion.bind(this);
 
-		// Setup a dfc to keep track of shortcut-file notes.
+		// Setup a dfc to monitor shortcut-file notes.
 		dfc.setup(this);
 		this.shortcutDfc = dfc.create(
 			this.settings.shortcutFiles, this.setupShortcuts.bind(this),
 			this.settings.devMode);
+
+		// Connect "code mirror 5" instances to this plugin
+		this.registerCodeMirror(
+			cm => cm.on("keydown", this._cm5_handleExpansionTrigger));
 
 		// Setup "code mirror 6" editor extension management
 		this.storeTransaction = state.StateEffect.define();
@@ -101,10 +105,6 @@ const TextExpanderJsPlugin = (function(_super)
 			state.EditorState.transactionFilter.of(
 				this.cm6_handleExpansionTrigger.bind(this))
 		]);
-
-		// Connect "code mirror 5" instances to this plugin
-		this.registerCodeMirror(
-			cm => cm.on("keydown", this._cm5_handleExpansionTrigger));
 
 		// Log starting the plugin
 		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
@@ -116,12 +116,12 @@ const TextExpanderJsPlugin = (function(_super)
 		this.app.workspace.iterateCodeMirrors(
 			cm => cm.off("keydown", this._cm5_handleExpansionTrigger));
 
-		// Log starting the plugin
+		// Log ending the plugin
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
 	};
 
 
-	// React to key-down by checking for a shortcut at the caret
+	// CM5 - React to key-down by checking for a shortcut at the caret
 	TextExpanderJsPlugin.prototype.cm5_handleExpansionTrigger = function(cm, keydown)
 	{
 		if (event.key == this.suffixEndCharacter)
@@ -138,7 +138,7 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 	};
 
-	// If a shortcut is at the caret, return its start and end positions, else return null
+	// CM5 - If caret is on a shortcut, return start and end positions, else return null
 	TextExpanderJsPlugin.prototype.cm5_parseShortcutPosition = function(cm)
 	{
 		const cursor = cm.getCursor();
@@ -156,7 +156,7 @@ const TextExpanderJsPlugin = (function(_super)
 		return result;
 	};
 
-	// Expand a shortcut based on its start/end positions
+	// CM5 - Expand a shortcut based on its start/end positions
 	TextExpanderJsPlugin.prototype.cm5_expandShortcutPosition = function(cm, shortcutPosition)
 	{
 		// Find and use the right shortcuts
@@ -175,7 +175,7 @@ const TextExpanderJsPlugin = (function(_super)
 			      this.settings.suffix.length });
 	};
 
-	// Handle shortcut expansion for codemirror 6 (newer editor and mobile platforms)
+	// CM6 - Handle shortcut expansion for codemirror 6 (newer editor and mobile platforms)
 	TextExpanderJsPlugin.prototype.cm6_handleExpansionTrigger = function(tr)
 	{
 		// Only bother with key inputs that have changed the document
@@ -221,7 +221,7 @@ const TextExpanderJsPlugin = (function(_super)
 				prefixIndex,
 				suffixIndex + this.settings.suffix.length);
 
-			// Get the shortcut's equivalent Expansion string
+			// Get the shortcut's Expansion result
 			let expansionText = originalText.substring(
 				this.settings.prefix.length,
 				originalText.length - this.settings.suffix.length);
@@ -273,7 +273,7 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 	};
 
-	// Get a line of text from the given document
+	// CM6 - Get a line of text from the given document
 	TextExpanderJsPlugin.prototype.cm6_getLineFromDoc = function(doc, lineIndex)
 	{
 		// A given doc can either have a "text", or "children" attribute.  .text is
@@ -309,7 +309,8 @@ const TextExpanderJsPlugin = (function(_super)
 		return lineIndex;
 	};
 
-	// Take a shortcut string and return the proper Expansion string
+	// Take a shortcut string and return the proper Expansion string.
+	// WARNING: user-facing function
 	TextExpanderJsPlugin.prototype.getExpansion = function(text, isUserTriggered)
 	{
 		if (!text) { return; }
@@ -346,7 +347,7 @@ const TextExpanderJsPlugin = (function(_super)
 
 		expansionText = this.runExpansionScript(expansionText, isUserTriggered);
 
-		// Shortcut parsing amounted to nothing.  Notify user of their bad shortcut entry.
+		// If shortcut parsing amounted to nothing.  Notify user of bad shortcut entry.
 		if (expansionText === undefined)
 		{
 			console.warn("Shortcut text unidentified: \"" + text + "\"");
