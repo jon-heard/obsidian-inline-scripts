@@ -51,6 +51,7 @@
 	width: 90%;
 	margin-top: 0.2em;
 	background: var(--background-modifier-form-field);
+	height: 6em;
 }
 .tejs_deleteButton
 {
