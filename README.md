@@ -10,18 +10,21 @@ This plugin works on all platforms, including mobile.
 ***
 
 ## Table of contents
-- [Overview](#overview)
-- [REFERENCE: Settings](#reference-settings)
-- [User support, bugs, feedback, dontations, etc.](#user-support-bugs-feedback-donations-etc)
-- [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out)
-- [HOW-TO: Add an existing shortcut-file to a vault](#how-to-add-an-existing-shortcut-file-to-a-vault)
-- [HOW-TO: Create a new shortcut](#how-to-create-a-new-shortcut)
-- [HOW-TO: Create a new shortcut-file](#how-to-create-a-new-shortcut-file)
-- [ADVANCED: shortcut and shortcut-file development](#advanced-shortcut-and-shortcut-file-development)
-- [Known Issues](#known-issues)
-- [Credits](#credits)
-- [Release notes](#release-notes)
-- [TODO](#todo)
+- General
+    - [Overview](#overview)
+    - [REFERENCE: Settings](#reference-settings)
+    - [User support, bugs, feedback, dontations, etc.](#user-support-bugs-feedback-donations-etc)
+- Tutorials
+    - [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out)
+    - [HOW-TO: Add an existing shortcut-file to a vault](#how-to-add-an-existing-shortcut-file-to-a-vault)
+    - [HOW-TO: Create a new shortcut](#how-to-create-a-new-shortcut)
+    - [HOW-TO: Create a new shortcut-file](#how-to-create-a-new-shortcut-file)
+    - [Advanced shortcut and Shortcut-file development topics](#advanced-shortcut-and-shortcut-file-development-topics)
+- Technical
+    - [Known Issues](#known-issues)
+    - [Credits](#credits)
+    - [Release notes](#release-notes)
+    - [TODO](#todo)
 
 ***
 
@@ -86,9 +89,11 @@ __Text Expander JS__ comes with the following shortcuts defined by default:
 - date
 - time
 - datetime
-- d{max} - Dice roll.  Examples - d3, d20, d57, d999, etc.
+- d{max} - Dice roll.
+    - Examples - d3, d20, d57, d999
 - fd{max} - Same as d{max}, but with fancier formatting.
-- {count}d{max}{add} - Same as d{max}, but with optional {count} and {add}.  {count} is the number of dice to roll and add together.  {add} is `+` or `-` and a number to shift the result by.
+- {count}d{max}{add} - Same as d{max}, but with optional {count} and {add}.  {count} is the number of dice to roll and add together.  {add} is "+" or "-" followed by a number to shift the result by.
+    - Examples - d100, 3d20, d10+5, 3d6+6
 
 ***
 ***
@@ -99,7 +104,7 @@ __Text Expander JS__ comes with the following shortcuts defined by default:
 Shortcuts, by their Javscript nature, have a risk of being malicious.  Make sure you trust a shortcut or shortcut-file before using it.
 
 ### Shortcut-file sources
-A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_state.md) file contains shortcuts related to storing and reproducing "clips" of text as well as shortcuts related to saving and loading state, including stored "clips" of text.
+A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_state.md) file contains shortcuts related to storing and reproducing "clips" of text as well as shortcuts related to saving and loading session state, including any stored clips of text.
 
 ### Step-by-step: Adding a shortcut-file to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
@@ -151,7 +156,7 @@ __Text Expander JS__.
         ![Plugin options](readmeMedia/pluginOptions.png)
 3. Go down to the "Shortcuts" setting.  It's the second setting in the panel, just after "Shortcut-files". _(see picture below)_
 4. The setting has two buttons: "Add shortcut" and "Add defaults".  Click on the "Add shortcut" button.  This adds a shortcut entry to the bottom of the "Shortcuts" setting.  The new entry should include two textboxes with the words "Test (regex)" and "Expansion (javascript)" in grey text. _(see picture below)_
-5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: Test=`test` and Expansion=`return "The test worked.";`. _(see picture below)_
+5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: `test` and `return "The test worked.";`. _(see picture below)_
 
     ![Shortcuts](readmeMedia/shortcuts.png)
 7. Close the settings panel.
@@ -180,7 +185,7 @@ Each shortcut is defined by a pair of strings.
 
 This HOW-TO assumes that you have read and understood [HOW-TO: Create a new shortcut](#how-to-create-a-new-shortcut), and are at least aware that [HOW-TO: Add an existing shortcut-file to a vault](#how-to-add-an-existing-shortcut-file-to-a-vault) shows how to setup an existing shortcut-file.
 
-A shortcut-file contains multiple shortcuts.  Each shortcut contains a Test string and an Expansion string.  A shortcut-file will typically bundle collections of shortcuts that work toward a common goal, such as a particular functionality (saving & loading) or a particular system (a tabletop RPG system).
+A shortcut-file contains multiple shortcuts.  Each shortcut contains a Test string and an Expansion string.  A shortcut-file will typically bundle collections of shortcuts that work toward a common goal, such as a particular functionality (saving & loading) or a particular system (Dungeons and Dragons).
 
 ### Examples
 Here is a minimal example of a shortcut-file's contents:
@@ -205,10 +210,10 @@ Here is another, more meaty, example:
 > ~~<br/>
 > return $1.repeat(10);<br/>
 
-This shortcut-file begins with some comments, then it contains two shortcuts.  Notice that the first `~~` is placed after the initial comments.  Every shortcut-file starts with a secion for comments.  This includes the minimal example before this one, though in that case the comments section is empty.  Also notice that there are empty lines between sections.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
+This shortcut-file begins with some comments, then it contains two shortcuts.  Notice that the first `~~` is placed after the initial comments.  Every shortcut-file starts with a section for comments.  This includes the minimal example before this one, though in that case the comments section is empty.  Also notice that there are empty lines between sections.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
 
 ### Developer mode
-Developer mode is an on/off setting available in the __Text Expander JS__ plugin options _(see picture below)_.  When "Developer mode" is on, all shortcut-files will be reloaded each time you move from one note to another.  This lets you edit a shortcut-file note, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
+Developer mode is an on/off setting available at the bottom of the __Text Expander JS__ plugin options _(see picture below)_.  When "Developer mode" is on, all shortcut-files will be reloaded each time you move from one note to another.  This lets you edit a shortcut-file note, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
 
 ![Developer mode](readmeMedia/devMode.png)
 
@@ -218,7 +223,7 @@ It is _highly_ recommended that every shortcut-file contain a "help" shortcut, p
 ***
 ***
 
-## ADVANCED: Shortcut and Shortcut-file development
+## Advanced shortcut and Shortcut-file development topics
 
 ### The console
 If a new shortcut doesn't work and it's not clear why, then the javascript console can help.
@@ -247,15 +252,15 @@ __Note__: The `` ` `` characters (before the "js") are backticks, the character 
 
 The result of the expansion is the same for both Expansion strings above, even though the second uses a "Javascript fenced code block".
 
-Pros to using "Javascript fenced code blocks":
+Benefits to using "Javascript fenced code blocks":
 - Syntax highlighting
 - No unwanted markdown formatting
 
-Cons:
+Drawbacks:
 - Takes longer to write
 - Takes up more space
 
-You can also surround the Test string in a regular "fenced code block".  Ths provides no syntax highlighting, but still benefits from avoiding unwanted markdown formatting.  For example:
+You can also surround a Test string in a basic "fenced code block".  This provides no syntax highlighting, but still allows avoiding unwanted markdown formatting.  For example:
 
 > ^date$
 
@@ -306,11 +311,11 @@ Here's an example of nesting shortcuts:
 |  2 | lastname | return ["LastName: ", "Smith"]; |
 |  3 | fullname | return [ "FullName: ", getExpansion("firstname")[1], " ", getExpansion("lastname")[1] ]; |
 
-Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (`!!firstname!` on mobile), then the expansion is "FirstName: John".  This is true for shortcut #2 as well (expanding into "LastName: Smith").
+Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (or `!!firstname!` on mobile), then the expansion is "FirstName: John".  This is true for shortcut #2 as well (expanding into "LastName: Smith").
 
-If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the `[1]` gets the second string of that array.
+If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
 
-Note: There is a variable "isUserTriggered" accessible from any Expansion script.  It is true if the Expansion script was triggered directly by a user-typed shortcut, rather than from another Expansion script.
+Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the getExpansion function).
 
 ***
 ***
