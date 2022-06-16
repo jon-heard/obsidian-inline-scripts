@@ -227,7 +227,7 @@ If a new shortcut doesn't work and it's not clear why, then the javascript conso
     ![Console](readmeMedia/console.png)
 
 ### Fenced code blocks
-If you want a nicer experience while developing a shortcut, you can surround the expansion string in a "Javascript fenced code block".  For example, you can take this Expansion string:
+If you want a nicer experience while developing a shortcut, you can surround the Expansion string in a "Javascript fenced code block".  For example, you can take this Expansion string:
 
 > return "Hello!  How are you?";
 
@@ -251,7 +251,19 @@ Cons:
 - Takes longer to write
 - Takes up more space
 
-__Warning__: The code block opening _must_ be ` ```js `!  ` ```javascript `, ` ```JS `, or anything else will break the Expansion string.
+You can also surround the Test string in a regular "fenced code block".  Ths provides no syntax highlighting, but still benefits from avoiding unwanted markdown formatting.  For example:
+
+> ^date$
+
+to:
+
+> \`\`\`
+>
+> ^date$
+>
+> \`\`\`
+
+__Warning__: The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` ` for Test string!  ` ```javascript `, ` ```JS `, or anything else will break the shortcut.
 
 ### Helper scripts
 If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  A helper script provides common code that any shortcuts listed after it can use.
@@ -321,7 +333,7 @@ Note: There is a variable "isUserTriggered" accessible from any Expansion script
 - Removed expansion trigger options (now only expands on final key hit)
 - shortcut tests are now stored as regexp objects, instead of strings
 - All CSS classes now prefixed with "tejs_" to avoid overlap with other plugins
-- Expansions strings can now be surrounded with a javascript fenced code block
+- Expansions strings can now be surrounded with a javascript fenced code block.  Test strings can be surrounded with a basic fenced code block.
 - Expansion scripts can now return an array of strings.  This allows segmentation of the data, though the string array is joined during expansion.
 - Expansion scripts now have access to "getExpansion(text)" to allow calling other shortcuts and using their results.
 

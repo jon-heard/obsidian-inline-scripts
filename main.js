@@ -219,7 +219,7 @@ const TextExpanderJsPlugin = (function(_super)
 				prefixIndex,
 				suffixIndex + this.settings.suffix.length);
 
-			// Get the shortcut's equivalent expansion string
+			// Get the shortcut's equivalent Expansion string
 			let expansionText = originalText.substring(
 				this.settings.prefix.length,
 				originalText.length - this.settings.suffix.length);
@@ -307,7 +307,7 @@ const TextExpanderJsPlugin = (function(_super)
 		return lineIndex;
 	};
 
-	// Take a shortcut string and return the proper expansion string
+	// Take a shortcut string and return the proper Expansion string
 	TextExpanderJsPlugin.prototype.getExpansion = function(text, isUserTriggered)
 	{
 		if (!text) { return; }
@@ -425,23 +425,41 @@ const TextExpanderJsPlugin = (function(_super)
 		// Parse each shortcut in the file
 		while (i < content.length)
 		{
-			let testString = null;
-			try
+			let testRegex = null;
+			if (keepFencing)
 			{
-				testString = new RegExp(content[i]);
+				// "keepFencing" makes no sense with a RegExp object.
+				// Instead, create RegExp-style-dummy to retain fence with API.
+				testRegex = { source: content[i] };
 			}
-			catch (e)
+			else
 			{
-				console.error(
-					"'Bad test string' error in shortcut-file \"" +
-					filename + "\"." + "  Test: " + content[i]);
-				fileHasErrors = true;
+				let c = content[i];
+
+				// Handle the Test being in a javascript fenced code-block
+				if (c.startsWith("```") && c.endsWith("```"))
+				{
+					c = c.substring(3, c.length-3).trim();
+				}
+
+				try
+				{
+					testRegex = new RegExp(c);
+				}
+				catch (e)
+				{
+					console.error(
+						"'Bad Test string' error in shortcut-file \"" +
+						filename + "\"." + "  Test: " + c);
+					fileHasErrors = true;
+				}
 			}
-			if (testString)
+
+			if (testRegex)
 			{
 				let c = content[i+1];
 
-				// Handle the expansion being in a javascript fenced code-block
+				// Handle the Expansion being in a javascript fenced code-block
 				if (!keepFencing)
 				{
 					if (c.startsWith("```js") && c.endsWith("```"))
@@ -450,7 +468,7 @@ const TextExpanderJsPlugin = (function(_super)
 					}
 				}
 
-				result.push({ test: testString, expansion: c });
+				result.push({ test: testRegex, expansion: c });
 			}
 			i += 2;
 		}
