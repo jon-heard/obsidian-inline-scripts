@@ -292,7 +292,7 @@ const TextExpanderJsPlugin = (function(_super)
 		{
 			for (let i = 0; i < doc.children.length; i++)
 			{
-				result = this.cm6_getLineFromDoc(doc.children[i], lineIndex);
+				let result = this.cm6_getLineFromDoc(doc.children[i], lineIndex);
 				if (typeof result === "string")
 				{
 					return result;
