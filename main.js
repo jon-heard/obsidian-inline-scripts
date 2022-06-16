@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS =
 		"~~\n~~\nfunction roll(max) { return Math.trunc(Math.random() * max + 1); }\n\n" +
 		"~~\n^[d|D]([0-9]+)$\n~~\nreturn \"🎲 \" + roll($1) + \" /D\" + $1;\n\n" +
 		"~~\n^[f|F][d|D]([0-9]+)$\n~~\nreturn \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /D\" + $1 + \"</span>\";\n\n" +
-		"~~^([0-9]*)[d|D]([0-9]+)(|(?:\\+[0-9]+)|(?:\\-[0-9]+))$\n~~\n$1 = Number($1) || 1;\nlet result = 0;\nlet label = \"D\" + $2;\nif ($1 > 1) { label += \"x\" + $1; }\nfor (let i = 0; i < $1; i++) { result += roll($2); }\nif ($3) {\n\tif ($3.startsWith(\"+\")) {\n\t\tresult += Number($3.substr(1));\n\t} else {\n\t\tresult -= Number($3.substr(1));\n\t}\n\tlabel += $3;\n}\nif (isNaN(label.substr(1))) { label = \"(\" + label + \")\"; }\nreturn \"🎲 \" + result + \" /\" + label;\n\n"
+		"~~\n^([0-9]*)[d|D]([0-9]+)(|(?:\\+[0-9]+)|(?:\\-[0-9]+))$\n~~\n$1 = Number($1) || 1;\nlet result = 0;\nlet label = \"D\" + $2;\nif ($1 > 1) { label += \"x\" + $1; }\nfor (let i = 0; i < $1; i++) { result += roll($2); }\nif ($3) {\n\tif ($3.startsWith(\"+\")) {\n\t\tresult += Number($3.substr(1));\n\t} else {\n\t\tresult -= Number($3.substr(1));\n\t}\n\tlabel += $3;\n}\nif (isNaN(label.substr(1))) { label = \"(\" + label + \")\"; }\nreturn \"🎲 \" + result + \" /\" + label;\n\n"
 	,
 	prefix: ";;",
 	suffix: ";",
@@ -331,7 +331,7 @@ const TextExpanderJsPlugin = (function(_super)
 			for (let k = 1; k < matchInfo.length; k++)
 			{
 				expansionText +=
-					"let $" + k + " = \"" +
+					"var $" + k + " = \"" +
 					matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
 			}
 
@@ -361,16 +361,17 @@ const TextExpanderJsPlugin = (function(_super)
 	TextExpanderJsPlugin.prototype.runExpansionScript =
 		function(expansionScript, isUserTriggered)
 	{
-		// Prepare to react to a script error
+		// Prepare for possible Expansion script error
 		this._expansionText = expansionScript;
 		window.addEventListener('error', this._handleExpansionError);
 
-		// Run the Expansion script.  Pass getExpansion function and isUserTriggered flag.
+		// Run the Expansion script
+		// Pass getExpansion function and isUserTriggered flag for use in Expansion script
 		expansionScript =
 			(new Function("getExpansion", "isUserTriggered", expansionScript))
 			(this._getExpansion, isUserTriggered);
 
-		// Clean up script error preparations  (it wouldn't have got here if we'd hit one)
+		// Clean up script error preparations (it wouldn't have got here if we'd hit one)
 		window.removeEventListener('error', this._handleExpansionError);
 		delete this._expansionText;
 
@@ -413,7 +414,6 @@ const TextExpanderJsPlugin = (function(_super)
 	{
 		content = content.split("~~").map((v) => v.trim());
 		let result = [];
-		let i = 1;
 		let fileHasErrors = false;
 
 		// Check for the obvious error of misnumbered "~~"
@@ -426,8 +426,9 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 
 		// Parse each shortcut in the file
-		while (i < content.length)
+		for (let i = 1; i < content.length; i += 2)
 		{
+			// Test string handling
 			let testRegex = null;
 			if (keepFencing)
 			{
@@ -439,7 +440,7 @@ const TextExpanderJsPlugin = (function(_super)
 			{
 				let c = content[i];
 
-				// Handle the Test being in a javascript fenced code-block
+				// Handle the Test being in a basic fenced code-block
 				if (c.startsWith("```") && c.endsWith("```"))
 				{
 					c = c.substring(3, c.length-3).trim();
@@ -455,25 +456,23 @@ const TextExpanderJsPlugin = (function(_super)
 						"'Bad Test string' error in shortcut-file \"" +
 						filename + "\"." + "  Test: " + c);
 					fileHasErrors = true;
+					continue;
 				}
 			}
 
-			if (testRegex)
+			// Content string handling
+			let c = content[i+1];
+			// Handle the Expansion being in a javascript fenced code-block
+			if (!keepFencing)
 			{
-				let c = content[i+1];
-
-				// Handle the Expansion being in a javascript fenced code-block
-				if (!keepFencing)
+				if (c.startsWith("```js") && c.endsWith("```"))
 				{
-					if (c.startsWith("```js") && c.endsWith("```"))
-					{
-						c = c.substring(5, c.length-3).trim();
-					}
+					c = c.substring(5, c.length-3).trim();
 				}
-
-				result.push({ test: testRegex, expansion: c });
 			}
-			i += 2;
+
+			// Add shortcut to result
+			result.push({ test: testRegex, expansion: c });
 		}
 
 		if (fileHasErrors)
@@ -513,7 +512,7 @@ const TextExpanderJsPlugin = (function(_super)
 			// Add a helper block to segment helper scripts
 			this.shortcuts.push({});
 
-			// Look for a "setup" script to run
+			// Look for a "setup" script to run in this shortcut-file
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
 				if (newShortcuts[i].test.source == "^tejs setup$")
@@ -568,6 +567,11 @@ const TextExpanderJsPluginSettings = (function(_super)
 		return result;
 	}
 
+	// Checks formatting settings for errors:
+	//   - blank prefix or suffix
+	//   - suffix contains prefix (disallowed as it messes up logic)
+	// Run whenever format settings change, to show/hide error message ui
+	// Also run on closing settings to determine if format settings should be reverted.
 	TextExpanderJsPluginSettings.prototype.checkFormatErrs = function()
 	{
 		let err = "";
@@ -605,10 +609,11 @@ const TextExpanderJsPluginSettings = (function(_super)
 		const c = this.containerEl;
 		c.empty();
 
-		//////////////////////
-		// SHORTCUT SOURCES //
-		//////////////////////
 		c.createEl("h2", { text: "Shortcut Sources" });
+
+		////////////////////
+		// SHORTCUT-FILES //
+		////////////////////
 		new obsidian.Setting(c)
 			.setName("Shortcut-files")
 			.setDesc("Addresses of notes containing shortcut-file content.")
@@ -665,6 +670,9 @@ const TextExpanderJsPluginSettings = (function(_super)
 		{
 			addShortcutFileUi(this.tmpSettings.shortcutFiles[i]);
 		}
+		///////////////
+		// SHORTCUTS //
+		///////////////
 		new obsidian.Setting(c)
 			.setName("Shortcuts")
 			.setDesc("Define shortcuts here (in addition to shortcut-files)")
