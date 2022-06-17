@@ -494,8 +494,9 @@ const TextExpanderJsPlugin = (function(_super)
 		this.shortcuts.push({});
 
 		// Go over all shortcut-files
-		for (let key in this.shortcutDfc.files)
+		for (let i = 0; i < this.settings.shortcutFiles.length; i++)
 		{
+			let key = this.settings.shortcutFiles[i];
 			// If shortcut-file has no content, it's missing.
 			if (this.shortcutDfc.files[key].content == null)
 			{
