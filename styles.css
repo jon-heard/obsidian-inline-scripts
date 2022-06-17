@@ -65,10 +65,6 @@
 	content: "🗑";
 	display: inline;
 }
-.is-mobile .tejs_settingItem button
-{
-	margin: 0 6px;
-}
 .tejs_errMsgContainer
 {
 	background-color: Red;

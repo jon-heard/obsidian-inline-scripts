@@ -334,6 +334,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.12.1
+- bug fix: minor: settings ui: format example misaligned
+
 ### 0.12.0
 - Empty shortcut is "helperblock": it clears out helper scripts.  It is auto-added to the end of each shortcut-file
 - add an automatic "help" shortcut that lists all "* help" lines.

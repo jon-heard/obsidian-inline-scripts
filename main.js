@@ -584,7 +584,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		{
 			err = "Suffix cannot be blank";
 		}
-		else if (this.tmpSettings.suffix.indexOf(this.tmpSettings.prefix) != -1)
+		else if (this.tmpSettings.suffix.contains(this.tmpSettings.prefix))
 		{
 			err = "Suffix cannot contain prefix";
 		}
@@ -790,7 +790,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 					});
 			})
 			.settingEl.toggleClass("tejs_settingBundled", !IS_MOBILE);
-		const exampleOuter = c.createEl("div", { cls: "tejs_settingItem" });
+		const exampleOuter = c.createEl("div", { cls: "setting-item" });
 			exampleOuter.toggleClass("tejs_settingBundled", !IS_MOBILE);
 		const exampleInfo = exampleOuter.createEl("div", { cls: "setting-item-info" });
 		exampleInfo.createEl("div", { text: "Example", cls: "setting-item-name" });
