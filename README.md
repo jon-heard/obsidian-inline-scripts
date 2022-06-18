@@ -39,8 +39,8 @@ This plugin works on all platforms, including mobile.
 ## Overview
 
 __Text Expander JS__ expands typed shortucts into predefined results, for example:
-- Typing `;;date;` can cause the text to be replaced with (or "expand into") `6/7/2022`
-- Typing `;;name male european;` can cause the text to be replaced with (or "expand into") -> `Bill Harrington`
+- Typing `;;date;` can cause the text to be replaced with (or "expanded into") `6/7/2022`
+- Typing `;;name male european;` can cause the text to be replaced with (or "expanded into") -> `Bill Harrington`
 
 The second example shows how shortcuts can include parameter text (`male european`) that can affect the resulting expansion.
 
