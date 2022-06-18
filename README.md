@@ -19,7 +19,15 @@ This plugin works on all platforms, including mobile.
     - [HOW-TO: Add an existing shortcut-file to a vault](#how-to-add-an-existing-shortcut-file-to-a-vault)
     - [HOW-TO: Create a new shortcut](#how-to-create-a-new-shortcut)
     - [HOW-TO: Create a new shortcut-file](#how-to-create-a-new-shortcut-file)
-    - [Advanced shortcut and Shortcut-file development topics](#advanced-shortcut-and-shortcut-file-development-topics)
+- Shortcut development topics
+    - Development aids
+        - [The console](#the-console---a-development-aid)
+        - [Fenced code blocks](#fenced-code-blocks---a-development-aid)
+    - Advanced shortcuts
+        - [Running external applications and scripts](#running-external-applications-and-scripts---advanced-shortcuts)
+        - [Helper scripts](#helper-scripts---advanced-shortcuts)
+        - [Setup scripts](#setup-scripts---advanced-shortcuts)
+        - [Nesting shortcuts](#nesting-shortcuts---advanced-shortcuts)
 - Technical
     - [Known Issues](#known-issues)
     - [Credits](#credits)
@@ -203,7 +211,7 @@ Here is another, more meaty, example:
 > ~~<br/>
 > ^name$<br/>
 > ~~<br/>
-> return "John Smith";<br/>
+> return "Maggie Smith";<br/>
 > <br/>
 > ~~<br/>
 > ^expand ([a-zA-Z])$<br/>
@@ -223,16 +231,7 @@ It is _highly_ recommended that every shortcut-file contain a "help" shortcut, p
 ***
 ***
 
-## Advanced shortcut and Shortcut-file development topics
-
-- [The console](#the-console)
-- [Fenced code blocks](#fenced-code-blocks)
-- [Helper scripts](#helper-scripts)
-- [Setup scripts](#setup-scripts)
-- [Nesting shortcuts](#nesting-shortcuts)
-- [Running external applications and scripts](#running-external-applications-and-scripts)
-
-### The console
+## The console - a development aid
 If a new shortcut doesn't work and it's not clear why, then the javascript console can help.
 1. Type ctrl-shift-i to open the dev-tools panel. _(see picture below)_
 2. Click on the "Console" tab at the top of the dev-tools panel. _(see picture below)_
@@ -242,7 +241,9 @@ If a new shortcut doesn't work and it's not clear why, then the javascript conso
 
     ![Console](readmeMedia/console.png)
 
-### Fenced code blocks
+***
+
+## Fenced code blocks - a development aid
 If you want a nicer experience while developing a shortcut, you can surround the Expansion string in a "Javascript fenced code block".  For example, you can take this Expansion string:
 
 > return "Hello!  How are you?";
@@ -259,7 +260,7 @@ __Note__: The `` ` `` characters (before the "js") are backticks, the character 
 
 The result of the expansion is the same for both Expansion strings above, even though the second uses a "Javascript fenced code block".
 
-Benefits to using "Javascript fenced code blocks":
+Benefits to using a "Javascript fenced code blocks":
 - Syntax highlighting
 - No unwanted markdown formatting
 
@@ -267,7 +268,7 @@ Drawbacks:
 - Takes longer to write
 - Takes up more space
 
-You can also surround a Test string in a basic "fenced code block".  This provides no syntax highlighting, but still allows avoiding unwanted markdown formatting.  For example:
+You can also surround a Test string in a basic "fenced code block".  This provides no syntax highlighting, but still prevents unwanted markdown formatting.  For example:
 
 > ^date$
 
@@ -281,7 +282,41 @@ to:
 
 __Warning__: The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` ` for Test string!  ` ```javascript `, ` ```JS `, or anything else will break the shortcut.
 
-### Helper scripts
+***
+
+## Running external applications and scripts - advanced shortcuts
+This feature is unavailable on mobile.
+
+There is a function `runExternal(command)` which can be called from any shortcut.  It will execute the `command` parameter as a shell command and return the shell command's terminal output.  This lets one run external executables and scripts such as python, M, bash, etc, then get the resulting data to write into the note (or something more involved).
+
+Be aware that `runExternal(command)` will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned on in the plugin options (it is off by default).  This is a security feature as the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
+
+The shell commands are always run at the vault's root folder.  This allows you to run shell commands for scripts that are within the vault, meaning the scripts can be stored/copied between systems as part of the vault.  Hopefully your vault-syncing process includes non-markdown files.  If it does _not_, then (at least with python) you can append the ".md" extension to your scripts and still run them with the interpreter.
+
+When `runExternal(command)` runs a shell command, Obsidian will freeze until that shell command is completely finished.  This can be disconcerting if you are not ready for it, but it is harmless... unless your shell command runs forever, of course.
+
+When a shell command produces an error:
+1. The return value of the runExternal call is null
+2. A popup notification tells the user that an error occurred
+3. A console error provides detailed information:
+    - The folder the command was run from (always the vault root)
+    - The shell command that failed
+    - The error message provided by the shell
+
+runExternal actually has a second, optional, parameter: `runExternal(command, failSilently)`.  When failSilently is true and the command produces an error, runExternal still returns null, but the notification and console error are skipped.
+
+There is one other optional parameter: `runExternal(command, failSilently, dontFixSlashes)`.  By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps keep commands cross-platform.  If this slash-flipping isn't wanted, though, then set the `dontFixSlashes` parameter to true.
+
+Here is an example shortcut that uses the `runExternal(command)` function to let the user run their _own_ shell commands.
+| Test | Expansion |
+| ---- | --------- |
+| ^exec (.*)$ | let result = runExternal($1);<br/>if (result === null) { result = "FAILED"; }<br/>return "Shell command result = \"" + result + "\"."; |
+
+With this shortcut, typing `;;exec dir;` will expand into the vault root-folder's contents.
+
+***
+
+## Helper scripts - advanced shortcuts
 If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  A helper script provides common code that any shortcuts listed after it can use.
 
 If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper block".  A helper block prevents any helper scripts above it from being available to any shortcuts after it.  You probably won't need helper blocks, but they are there in case you do.  They are also used to separate shortcut-files so that the helper scripts in one shortcut-file don't affect the shortcuts of other files.
@@ -297,64 +332,37 @@ Here is an example of helper scripts:
 |    5    |       |                                                                |
 |    6    | bye   | return "Goodbye.  Thanks for your time!";                      |
 
-In this list of shortcuts, the shortcut #2 has an empty Test string.  That means that it is a "helper script". The code in its Expansion string (a function called "roll") is available to shortcuts after it.  Shortcut #5 is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  The net effect is that shortcuts #3 and #4 have access to the helper script in shortcut #2, while shortcuts #1 and #6 do not.
+In this list of shortcuts, the shortcut #2 has an empty Test string.  That means that it is a "helper script". The code in its Expansion string (a function called "roll") is available to shortcuts after it.  Shortcut #5 is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  The net effect is that shortcuts #3 and #4 have access to the helper script, while shortcuts #1 and #6 do not.
 
-### Setup scripts
-Shortcut-files can contain a "setup script".  A setup script will run whenever the shortuct-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with the Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
+***
 
-### Nesting shortcuts
+## Setup scripts - advanced shortcuts
+Shortcut-files can contain a "setup script".  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with the Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
+
+***
+
+## Nesting shortcuts - advanced shortcuts
 There are two features that work in tandem to allow you to nest shortcuts (i.e. use shortcut results as part of other shortcuts).  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then use the result.
 
-Firstly: an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when expanding a user-typed shortcut.
+Firstly: an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when replacing a user-typed shortcut.
 
-Secondly: within an Expansion script you can call the function `getExpansion(text)`.  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like the shortcut text you type into a note, except that it returns the result (a string or a string array), _instead_ of writing the result to the note.
+Secondly: within an Expansion script you can call the function `getExpansion(text)`.  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like the shortcut text you type into a note, except that it returns the result (a string or string array), _instead_ of writing the result to the note.
 
-Given these features, here's how you can chain a set of shortcuts.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut's text.  What it gets back is the second shortcut's Expansion result: either a string or an array of strings.  It can then use that result, or a piece of that result as needed.
+Given these features, here's how you can chain a set of shortcuts.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut.  What it gets back is the second shortcut's Expansion result: a string or array of strings.  It can then use that result, or a piece of that result as needed.
 
 Here's an example of nesting shortcuts:
 | Test id | Test | Expansion |
 | ------- | ---- | --------- |
-|  1 | firstname | return ["FirstName: ", "John"]; |
+|  1 | firstname | return ["FirstName: ", "Maggie"]; |
 |  2 | lastname | return ["LastName: ", "Smith"]; |
 |  3 | fullname | return [ "FullName: ", getExpansion("firstname")[1], " ", getExpansion("lastname")[1] ]; |
 
-Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (or `!!firstname!` on mobile), then the expansion is "FirstName: John".  This is true for shortcut #2 as well (expanding into "LastName: Smith").
+Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (or `!!firstname!` on mobile), then the expansion is "FirstName: Maggie".  This is true for shortcut #2 as well (expanding into "LastName: Smith").
 
-If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
+If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
 
 Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the getExpansion function).
 
-### Running external applications and scripts
-This feature is unavailable on mobile.
-
-There is a function `runExternal(command)` which can be called from any shortcut.  It will execute the `command` parameter as a shell command and return the shell command's terminal output.  This lets one run external executables and scripts such as python, M, bash, etc, then print the resulting data into the note.
-
-Be aware that `runExternal(command)` will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned on in the plugin options (it is off by default).  This is a security feature as the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
-
-The shell commands are always run with the current folder being the vault's root folder.  This allows you to run shell commands for scripts that are within the vault, meaning the scripts can be stored/copied between systems as part of the vault.  Hopefully your vault-syncing process includes non-markdown files.  If it does _not_, then (at least with python) you can append the ".md" extension to your scripts and still run them with the interpreter.
-
-When `runExternal(command)` runs a shell command, Obsidian will freeze until that shell command is completely finished.  This can be disconcerting if you are not ready for it, but it is harmless... unless your shell command runs forever, of course.
-
-When a shell command has an error:
-1. The return value of the runExternal call is null
-2. A popup notification tells the user that an error occurred
-3. A console error provides extra information:
-    - The folder the command was run from (always the vault root)
-    - The shell command that failed
-    - The error message provided by the shell
-
-runExternal actually has a second, optional, parameter: `runExternal(command, failSilently)`.  When failSilently is true and runExternal encounters a command error, it still returns null, but the notification and console error are skipped.
-
-There is one other optional parameter: `runExternal(command, failSilently, dontFixSlashes)`.  By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps for writing shell commands that work cross-platorm.  If this slash-flipping isn't wanted, though, then set the `dontFixSlashes` parameter to true.
-
-Here is an example shortcut that uses the `runExternal(command)` function to let the user run their _own_ shell commands.
-| Test | Expansion |
-| ---- | --------- |
-| ^exec (.*)$ | let result = runExternal($1);<br/>if (result === null) { result = "FAILED"; }<br/>return "Shell command result = \"" + result + "\"."; |
-
-With this shortcut, typing `;;exec dir;` will expand into a list of the vault root folder's contents.
-
-***
 ***
 
 ## Known Issues
