@@ -56,14 +56,14 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
     - To the right of each shortcut-file textbox is a trashcan button.  This button lets you delete the textbox.
 - __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, whithout needing a shortcut-file.
     - The "Add shortcut" button adds a blank entry for a new shortcut to the bottom of the Shortcuts setting.
-    - The "Add defaults" button adds the default shortcuts to the end of Shortcut setting.
+    - The "Add defaults" button adds the default shortcuts to the end of the Shortcuts setting.
     - To the right of each shortcut entry is a trashcan button.  This button lets you delete the shortcut entry.
 - __Prefix & Suffix__ - These settings let you define what a typed shortcut starts and ends with to signify that it is a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
-    - If there are any errors with the prefix & suffix entries, a red box with an error text will appear above the prefix & suffix textboxes.
+    - If there are any errors with the prefix & suffix entries, a red box with an error message will appear above the prefix & suffix textboxes.
 - __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you change from one note to another.  This adds a slight delay, but lets you develop shortcut-files more rapidly.
-- __Allow external__ - When turned on, shortcuts can run shell commands.  This is a powerful ability that a maliciously written shortcut can abuse to do serious damage to your computer.  Make sure you trust your shortcuts before turning this on.
+- __Allow external__ - When turned on, shortcuts are able to run shell commands.  This is a powerful ability that a maliciously written shortcut can abuse to do serious damage to your computer.  Make sure you trust your shortcuts before turning this on.
 
 ***
 
