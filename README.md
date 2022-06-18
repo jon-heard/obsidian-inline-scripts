@@ -63,6 +63,7 @@ Individual shortcuts can also be defined in the settings.  This is useful for on
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
     - If there are any errors with the prefix & suffix entries, a red box with an error text will appear above the prefix & suffix textboxes.
 - __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you change from one note to another.  This adds a slight delay, but lets you develop shortcut-files more rapidly.
+- __Allow external__ - When turned on, shortcuts can run shell commands.  This is a powerful ability that a maliciously written shortcut can abuse to do serious damage to your computer.  Make sure you trust your shortcuts before turning this on.
 
 ***
 
@@ -268,6 +269,7 @@ Drawbacks:
 - Takes longer to write
 - Takes up more space
 
+### Fencing test strings
 You can also surround a Test string in a basic "fenced code block".  This provides no syntax highlighting, but still prevents unwanted markdown formatting.  For example:
 
 > ^date$
@@ -280,7 +282,8 @@ to:
 >
 > \`\`\`
 
-__Warning__: The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` ` for Test string!  ` ```javascript `, ` ```JS `, or anything else will break the shortcut.
+### Warning
+The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` ` for Test string!  ` ```javascript `, ` ```JS `, or anything else will break the shortcut.
 
 ***
 
@@ -289,12 +292,16 @@ This feature is unavailable on mobile (Obsidian's backend doesn't allow it).
 
 There is a function `runExternal(command)` which can be called from any shortcut.  It will execute the `command` parameter as a shell command and return the command's console output.  This lets one run external executables and scripts such as python, M, bash, etc, then get the output and expand it into the note (or do something else with it).
 
+### The "Allow external" setting
 Be aware that `runExternal(command)` will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned on in the plugin options (it is off by default).  This security feature exists because the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
 
+### The working folder for commands
 runExternal always runs commands at the vault's root folder.  This allows you to run scripts that are within the vault, meaning the scripts can be copied/synced as part of the vault.
 
+### Obsidian pauses until a command completes
 When `runExternal(command)` runs a command, Obsidian will freeze until that command is completely finished.  This can be disconcerting if you are not ready for it, but it is harmless... unless your command runs forever, of course.
 
+### Command errors
 When a command produces an error:
 1. The runExternal call returns null (instead of the console output)
 2. A popup notification tells the user that an error has occurred
@@ -305,9 +312,10 @@ When a command produces an error:
 
 runExternal actually has a second, optional, parameter: `runExternal(command, failSilently)`.  When failSilently is true and the command produces an error, runExternal still returns null, but the notification and console error are skipped.
 
-There is one other optional parameter: `runExternal(command, failSilently, dontFixSlashes)`.  By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps keep commands cross-platform (always use forward-slashes).  If this slash-flipping isn't wanted, though, then set the `dontFixSlashes` parameter to true.
+### Cross-platform slashes
+By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps keep commands cross-platform (always use forward-slashes).  If this slash-flipping isn't wanted, though, runExternal has one other, optional, parameter `runExternal(command, failSilently, dontFixSlashes)`.  If `dontFixSlashes` parameter is true, forward-slashes won't be flipped on Windows.
 
-Here are some example shortcuts that uses `runExternal(command)`:
+### Examples
 | Test | Expansion | Overview |
 | ---- | --------- | -------- |
 | ^runMyScript$ | return&nbsp;runExternal("myscript.py"); | When the user types `;;runMyScript;`, the python script "myscript.py" will run, and it's console output will be expanded into the note. |
@@ -318,10 +326,10 @@ Here are some example shortcuts that uses `runExternal(command)`:
 ## ADVANCED SHORTCUTS: Helper scripts
 If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  A helper script provides common code that any shortcuts listed after it can use.
 
+### Helper blocks
 If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper block".  A helper block prevents any helper scripts above it from being available to any shortcuts after it.  You probably won't need helper blocks, but they are there in case you do.  They are also used to separate shortcut-files so that the helper scripts in one shortcut-file don't affect the shortcuts of other files.
 
-Here is an example of helper scripts:
-
+### Example
 | Test id | Test  | Expansion                                                      |
 | ------- | ----  | -------------------------------------------------------------- |
 |    1    | greet | return "Hello!  How are you?";                                 |
@@ -343,13 +351,16 @@ Shortcut-files can contain a "setup script".  A setup script will run whenever t
 ## ADVANCED SHORTCUTS: Nesting shortcuts
 There are two features that work in tandem to allow you to nest shortcuts (i.e. use shortcut results as part of other shortcuts).  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then use the result.
 
+### Returning string arrays
 Firstly: an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when replacing a user-typed shortcut.
 
+### Calling one shortcut from another
 Secondly: within an Expansion script you can call the function `getExpansion(text)`.  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like the shortcut text you type into a note, except that it returns the result (a string or string array), _instead_ of writing the result to the note.
 
-Given these features, here's how you can chain a set of shortcuts.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut.  What it gets back is the second shortcut's Expansion result: a string or array of strings.  It can then use that result, or a piece of that result as needed.
+### Nesting shortcuts
+Given these features, here's how you can nest a shortcut within another.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut.  What it gets back is the second shortcut's Expansion result: a string or array of strings.  It can then use that result, or a piece of that result as needed.
 
-Here's an example of nesting shortcuts:
+### Example
 | Test id | Test | Expansion |
 | ------- | ---- | --------- |
 |  1 | firstname | return ["FirstName: ", "Maggie"]; |
@@ -360,6 +371,7 @@ Notice that shortcut #1 returns an array of strings, but if you type `;;firstnam
 
 If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
 
+### The "isUserTriggered" variable
 Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the getExpansion function).
 
 ***
