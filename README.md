@@ -293,7 +293,7 @@ There is a function `runExternal(command)` which can be called from any shortcut
 
 NOTE: The full function is `runExternal(command, failSilently, dontFixSlashes)`.  The second two parameters are optional and are explained later in this section.
 
-### The "Allow external" setting
+### `IMPORTANT` - The "Allow external" setting
 Be aware that the runExternal function will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned __on__ in the plugin options (it is off by default).  This security feature exists because the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
 
 ### Examples
