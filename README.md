@@ -39,14 +39,14 @@ This plugin works on all platforms, including mobile.
 ## Overview
 
 __Text Expander JS__ expands typed shortucts into predefined results, for example:
-- Typing `;;date;` can cause the text to expand into `6/7/2021`
-- Typing `;;name male european;` can cause the text to expand into -> `Bill Harrington`
+- Typing `;;date;` can cause the text to be replaced with (or "expand into") `6/7/2021`
+- Typing `;;name male european;` can cause the text to be replaced with (or "expand into") -> `Bill Harrington`
 
-The second example shows how shortcuts can include text to be considered when creating the expansion result.
+The second example shows how shortcuts can include parameter text (`male european`) that can affect the resulting expansion.
 
-Shortcuts are defined in shortcut-files, to be added to the vault as notes.  When one or more shortcut-file notes are in the vault and connected to this plugin, their shortcuts will expand whenever they are typed into a note in the vault.  Users can download prewritten shortcut-files into their vault, or write their own.
+Shortcuts can be defined in the settings.  __Text Expander JS__ comes with some sample shortcuts defined by default.  See the tutorials "[Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out)" and "[Create a new shortcut](#tutorial-create-a-new-shortcut)" for details.
 
-Individual shortcuts can also be defined in the settings.  This is useful for one-off shortcuts as it requires less work and file clutter.  It is also less flexible with shortcut organization and transfer.
+Shortcuts can also be defined in shortcut-files, to be added to the vault as notes.  This requires more work, but offers better organization and easier sharing of shortcuts.  Users can download prewritten shortcut-files into their vault, or write their own.  See the tutorials "[Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)" and "[Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)" for details.
 
 ***
 
