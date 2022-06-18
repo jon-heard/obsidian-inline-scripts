@@ -15,19 +15,19 @@ This plugin works on all platforms, including mobile.
     - [REFERENCE: Settings](#reference-settings)
     - [User support, bugs, feedback, dontations, etc.](#user-support-bugs-feedback-donations-etc)
 - Tutorials
-    - [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out)
-    - [HOW-TO: Add an existing shortcut-file to a vault](#how-to-add-an-existing-shortcut-file-to-a-vault)
-    - [HOW-TO: Create a new shortcut](#how-to-create-a-new-shortcut)
-    - [HOW-TO: Create a new shortcut-file](#how-to-create-a-new-shortcut-file)
+    - [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out)
+    - [Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)
+    - [Create a new shortcut](#tutorial-create-a-new-shortcut)
+    - [Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)
 - Shortcut development topics
     - Development aids
-        - [The console](#the-console---a-development-aid)
-        - [Fenced code blocks](#fenced-code-blocks---a-development-aid)
+        - [The console](#development-aid-the-console)
+        - [Fenced code blocks](#development-aid-fenced-code-blocks)
     - Advanced shortcuts
-        - [Running external applications and scripts](#running-external-applications-and-scripts---advanced-shortcuts)
-        - [Helper scripts](#helper-scripts---advanced-shortcuts)
-        - [Setup scripts](#setup-scripts---advanced-shortcuts)
-        - [Nesting shortcuts](#nesting-shortcuts---advanced-shortcuts)
+        - [Running external applications and scripts](#advanced-shortcuts-running-external-applications-and-scripts)
+        - [Helper scripts](#advanced-shortcuts-helper-scripts)
+        - [Setup scripts](#advanced-shortcuts-setup-scripts)
+        - [Nesting shortcuts](#advanced-shortcuts-nesting-shortcuts)
 - Technical
     - [Known Issues](#known-issues)
     - [Credits](#credits)
@@ -83,7 +83,7 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 ***
 ***
 
-## HOW-TO: Setup the plugin and try it out
+## TUTORIAL: Setup the plugin and try it out
 1.  Walk through the process of installing and enabling the plugin (TBD once this plugin is part of the community).
 2.  Open a note to try out the plugin.
 3.  In the note, type `;;greet` (or `!!greet!` on mobile).
@@ -106,7 +106,7 @@ __Text Expander JS__ comes with the following shortcuts defined by default:
 ***
 ***
 
-## HOW-TO: Add an existing shortcut-file to a vault
+## TUTORIAL: Add an existing shortcut-file to a vault
 
 ### A warning
 Shortcuts, by their Javscript nature, have a risk of being malicious.  Make sure you trust a shortcut or shortcut-file before using it.
@@ -149,7 +149,7 @@ Each shortcut-file should have a "help" shortcut that lists the shortcuts provid
 ***
 ***
 
-## HOW-TO: Create a new shortcut
+## TUTORIAL: Create a new shortcut
 
 ### Step-by-step: Adding a shortcut
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
@@ -187,7 +187,7 @@ Each shortcut is defined by a pair of strings.
 ***
 ***
 
-## HOW-TO: Create a new shortcut-file
+## TUTORIAL: Create a new shortcut-file
 
 ### NOTE: If you make a shortcut-file you think others would like, it'd be real nice if you could share it [here](https://github.com/jon-heard/obsidian-text-expander-js/discussions)!  If it is polished and generally useful, then I'll even add it to the [main list of shortcut-files](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).
 
@@ -231,7 +231,7 @@ It is _highly_ recommended that every shortcut-file contain a "help" shortcut, p
 ***
 ***
 
-## The console - a development aid
+## DEVELOPMENT AID: The console
 If a new shortcut doesn't work and it's not clear why, then the javascript console can help.
 1. Type ctrl-shift-i to open the dev-tools panel. _(see picture below)_
 2. Click on the "Console" tab at the top of the dev-tools panel. _(see picture below)_
@@ -243,7 +243,7 @@ If a new shortcut doesn't work and it's not clear why, then the javascript conso
 
 ***
 
-## Fenced code blocks - a development aid
+## DEVELOPMENT AID: Fenced code blocks
 If you want a nicer experience while developing a shortcut, you can surround the Expansion string in a "Javascript fenced code block".  For example, you can take this Expansion string:
 
 > return "Hello!  How are you?";
@@ -284,10 +284,10 @@ __Warning__: The fenced code block _must_ be exact: ` ```js ` for Expansion stri
 
 ***
 
-## Running external applications and scripts - advanced shortcuts
+## ADVANCED SHORTCUTS: Running external applications and scripts
 This feature is unavailable on mobile (Obsidian's backend doesn't allow it).
 
-There is a function `runExternal(command)` which can be called from any shortcut.  It will execute the `command` parameter as a shell command and return the shell command's console output.  This lets one run external executables and scripts such as python, M, bash, etc, then get the resulting data to write into the note (or something more involved).
+There is a function `runExternal(command)` which can be called from any shortcut.  It will execute the `command` parameter as a shell command and return the shell command's console output.  This lets one run external executables and scripts such as python, M, bash, etc, then get the output and expand it into the note (or do something else with it).
 
 Be aware that `runExternal(command)` will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned on in the plugin options (it is off by default).  This is a security feature as the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
 
@@ -315,7 +315,7 @@ Here are some example shortcuts that uses the `runExternal(command)` function to
 
 ***
 
-## Helper scripts - advanced shortcuts
+## ADVANCED SHORTCUTS: Helper scripts
 If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  A helper script provides common code that any shortcuts listed after it can use.
 
 If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper block".  A helper block prevents any helper scripts above it from being available to any shortcuts after it.  You probably won't need helper blocks, but they are there in case you do.  They are also used to separate shortcut-files so that the helper scripts in one shortcut-file don't affect the shortcuts of other files.
@@ -335,12 +335,12 @@ In this list of shortcuts, the shortcut #2 has an empty Test string.  That means
 
 ***
 
-## Setup scripts - advanced shortcuts
+## ADVANCED SHORTCUTS: Setup scripts
 Shortcut-files can contain a "setup script".  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with the Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
 
 ***
 
-## Nesting shortcuts - advanced shortcuts
+## ADVANCED SHORTCUTS: Nesting shortcuts
 There are two features that work in tandem to allow you to nest shortcuts (i.e. use shortcut results as part of other shortcuts).  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then use the result.
 
 Firstly: an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when replacing a user-typed shortcut.
