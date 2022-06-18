@@ -14,11 +14,11 @@ This plugin works on all platforms, including mobile.
     - [Overview](#overview)
     - [REFERENCE: Settings](#reference-settings)
     - [User support, bugs, feedback, dontations, etc.](#user-support-bugs-feedback-donations-etc)
-- Tutorials
-    - [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out)
-    - [Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)
-    - [Create a new shortcut](#tutorial-create-a-new-shortcut)
-    - [Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)
+- Tutorials &nbsp; _(suggest reading in-order)_
+    1. [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out)
+    2. [Create a new shortcut](#tutorial-create-a-new-shortcut)
+    3. [Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)
+    4. [Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)
 - Shortcut development topics
     - Development aids
         - [The console](#development-aid-the-console)
@@ -107,6 +107,43 @@ __Text Expander JS__ comes with the following shortcuts defined by default:
 ***
 ***
 
+## TUTORIAL: Create a new shortcut
+### Shortcut components
+Each shortcut is defined by a pair of strings.
+- __Test string__ - This is a regex.  That means that it is a code used to identify a pattern in another string.  The Test string is regex used to determine whether a shortcut the user has typed matches _this_ shortcut.
+- __Expansion string__ - This is a javascript script.  It is used to define what this shortcut expands into.  If the user types a shortcut, and it is accepted by the Test string, the Expansion string script is called and the result is added to the note, replacing the user-typed shortcut.
+
+### Examples
+| Test | Expansion | Overview |
+| ---- | --------- | -------- |
+| greet | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;greet;` (or `!!greet!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;greet;` or `!!greet!`) will be replaced with `Hello! How are you?`. |
+| ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in your shortcuts, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (or `!!date!` on mobile) it will be replaced with the current date. |
+| ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; |  This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis make variable `$1`, a second parenthesis would make the variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3;` (or `!!age 3!` on mobile) the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21;` (or `!!age 21!`), it will be replaced with `I am 21 years old.`
+
+### Step-by-step: Adding a shortcut
+1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
+2. Open the plugin options for the __Text Expander JS__ plugin.
+    1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
+    
+        ![Settings button](readmeMedia/settings.png)
+    
+    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for
+__Text Expander JS__.
+
+        ![Plugin options](readmeMedia/pluginOptions.png)
+3. Go down to the "Shortcuts" setting.  It's the second setting in the panel, just after "Shortcut-files". _(see picture below)_
+4. The setting has two buttons: "Add shortcut" and "Add defaults".  Click on the "Add shortcut" button.  This adds a shortcut entry to the bottom of the "Shortcuts" setting.  The new entry should include two textboxes with the words "Test (regex)" and "Expansion (javascript)" in grey text. _(see picture below)_
+5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: `test` and `return "The test worked.";`. _(see picture below)_
+
+    ![Shortcuts](readmeMedia/shortcuts.png)
+7. Close the settings panel.
+    - You can hit the X button on the top right of the settings panel to close it.
+    - You can click outside of the settings panel to close it.
+8. Try typing your new shortcut into a note to make sure it works.
+
+***
+***
+
 ## TUTORIAL: Add an existing shortcut-file to a vault
 
 ### A warning
@@ -146,43 +183,6 @@ __Text Expander JS__.
 
 ### Help shortcuts
 Each shortcut-file should have a "help" shortcut that lists the shortcuts provided by the file.  For example, the "state" shortcut-file includes the shortcut `help state`.  __Text Expander JS__ includes a hardcoded shortcut `help` which lists all of the help shortcuts currently active in the vault.
-
-***
-***
-
-## TUTORIAL: Create a new shortcut
-### Shortcut components
-Each shortcut is defined by a pair of strings.
-- __Test string__ - This is a regex.  That means that it is a code used to identify a pattern in another string.  The Test string is regex used to determine whether a shortcut the user has typed matches _this_ shortcut.
-- __Expansion string__ - This is a javascript script.  It is used to define what this shortcut expands into.  If the user types a shortcut, and it is accepted by the Test string, the Expansion string script is called and the result is added to the note, replacing the user-typed shortcut.
-
-### Examples
-| Test | Expansion | Overview |
-| ---- | --------- | -------- |
-| greet | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;greet;` (or `!!greet!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;greet;` or `!!greet!`) will be replaced with `Hello! How are you?`. |
-| ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in your shortcuts, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (or `!!date!` on mobile) it will be replaced with the current date. |
-| ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; |  This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis make variable `$1`, a second parenthesis would make the variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3;` (or `!!age 3!` on mobile) the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21;` (or `!!age 21!`), it will be replaced with `I am 21 years old.`
-
-### Step-by-step: Adding a shortcut
-1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
-2. Open the plugin options for the __Text Expander JS__ plugin.
-    1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
-    
-        ![Settings button](readmeMedia/settings.png)
-    
-    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for
-__Text Expander JS__.
-
-        ![Plugin options](readmeMedia/pluginOptions.png)
-3. Go down to the "Shortcuts" setting.  It's the second setting in the panel, just after "Shortcut-files". _(see picture below)_
-4. The setting has two buttons: "Add shortcut" and "Add defaults".  Click on the "Add shortcut" button.  This adds a shortcut entry to the bottom of the "Shortcuts" setting.  The new entry should include two textboxes with the words "Test (regex)" and "Expansion (javascript)" in grey text. _(see picture below)_
-5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: `test` and `return "The test worked.";`. _(see picture below)_
-
-    ![Shortcuts](readmeMedia/shortcuts.png)
-7. Close the settings panel.
-    - You can hit the X button on the top right of the settings panel to close it.
-    - You can click outside of the settings panel to close it.
-8. Try typing your new shortcut into a note to make sure it works.
 
 ***
 ***
