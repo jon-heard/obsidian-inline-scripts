@@ -110,6 +110,9 @@ const TextExpanderJsPlugin = (function(_super)
 				this.cm6_handleExpansionTrigger.bind(this))
 		]);
 
+		// This keeps track of multiple expansion error handlers for nested expansions
+		this.expansionErrorHandlerStack = [];
+
 		// Log starting the plugin
 		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
 	};
@@ -366,8 +369,12 @@ const TextExpanderJsPlugin = (function(_super)
 		function(expansionScript, isUserTriggered)
 	{
 		// Prepare for possible Expansion script error
-		this._expansionText = expansionScript;
-		window.addEventListener('error', this._handleExpansionError);
+		if (isUserTriggered)
+		{
+			this.expansionErrorHandlerStack = [];
+			window.addEventListener('error', this._handleExpansionError);
+		}
+		this.expansionErrorHandlerStack.push(expansionScript);
 
 		// Run the Expansion script
 		// Pass getExpansion function and isUserTriggered flag for use in Expansion script
@@ -376,8 +383,12 @@ const TextExpanderJsPlugin = (function(_super)
 				(this._getExpansion, isUserTriggered, this._runExternal);
 
 		// Clean up script error preparations (it wouldn't have got here if we'd hit one)
-		window.removeEventListener('error', this._handleExpansionError);
-		delete this._expansionText;
+		this.expansionErrorHandlerStack.pop();
+		if (isUserTriggered)
+		{
+			this.expansionErrorHandlerStack = [];
+			window.removeEventListener('error', this._handleExpansionError);
+		}
 
 		return result;
 	};
@@ -391,28 +402,30 @@ const TextExpanderJsPlugin = (function(_super)
 		e.preventDefault();
 
 		// Insert line numbers and arrows into code
-		this._expansionText = this._expansionText.split("\n");
-		for (let i = 0; i < this._expansionText.length; i++)
+		let expansionText =
+			this.expansionErrorHandlerStack
+			[this.expansionErrorHandlerStack.length - 1];
+		expansionText = expansionText.split("\n");
+		for (let i = 0; i < expansionText.length; i++)
 		{
-			this._expansionText[i] =
-				String(i+1).padStart(4, '0') + " " + this._expansionText[i];
+			expansionText[i] = String(i+1).padStart(4, '0') + " " + expansionText[i];
 		}
-		this._expansionText.splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
-		this._expansionText.splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
-		this._expansionText = this._expansionText.join("\n");
+		expansionText.splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
+		expansionText.splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
+		expansionText = expansionText.join("\n");
 
 		// Notify user of error
 		console.error(
 			"Error in Shortcut expansion: " + e.message +
 			"\nline: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
-			"─".repeat(20) + "\n" + this._expansionText);
+			"─".repeat(20) + "\n" + expansionText);
 		new obsidian.Notice(
 			"ERROR: shortcut expansion issues\n\n(see console for details)",
 			LONG_NOTE_TIME);
 
 		// Clean up script error preparations (now that the error is handled)
+		this.expansionErrorHandlerStack = []; // Error causes nest to unwind.  Clear stack.
 		window.removeEventListener('error', this._handleExpansionError);
-		this._expansionText = null;
 	};
 
 	// Parses a shortcut-file's contents and produces a list of shortcuts

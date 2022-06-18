@@ -372,6 +372,7 @@ With this shortcut, typing `;;exec dir;` will expand into a list of the vault ro
 
 ### 0.13.0
 - Add ability to run external applications through the "runExternal" function (not available through mobile).
+- bug fix: erroring on a shortcut _after_ it has called getExpansion produces an "uncaught" error, rather than the proper, useful error.
 
 ### 0.12.1
 - bug fix: minor: settings ui: format example misaligned
