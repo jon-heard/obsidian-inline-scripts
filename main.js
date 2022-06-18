@@ -369,7 +369,10 @@ const TextExpanderJsPlugin = (function(_super)
 		return expansionText;
 	};
 
-	// Runs an expansion script, including error handling
+	// Runs an expansion script, including error handling.
+	// NOTE: Error handling is being done through window's "error" event, rather than through
+	// exceptions.  This is because exceptions don't provide error line numbers like the error
+	// event does.  Line numbers are important to create a useful "expansion failed" message.
 	TextExpanderJsPlugin.prototype.runExpansionScript =
 		function(expansionScript, isUserTriggered)
 	{
@@ -377,7 +380,7 @@ const TextExpanderJsPlugin = (function(_super)
 		if (isUserTriggered)
 		{
 			this.expansionErrorHandlerStack = [];
-			window.addEventListener('error', this._handleExpansionError);
+			window.addEventListener("error", this._handleExpansionError);
 		}
 		this.expansionErrorHandlerStack.push(expansionScript);
 
@@ -392,7 +395,7 @@ const TextExpanderJsPlugin = (function(_super)
 		if (isUserTriggered)
 		{
 			this.expansionErrorHandlerStack = [];
-			window.removeEventListener('error', this._handleExpansionError);
+			window.removeEventListener("error", this._handleExpansionError);
 		}
 
 		// if shortcut doesn't return anything, better to return "" than undefined
@@ -414,7 +417,7 @@ const TextExpanderJsPlugin = (function(_super)
 		expansionText = expansionText.split("\n");
 		for (let i = 0; i < expansionText.length; i++)
 		{
-			expansionText[i] = String(i+1).padStart(4, '0') + " " + expansionText[i];
+			expansionText[i] = String(i+1).padStart(4, "0") + " " + expansionText[i];
 		}
 		expansionText.splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
 		expansionText.splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
@@ -431,7 +434,7 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Clean up script error preparations (now that the error is handled)
 		this.expansionErrorHandlerStack = []; // Error causes nest to unwind.  Clear stack.
-		window.removeEventListener('error', this._handleExpansionError);
+		window.removeEventListener("error", this._handleExpansionError);
 	};
 
 	// Parses a shortcut-file's contents and produces a list of shortcuts
@@ -445,7 +448,7 @@ const TextExpanderJsPlugin = (function(_super)
 		if (!(content.length % 2))
 		{
 			console.error(
-				"'Misnumbered section count' error in Shortcut-file \"" +
+				"\"Misnumbered section count\" error in Shortcut-file \"" +
 				filename + "\".");
 			fileHasErrors = true;
 		}
@@ -478,7 +481,7 @@ const TextExpanderJsPlugin = (function(_super)
 				catch (e)
 				{
 					console.error(
-						"'Bad Test string' error in shortcut-file \"" +
+						"\"Bad Test string\" error in shortcut-file \"" +
 						filename + "\"." + "  Test: " + c);
 					fileHasErrors = true;
 					continue;
