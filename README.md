@@ -331,7 +331,7 @@ There is a function `runExternal(command)` which can be called from any shortcut
 
 Be aware that `runExternal(command)` will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned on in the plugin options (it is off by default).  This is a security feature as the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
 
-The shell commands are always run with the current folder being the vault's root folder.  This allows external scripts to be stored and transferred as part of the vault.  Hopefully your vault-syncing process includes non-markdown files.  If it does _not_ then, at least with python, you can append the ".md" extension to your scripts.  You'll just need to explicitly call the interpreter on the script to force it to run.
+The shell commands are always run with the current folder being the vault's root folder.  This allows you to run shell commands for scripts that are within the vault, meaning the scripts can be stored/copied between systems as part of the vault.  Hopefully your vault-syncing process includes non-markdown files.  If it does _not_, then (at least with python) you can append the ".md" extension to your scripts and still run them with the interpreter.
 
 When `runExternal(command)` runs a shell command, Obsidian will freeze until that shell command is completely finished.  This can be disconcerting if you are not ready for it, but it is harmless... unless your shell command runs forever, of course.
 
