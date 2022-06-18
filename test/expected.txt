@@ -2,6 +2,7 @@
 ## Instruction
 1) Make sure that shortcut-file references are as follows:
 	- support/TEJS_state
+	- support/TEJS_lists
 	- support/TEJS_mythicV2
 	- support/TEJS_une
 	- support/TEJS_support
@@ -78,7 +79,7 @@ Random number generator set up with seed ' 1'.
 
 
 __TEJS state__
-{"clips":{"a":"first","c":"third"},"mythic":{"chaos":4,"scene":1,"showDetails":true,"lists":{"pcs":[],"npcs":[],"threads":[]}}}
+{"clips":{"a":"first","c":"third"},"mythic":{"chaos":4,"scene":1,"showDetails":true},"lists":{"pcs":{"type":"basic","content":[]},"threads":{"type":"basic","content":[]},"npcs":{"type":"basic","content":[]}}}
 
 
 ***
@@ -216,25 +217,25 @@ List "npcs" removed.
 
 
 __Lists__
-pcs, npcs, threads
+npcs, pcs, threads
 
 
 List "newList" removed.
 
 
 __Lists__
-pcs, npcs, threads, newList
+newList, npcs, pcs, threads
 
 
 Failed to remove list "notAList".  List does not exist.
 
 
 __Lists__
-pcs, npcs, threads, newList
+newList, npcs, pcs, threads
 
 
 __List "npcs"__
-Becca, Pramod, Becca
+Becca, Becca, Pramod
 
 
 "Sarah Heard" removed from list "npcs".
@@ -249,8 +250,7 @@ Failed to remove "notAListItem" from list "npcs".  Not found in list.
 Failed to pick from list "notAList".  List is empty.
 
 
-"Becca" picked from list "npcs".
-_pickRoll=4_
+"Sarah Heard" picked from list "npcs".
 
 
 __List "newList"__
@@ -258,14 +258,14 @@ newListItem
 
 
 __Lists__
-pcs, npcs, threads, newList
+newList, npcs, pcs, threads
 
 
 "newListItem" added to list "newList".
 
 
 __List "npcs"__
-Becca, Pramod, Sarah Heard, Becca
+Becca, Becca, Pramod, Sarah Heard
 
 
 "Becca" added to list "npcs".
@@ -287,11 +287,11 @@ Becca, Pramod
 
 
 __List "pcs"__
-Jon, Ben
+Ben, Jon
 
 
 __Lists__
-pcs, npcs, threads
+npcs, pcs, threads
 
 
 __Meaning (action)__
@@ -345,7 +345,7 @@ _fateRoll1=10 fateRoll2=1 chaosRoll=2 oddsAdjust=0 chaosAdjust=2_
 __Fate check (impossible)__
 NO
 __Event__ - NPC ACTS (Pramod) - OPPOSE _(of)_ ILLUSIONS
-_fateRoll1=2 fateRoll2=8 chaosRoll=1 oddsAdjust=-8 chaosAdjust=-2 eventRoll=28 npcsList=2 actionRoll1=8 actionRoll2=88_
+_fateRoll1=2 fateRoll2=8 chaosRoll=1 oddsAdjust=-8 chaosAdjust=-2 eventRoll=28 actionRoll1=8 actionRoll2=88_
 
 
 __Fate check (has to be)__
@@ -363,12 +363,12 @@ Random number generator set up with seed ' 3'.
 
 __Event__
 NPC NEGATIVE (Pramod) - AGREE _(of)_ NEW_IDEAS
-_eventRoll=85 npcsList=2 actionRoll1=59 actionRoll2=19_
+_eventRoll=85 actionRoll1=59 actionRoll2=19_
 
 
 __Detail__
-FOCUS PC (Ben)
-_roll1=3 roll2=10 chaosAdjust=-2 pcs=2_
+FOCUS PC (Jon)
+_roll1=3 roll2=10 chaosAdjust=-2_
 
 
 __Detail__
@@ -377,6 +377,20 @@ _roll1=8 roll2=10 chaosAdjust=-2_
 
 
 Random number generator set up with seed ' 1'.
+
+
+### LISTS SHORTCUTS HELP
+- __help lists__ - Display this help text.
+- __reset lists__ - Clear all lists.
+***
+- __lists__ - Show all lists.
+- __lists {listName}__ - Show all items in the list {listName}.
+- __listsadd {listName} {item}__ - Add {item} to the end of the basic-list {listName}.  Cannot add to folder-lists or combo-lists.
+- __listsget {listName}__ - Get a random item from the list {listName}.
+- __listsremove {listName} {item}__ - Remove last instance of {item} from the basic-list {listName}.  Cannot remove from folder-lists or combo-lists.
+- __listsremovelist {listName}__ - Remove the entire list {listName}.
+- __listsaddfolder {listName} {folder}__ - Create a folder-list named {listName} that is linked to the folder {folder}.  A "folder-list" is a list who's items are the names of the files in the linked folder.
+- __listsaddcombo {listName} {subList1} {subList2}...__ - Create a combo-list named {listName} that is linked to the sublists given as {subList1}, {subList2}, etc.  A "combo-list" is a list who's items are all the items of its linked sublists.
 
 
 ### MYTHIC SHORTCUTS HELP
@@ -395,12 +409,7 @@ Random number generator set up with seed ' 1'.
 - __meaning description__ - Roll on the description meaning table.
 - __meaning__ - Shorthand for "meaning action".
 ***
-- __list__ - Show all lists.
-- __list {listName}__ - Show all items in the list {listName}.
-- __listadd {listName} {item}__ - Add {item} to the end of the list {listName}.
-- __listget {listName}__ - Get a random item from the list named {listName}.
-- __listremove {listName} {item}__ - Remove last instance of {item} from the list {listName}.
-- __listremoveall {listName}__ - Remove the entire list of {listName}.
+- __listsget {listName}__ - A stub in case TEJS_lists shortcut-file isn't available.
 ***
 - __scene__ - Show the current scene.
 - __scene {chaosAdjust}__ - Shift the chaos value by {chaosAdjust} (1, 0 or -1), then increment the current scene.
@@ -564,21 +573,30 @@ a, b
 
 
 __TEJS state__
-{"clips":{"a":"first","b":"second"},"mythic":{"chaos":6,"scene":10,"showDetails":true,"lists":{"pcs":["Jon","Ben"],"npcs":["Becca","Pramod"],"threads":["eat","sleep"]}}}
+{"clips":{"a":"first","b":"second"},"mythic":{"chaos":6,"scene":10,"showDetails":true},"lists":{"pcs":{"type":"basic","content":["Ben","Jon"]},"npcs":{"type":"basic","content":["Becca","Pramod"]},"threads":{"type":"basic","content":["eat","sleep"]}}}
 
 
 TEJS state loaded.
 
 
 __TEJS state__
-{}
+{"clips":{},"lists":{"pcs":{"type":"basic","content":[]},"npcs":{"type":"basic","content":[]},"threads":{"type":"basic","content":[]}},"mythic":{"chaos":4,"scene":1}}
 
 
-TEJS state loaded.
+***
+
+
+### SCENE 1
+__Setup__: 
+All lists cleared.
+
+
+All state cleared.
 
 
 ### TEJS STATE SHORTCUTS HELP
 - __help state__ - Display this help text.
+- __reset state__ - Clear all state.
 ***
 - __state__ - Expands to the current state (for session saving).
 - __state {state}__ - Sets the current state based on {state}: a string created previously with the "state" shortcut.
@@ -592,6 +610,7 @@ TEJS state loaded.
 ***
 These shortcuts provide detailed help:
 - help state
+- help lists
 - help mythic
 - help une
 - help support

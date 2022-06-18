@@ -105,3 +105,8 @@
 {
 	width: 100%;
 }
+.tejs_warning
+{
+	background-color: red;
+	color: white;
+}

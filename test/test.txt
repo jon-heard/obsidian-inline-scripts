@@ -2,6 +2,7 @@
 ## Instruction
 1) Make sure that shortcut-file references are as follows:
 	- support/TEJS_state
+	- support/TEJS_lists
 	- support/TEJS_mythicV2
 	- support/TEJS_une
 	- support/TEJS_support
@@ -18,7 +19,7 @@
 ;;disposition 0
 ;;descriptor
 ;;scene 0
-;;listget pcs
+;;listsget pcs
 ;;meaning description
 ;;meaning action
 ;;fate
@@ -54,30 +55,30 @@
 ;;chaos++
 ;;chaos=5
 ;;chaos
-;;list
-;;listremoveall npcs
-;;list
-;;listremoveall newList
-;;list
-;;listremoveall notAList
-;;list
-;;list npcs
-;;listremove npcs Sarah Heard
-;;listremove notAList notAListItem
-;;listremove npcs notAListItem
-;;listget notAList
-;;listget npcs
-;;list newList
-;;list
-;;listadd newList newListItem
-;;list npcs
-;;listadd npcs Becca
-;;list npcs
-;;listadd npcs Sarah Heard
-;;list threads
-;;list npcs
-;;list pcs
-;;list
+;;lists
+;;listsremovelist npcs
+;;lists
+;;listsremovelist newList
+;;lists
+;;listsremovelist notAList
+;;lists
+;;lists npcs
+;;listsremove npcs Sarah Heard
+;;listsremove notAList notAListItem
+;;listsremove npcs notAListItem
+;;listsget notAList
+;;listsget npcs
+;;lists newList
+;;lists
+;;listsadd newList newListItem
+;;lists npcs
+;;listsadd npcs Becca
+;;lists npcs
+;;listsadd npcs Sarah Heard
+;;lists threads
+;;lists npcs
+;;lists pcs
+;;lists
 ;;meaning
 ;;meaning description
 ;;meaning action
@@ -96,6 +97,7 @@
 ;;detail
 ;;detail
 ;;rngseed 1
+;;help lists
 ;;help mythic
 ***
 ;;une focus
@@ -128,9 +130,11 @@
 ;;clip a
 ;;clip
 ;;state
-;;state {"clips":{"a":"first","b":"second"},"mythic":{"chaos":6,"scene":10,"showDetails":true,"lists":{"pcs":["Jon","Ben"],"npcs":["Becca","Pramod"],"threads":["eat","sleep"]}}}
+;;state {"clips":{"a":"first","b":"second"},"mythic":{"chaos":6,"scene":10,"showDetails":true},"lists":{"pcs":{"type":"basic","content":["Ben","Jon"]},"npcs":{"type":"basic","content":["Becca","Pramod"]},"threads":{"type":"basic","content":["eat","sleep"]}}}
 ;;state
-;;state {}
+;;reset mythic
+;;reset lists
+;;reset state
 ;;help state
 ***
 ;;help

@@ -225,6 +225,13 @@ It is _highly_ recommended that every shortcut-file contain a "help" shortcut, p
 
 ## Advanced shortcut and Shortcut-file development topics
 
+- [The console](#the-console)
+- [Fenced code blocks](#fenced-code-blocks)
+- [Helper scripts](#helper-scripts)
+- [Setup scripts](#setup-scripts)
+- [Nesting shortcuts](#nesting-shortcuts)
+- [Running external applications and scripts](#running-external-applications-and-scripts)
+
 ### The console
 If a new shortcut doesn't work and it's not clear why, then the javascript console can help.
 1. Type ctrl-shift-i to open the dev-tools panel. _(see picture below)_
@@ -300,7 +307,7 @@ There are two features that work in tandem to allow you to nest shortcuts (i.e. 
 
 Firstly: an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when expanding a user-typed shortcut.
 
-Secondly: within an Expansion script you can call the function "getExpansion(text)".  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like the shortcut text you type into a note, except that it returns the result (a string or a string array), _instead_ of writing the result to the note.
+Secondly: within an Expansion script you can call the function `getExpansion(text)`.  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like the shortcut text you type into a note, except that it returns the result (a string or a string array), _instead_ of writing the result to the note.
 
 Given these features, here's how you can chain a set of shortcuts.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut's text.  What it gets back is the second shortcut's Expansion result: either a string or an array of strings.  It can then use that result, or a piece of that result as needed.
 
@@ -316,6 +323,35 @@ Notice that shortcut #1 returns an array of strings, but if you type `;;firstnam
 If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: John Smith".  This is because the array it returns is ["FullName: ", "John", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
 
 Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the getExpansion function).
+
+### Running external applications and scripts
+This feature is unavailable on mobile.
+
+There is a function `runExternal(command)` which can be called from any shortcut.  It will execute the `command` parameter as a shell command and return the shell command's terminal output.  This lets one run external executables and scripts such as python, M, bash, etc, then print the resulting data into the note.
+
+Be aware that `runExternal(command)` will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned on in the plugin options (it is off by default).  This is a security feature as the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
+
+The shell commands are always run with the current folder being the vault's root folder.  This allows external scripts to be stored and transferred as part of the vault.  Hopefully your vault-syncing process includes non-markdown files.  If it does _not_ then, at least with python, you can append the ".md" extension to your scripts.  You'll just need to explicitly call the interpreter on the script to force it to run.
+
+When `runExternal(command)` runs a shell command, Obsidian will freeze until that shell command is completely finished.  This can be disconcerting if you are not ready for it, but it is harmless... unless your shell command runs forever, of course.
+
+When a shell command has an error:
+1. The return value of the runExternal call is null
+2. A popup notification tells the user that an error occurred
+3. A console error provides extra information:
+    - The folder the command was run from (always the vault root)
+    - The shell command that failed
+    - The error message provided by the shell
+runExternal actually has a second, optional, parameter: `runExternal(command, failSilently)`.  When failSilently is true and runExternal encounters a command error, it still returns null, but the notification and console error are skipped.
+
+There is one other optional parameter: `runExternal(command, failSilently, dontFixSlashes)`.  By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps for writing shell commands that work cross-platorm.  If this slash-flipping isn't wanted, though, then set the `dontFixSlashes` parameter to true.
+
+Here is an example shortcut that uses the `runExternal(command)` function to let the user run their _own_ shell commands.
+| Test | Expansion |
+| ---- | --------- |
+| ^exec (.*)$ | let result = runExternal($1);<br/>if (result === null) { result = "FAILED"; }<br/>return "Shell command result = \"" + result + "\"."; |
+
+With this shortcut, typing `;;exec dir;` will expand into a list of the vault root folder's contents.
 
 ***
 ***
@@ -333,6 +369,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 ***
 
 ## Release notes
+
+### 0.13.0
+- Add ability to run external applications through the "runExternal" function (not available through mobile).
 
 ### 0.12.1
 - bug fix: minor: settings ui: format example misaligned
@@ -395,8 +434,8 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## TODO
 
-### 0.13.0
+### 0.14.0
 - React to community feedback until plugin is accepted into the community.
 
-### 1.0.0
+### 0.15.0
 - From beta to release (after responding to Obsidian community for, hopefully, a month)

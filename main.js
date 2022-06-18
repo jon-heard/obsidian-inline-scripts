@@ -2,6 +2,8 @@
 
 const obsidian = require("obsidian");
 const state = require("@codemirror/state");
+const childProcess = require("child_process");
+const os = require("os");
 
 const DEFAULT_SETTINGS =
 {
@@ -18,6 +20,7 @@ const DEFAULT_SETTINGS =
 	,
 	prefix: ";;",
 	suffix: ";",
+	allowExternal: false,
 	devMode: false
 };
 const DEFAULT_SETTINGS_MOBILE =
@@ -88,6 +91,7 @@ const TextExpanderJsPlugin = (function(_super)
 		this._cm5_handleExpansionTrigger = this.cm5_handleExpansionTrigger.bind(this);
 		this._handleExpansionError = this.handleExpansionError.bind(this);
 		this._getExpansion = this.getExpansion.bind(this);
+		this._runExternal = this.runExternal.bind(this);
 
 		// Setup a dfc to monitor shortcut-file notes.
 		dfc.setup(this);
@@ -350,8 +354,8 @@ const TextExpanderJsPlugin = (function(_super)
 		// If shortcut parsing amounted to nothing.  Notify user of bad shortcut entry.
 		if (expansionText === undefined)
 		{
-			console.warn("Shortcut text unidentified: \"" + text + "\"");
-			new obsidian.Notice("Shortcut text unidentified:\n" + text);
+			console.warn("Shortcut unidentified: \"" + text + "\"");
+			new obsidian.Notice("ERROR: Shortcut unidentified:\n" + text);
 		}
 
 		return expansionText;
@@ -367,15 +371,15 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Run the Expansion script
 		// Pass getExpansion function and isUserTriggered flag for use in Expansion script
-		expansionScript =
-			(new Function("getExpansion", "isUserTriggered", expansionScript))
-			(this._getExpansion, isUserTriggered);
+		let result = (new Function(
+				"getExpansion", "isUserTriggered", "runExternal", expansionScript))
+				(this._getExpansion, isUserTriggered, this._runExternal);
 
 		// Clean up script error preparations (it wouldn't have got here if we'd hit one)
 		window.removeEventListener('error', this._handleExpansionError);
 		delete this._expansionText;
 
-		return expansionScript;
+		return result;
 	};
 
 
@@ -402,7 +406,9 @@ const TextExpanderJsPlugin = (function(_super)
 			"Error in Shortcut expansion: " + e.message +
 			"\nline: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
 			"─".repeat(20) + "\n" + this._expansionText);
-		new obsidian.Notice("Error in shortcut expansion", LONG_NOTE_TIME);
+		new obsidian.Notice(
+			"ERROR: shortcut expansion issues\n\n(see console for details)",
+			LONG_NOTE_TIME);
 
 		// Clean up script error preparations (now that the error is handled)
 		window.removeEventListener('error', this._handleExpansionError);
@@ -478,7 +484,7 @@ const TextExpanderJsPlugin = (function(_super)
 		if (fileHasErrors)
 		{
 			new obsidian.Notice(
-				"Shortcut-file has errors\n" + filename +
+				"ERROR: shortcut-file issues\n" + filename +
 				"\n\n(see console for details)", LONG_NOTE_TIME);
 		}
 
@@ -501,7 +507,8 @@ const TextExpanderJsPlugin = (function(_super)
 			if (this.shortcutDfc.files[key].content == null)
 			{
 				new obsidian.Notice(
-					"Missing shortcut-file\n" + key, LONG_NOTE_TIME);
+					"ERROR: Missing shortcut-file\n" + key,
+					LONG_NOTE_TIME);
 				continue;
 			}
 
@@ -546,6 +553,60 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Put generic "help" shortcut in line first so it can't be short-circuited
 		this.shortcuts.unshift({ test: "^help$", expansion: helpExpansion });
+	};
+
+	// Passed to expansions to allow running of external applications and shell commands
+	// WARNING: user-facing function
+	TextExpanderJsPlugin.prototype.runExternal = function(command, silentFail, dontFixSlashes)
+	{
+		// Might as well fail semi-silently.  No use in spamming the user with notices.
+		if (IS_MOBILE)
+		{
+			console.error(
+				"Invalid runExternal call: runExternal unavailable on mobile.\n" +
+				"runExternal(\"" + command + "\")");
+			return null;
+		}
+
+		if (!this.settings.allowExternal)
+		{
+			console.error(
+				"Unauthorized runExternal call:\n" +
+				"runExternal(\"" + command + "\")\n" +
+				"NOTE: You can authorize runExternal by " +
+				"enabling \"Allow external\" in the settings.");
+			new obsidian.Notice(
+				"ERROR: Unauthorized runExternal call." +
+				"\n\n(see console for details)",
+				LONG_NOTE_TIME);
+			return null;
+		}
+
+		if (!command) { return null; }
+		let vaultDir = app.fileManager.vault.adapter.basePath;
+		if (os.platform() == "win32" && !dontFixSlashes)
+		{
+			command = command.replaceAll("/", "\\");
+		}
+		try
+		{
+			let result = childProcess.execSync(command, { cwd: vaultDir});
+			return (result + "").replaceAll("\r", "");
+		}
+		catch (e)
+		{
+			if (!silentFail)
+			{
+				console.error(
+					"runExternal failed\ncurDir: " + vaultDir + "\n" +
+					e.message);
+				new obsidian.Notice(
+					"ERROR: runExternal(\"" + command + "\")" +
+					"\n\n(see console for details)",
+					LONG_NOTE_TIME);
+			}
+			return null;
+		}
 	};
 
 	return TextExpanderJsPlugin;
@@ -810,7 +871,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		c.createEl("h2", { text: "Other Settings" });
 		new obsidian.Setting(c)
 			.setName("Developer mode")
-			.setDesc("Shortcut-files are monitored for updates.")
+			.setDesc("Shortcut-files are monitored for updates if this is on.")
 			.addToggle((toggle) =>
 			{
 				return toggle
@@ -820,6 +881,25 @@ const TextExpanderJsPluginSettings = (function(_super)
 						this.tmpSettings.devMode = value;
 					});
 			});
+		if (!IS_MOBILE)
+		{
+			new obsidian.Setting(c)
+				.setName("Allow external")
+				.setDesc("Shortcuts can run external commands if this is on.")
+				.addToggle((toggle) =>
+				{
+					return toggle
+						.setValue(this.tmpSettings.allowExternal)
+						.onChange((value) =>
+						{
+							this.tmpSettings.allowExternal = value;
+						});
+				})
+				.descEl.innerHTML +=
+					"<div class='tejs_warning'>" +
+					"WARNING: enabling this increases the " +
+					"danger from malicious shortcuts</div>";
+		}
 	};
 
 	// THIS is where settings are saved!
