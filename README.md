@@ -287,27 +287,27 @@ __Warning__: The fenced code block _must_ be exact: ` ```js ` for Expansion stri
 ## ADVANCED SHORTCUTS: Running external applications and scripts
 This feature is unavailable on mobile (Obsidian's backend doesn't allow it).
 
-There is a function `runExternal(command)` which can be called from any shortcut.  It will execute the `command` parameter as a shell command and return the shell command's console output.  This lets one run external executables and scripts such as python, M, bash, etc, then get the output and expand it into the note (or do something else with it).
+There is a function `runExternal(command)` which can be called from any shortcut.  It will execute the `command` parameter as a shell command and return the command's console output.  This lets one run external executables and scripts such as python, M, bash, etc, then get the output and expand it into the note (or do something else with it).
 
-Be aware that `runExternal(command)` will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned on in the plugin options (it is off by default).  This is a security feature as the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
+Be aware that `runExternal(command)` will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned on in the plugin options (it is off by default).  This security feature exists because the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
 
-The shell commands are always run at the vault's root folder.  This allows you to run shell commands for scripts that are within the vault, meaning the scripts can be stored/copied between systems as part of the vault.  Hopefully your vault-syncing process includes non-markdown files.  If it does _not_, then (at least with python) you can append the ".md" extension to your scripts and still run them with the interpreter.
+runExternal always runs commands at the vault's root folder.  This allows you to run scripts that are within the vault, meaning the scripts can be copied/synced as part of the vault.
 
-When `runExternal(command)` runs a shell command, Obsidian will freeze until that shell command is completely finished.  This can be disconcerting if you are not ready for it, but it is harmless... unless your shell command runs forever, of course.
+When `runExternal(command)` runs a command, Obsidian will freeze until that command is completely finished.  This can be disconcerting if you are not ready for it, but it is harmless... unless your command runs forever, of course.
 
-When a shell command produces an error:
-1. The return value of the runExternal call is null
-2. A popup notification tells the user that an error occurred
+When a command produces an error:
+1. The runExternal call returns null (instead of the console output)
+2. A popup notification tells the user that an error has occurred
 3. A console error provides detailed information:
     - The folder the command was run from (always the vault root)
-    - The shell command that failed
+    - The command that failed
     - The error message provided by the shell
 
 runExternal actually has a second, optional, parameter: `runExternal(command, failSilently)`.  When failSilently is true and the command produces an error, runExternal still returns null, but the notification and console error are skipped.
 
-There is one other optional parameter: `runExternal(command, failSilently, dontFixSlashes)`.  By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps keep commands cross-platform.  If this slash-flipping isn't wanted, though, then set the `dontFixSlashes` parameter to true.
+There is one other optional parameter: `runExternal(command, failSilently, dontFixSlashes)`.  By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps keep commands cross-platform (always use forward-slashes).  If this slash-flipping isn't wanted, though, then set the `dontFixSlashes` parameter to true.
 
-Here are some example shortcuts that uses the `runExternal(command)` function to let the user run their _own_ shell commands.
+Here are some example shortcuts that uses `runExternal(command)`:
 | Test | Expansion | Overview |
 | ---- | --------- | -------- |
 | ^runMyScript$ | return&nbsp;runExternal("myscript.py"); | When the user types `;;runMyScript;`, the python script "myscript.py" will run, and it's console output will be expanded into the note. |
