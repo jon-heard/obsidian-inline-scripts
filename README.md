@@ -342,6 +342,7 @@ When a shell command has an error:
     - The folder the command was run from (always the vault root)
     - The shell command that failed
     - The error message provided by the shell
+
 runExternal actually has a second, optional, parameter: `runExternal(command, failSilently)`.  When failSilently is true and runExternal encounters a command error, it still returns null, but the notification and console error are skipped.
 
 There is one other optional parameter: `runExternal(command, failSilently, dontFixSlashes)`.  By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps for writing shell commands that work cross-platorm.  If this slash-flipping isn't wanted, though, then set the `dontFixSlashes` parameter to true.
