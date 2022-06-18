@@ -171,7 +171,7 @@ const TextExpanderJsPlugin = (function(_super)
 			shortcutPosition.prefixIndex + this.settings.prefix.length,
 			shortcutPosition.suffixIndex);
 		const expansionText = this.getExpansion(sourceText, true);
-		if (expansionText === undefined) { return; }
+		if (expansionText === null) { return; }
 		if (Array.isArray(expansionText)) { expansionText = expansionText.join(""); }
 		cm.replaceRange(
 			expansionText,
@@ -233,7 +233,7 @@ const TextExpanderJsPlugin = (function(_super)
 				this.settings.prefix.length,
 				originalText.length - this.settings.suffix.length);
 			expansionText = this.getExpansion(expansionText, true);
-			if (expansionText === undefined) { return; }
+			if (expansionText === null) { return; }
 			if (Array.isArray(expansionText))
 			{
 				expansionText = expansionText.join("");
@@ -318,9 +318,10 @@ const TextExpanderJsPlugin = (function(_super)
 
 	// Take a shortcut string and return the proper Expansion string.
 	// WARNING: user-facing function
-	TextExpanderJsPlugin.prototype.getExpansion = function(text, isUserTriggered)
+	TextExpanderJsPlugin.prototype.getExpansion = function(text,  isUserTriggered)
 	{
 		if (!text) { return; }
+		let foundMatch = false;
 		let expansionText = "";
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
@@ -348,14 +349,18 @@ const TextExpanderJsPlugin = (function(_super)
 			// If not a helper script, stop scanning shortcuts, we're done
 			if (this.shortcuts[i].test.source != "(?:)")
 			{
+				foundMatch = true;
 				break;
 			}
 		}
 
-		expansionText = this.runExpansionScript(expansionText, isUserTriggered);
+		expansionText =
+			!foundMatch ?
+			null :
+			this.runExpansionScript(expansionText, isUserTriggered);
 
 		// If shortcut parsing amounted to nothing.  Notify user of bad shortcut entry.
-		if (expansionText === undefined)
+		if (expansionText === null)
 		{
 			console.warn("Shortcut unidentified: \"" + text + "\"");
 			new obsidian.Notice("ERROR: Shortcut unidentified:\n" + text);
@@ -390,7 +395,8 @@ const TextExpanderJsPlugin = (function(_super)
 			window.removeEventListener('error', this._handleExpansionError);
 		}
 
-		return result;
+		// if shortcut doesn't return anything, better to return "" than undefined
+		return result || "";
 	};
 
 

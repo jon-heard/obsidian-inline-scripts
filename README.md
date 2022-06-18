@@ -391,6 +391,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.13.1
+- bug fix: shortcuts without return statements have their expansion script run properly, but still trigger "shortcut unidentified".
+
 ### 0.13.0
 - Add ability to run external applications through the "runExternal" function (not available through mobile).
 - bug fix: erroring on a shortcut _after_ it has called getExpansion produces an "uncaught" error, rather than the proper, useful error.
