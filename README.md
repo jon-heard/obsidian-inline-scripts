@@ -285,9 +285,9 @@ __Warning__: The fenced code block _must_ be exact: ` ```js ` for Expansion stri
 ***
 
 ## Running external applications and scripts - advanced shortcuts
-This feature is unavailable on mobile.
+This feature is unavailable on mobile (Obsidian's backend doesn't allow it).
 
-There is a function `runExternal(command)` which can be called from any shortcut.  It will execute the `command` parameter as a shell command and return the shell command's terminal output.  This lets one run external executables and scripts such as python, M, bash, etc, then get the resulting data to write into the note (or something more involved).
+There is a function `runExternal(command)` which can be called from any shortcut.  It will execute the `command` parameter as a shell command and return the shell command's console output.  This lets one run external executables and scripts such as python, M, bash, etc, then get the resulting data to write into the note (or something more involved).
 
 Be aware that `runExternal(command)` will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned on in the plugin options (it is off by default).  This is a security feature as the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
 
@@ -307,12 +307,11 @@ runExternal actually has a second, optional, parameter: `runExternal(command, fa
 
 There is one other optional parameter: `runExternal(command, failSilently, dontFixSlashes)`.  By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps keep commands cross-platform.  If this slash-flipping isn't wanted, though, then set the `dontFixSlashes` parameter to true.
 
-Here is an example shortcut that uses the `runExternal(command)` function to let the user run their _own_ shell commands.
-| Test | Expansion |
-| ---- | --------- |
-| ^exec (.*)$ | let result = runExternal($1);<br/>if (result === null) { result = "FAILED"; }<br/>return "Shell command result = \"" + result + "\"."; |
-
-With this shortcut, typing `;;exec dir;` will expand into the vault root-folder's contents.
+Here are some example shortcuts that uses the `runExternal(command)` function to let the user run their _own_ shell commands.
+| Test | Expansion | Overview |
+| ---- | --------- | -------- |
+| ^runMyScript$ | return&nbsp;runExternal("myscript.py"); | When the user types `;;runMyScript;`, the python script "myscript.py" will run, and it's console output will be expanded into the note. |
+| ^exec&nbsp;(.*)$ | let&nbsp;result&nbsp;=&nbsp;runExternal($1);<br/>if&nbsp;(result === null)&nbsp;{&nbsp;result&nbsp;=&nbsp;"FAILED";&nbsp;}<br/>return&nbsp;"Shell&nbsp;command&nbsp;result&nbsp;=&nbsp;\""&nbsp;+&nbsp;result&nbsp;+&nbsp;"\"."; | This shortcut allows the user to run _any_ shell command.  For example, typing `;;exec dir;` will expand into the vault root-folder's contents. |
 
 ***
 
