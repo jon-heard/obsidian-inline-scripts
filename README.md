@@ -90,24 +90,25 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 
 ## TUTORIAL: Setup the plugin and try it out
 1. Setup the plugin.  This will be easy once the plugin has been reviewed and added to the community.  For now, you need to set it up manually.
-    1. If you haven't yet installed a community plugin, install one now to create the plugins folder.  It doesn't matter which one.
+    1. Open the vault you want to install the plugin into.
+    2. If you haven't yet installed a community plugin for this vault, install one now.  It doesn't matter which one, since we just need to create the plugins folder and enable community plugins in your vault.
         1. Go to Settings > Community plugins.
         2. Turn off Safe mode.
         3. Click the Browse button in the Community plugins setting.
-        4. Select any plugin on the left, then click the Install button on the right.
+        4. Click on _any_ plugin on the left, then click the Install button on the right.
         5. Now a plugins folder should be created in your vault folder.
-    2. Open your vault folder in your computer's file manager.
-    3. Inside your vault folder is a folder ".obsidian".  Open it.  On Mac and Linux, this folder will be hidden.
-    4. Inside the .obsidian folder is a folder "plugins".  Open that.
-    5. Create a new folder in "plugins" for our new plugin.  You can call it whatever you want, but I suggest "obsidian-text-expander-js".
-    6. Copy the files from the latest release of __Text Expander JS__ into the folder created in step v.
+    3. Open your vault folder in your computer's file manager.
+    4. Inside your vault folder is a folder ".obsidian".  Open it.  On Mac and Linux, this folder will be hidden.
+    5. Inside the .obsidian folder is a folder "plugins".  Open that.
+    6. Create a new folder in "plugins" for our new plugin.  You can call it whatever you want, but I suggest "obsidian-text-expander-js".
+    7. Copy the files from the latest release of __Text Expander JS__ into the folder created in step vi.
         1. Go to the [releases page for Text Expander JS plugin](https://github.com/jon-heard/obsidian-text-expander-js/releases).
-        2. On the top release (the latest), under "Assets", are a list of files.  Download the following files into the folder created on step v:
+        2. On the top release (the latest), under "Assets", are a list of files.  Download the following files into the folder created on step vi:
             - main.js
             - manifest.json
             - style.css
-    7. Your plugin is now installed.  You need to relaunch your vault in Obsidian for it to notice the new plugin.  If it's opened, close and reopen it.
-    8. Enable the Text Expander JS.
+    8. Your plugin is now installed.  You need to relaunch your vault in Obsidian for it to notice the new plugin.  If it's opened, close and reopen it.
+    9. Enable the Text Expander JS.
         1. Go to Settings > Community plugins.
         2. Scroll down to the __Text Expander JS__ plugin entry and flip the switch to enable it.
 2. Try out the plugin.
@@ -116,7 +117,7 @@ If you've found this plugin useful, then a small donation lets me know that I sh
     3. Note that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
     4. In the note, type `;;d100;` (or `!!d100!` on mobile).
     5. Note that the shortcut expands to a roll-result as soon as you've finished typing it.
-    6. Repeat step 5.  Note that the roll result is (most likely) different.  If it is not different then you are just lucky.  Try step 5 again.
+    6. Repeat step iv.  Note that the roll result is (most likely) different.  If it is _not_ different, then you just got lucky so try step iv again.
 
 __Text Expander JS__ comes with the following shortcuts defined by default:
 - greet
