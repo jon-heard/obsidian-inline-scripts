@@ -86,7 +86,7 @@ const TextExpanderJsPlugin = (function(_super)
 			DEFAULT_SETTINGS;
 		this.settings = Object.assign({}, currentDefaultSettings, await this.loadData());
 
-		// Now that settings are loaded, track the suffix's finishing character
+		// Now that settings are loaded, keep track of the suffix's finishing character
 		this.suffixEndCharacter =
 			this.settings.suffix.charAt(this.settings.suffix.length - 1);
 
@@ -105,11 +105,11 @@ const TextExpanderJsPlugin = (function(_super)
 			this.settings.shortcutFiles, this.setupShortcuts.bind(this),
 			this.settings.devMode);
 
-		// Connect "code mirror 5" instances to this plugin
+		// Connect "code mirror 5" instances to this plugin to trigger expansions
 		this.registerCodeMirror(
 			cm => cm.on("keydown", this._cm5_handleExpansionTrigger));
 
-		// Setup "code mirror 6" editor extension management
+		// Setup "code mirror 6" editor extension management to trigger expansions
 		this.storeTransaction = state.StateEffect.define();
 		this.registerEditorExtension([
 			state.EditorState.transactionFilter.of(
@@ -133,202 +133,85 @@ const TextExpanderJsPlugin = (function(_super)
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
 	};
 
-	TextExpanderJsPlugin.prototype.getEditor = function()
-	{
-		return this.app.workspace.activeLeaf.view.editor;
-	};
 
-
-	// CM5 - React to key-down by checking for a shortcut at the caret
+	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt
 	TextExpanderJsPlugin.prototype.cm5_handleExpansionTrigger = function(cm, keydown)
 	{
 		if (event.key == this.suffixEndCharacter)
 		{
-			// Delay logic by a frame to allow key event to finish processing first
-			setTimeout(() =>
-			{
-				const shortcutPosition = this.cm5_parseShortcutPosition(cm);
-				if (shortcutPosition)
-				{
-					this.cm5_expandShortcutPosition(cm, shortcutPosition);
-				}
-			}, 0);
+			this.tryShortcutExpansion();
 		}
 	};
 
-	// CM5 - If caret is on a shortcut, return start and end positions, else return null
-	TextExpanderJsPlugin.prototype.cm5_parseShortcutPosition = function(cm)
-	{
-		const cursor = cm.getCursor();
-		let result = { lineIndex: cursor.line, prefixIndex: -1, suffixIndex: -1 };
-		const lineText = cm.getLine(cursor.line);
-		result.prefixIndex = lineText.lastIndexOf(this.settings.prefix, cursor.ch);
-		result.suffixIndex = lineText.indexOf(
-			this.settings.suffix,
-			result.prefixIndex + this.settings.prefix.length);
-		if ((result.suffixIndex + this.settings.suffix.length) < cursor.ch)
-		{
-			result.suffixIndex = -1;
-		}
-		if (result.prefixIndex == -1 || result.suffixIndex == -1) { result = null; }
-		return result;
-	};
-
-	// CM5 - Expand a shortcut based on its start/end positions
-	TextExpanderJsPlugin.prototype.cm5_expandShortcutPosition = function(cm, shortcutPosition)
-	{
-		// Find and use the right shortcuts
-		const sourceText = cm.getLine(shortcutPosition.lineIndex).substring(
-			shortcutPosition.prefixIndex + this.settings.prefix.length,
-			shortcutPosition.suffixIndex);
-		let expansionText = this.getExpansion(sourceText, true);
-		if (expansionText === null) { return; }
-		if (Array.isArray(expansionText)) { expansionText = expansionText.join(""); }
-		cm.replaceRange(
-			expansionText,
-			{ line: shortcutPosition.lineIndex,
-			  ch: shortcutPosition.prefixIndex },
-			{ line: shortcutPosition.lineIndex,
-			  ch: shortcutPosition.suffixIndex +
-			      this.settings.suffix.length });
-	};
-
-	// CM6 - Handle shortcut expansion for codemirror 6 (newer editor and mobile platforms)
+	// CM6 callback for editor events.  Used to kick off shortcut expansion attempt
 	TextExpanderJsPlugin.prototype.cm6_handleExpansionTrigger = function(tr)
 	{
 		// Only bother with key inputs that have changed the document
 		if (!tr.isUserEvent("input.type") || !tr.docChanged) { return tr; }
 
-		// Maintain all changes, all reverts and final selection
-		let changes = [];
-		let reverts = [];
-		let newSelection = tr.selection;
+		let shouldTryExpansion = false;
 
-		// Go over each change made to the document
+		// Iterate over each change made to the document
 		tr.changes.iterChanges((fromA, toA, fromB, toB, inserted) =>
 		{
-			// Only bother processing if the shortcut suffix's end character was hit
-			if (inserted.text[0] != this.suffixEndCharacter) { return; }
-
-			// Line number of change
-			let lineIndex = tr.newDoc.lineAt(fromA).number - 1;
-
-			// Get text of the line with the change
-			let lineText = this.cm6_getLineFromDoc(tr.newDoc, lineIndex);
-			if (!(typeof lineText === "string"))
+			// Only try expansion if the shortcut suffix's end character was hit
+			if (inserted.text[0] == this.suffixEndCharacter)
 			{
-				console.error(
-					"Text Expander JS: CM6: line " +
-					lineIndex + " not available.");
-				return;
+				shouldTryExpansion = true;
 			}
+		}, false);
 
-			// Work out typed shortcut's bounding indices
-			const lineStart = tr.newDoc.lineAt(fromA).from;
-			const prefixIndex =
-				lineText.lastIndexOf(this.settings.prefix, fromA - lineStart + 1);
+		if (shouldTryExpansion)
+		{
+			this.tryShortcutExpansion();
+		}
+
+		return tr;
+	};
+
+	// Tries to get shortcut beneath caret and expand it.  setTimeout pauses this for
+	// a frame to give the calling event the opportunity to finish processing
+	TextExpanderJsPlugin.prototype.tryShortcutExpansion = function() {
+		setTimeout(() =>
+		{
+			let editor = this.app.workspace.activeLeaf.view.editor;
+
+			// Find bounds of the shortcut beneath the caret (if there is one)
+			const cursor = editor.getCursor();
+			const lineText = editor.getLine(cursor.line);
+			const prefixIndex = lineText.lastIndexOf(this.settings.prefix, cursor.ch);
 			const suffixIndex = lineText.indexOf(
 				this.settings.suffix,
 				prefixIndex + this.settings.prefix.length);
+			if (prefixIndex == -1 || suffixIndex == -1)
+			{
+				result = null;
+			}
+			if ((suffixIndex + this.settings.suffix.length) < cursor.ch)
+			{
+				return;
+			}
 
-			// If we couldn't find bounding indices, we're not on a shortcut
-			if (prefixIndex == -1 || suffixIndex == -1) { return; }
-
-			// Original typed shortcut (including prefix and suffix)
-			const originalText = lineText.substring(
-				prefixIndex,
-				suffixIndex + this.settings.suffix.length);
-
-			// Get the shortcut's Expansion result
-			let expansionText = originalText.substring(
-				this.settings.prefix.length,
-				originalText.length - this.settings.suffix.length);
-			expansionText = this.getExpansion(expansionText, true);
+			// Run the Expansion script on the shortcut under the caret
+			const sourceText = lineText.substring(
+				prefixIndex + this.settings.prefix.length, suffixIndex);
+			let expansionText = this.getExpansion(sourceText, true);
 			if (expansionText === null) { return; }
+
+			// Handle a string array from the Expansion result
 			if (Array.isArray(expansionText))
 			{
 				expansionText = expansionText.join("");
 			}
 
-			// Add the changes and selection to growing list
-			const replacementLength = originalText.length - 1;
-			const insertionPoint = lineStart + prefixIndex;
-			const reversionPoint = lineStart + prefixIndex;
-			changes.push({
-				from: insertionPoint,
-				to: insertionPoint + replacementLength,
-				insert: expansionText });
-			reverts.push({
-				from: reversionPoint,
-				to: reversionPoint + expansionText.length,
-				insert: originalText });
-			const selectionAdjustment = originalText.length - expansionText.length;
-			newSelection = state.EditorSelection.create(newSelection.ranges.map((r) =>
-				state.EditorSelection.range(
-					r.anchor - selectionAdjustment,
-					r.head - selectionAdjustment)));
-		}, false);
-
-		// If we had changes, send them in to take effect
-		if (changes.length)
-		{
-			// TODO: It'd be great to register an undo here.  It'd fix a few problems.
-			// ... I just can't figure out how.
-
-			return [{
-				effects: this.storeTransaction.of({
-					effects: this.storeTransaction.of(null),
-					selection: tr.selection,
-					scrollIntoView: tr.scrollIntoView,
-					changes: reverts,
-				}),
-				selection: newSelection,
-				scrollIntoView: tr.scrollIntoView,
-				changes: changes,
-			}];
-		}
-		// ... else do the default
-		else
-		{
-			return tr;
-		}
-	};
-
-	// CM6 - Get a line of text from the given document
-	TextExpanderJsPlugin.prototype.cm6_getLineFromDoc = function(doc, lineIndex)
-	{
-		// A given doc can either have a "text", or "children" attribute.  .text is
-		// a list of text lines it contains.  .children is the list of docs it
-		// contains, each of which can either have a "text" or "children" attribute.
-		if (doc.hasOwnProperty("text"))
-		{
-			if (doc.text.length > lineIndex)
-			{
-				return doc.text[lineIndex];
-			}
-			else
-			{
-				return lineIndex - doc.text.length;
-			}
-		}
-		else if (doc.hasOwnProperty("children"))
-		{
-			for (let i = 0; i < doc.children.length; i++)
-			{
-				let result = this.cm6_getLineFromDoc(doc.children[i], lineIndex);
-				if (typeof result === "string")
-				{
-					return result;
-				}
-				else
-				{
-					lineIndex = result;
-				}
-			}
-			return lineIndex;
-		}
-		return lineIndex;
-	};
+			// Replace written shortcut with Expansion result
+			editor.replaceRange(
+				expansionText,
+				{ line: cursor.line, ch: prefixIndex },
+				{ line: cursor.line,
+				  ch:   suffixIndex + this.settings.suffix.length });
+		}, 0);
+	}
 
 	// Take a shortcut string and return the proper Expansion string.
 	// WARNING: user-facing function
@@ -360,7 +243,7 @@ const TextExpanderJsPlugin = (function(_super)
 			// Add the shortcut's Expansion string to the total Expanson script
 			expansionText += this.shortcuts[i].expansion + "\n";
 
-			// If not a helper script, stop scanning shortcuts, we're done
+			// If not a helper script, stop checking shortcut matches, we're done
 			if (this.shortcuts[i].test.source != "(?:)")
 			{
 				foundMatch = true;
@@ -455,14 +338,9 @@ const TextExpanderJsPlugin = (function(_super)
 		// Clean up script error preparations (now that the error is handled)
 		this.expansionErrorHandlerStack = []; // Error causes nest to unwind.  Clear stack.
 		window.removeEventListener("error", this._handleExpansionError);
-
-		// Exception was thrown to bottom, bypassing editor refresh.  Force editor refresh.
-		// NOTE: If undo state is added before expansion in CM6, can probably remove this.
-		const editor = this.getEditor();
-		editor.setCursor(editor.getCursor());
 	};
 
-	// Parses a shortcut-file's contents and produces a list of shortcuts
+	// Parses a shortcut-file's contents to produce a list of shortcuts
 	TextExpanderJsPlugin.prototype.parseShortcutList = function(filename, content, keepFencing)
 	{
 		content = content.split("~~").map((v) => v.trim());
@@ -538,7 +416,7 @@ const TextExpanderJsPlugin = (function(_super)
 		return result;
 	};
 
-	// Creates all the shortcuts based on shortcut lists from shortcut-files and settings
+	// Creates all shortcuts based on shortcut lists from shortcut-files and settings
 	TextExpanderJsPlugin.prototype.setupShortcuts = function()
 	{
 		// Add shortcuts defined directly in the settings
@@ -602,7 +480,7 @@ const TextExpanderJsPlugin = (function(_super)
 		this.shortcuts.unshift({ test: "^help$", expansion: helpExpansion });
 	};
 
-	// Passed to expansions to allow Expansion script to run of shell commands.
+	// This function is passed into Expansion scripts to allow them to run shell commands
 	// WARNING: user-facing function
 	TextExpanderJsPlugin.prototype.runExternal = function(command, silentFail, dontFixSlashes)
 	{
@@ -679,16 +557,14 @@ const TextExpanderJsPluginSettings = (function(_super)
 		const result = _super !== null && _super.apply(this, arguments) || this;
 		this.plugin = plugin;
 		this.tmpSettings = null;
-		this.errMsgContainer = null;
-		this.errMsgContent = null;
+		this.formattingErrMsgContainer = null;
+		this.formattingErrMsgContent = null;
 		return result;
 	}
 
 	// Checks formatting settings for errors:
 	//   - blank prefix or suffix
 	//   - suffix contains prefix (disallowed as it messes up logic)
-	// Run whenever format settings change, to show/hide error message ui
-	// Also run on closing settings to determine if format settings should be reverted.
 	TextExpanderJsPluginSettings.prototype.checkFormatErrs = function()
 	{
 		let err = "";
@@ -707,13 +583,13 @@ const TextExpanderJsPluginSettings = (function(_super)
 
 		if (!err)
 		{
-			this.errMsgContainer.toggleClass("tejs_errMsgContainerShown", false);
+			this.formattingErrMsgContainer.toggleClass("tejs_errMsgContainerShown", false);
 			return true;
 		}
 		else
 		{
-			this.errMsgContainer.toggleClass("tejs_errMsgContainerShown", true);
-			this.errMsgContent.innerText = err;
+			this.formattingErrMsgContainer.toggleClass("tejs_errMsgContainerShown", true);
+			this.formattingErrMsgContent.innerText = err;
 			return false;
 		}
 	};
@@ -900,10 +776,10 @@ const TextExpanderJsPluginSettings = (function(_super)
 				"D100" +
 				this.tmpSettings.suffix;
 		};
-		this.errMsgContainer = c.createEl("div", { cls: "tejs_errMsgContainer" });
-		const errMsgTitle = this.errMsgContainer.createEl(
+		this.formattingErrMsgContainer = c.createEl("div", { cls: "tejs_errMsgContainer" });
+		const errMsgTitle = this.formattingErrMsgContainer.createEl(
 			"span", { text: "ERROR", cls: "tejs_errMsgTitle" });
-		this.errMsgContent = this.errMsgContainer.createEl("span");
+		this.formattingErrMsgContent = this.formattingErrMsgContainer.createEl("span");
 		new obsidian.Setting(c)
 			.setName("Prefix")
 			.setDesc("What to type before a shortcut.")

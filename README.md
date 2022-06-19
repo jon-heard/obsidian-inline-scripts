@@ -396,6 +396,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.14.2
+- Merged CM5 and CM6 expansion code.
+
 ### 0.14.1
 - bug fix: error with CM5 (old editor) and shortcuts that return string arrays.
 
