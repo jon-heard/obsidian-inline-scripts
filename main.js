@@ -225,7 +225,7 @@ const TextExpanderJsPlugin = (function(_super)
 			const matchInfo = text.match(this.shortcuts[i].test);
 			if (!matchInfo) { continue; }
 
-			// Helper block (empty shortcut) erases helper scripts before it
+			// Helper-block (empty shortcut) erases helper scripts before it
 			if (!this.shortcuts[i].test && !this.shortcuts[i].expansion)
 			{
 				expansionText = "";
@@ -391,7 +391,7 @@ const TextExpanderJsPlugin = (function(_super)
 				}
 			}
 
-			// Content string handling
+			// Expansion string handling
 			let c = content[i+1];
 			// Handle the Expansion being in a javascript fenced code-block
 			if (!keepFencing)
@@ -421,31 +421,31 @@ const TextExpanderJsPlugin = (function(_super)
 	{
 		// Add shortcuts defined directly in the settings
 		this.shortcuts = this.parseShortcutList("Settings", this.settings.shortcuts);
-		// Add a helper block to segment helper scripts
+		// Add a helper-block to segment helper scripts
 		this.shortcuts.push({});
 
 		// Go over all shortcut-files
 		for (let i = 0; i < this.settings.shortcutFiles.length; i++)
 		{
-			let key = this.settings.shortcutFiles[i];
+			const filename = this.settings.shortcutFiles[i];
+			const content = this.shortcutDfc.files[filename].content;
 			// If shortcut-file has no content, it's missing.
-			if (this.shortcutDfc.files[key].content == null)
+			if (content == null)
 			{
 				new obsidian.Notice(
-					"ERROR: Missing shortcut-file\n" + key,
+					"ERROR: Missing shortcut-file\n" + filename,
 					LONG_NOTE_TIME);
 				continue;
 			}
 
 			// Parse shortcut-file contents and add new shortcuts to list
-			const content = this.shortcutDfc.files[key].content;
-			const newShortcuts = this.parseShortcutList(key, content)
+			const newShortcuts = this.parseShortcutList(filename, content)
 			this.shortcuts = this.shortcuts.concat(newShortcuts);
 
-			// Add a helper block to segment helper scripts
+			// Add a helper-block to segment helper scripts
 			this.shortcuts.push({});
 
-			// Look for a "setup" script to run in this shortcut-file
+			// Look for a "setup" script in this shortcut-file.  Run if found.
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
 				if (newShortcuts[i].test.source == "^tejs setup$")
@@ -455,7 +455,7 @@ const TextExpanderJsPlugin = (function(_super)
 			}
 		}
 
-		// Get list of all "help" shortcuts in list of shortcuts
+		// Get list of all "help" shortcuts in list of all shortcuts
 		let helpShortcuts = [];
 		const helpRegex = new RegExp(/^\^(help [a-z]+)\$$/);
 		for (let i = 0; i < this.shortcuts.length; i++)
@@ -480,11 +480,11 @@ const TextExpanderJsPlugin = (function(_super)
 		this.shortcuts.unshift({ test: "^help$", expansion: helpExpansion });
 	};
 
-	// This function is passed into Expansion scripts to allow them to run shell commands
+	// This function is passed into all Expansion scripts to allow them to run shell commands
 	// WARNING: user-facing function
 	TextExpanderJsPlugin.prototype.runExternal = function(command, silentFail, dontFixSlashes)
 	{
-		// This is an invalid function on mobile.  Notify user and return early.
+		// This function does not work on mobile.  Notify user and early out.
 		// Might as well fail semi-silently.  No use in spamming the user with notices.
 		if (IS_MOBILE)
 		{
@@ -513,7 +513,7 @@ const TextExpanderJsPlugin = (function(_super)
 		// Empty commands always fail
 		if (!command) { return null; }
 
-		// Fix slashes in command on Windows
+		// Fix slashes in Windows commands
 		if (IS_WINDOWS && !dontFixSlashes)
 		{
 			command = command.replaceAll("/", "\\");
@@ -597,11 +597,13 @@ const TextExpanderJsPluginSettings = (function(_super)
 
 	TextExpanderJsPluginSettings.prototype.display = function()
 	{
+		// Clone temporary settings from plugin's settings
 		this.tmpSettings = JSON.parse(JSON.stringify(this.plugin.settings));
 
 		const c = this.containerEl;
 		c.empty();
 
+		// General button callbacks
 		const deleteButtonClicked = function()
 		{
 			new ConfirmDialogBox(
@@ -657,13 +659,16 @@ const TextExpanderJsPluginSettings = (function(_super)
 		});
 		const addShortcutFileUi = (text) =>
 		{
+			// Remove ".md" extension from filename
 			if (text) { text = text.substr(0, text.length - 3); }
+
 			let g = this.shortcutFileUis.createEl("div");
 			let e = g.createEl(
 					"input", { cls: "tejs_shortcutFile" });
 				e.setAttr("type", "text");
 				e.setAttr("placeholder", "Filename");
 				e.plugin = this.plugin;
+				// Handle toggling red on this textfield
 				e.addEventListener("input", function()
 				{
 					const isBadInput =
@@ -671,8 +676,9 @@ const TextExpanderJsPluginSettings = (function(_super)
 						!this.plugin.app.vault.fileMap[this.value+".md"]
 					this.toggleClass("tejs_badInput", isBadInput);
 				});
-				if (text) { e.setAttr("value", text); }
 				e.dispatchEvent(new Event("input"));
+				// Assign given text argument to the textfield
+				if (text) { e.setAttr("value", text); }
 			e = g.createEl("button", { cls: "tejs_upButton" });
 				e.group = g;
 				e.onclick = upButtonClicked;
@@ -681,11 +687,12 @@ const TextExpanderJsPluginSettings = (function(_super)
 				e.group = g;
 				e.onclick = downButtonClicked;
 			e = g.createEl("button", { cls: "tejs_deleteButton" });
-				e.plugin = this.plugin;
-				e.typeTitle = "shortcut-file";
 				e.group = g;
 				e.onclick = deleteButtonClicked;
+				e.plugin = this.plugin;
+				e.typeTitle = "shortcut-file";
 		};
+		// Add a filename ui item for each shortcut-file in settings
 		for (let i = 0; i < this.tmpSettings.shortcutFiles.length; i++)
 		{
 			addShortcutFileUi(this.tmpSettings.shortcutFiles[i]);
@@ -759,6 +766,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		};
 		const shortcuts = this.plugin.parseShortcutList(
 			"Settings", this.tmpSettings.shortcuts, true);
+		// Add a shortcut ui item for each shortcut in settings
 		for (let i = 0; i < shortcuts.length; i++)
 		{
 			addShortcutUi(shortcuts[i]);
