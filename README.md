@@ -391,6 +391,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.13.2
+- bug fix: error during expansion can cause out-of-date editor issues.
+
 ### 0.13.1
 - bug fix: shortcuts without return statements have their expansion script run properly, but still trigger "shortcut unidentified".
 

@@ -435,6 +435,11 @@ const TextExpanderJsPlugin = (function(_super)
 		// Clean up script error preparations (now that the error is handled)
 		this.expansionErrorHandlerStack = []; // Error causes nest to unwind.  Clear stack.
 		window.removeEventListener("error", this._handleExpansionError);
+
+		// Exception was thrown to bottom, bypassing editor refresh.  Force editor refresh.
+		// NOTE: If undo state is added before expansion in CM6, can probably remove this.
+		let editor = this.app.workspace.activeLeaf.view.editor;
+		editor.setCursor(editor.getCursor());
 	};
 
 	// Parses a shortcut-file's contents and produces a list of shortcuts
