@@ -267,6 +267,9 @@ const TextExpanderJsPlugin = (function(_super)
 		// If we had changes, send them in to take effect
 		if (changes.length)
 		{
+			// TODO: It'd be great to register an undo here.  It'd fix a few problems.
+			// ... I just can't figure out how.
+
 			return [{
 				effects: this.storeTransaction.of({
 					effects: this.storeTransaction.of(null),
