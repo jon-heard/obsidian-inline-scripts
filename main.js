@@ -400,7 +400,14 @@ const TextExpanderJsPlugin = (function(_super)
 		this.expansionErrorHandlerStack.pop();
 		if (isUserTriggered)
 		{
-			this.expansionErrorHandlerStack = [];
+			if (this.expansionErrorHandlerStack.length > 0)
+			{
+				console.error(
+					"expansionErrorHandlerStack count was off by " +
+					this.expansionErrorHandlerStack.length + ".\n" +
+					this.expansionErrorHandlerStack.join( "\n-------\n");
+				this.expansionErrorHandlerStack = [];
+			}
 			window.removeEventListener("error", this._handleExpansionError);
 		}
 
@@ -417,9 +424,7 @@ const TextExpanderJsPlugin = (function(_super)
 		e.preventDefault();
 
 		// Insert line numbers and arrows into code
-		let expansionText =
-			this.expansionErrorHandlerStack
-			[this.expansionErrorHandlerStack.length - 1];
+		let expansionText = this.expansionErrorHandlerStack.last();
 		expansionText = expansionText.split("\n");
 		for (let i = 0; i < expansionText.length; i++)
 		{
@@ -588,10 +593,11 @@ const TextExpanderJsPlugin = (function(_super)
 		this.shortcuts.unshift({ test: "^help$", expansion: helpExpansion });
 	};
 
-	// Passed to expansions to allow running of external applications and shell commands
+	// Passed to expansions to allow Expansion script to run of shell commands.
 	// WARNING: user-facing function
 	TextExpanderJsPlugin.prototype.runExternal = function(command, silentFail, dontFixSlashes)
 	{
+		// This is an invalid function on mobile.  Notify user and return early.
 		// Might as well fail semi-silently.  No use in spamming the user with notices.
 		if (IS_MOBILE)
 		{
@@ -601,6 +607,8 @@ const TextExpanderJsPlugin = (function(_super)
 			return null;
 		}
 
+		// Block this function call if user hasn't turned on the "Allow external" setting
+		// to explicitly allowed shortcuts to call shell commands.
 		if (!this.settings.allowExternal)
 		{
 			console.error(
@@ -615,12 +623,17 @@ const TextExpanderJsPlugin = (function(_super)
 			return null;
 		}
 
+		// Empty commands always fail
 		if (!command) { return null; }
-		let vaultDir = app.fileManager.vault.adapter.basePath;
+
+		// Fix slashes in command on Windows
 		if (IS_WINDOWS && !dontFixSlashes)
 		{
 			command = command.replaceAll("/", "\\");
 		}
+
+		// Do the shell command
+		let vaultDir = app.fileManager.vault.adapter.basePath;
 		try
 		{
 			let result = childProcess.execSync(command, { cwd: vaultDir});
