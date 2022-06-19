@@ -396,6 +396,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.14.1
+- bug fix: error with CM5 (old editor) and shortcuts that return string arrays.
+
 ### 0.14.0
 - Added up/down buttons for shortcut-files and shortcuts lists in settings
 

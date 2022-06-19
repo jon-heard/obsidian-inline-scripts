@@ -133,6 +133,11 @@ const TextExpanderJsPlugin = (function(_super)
 		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
 	};
 
+	TextExpanderJsPlugin.prototype.getEditor = function()
+	{
+		return this.app.workspace.activeLeaf.view.editor;
+	};
+
 
 	// CM5 - React to key-down by checking for a shortcut at the caret
 	TextExpanderJsPlugin.prototype.cm5_handleExpansionTrigger = function(cm, keydown)
@@ -176,7 +181,7 @@ const TextExpanderJsPlugin = (function(_super)
 		const sourceText = cm.getLine(shortcutPosition.lineIndex).substring(
 			shortcutPosition.prefixIndex + this.settings.prefix.length,
 			shortcutPosition.suffixIndex);
-		const expansionText = this.getExpansion(sourceText, true);
+		let expansionText = this.getExpansion(sourceText, true);
 		if (expansionText === null) { return; }
 		if (Array.isArray(expansionText)) { expansionText = expansionText.join(""); }
 		cm.replaceRange(
@@ -453,7 +458,7 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Exception was thrown to bottom, bypassing editor refresh.  Force editor refresh.
 		// NOTE: If undo state is added before expansion in CM6, can probably remove this.
-		let editor = this.app.workspace.activeLeaf.view.editor;
+		const editor = this.getEditor();
 		editor.setCursor(editor.getCursor());
 	};
 
