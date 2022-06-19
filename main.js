@@ -185,7 +185,7 @@ const TextExpanderJsPlugin = (function(_super)
 				prefixIndex + this.settings.prefix.length);
 			if (prefixIndex == -1 || suffixIndex == -1)
 			{
-				result = null;
+				return;
 			}
 			if ((suffixIndex + this.settings.suffix.length) < cursor.ch)
 			{

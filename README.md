@@ -414,6 +414,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.14.3
+- bug fix: console error for each ; typed that doesn't expand
+
 ### 0.14.2
 - Merged CM5 and CM6 expansion code.
 
