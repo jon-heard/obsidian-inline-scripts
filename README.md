@@ -90,27 +90,23 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 
 ## TUTORIAL: Setup the plugin and try it out
 1. Setup the plugin.  This will be easy once the plugin has been reviewed and added to the community.  For now, you need to set it up manually.
-    1. Open the vault you want to install the plugin into.
-    2. If you haven't yet installed a community plugin for this vault, install one now.  It doesn't matter which one, since we just need to create the plugins folder and enable community plugins in your vault.
-        1. Go to Settings > Community plugins.
-        2. Turn off Safe mode.
-        3. Click the Browse button in the Community plugins setting.
-        4. Click on _any_ plugin on the left, then click the Install button on the right.
-        5. Now a plugins folder should be created in your vault folder.
-    3. Open your vault folder in your computer's file manager.
-    4. Inside your vault folder is a folder ".obsidian".  Open it.  On Mac and Linux, this folder will be hidden.
-    5. Inside the .obsidian folder is a folder "plugins".  Open that.
-    6. Create a new folder in "plugins" for our new plugin.  You can call it whatever you want, but I suggest "obsidian-text-expander-js".
-    7. Copy the files from the latest release of __Text Expander JS__ into the folder created in step vi.
+    1. If you don't yet have a vault to install __Text Expander JS__ into, create one now.
+    2. Open your vault folder in your computer's file manager.
+    3. Inside your vault folder is a folder ".obsidian".  Open it.  On Mac and Linux, this folder will be hidden.
+    4. Inside the .obsidian folder may be a folder "plugins".  If it does not exist then create it now: "plugins" (plural, all lowercase).  Open it.
+    5. Now, in the plugins folder, create a new folder for the __Text Expander JS__ plugin.  You can call it whatever you want, but I suggest "obsidian-text-expander-js" (it's the official name).
+    6. Copy the files from the latest release of __Text Expander JS__ into the folder created in step v.
         1. Go to the [releases page for Text Expander JS plugin](https://github.com/jon-heard/obsidian-text-expander-js/releases).
-        2. On the top release (the latest), under "Assets", are a list of files.  Download the following files into the folder created on step vi:
+        2. On the top release (the latest), under "Assets", are a list of files.  Download the following files into the folder created on step v:
             - main.js
             - manifest.json
             - style.css
-    8. Your plugin is now installed.  You need to relaunch your vault in Obsidian for it to notice the new plugin.  If it's opened, close and reopen it.
-    9. Enable the Text Expander JS.
+    7. Now the plugin is installed.  Obsidian will recognize it when your vault is first opened.  Open it now (or close and reopen it if it's already opened).
+    8. Enable the __Text Expander JS__ plugin in your vault.
         1. Go to Settings > Community plugins.
-        2. Scroll down to the __Text Expander JS__ plugin entry and flip the switch to enable it.
+        2. If "Save mode" is on, turn it off.
+        3. Scroll down to find the __Text Expander JS__ setting.
+        4. Flip the switch by the __Text Expander JS__ setting to enable it.
 2. Try out the plugin.
     1. Open a note to try out the plugin.
     2. In the note, type `;;greet` (or `!!greet!` on mobile).
