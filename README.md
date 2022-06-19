@@ -52,11 +52,11 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
 
 ## REFERENCE: Settings
 - __Shortcut-files__ - A list of addresses to notes containing shortcut-files.
-    - The "Add file reference" button adds a new textbox for a shortcut-file address.
-    - To the right of each shortcut-file textbox are a set of buttons.
-        - The up and down button let you shift the shortcut-file up and down in the list.
-        - The trashcan button lets you delete the textbox.
-- __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, whithout needing a shortcut-file.
+    - The "Add file reference" button adds a new entry for a shortcut-file address.
+    - To the right of each shortcut-file entry are a set of buttons.
+        - The up and down button let you shift the entry up and down in the list.
+        - The trashcan button lets you delete the entry.
+- __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, without needing a shortcut-file.
     - The "Add shortcut" button adds a blank entry for a new shortcut to the bottom of the Shortcuts setting.
     - The "Add defaults" button adds the default shortcuts to the end of the Shortcuts setting.
     - To the right of each shortcut entry are a set of buttons.
@@ -65,8 +65,8 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
 - __Prefix & Suffix__ - These settings let you define what a typed shortcut starts and ends with to signify that it is a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
-    - If there are any errors with the prefix & suffix entries, a red box with an error message will appear above the prefix & suffix textboxes.
-- __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you change from one note to another.  This adds a slight delay, but lets you develop shortcut-files more rapidly.
+    - If there are any errors with the prefix & suffix entries, a an error message in a red box will appear above the prefix & suffix textboxes.
+- __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you leave a shortcut-file note (i.e. select a different note, or close the shortcut-file note).  This adds a slight delay, but lets you develop shortcut-files more rapidly.
 - __Allow external__ - When turned on, shortcuts are able to run shell commands.  This is a powerful ability that a maliciously written shortcut can abuse to do serious damage to your computer.  Make sure you trust your shortcuts before turning this on.
 
 ***
@@ -75,7 +75,7 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
 If you...
 - Need help with this plugin
 - Have a bug or issue to report
-- Want to share a script-file or extra-useful script
+- Want to share a shortcut-file or extra-useful shortcut
 - Want to offer feedback
 
 ... then visit the [discussions page](https://github.com/jon-heard/obsidian-text-expander-js/discussions).
