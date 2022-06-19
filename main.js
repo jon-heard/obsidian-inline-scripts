@@ -2,8 +2,10 @@
 
 const obsidian = require("obsidian");
 const state = require("@codemirror/state");
+
+// This is not available when on mobile, but the
+// code that uses this is also blocked when on mobile.
 const childProcess = require("child_process");
-const os = require("os");
 
 const DEFAULT_SETTINGS =
 {
@@ -29,7 +31,10 @@ const DEFAULT_SETTINGS_MOBILE =
 	suffix: "!"
 };
 const LONG_NOTE_TIME = 8 * 1000;
-let IS_MOBILE = false;	// This is set when plugin starts
+
+// These are set when the plugin starts
+let IS_MOBILE = false;
+let IS_WINDOWS = false;
 
 Object.freeze(DEFAULT_SETTINGS);
 Object.freeze(DEFAULT_SETTINGS_MOBILE);
@@ -70,8 +75,9 @@ const TextExpanderJsPlugin = (function(_super)
 
 	TextExpanderJsPlugin.prototype.onload = async function()
 	{
-		// Define whether on mobile platform
+		// Determine platform
 		IS_MOBILE = this.app.isMobile;
+		IS_WINDOWS = navigator.appVersion.contains("Windows");
 
 		// Load settings
 		const currentDefaultSettings =
@@ -370,9 +376,9 @@ const TextExpanderJsPlugin = (function(_super)
 	};
 
 	// Runs an expansion script, including error handling.
-	// NOTE: Error handling is being done through window's "error" event, rather than through
+	// NOTE: Error handling is being done through window "error" event, rather than through
 	// exceptions.  This is because exceptions don't provide error line numbers like the error
-	// event does.  Line numbers are important to create a useful "expansion failed" message.
+	// event does.  Line numbers are important to create the useful "expansion failed" message.
 	TextExpanderJsPlugin.prototype.runExpansionScript =
 		function(expansionScript, isUserTriggered)
 	{
@@ -611,7 +617,7 @@ const TextExpanderJsPlugin = (function(_super)
 
 		if (!command) { return null; }
 		let vaultDir = app.fileManager.vault.adapter.basePath;
-		if (os.platform() == "win32" && !dontFixSlashes)
+		if (IS_WINDOWS && !dontFixSlashes)
 		{
 			command = command.replaceAll("/", "\\");
 		}
