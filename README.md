@@ -66,7 +66,7 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
     - If there are any errors with the prefix & suffix entries, a an error message in a red box will appear above the prefix & suffix textboxes.
-- __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you leave a shortcut-file note (i.e. select a different note, or close the shortcut-file note).  This adds a slight delay, but lets you develop shortcut-files more rapidly.
+- __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you leave a shortcut-file note (select a different note, or close the shortcut-file note).  This adds a slight delay, but lets you develop shortcut-files more rapidly.
 - __Allow external__ - When turned on, shortcuts are able to run shell commands.  This is a powerful ability that a maliciously written shortcut can abuse to do serious damage to your computer.  Make sure you trust your shortcuts before turning this on.
 
 ***
@@ -89,13 +89,34 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 ***
 
 ## TUTORIAL: Setup the plugin and try it out
-1.  Walk through the process of installing and enabling the plugin (TBD once this plugin is part of the community).
-2.  Open a note to try out the plugin.
-3.  In the note, type `;;greet` (or `!!greet!` on mobile).
-4.  Note that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
-5.  In the note, type `;;d100;` (or `!!d100!` on mobile).
-6.  Note that the shortcut expands to a roll-result as soon as you've finished typing it.
-7.  Repeat step 5.  Note that the roll result is (most likely) different.  If it is not different then you are just lucky.  Try step 5 again.
+1. Setup the plugin.  This will be easy once the plugin has been reviewed and added to the community.  For now, you need to set it up manually.
+    1. If you haven't yet installed a community plugin, install one now to create the plugins folder.  It doesn't matter which one.
+        1. Go to Settings > Community plugins.
+        2. Turn off Safe mode.
+        3. Click the Browse button in the Community plugins setting.
+        4. Select any plugin on the left, then click the Install button on the right.
+        5. Now a plugins folder should be created in your vault folder.
+    2. Open your vault folder in your computer's file manager.
+    3. Inside your vault folder is a folder ".obsidian".  Open it.  On Mac and Linux, this folder will be hidden.
+    4. Inside the .obsidian folder is a folder "plugins".  Open that.
+    5. Create a new folder in "plugins" for our new plugin.  You can call it whatever you want, but I suggest "obsidian-text-expander-js".
+    6. Copy the files from the latest release of __Text Expander JS__ into the folder created in step v.
+        1. Go to the [releases page for Text Expander JS plugin](https://github.com/jon-heard/obsidian-text-expander-js/releases).
+        2. On the top release (the latest), under "Assets", are a list of files.  Download the following files into the folder created on step v:
+            - main.js
+            - manifest.json
+            - style.css
+    7. Your plugin is now installed.  You need to relaunch your vault in Obsidian for it to notice the new plugin.  If it's opened, close and reopen it.
+    8. Enable the Text Expander JS.
+        1. Go to Settings > Community plugins.
+        2. Scroll down to the __Text Expander JS__ plugin entry and flip the switch to enable it.
+2. Try out the plugin.
+    1. Open a note to try out the plugin.
+    2. In the note, type `;;greet` (or `!!greet!` on mobile).
+    3. Note that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
+    4. In the note, type `;;d100;` (or `!!d100!` on mobile).
+    5. Note that the shortcut expands to a roll-result as soon as you've finished typing it.
+    6. Repeat step 5.  Note that the roll result is (most likely) different.  If it is not different then you are just lucky.  Try step 5 again.
 
 __Text Expander JS__ comes with the following shortcuts defined by default:
 - greet
