@@ -403,12 +403,13 @@ const TextExpanderJsPlugin = (function(_super)
 		this.expansionErrorHandlerStack.pop();
 		if (isUserTriggered)
 		{
+			// ASSERT - This should never be true
 			if (this.expansionErrorHandlerStack.length > 0)
 			{
 				console.error(
 					"expansionErrorHandlerStack count was off by " +
 					this.expansionErrorHandlerStack.length + ".\n" +
-					this.expansionErrorHandlerStack.join( "\n-------\n");
+					this.expansionErrorHandlerStack.join("\n-------\n"));
 				this.expansionErrorHandlerStack = [];
 			}
 			window.removeEventListener("error", this._handleExpansionError);
@@ -720,6 +721,37 @@ const TextExpanderJsPluginSettings = (function(_super)
 		const c = this.containerEl;
 		c.empty();
 
+		const deleteButtonClicked = function()
+		{
+			new ConfirmDialogBox(
+				this.plugin.app,
+				"Confirm removing a " + this.typeTitle + ".",
+				(confirmation) =>
+				{
+					if (confirmation)
+					{
+						this.group.remove();
+					}
+				}).open();
+		};
+		const upButtonClicked = function()
+		{
+			let p = this.group.parentElement;
+			let index = Array.from(p.childNodes).indexOf(this.group);
+			if (index == this.listOffset) { return; }
+			p.insertBefore(p.childNodes[index], p.childNodes[index - 1]);
+		};
+		const downButtonClicked = function()
+		{
+			let p = this.group.parentElement;
+			let index = Array.from(p.childNodes).indexOf(this.group);
+			if (index == p.childNodes.length - 1) { return; }
+			index++;
+			p.insertBefore(p.childNodes[index], p.childNodes[index - 1]);
+		};
+
+
+
 		c.createEl("h2", { text: "Shortcut Sources" });
 
 		////////////////////
@@ -742,45 +774,42 @@ const TextExpanderJsPluginSettings = (function(_super)
 			text: "Red means the file does not exist.",
 			cls: "setting-item-description tejs_extraMessage tejs_onSiblings"
 		});
-		const shortcutFileDeleteButtonClicked = function()
-		{
-			new ConfirmDialogBox(
-				this.plugin.app,
-				"Confirm removing a reference to a shortcut-file.",
-				(confirmation) =>
-				{
-					if (confirmation)
-					{
-						this.assocText.remove();
-						this.remove();
-					}
-				}).open();
-		};
 		const addShortcutFileUi = (text) =>
 		{
 			if (text) { text = text.substr(0, text.length - 3); }
-			let n = this.shortcutFileUis.createEl("input", { cls: "tejs_shortcutFile" });
-				n.setAttr("type", "text");
-				n.setAttr("placeholder", "Filename");
-				n.plugin = this.plugin;
-				n.addEventListener("input", function()
+			let g = this.shortcutFileUis.createEl("div");
+			let e = g.createEl(
+					"input", { cls: "tejs_shortcutFile" });
+				e.setAttr("type", "text");
+				e.setAttr("placeholder", "Filename");
+				e.plugin = this.plugin;
+				e.addEventListener("input", function()
 				{
 					const isBadInput =
 						this.value &&
 						!this.plugin.app.vault.fileMap[this.value+".md"]
 					this.toggleClass("tejs_badInput", isBadInput);
 				});
-				if (text) { n.setAttr("value", text); }
-				n.dispatchEvent(new Event("input"));
-			let b = this.shortcutFileUis.createEl("button", { cls: "tejs_deleteButton" });
-				b.plugin = this.plugin;
-				b.assocText = n;
-				b.onclick = shortcutFileDeleteButtonClicked.bind(b);
+				if (text) { e.setAttr("value", text); }
+				e.dispatchEvent(new Event("input"));
+			e = g.createEl("button", { cls: "tejs_upButton" });
+				e.group = g;
+				e.onclick = upButtonClicked;
+				e.listOffset = 1;
+			e = g.createEl("button", { cls: "tejs_downButton" });
+				e.group = g;
+				e.onclick = downButtonClicked;
+			e = g.createEl("button", { cls: "tejs_deleteButton" });
+				e.plugin = this.plugin;
+				e.typeTitle = "shortcut-file";
+				e.group = g;
+				e.onclick = deleteButtonClicked;
 		};
 		for (let i = 0; i < this.tmpSettings.shortcutFiles.length; i++)
 		{
 			addShortcutFileUi(this.tmpSettings.shortcutFiles[i]);
 		}
+
 		///////////////
 		// SHORTCUTS //
 		///////////////
@@ -814,39 +843,41 @@ const TextExpanderJsPluginSettings = (function(_super)
 					}.bind(this));
 			});
 		this.shortcutUis = c.createEl("div", { cls: "tejs_shortcuts" });
-		const shortcutDeleteButtonClicked = function()
-		{
-			new ConfirmDialogBox(this.plugin.app, "Confirm deleting a shortcut.",
-			(confirmation) =>
-			{
-				if (confirmation)
-				{
-					this.remove();
-				}
-			}).open();
-		};
 		const addShortcutUi = (shortcut) =>
 		{
-			let n = this.shortcutUis.createEl("div", { cls: "tejs_shortcut" });
-			n.plugin = this.plugin;
-			let testUi = n.createEl("input", { cls: "tejs_shortcutTest" });
-				testUi.setAttr("type", "text");
-				testUi.setAttr("placeholder", "Test (regex)");
-			let deleteUi = n.createEl("button", { cls: "tejs_deleteButton" });
-				deleteUi.onclick = shortcutDeleteButtonClicked.bind(n);
-			let expansionUi = n.createEl("textarea", { cls: "tejs_shortcutExpansion" });
-				expansionUi.setAttr("placeholder", "Expansion (javascript)");
-			if (shortcut)
-			{
-				testUi.value = shortcut.test.source;
-				if (testUi.value == "(?:)")
+			let g = this.shortcutUis.createEl("div", { cls: "tejs_shortcut" });
+			let e = g.createEl("input", { cls: "tejs_shortcutTest" });
+				e.setAttr("type", "text");
+				e.setAttr("placeholder", "Test (regex)");
+				if (shortcut)
 				{
-					testUi.value = "";
+					e.value = shortcut.test.source;
+					if (e.value == "(?:)")
+					{
+						e.value = "";
+					}
 				}
-				expansionUi.value = shortcut.expansion;
-			}
+			e = g.createEl("button", { cls: "tejs_upButton" });
+				e.group = g;
+				e.onclick = upButtonClicked;
+				e.listOffset = 0;
+			e = g.createEl("button", { cls: "tejs_downButton" });
+				e.group = g;
+				e.onclick = downButtonClicked;
+			e = g.createEl("button", { cls: "tejs_deleteButton" });
+				e.group = g;
+				e.onclick = deleteButtonClicked;
+				e.plugin = this.plugin;
+				e.typeTitle = "shortcut";
+			e = g.createEl("textarea", { cls: "tejs_shortcutExpansion" });
+				e.setAttr("placeholder", "Expansion (javascript)");
+				if (shortcut)
+				{
+					e.value = shortcut.expansion;
+				}
 		};
-		const shortcuts = this.plugin.parseShortcutList("Settings", this.tmpSettings.shortcuts, true);
+		const shortcuts = this.plugin.parseShortcutList(
+			"Settings", this.tmpSettings.shortcuts, true);
 		for (let i = 0; i < shortcuts.length; i++)
 		{
 			addShortcutUi(shortcuts[i]);
@@ -958,10 +989,11 @@ const TextExpanderJsPluginSettings = (function(_super)
 		this.tmpSettings.shortcutFiles = [];
 		for (let i = 0; i < this.shortcutFileUis.childNodes.length; i++)
 		{
-			if (this.shortcutFileUis.childNodes[i].value)
+			if (this.shortcutFileUis.childNodes[i].childNodes[0].value)
 			{
 				this.tmpSettings.shortcutFiles.push(obsidian.normalizePath(
-					this.shortcutFileUis.childNodes[i].value + ".md"));
+					this.shortcutFileUis.childNodes[i].childNodes[0].
+					value + ".md"));
 			}
 		}
 
@@ -970,11 +1002,11 @@ const TextExpanderJsPluginSettings = (function(_super)
 		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
 		{
 			const shortcutUi = this.shortcutUis.childNodes[i];
-			if (shortcutUi.childNodes[2].value)
+			if (shortcutUi.childNodes[4].value)
 			{
 				this.tmpSettings.shortcuts +=
 					"~~\n" + shortcutUi.childNodes[0].value + "\n~~\n" +
-					shortcutUi.childNodes[2].value + "\n";
+					shortcutUi.childNodes[4].value + "\n";
 			}
 		}
 

@@ -53,11 +53,15 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
 ## REFERENCE: Settings
 - __Shortcut-files__ - A list of addresses to notes containing shortcut-files.
     - The "Add file reference" button adds a new textbox for a shortcut-file address.
-    - To the right of each shortcut-file textbox is a trashcan button.  This button lets you delete the textbox.
+    - To the right of each shortcut-file textbox are a set of buttons.
+        - The up and down button let you shift the shortcut-file up and down in the list.
+        - The trashcan button lets you delete the textbox.
 - __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, whithout needing a shortcut-file.
     - The "Add shortcut" button adds a blank entry for a new shortcut to the bottom of the Shortcuts setting.
     - The "Add defaults" button adds the default shortcuts to the end of the Shortcuts setting.
-    - To the right of each shortcut entry is a trashcan button.  This button lets you delete the shortcut entry.
+    - To the right of each shortcut entry are a set of buttons.
+        - The up and down button let you shift the entry up and down in the list.
+        - The trashcan button lets you delete the entry.
 - __Prefix & Suffix__ - These settings let you define what a typed shortcut starts and ends with to signify that it is a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
@@ -391,6 +395,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.14.0
+- Added up/down buttons for shortcut-files and shortcuts lists in settings
+
 ### 0.13.2
 - bug fix: error during expansion can cause out-of-date editor issues.
 
@@ -462,8 +469,8 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## TODO
 
-### 0.14.0
+### 0.15.0
 - React to community feedback until plugin is accepted into the community.
 
-### 0.15.0
+### 0.16.0
 - From beta to release (after responding to Obsidian community for, hopefully, a month)
