@@ -384,13 +384,13 @@ Random number generator set up with seed ' 1'.
 - __reset lists__ - Clear all lists.
 ***
 - __lists__ - Show all lists.
-- __lists {listName}__ - Show all items in the list {listName}.
-- __listsadd {listName} {item}__ - Add {item} to the end of the basic-list {listName}.  Cannot add to folder-lists or combo-lists.
-- __listsget {listName}__ - Get a random item from the list {listName}.
-- __listsremove {listName} {item}__ - Remove last instance of {item} from the basic-list {listName}.  Cannot remove from folder-lists or combo-lists.
-- __listsremovelist {listName}__ - Remove the entire list {listName}.
-- __listsaddfolder {listName} {folder}__ - Create a folder-list named {listName} that is linked to the folder {folder}.  A "folder-list" is a list who's items are the names of the files in the linked folder.
-- __listsaddcombo {listName} {subList1} {subList2}...__ - Create a combo-list named {listName} that is linked to the sublists given as {subList1}, {subList2}, etc.  A "combo-list" is a list who's items are all the items of its linked sublists.
+- __lists list {listName}__ - Show all items in the list {listName}.
+- __lists add {listName} {item}__ - Add {item} to the basic-list {listName}.  Allows duplicate items.  Cannot add to folder-lists or combo-lists.
+- __lists pick {listName}__ - Get a random item from the list {listName}.
+- __lists remove {listName} {item}__ - Remove an instance of {item} from the basic-list {listName}.  Cannot remove from folder-lists or combo-lists.
+- __lists removelist {listName}__ - Remove the entire list {listName}.
+- __lists addfolder {listName} {folder}__ - Create a folder-list named {listName} that is linked to the folder {folder}.  A "folder-list" is a list who's items are the names of the files in the linked folder.
+- __lists addcombo {listName} {subList1} {subList2}...__ - Create a combo-list named {listName} that is linked to the sublists given as {subList1}, {subList2}, etc.  A "combo-list" is a list who's items are all the items of its linked sublists.
 
 
 ### MYTHIC SHORTCUTS HELP
@@ -409,7 +409,7 @@ Random number generator set up with seed ' 1'.
 - __meaning description__ - Roll on the description meaning table.
 - __meaning__ - Shorthand for "meaning action".
 ***
-- __listsget {listName}__ - A stub in case TEJS_lists shortcut-file isn't available.
+- __lists pick {listName}__ - A stub in case TEJS_lists shortcut-file isn't available.
 ***
 - __scene__ - Show the current scene.
 - __scene {chaosAdjust}__ - Shift the chaos value by {chaosAdjust} (1, 0 or -1), then increment the current scene.

@@ -19,7 +19,7 @@
 ;;disposition 0
 ;;descriptor
 ;;scene 0
-;;listsget pcs
+;;lists pick pcs
 ;;meaning description
 ;;meaning action
 ;;fate
@@ -56,28 +56,28 @@
 ;;chaos=5
 ;;chaos
 ;;lists
-;;listsremovelist npcs
+;;lists removelist npcs
 ;;lists
-;;listsremovelist newList
+;;lists removelist newList
 ;;lists
-;;listsremovelist notAList
+;;lists removelist notAList
 ;;lists
-;;lists npcs
-;;listsremove npcs Sarah Heard
-;;listsremove notAList notAListItem
-;;listsremove npcs notAListItem
-;;listsget notAList
-;;listsget npcs
-;;lists newList
+;;lists list npcs
+;;lists remove npcs Sarah Heard
+;;lists remove notAList notAListItem
+;;lists remove npcs notAListItem
+;;lists pick notAList
+;;lists pick npcs
+;;lists list newList
 ;;lists
-;;listsadd newList newListItem
-;;lists npcs
-;;listsadd npcs Becca
-;;lists npcs
-;;listsadd npcs Sarah Heard
-;;lists threads
-;;lists npcs
-;;lists pcs
+;;lists add newList newListItem
+;;lists list npcs
+;;lists add npcs Becca
+;;lists list npcs
+;;lists add npcs Sarah Heard
+;;lists list threads
+;;lists list npcs
+;;lists list pcs
 ;;lists
 ;;meaning
 ;;meaning description
