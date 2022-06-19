@@ -93,7 +93,7 @@ If you've found this plugin useful, then a small donation lets me know that I sh
     1. If you don't yet have a vault to install __Text Expander JS__ into, create one now.
     2. Open your vault folder in your computer's file manager.
     3. Inside your vault folder is a folder ".obsidian".  Open it.  On Mac and Linux, this folder will be hidden.
-    4. Inside the .obsidian folder may be a folder "plugins".  If it does not exist then create it now: "plugins" (plural, all lowercase).  Open it.
+    4. Inside the .obsidian folder _may_ be a folder "plugins".  If it does not exist yet then create it now: "plugins" (plural, all lowercase).  Open it.
     5. Now, in the plugins folder, create a new folder for the __Text Expander JS__ plugin.  You can call it whatever you want, but I suggest "obsidian-text-expander-js" (it's the official name).
     6. Copy the files from the latest release of __Text Expander JS__ into the folder created in step v.
         1. Go to the [releases page for Text Expander JS plugin](https://github.com/jon-heard/obsidian-text-expander-js/releases).
@@ -101,15 +101,15 @@ If you've found this plugin useful, then a small donation lets me know that I sh
             - main.js
             - manifest.json
             - style.css
-    7. Now the plugin is installed.  Obsidian will recognize it when your vault is first opened.  Open it now (or close and reopen it if it's already opened).
+    7. Now the plugin is installed.  Obsidian will recognize it when your vault is first opened.  Open your vault now (or close and reopen your vault if it's already opened).
     8. Enable the __Text Expander JS__ plugin in your vault.
         1. Go to Settings > Community plugins.
         2. If "Save mode" is on, turn it off.
-        3. Scroll down to find the __Text Expander JS__ setting.
+        3. Find the __Text Expander JS__ setting (it should be near the bottom of the settings).
         4. Flip the switch by the __Text Expander JS__ setting to enable it.
 2. Try out the plugin.
     1. Open a note to try out the plugin.
-    2. In the note, type `;;greet` (or `!!greet!` on mobile).
+    2. In the note, type `;;greet;` (or `!!greet!` on mobile).
     3. Note that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
     4. In the note, type `;;d100;` (or `!!d100!` on mobile).
     5. Note that the shortcut expands to a roll-result as soon as you've finished typing it.
