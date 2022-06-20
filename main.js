@@ -75,6 +75,9 @@ const TextExpanderJsPlugin = (function(_super)
 
 	TextExpanderJsPlugin.prototype.onload = async function()
 	{
+		// Determine plugin title
+		this.title = this.manifest.name;
+
 		// Determine platform
 		IS_MOBILE = this.app.isMobile;
 		IS_WINDOWS = navigator.appVersion.contains("Windows");
@@ -120,7 +123,7 @@ const TextExpanderJsPlugin = (function(_super)
 		this.expansionErrorHandlerStack = [];
 
 		// Log starting the plugin
-		console.log(this.manifest.name + " (" + this.manifest.version + ") loaded");
+		console.log(this.title + "\n    Loaded (" + this.manifest.version + ")");
 	};
 
 	TextExpanderJsPlugin.prototype.onunload = function()
@@ -130,7 +133,7 @@ const TextExpanderJsPlugin = (function(_super)
 			cm => cm.off("keydown", this._cm5_handleExpansionTrigger));
 
 		// Log ending the plugin
-		console.log(this.manifest.name + " (" + this.manifest.version + ") unloaded");
+		console.log(this.title + "\n    Unloaded (" + this.manifest.version + ")");
 	};
 
 
@@ -259,8 +262,8 @@ const TextExpanderJsPlugin = (function(_super)
 		// If shortcut parsing amounted to nothing.  Notify user of bad shortcut entry.
 		if (expansionText === null)
 		{
-			console.warn("Shortcut unidentified: \"" + text + "\"");
-			new obsidian.Notice("ERROR: Shortcut unidentified:\n" + text);
+			console.warn(this.title + "\n    Shortcut unidentified: \"" + text + "\"");
+			new obsidian.Notice("Shortcut unidentified:\n" + text);
 		}
 
 		return expansionText;
@@ -295,7 +298,9 @@ const TextExpanderJsPlugin = (function(_super)
 			if (this.expansionErrorHandlerStack.length > 0)
 			{
 				console.error(
-					"expansionErrorHandlerStack count was off by " +
+					this.title + "\n" +
+					"    EXPANSION-ERROR-HANDLER-ERROR\n" +
+					"    stack was off by " +
 					this.expansionErrorHandlerStack.length + ".\n" +
 					this.expansionErrorHandlerStack.join("\n-------\n"));
 				this.expansionErrorHandlerStack = [];
@@ -328,9 +333,11 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Notify user of error
 		console.error(
-			"Error in Shortcut expansion: " + e.message +
-			"\nline: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
-			"─".repeat(20) + "\n" + expansionText);
+			this.title + "\n" +
+			"    SHORTCUT-EXPANSION-ERROR\n" +
+			"    " + e.message + "\n" +
+			"    line: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
+			"    " + "─".repeat(20) + "\n" + expansionText);
 		new obsidian.Notice(
 			"ERROR: shortcut expansion issues\n\n(see console for details)",
 			LONG_NOTE_TIME);
@@ -351,13 +358,16 @@ const TextExpanderJsPlugin = (function(_super)
 		if (!(content.length % 2))
 		{
 			console.error(
-				"\"Misnumbered section count\" error in Shortcut-file \"" +
-				filename + "\".");
+				this.title + "\n" +
+				"    MISNUMBERED-SECTION-COUNT-ERROR\n" +
+				"    In Shortcut-file \"" +
+				filename + "\"");
 			fileHasErrors = true;
 		}
 
 		// Parse each shortcut in the file
-		for (let i = 1; i < content.length; i += 2)
+		// NOTE: for check compares i+1, since we are using both i and i+1
+		for (let i = 1; i+1 < content.length; i += 2)
 		{
 			// Test string handling
 			let testRegex = null;
@@ -384,8 +394,10 @@ const TextExpanderJsPlugin = (function(_super)
 				catch (e)
 				{
 					console.error(
-						"\"Bad Test string\" error in shortcut-file \"" +
-						filename + "\"." + "  Test: " + c);
+						this.title + "\n" +
+						"    BAD-TEST-STRING-ERROR\n" +
+						"    In shortcut-file \"" +
+						filename + "\":\n    " + c);
 					fileHasErrors = true;
 					continue;
 				}
@@ -419,6 +431,7 @@ const TextExpanderJsPlugin = (function(_super)
 	// Creates all shortcuts based on shortcut lists from shortcut-files and settings
 	TextExpanderJsPlugin.prototype.setupShortcuts = function()
 	{
+		console.info(this.title + "\n    Recreating shortcut list");
 		// Add shortcuts defined directly in the settings
 		this.shortcuts = this.parseShortcutList("Settings", this.settings.shortcuts);
 		// Add a helper-block to segment helper scripts
@@ -432,6 +445,10 @@ const TextExpanderJsPlugin = (function(_super)
 			// If shortcut-file has no content, it's missing.
 			if (content == null)
 			{
+				console.error(
+					this.title + "\n" +
+					"    MISSING-SHORTCUT-FILE-ERROR\n" +
+					"    " + filename);
 				new obsidian.Notice(
 					"ERROR: Missing shortcut-file\n" + filename,
 					LONG_NOTE_TIME);
@@ -489,8 +506,10 @@ const TextExpanderJsPlugin = (function(_super)
 		if (IS_MOBILE)
 		{
 			console.error(
-				"Invalid runExternal call: runExternal unavailable on mobile.\n" +
-				"runExternal(\"" + command + "\")");
+				this.title + "\n" +
+				"    RUNEXTERNAL-ERROR\n" +
+				"    Call to runExternal (unavailable on mobile)\n" +
+				"    runExternal(\"" + command + "\")");
 			return null;
 		}
 
@@ -499,9 +518,11 @@ const TextExpanderJsPlugin = (function(_super)
 		if (!this.settings.allowExternal)
 		{
 			console.error(
-				"Unauthorized runExternal call:\n" +
-				"runExternal(\"" + command + "\")\n" +
-				"NOTE: You can authorize runExternal by " +
+				this.title + "\n" +
+				"    RUNEXTERNAL-ERROR\n" +
+				"    Unauthorized runExternal call\n" +
+				"    runExternal(\"" + command + "\")\n" +
+				"    NOTE: You can authorize runExternal by " +
 				"enabling \"Allow external\" in the settings.");
 			new obsidian.Notice(
 				"ERROR: Unauthorized runExternal call." +
@@ -531,8 +552,11 @@ const TextExpanderJsPlugin = (function(_super)
 			if (!silentFail)
 			{
 				console.error(
-					"runExternal failed\ncurDir: " + vaultDir + "\n" +
-					e.message);
+					this.title + "\n" +
+					"    RUNEXTERNAL-ERROR\n" +
+					"    Call to runExternal failed:\n" +
+					"    curDir: " + vaultDir + "\n" +
+					"    " + e.message);
 				new obsidian.Notice(
 					"ERROR: runExternal(\"" + command + "\")" +
 					"\n\n(see console for details)",
@@ -676,9 +700,9 @@ const TextExpanderJsPluginSettings = (function(_super)
 						!this.plugin.app.vault.fileMap[this.value+".md"]
 					this.toggleClass("tejs_badInput", isBadInput);
 				});
-				e.dispatchEvent(new Event("input"));
 				// Assign given text argument to the textfield
 				if (text) { e.setAttr("value", text); }
+				e.dispatchEvent(new Event("input"));
 			e = g.createEl("button", { cls: "tejs_upButton" });
 				e.group = g;
 				e.onclick = upButtonClicked;
@@ -874,17 +898,8 @@ const TextExpanderJsPluginSettings = (function(_super)
 	// THIS is where settings are saved!
 	TextExpanderJsPluginSettings.prototype.hide = function()
 	{
-		// Build shortcut-files list from UI
-		this.tmpSettings.shortcutFiles = [];
-		for (let i = 0; i < this.shortcutFileUis.childNodes.length; i++)
-		{
-			if (this.shortcutFileUis.childNodes[i].childNodes[0].value)
-			{
-				this.tmpSettings.shortcutFiles.push(obsidian.normalizePath(
-					this.shortcutFileUis.childNodes[i].childNodes[0].
-					value + ".md"));
-			}
-		}
+		// Get shortcut-files list
+		this.tmpSettings.shortcutFiles = this.getShortcutFilesFromUi();
 
 		// Build Shortcuts string from UI
 		this.tmpSettings.shortcuts = "";
@@ -936,6 +951,22 @@ const TextExpanderJsPluginSettings = (function(_super)
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
 		this.plugin.saveSettings();
 	};
+
+	// Get shortcut-files list from UI
+	TextExpanderJsPluginSettings.prototype.getShortcutFilesFromUi = function()
+	{
+		let result = [];
+		for (let i = 0; i < this.shortcutFileUis.childNodes.length; i++)
+		{
+			if (this.shortcutFileUis.childNodes[i].childNodes[0].value)
+			{
+				result.push(obsidian.normalizePath(
+					this.shortcutFileUis.childNodes[i].childNodes[0].
+					value + ".md"));
+			}
+		}
+		return result;
+	}
 
 	return TextExpanderJsPluginSettings;
 
