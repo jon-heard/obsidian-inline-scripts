@@ -172,7 +172,7 @@ __Text Expander JS__.
 Shortcuts, by their Javscript nature, have a risk of being malicious.  Make sure you trust a shortcut or shortcut-file before using it.
 
 ### Shortcut-file sources
-A sample of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFiles/main/TEJS_state.md) file contains shortcuts related to storing and reproducing "clips" of text as well as shortcuts related to saving and loading session state, including any stored clips of text.
+A library of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary/main/tejs_state.md) file contains shortcuts related to storing and reproducing "clips" of text as well as shortcuts related to saving and loading session state, including any stored clips of text.
 
 ### Step-by-step: Adding a shortcut-file to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
@@ -211,7 +211,7 @@ Each shortcut-file should have a "help" shortcut that lists the shortcuts provid
 
 ## TUTORIAL: Create a new shortcut-file
 
-### NOTE: If you make a shortcut-file you think others would like, it'd be real nice if you could share it [here](https://github.com/jon-heard/obsidian-text-expander-js/discussions)!  If it is polished and generally useful, then I'll even add it to the [main list of shortcut-files](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFiles).
+### NOTE: If you make a shortcut-file you think others would like, it'd be real nice if you could share it [here](https://github.com/jon-heard/obsidian-text-expander-js/discussions)!  If it is polished and generally useful, then I'll even add it to the [library of shortcut-files](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).
 
 This HOW-TO assumes that you have read and understood [HOW-TO: Create a new shortcut](#how-to-create-a-new-shortcut), and are at least aware that [HOW-TO: Add an existing shortcut-file to a vault](#how-to-add-an-existing-shortcut-file-to-a-vault) shows how to setup an existing shortcut-file.
 
