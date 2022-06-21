@@ -1055,6 +1055,10 @@ const TextExpanderJsPluginSettings = (function(_super)
 				resolve(ADDRESS_LOCAL);
 				return;
 			}
+
+			// We need to remove the input block to let the user choose
+			this.removeInputBlock();
+
 			new ConfirmDialogBox(
 				this.plugin.app,
 				"All library references are currently in the folder \"" +
@@ -1074,6 +1078,9 @@ const TextExpanderJsPluginSettings = (function(_super)
 				}
 			).open();
 		});
+
+		// Readd input block if it was disabled for confirm dialog
+		this.addInputBlock();
 
 		// Create library destination folder if necessary
 		if (!app.vault.fileMap.hasOwnProperty(libraryDestination))

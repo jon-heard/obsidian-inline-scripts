@@ -437,6 +437,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.15.3
+- bug fix: Input-block was blocking a user choice that was triggered after it was added
+
 ### 0.15.2
 - bug fix: Added input block for while importing library (since async file downloading does not)
 - bug fix: import library function asks user for choice as if "tejs" library folder is different from "tejs".
