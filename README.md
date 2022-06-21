@@ -51,23 +51,23 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
 ***
 
 ## REFERENCE: Settings
-- __Shortcut-files__ - A list of addresses to notes containing shortcut-files.
+- __Shortcut-files__ - A list of addresses (folder-paths and filenames) of notes containing shortcut-files.
     - The "Add file reference" button adds a new entry for a shortcut-file address.
     - The "Import full library" button downloads and sets up the entire __Text Expander JS__ shortcut-file library into your vault.  Any existing library files are updated to the latest version.
     - To the right of each shortcut-file entry are a set of buttons.
-        - The up and down button let you shift the entry up and down in the list.
-        - The trashcan button lets you delete the entry.
+        - The up and down button let you shift the shortcut-file entry up and down in the list.
+        - The trashcan button lets you delete the shortcut-file entry.
 - __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, without needing a shortcut-file.
-    - The "Add shortcut" button adds a blank entry for a new shortcut to the bottom of the Shortcuts setting.
-    - The "Add defaults" button adds the default shortcuts to the end of the Shortcuts setting.
+    - The "Add shortcut" button adds a blank shortcut entry to the bottom of the Shortcuts setting.
+    - The "Add defaults" button adds default shortcuts to the Shortcuts setting.
     - To the right of each shortcut entry are a set of buttons.
-        - The up and down button let you shift the entry up and down in the list.
-        - The trashcan button lets you delete the entry.
+        - The up and down button let you shift the shortcut entry up and down in the list.
+        - The trashcan button lets you delete the shortcut entry.
 - __Prefix & Suffix__ - These settings let you define what a typed shortcut starts and ends with to signify that it is a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
     - If there are any errors with the prefix & suffix entries, a an error message in a red box will appear above the prefix & suffix textboxes.
-- __Developer mode__ - When turned on, the shortcut-files will be reloaded whenever you leave a shortcut-file note (select a different note, or close the shortcut-file note).  This adds a slight delay, but lets you develop shortcut-files more rapidly.
+- __Developer mode__ - When turned on, all shortcuts will be reloaded whenever you leave a shortcut-file note (by selecting a different note, or closing the shortcut-file note).  This adds a slight delay, but lets you develop shortcut-files more rapidly.
 - __Allow external__ - When turned on, shortcuts are able to run shell commands.  This is a powerful ability that a maliciously written shortcut can abuse to do serious damage to your computer.  Make sure you trust your shortcuts before turning this on.
 
 ***
@@ -93,8 +93,8 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 ### Setup the plugin
 NOTE: This will be _much_ easier once the plugin has been reviewed and added to the community plugins list.
 
-1. If you don't yet have a vault to install __Text Expander JS__ into, create one now.
-2. Get the "BRAT" plugin (Beta Reviewers Auto-update Tester)
+1. Open the vault to install __Text Expander JS__ into.  If you don't yet have a vault ready, create one now.
+2. Get the "BRAT" plugin _(Beta Reviewers Auto-update Tester)_
     1. Go to Settings > "Community Plugins".  Turn safe mode off, if it is on.
     2. Click the "Browse" button beside the "Community Plugins" setting
     3. Search for, install and enable the "BRAT" plugin
@@ -106,7 +106,7 @@ NOTE: This will be _much_ easier once the plugin has been reviewed and added to 
 4. Enable the __Text Expander JS__ plugin
     1. Go to Settings > "Community Plugins".
     2. Find the __Text Expander JS__ plugin entry (it's near the bottom of the settings)
-    3. Turn on the toggle on the right-side of the entry.
+    3. Turn on the toggle to the right of the entry.
 5. _(optional, but recommended)_ Enable auto-update for the __Text Expander JS__ plugin
     1. Go to Settings > "Obsidian42 - Brat" (it's near the bottom of the Settings menu)
     2. Turn on the setting "Auto-update plugins at startup" (it's the first setting).
@@ -117,8 +117,8 @@ NOTE: This will be _much_ easier once the plugin has been reviewed and added to 
 3. In the note, type `;;d100;` (`!!d100!` on mobile).  Notice that the shortcut expands to a roll-result as soon as you've finished typing it.
 4. Repeat step 3.  Note that the roll result is (most likely) different.  If it is _not_ different, then you just got lucky so try step 3 again.
 
-### Default shortcuts
-__Text Expander JS__ comes with the following shortcuts defined by default:
+### Default shortcut samples
+__Text Expander JS__ comes with the following sample shortcuts defined by default:
 - greet
 - date
 - time
@@ -142,20 +142,14 @@ Each shortcut is defined by a pair of strings.
 | Test | Expansion | Overview |
 | ---- | --------- | -------- |
 | greet | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;greet;` (`!!greet!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;greet;` or `!!greet!`) will be replaced with `Hello! How are you?`. |
-| ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in your shortcuts, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (`!!date!` on mobile) it will be replaced with the current date. |
+| ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in all of your shortcuts, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (`!!date!` on mobile) it will be replaced with the current date. |
 | ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; |  This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis make variable `$1`, a second parenthesis would make the variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3;` (`!!age 3!` on mobile) the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21;` (`!!age 21!` on mobile), it will be replaced with `I am 21 years old.`
 
 ### Step-by-step: Adding a shortcut
-1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
+1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see the tutorial [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out).)
 2. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
-    
-        ![Settings button](readmeMedia/settings.png)
-    
-    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for
-__Text Expander JS__.
-
-        ![Plugin options](readmeMedia/pluginOptions.png)
+    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
 3. Go down to the "Shortcuts" setting.  It's the second setting in the panel, just after "Shortcut-files". _(see picture below)_
 4. The setting has two buttons: "Add shortcut" and "Add defaults".  Click on the "Add shortcut" button.  This adds a shortcut entry to the bottom of the "Shortcuts" setting.  The new entry should include two textboxes with the words "Test (regex)" and "Expansion (javascript)" in grey text. _(see picture below)_
 5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: `test` and `return "The test worked.";`. _(see picture below)_
@@ -181,15 +175,9 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
 2. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
-
-        ![Settings button](readmeMedia/settings.png)
-
     2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
-
-        ![Plugin options](readmeMedia/pluginOptions.png)
-
 3. Find the "Shortcut-files" setting.  It is just beneath "Shortcut Sources.
-4. To the right of the setting is the button "Import full library".  Click on that button and then confirm.  This will trigger the import.  It might take a minute to download, depending on your internet connection.
+4. To the right of the setting is the button "Import full library".  Click on that button and then confirm.  This will trigger the import.  It might take a minute to download, depending on your internet connection and device.
 
     ![Import full library](readmeMedia/importFullLibrary.png)
 
@@ -199,7 +187,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
 7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;event;` or `;;une;` (`!!event!` or `!!une!` on mobile).
 8. You can type `;;help;` (`!!help!` on mobile) to start learning about the shortcuts provided by the library.
 
-### Step-by-step: Adding a single shortcut-file to the vault
+### Step-by-step: Adding a SINGLE shortcut-file to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
 2. Get the contents of a shortcut-file into a note in your vault.  You can do this one of two ways.
     - Copy the shortcut-file's text content into an empty note.
@@ -209,12 +197,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
     - Example: `support/tejs/TEJS_state`.  The name of this shortcut-file note is `TEJS_state`, the folder-path is `support/tejs`.
 4. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
-    
-        ![Settings button](readmeMedia/settings.png)
-    
     2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
-
-        ![Plugin options](readmeMedia/pluginOptions.png)
 5. Add a reference to the shortcut-file.
     1. Find the "Shortcut-files" setting.  It is just beneath "Shortcut Sources" _(see picture below)_.
     2. In the "Shortcut-files" setting, click the "Add file reference" button on the right side.  This adds an empty textbox to the bottom of the "Shortcut-files" setting.  The new textbox should show the word "Filename" in grey text. _(see picture below)_
@@ -222,6 +205,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
         - Example: `support/tejs/TEJS_state`.
         
         ![Shortcut-files setting](readmeMedia/shortcutFiles.png)
+
 6. Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
@@ -237,7 +221,7 @@ Each shortcut-file should have a "help" shortcut that lists the shortcuts provid
 
 ### NOTE: If you make a shortcut-file you think others would like, it'd be real nice if you could share it [here](https://github.com/jon-heard/obsidian-text-expander-js/discussions)!  If it is polished and generally useful, then I'll even add it to the [library of shortcut-files](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).
 
-This HOW-TO assumes that you have read and understood [HOW-TO: Create a new shortcut](#how-to-create-a-new-shortcut), and are at least aware that [HOW-TO: Add an existing shortcut-file to a vault](#how-to-add-an-existing-shortcut-file-to-a-vault) shows how to setup an existing shortcut-file.
+This tutorial assumes that you have read and understood the tutorial [Create a new shortcut](#tutorial-create-a-new-shortcut), and are at least aware that the tutorial [Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault) shows how to setup an existing shortcut-file.
 
 A shortcut-file contains multiple shortcuts.  Each shortcut contains a Test string and an Expansion string.  A shortcut-file will typically bundle collections of shortcuts that work toward a common goal, such as a particular functionality (saving & loading) or a particular system (Dungeons and Dragons).
 
@@ -267,7 +251,7 @@ Here is another, more meaty, example:
 This shortcut-file begins with some comments, then it contains two shortcuts.  Notice that the first `~~` is placed after the initial comments.  Every shortcut-file starts with a section for comments.  This includes the minimal example before this one, though in that case the comments section is empty.  Also notice that there are empty lines between sections.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
 
 ### Developer mode
-Developer mode is an on/off setting available at the bottom of the __Text Expander JS__ plugin options _(see picture below)_.  When "Developer mode" is on, all shortcut-files will be reloaded each time you move from one note to another.  This lets you edit a shortcut-file note, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
+Developer mode is an on/off setting available at the bottom of the __Text Expander JS__ plugin options _(see picture below)_.  When "Developer mode" is on, all shortcuts will be reloaded whenever you leave a shortcut-file note (by selecting a different note, or closing the shortcut-file note).  This lets you edit a shortcut-file note, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
 
 ![Developer mode](readmeMedia/devMode.png)
 
@@ -290,11 +274,11 @@ If a new shortcut doesn't work and it's not clear why, then the javascript conso
 ***
 
 ## DEVELOPMENT AID: Fenced code blocks
-If you want a nicer experience while developing a shortcut, you can surround the Expansion string in a "Javascript fenced code block".  For example, you can take this Expansion string:
+If you want a nicer experience while developing a shortcut, you can surround the Expansion string in a "Javascript fenced code block".  For example, this Expansion string:
 
 > return "Hello!  How are you?";
 
-and write it as:
+can be written as:
 
 > \`\`\`js
 >
@@ -315,11 +299,11 @@ Drawbacks:
 - Takes up more space
 
 ### Fencing test strings
-You can also surround a Test string in a basic "fenced code block".  This provides no syntax highlighting, but still prevents unwanted markdown formatting.  For example:
+You can also surround a Test string in a basic "fenced code block".  This provides no syntax highlighting, but still prevents unwanted markdown formatting.  For example, this Test string:
 
 > ^date$
 
-to:
+can be written as:
 
 > \`\`\`
 >
@@ -339,14 +323,16 @@ There is a function `runExternal(command)` which can be called from any shortcut
 
 NOTE: The full function is `runExternal(command, failSilently, dontFixSlashes)`.  The second two parameters are optional and are explained later in this section.
 
-### `IMPORTANT` - The "Allow external" setting
-Be aware that the runExternal function will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned __on__ in the plugin options (it is off by default).  This security feature exists because the ability to run shell commands provides a level of access to your computer with which a maliciously written shortcut can do serious damage.
+### The "Allow external" setting
+Be aware that the runExternal function will _always_ fail with an authorization error, _unless_ the on/off setting "Allow external" is turned __on__ in the plugin options.  It is off by default.
+
+![Allow external setting](readmeMedia/allowExternal.png)
 
 ### Examples
 | Test | Expansion | Overview |
 | ---- | --------- | -------- |
 | ^test&nbsp;shell$ | return&nbsp;runExternal("echo&nbsp;Hello&nbsp;from&nbsp;the&nbsp;shell"); | When the user types `;;test shell;`, the shell command `echo Hello from the shell` is run, which prints "Hello from the shell" to the console.  Once the echo command is finished, its console output is returned from runExternal, then that is returned from the Expansion script and, finally, expanded into the note. |
-| ^runMyScript$ | return&nbsp;runExternal("python&nbsp;myscript.py"); | When the user types `;;runMyScript;`, the command will run python on "myscript.py", which may print something to the console.  Once the command is finished, runExternal will return any console output (or an empty string if there was none), which is then returned from the Expansion script and, thus, expanded into the note.<br/><br/>If Python is setup properly, the command could have simply been "myscript.py".<br/><br/>If python is not installed, or myscript.py is not in the vault's root folder, or even if myscript.py has a python error, then the shell command will fail.  This will cause runExternal to return null, and an error notification and console log will show up. |
+| ^runMyScript$ | return&nbsp;runExternal("python&nbsp;myscript.py"); | When the user types `;;runMyScript;`, the command will execute python on "myscript.py", which may print something to the console.  Once the command is finished, runExternal will return any console output (or an empty string if there was none), which is then returned from the Expansion script and, thus, expanded into the note.<br/><br/>If Python is setup properly, the Expansion script could have simply been `return runExternal("myscript.py");`.<br/><br/>If python is not installed, or myscript.py is not in the vault's root folder, or even if myscript.py has a python error, then the shell command will fail.  This will cause runExternal to return null, and an error notification and console log to show up. |
 | ^exec&nbsp;(.*)$ | let&nbsp;result&nbsp;=&nbsp;runExternal($1);<br/>if&nbsp;(result === null)&nbsp;{&nbsp;result&nbsp;=&nbsp;"FAILED";&nbsp;}<br/>return&nbsp;"Shell&nbsp;command&nbsp;result&nbsp;=&nbsp;\""&nbsp;+&nbsp;result&nbsp;+&nbsp;"\"."; | This shortcut allows the user to run _any_ shell command.  For example, typing `;;exec dir;` will get the vault root-folder's contents and expand them into the note. |
 
 ### Command errors
@@ -358,7 +344,7 @@ When a command produces an error:
     - The command that failed
     - The error message provided by the shell
 
-The second, optional, parameter of runExternal is "failSilently".  When failSilently is true and the command produces an error, runExternal still returns null, but the notification and console error are skipped.
+The second, optional, parameter of `runExternal(command, failSilently, dontFixSlashes)` is "failSilently".  When failSilently is true and the command produces an error, runExternal still returns null, but no notification or console error are created.
 
 ### The working folder for commands
 runExternal always runs commands at the vault's root folder.  This allows you to run scripts that are within the vault, meaning the scripts can be copied/synced as part of the vault.
@@ -367,7 +353,7 @@ runExternal always runs commands at the vault's root folder.  This allows you to
 When runExternal is used to run a command, Obsidian will freeze until that command is completely finished.  This can be disconcerting if you are not ready for it, but it is harmless... unless your command runs forever, of course.
 
 ### Cross-platform slashes
-By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps keep commands cross-platform (always use forward-slashes).  If this slash-flipping isn't wanted, though, runExternal's third parameter, "dontFixSlashes" can be set to true to disable it.
+By default, on Windows, any forward-slashes in the shell command are automatically flipped to back-slashes.  This helps keep commands cross-platform (always use forward-slashes).  If this slash-flipping isn't wanted, though, `runExternal(command, failSilently, dontFixSlashes)` third parameter, "dontFixSlashes" can be set to true to disable it.
 
 ***
 
@@ -392,21 +378,26 @@ In this list of shortcuts, the shortcut #2 has an empty Test string.  That means
 ***
 
 ## ADVANCED SHORTCUTS: Setup scripts
-Shortcut-files can contain a "setup script".  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with the Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
+Shortcut-files can contain a "setup script".  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with a specific Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
+
+### Example
+| Test | Expansion | Overview |
+| ---- | --------- | -------- |
+| ^tejs&nbsp;setup$ | window._tejsState&nbsp;\|\|=&nbsp;{};<br/>window._tejsState.clips&nbsp;\|\|=&nbsp;{}; | This setup script creates some global variables that shortcuts in the shortcut-file presumably rely upon.<br/><br/>Notice that the setup script only creates the global variables if they don't yet exist (`\|\|=`).  This is important as a setup script _may_ be run many times during a session.  We don't want later runs to wipe out anything that was created earlier. |
 
 ***
 
 ## ADVANCED SHORTCUTS: Nesting shortcuts
-There are two features that work in tandem to allow you to nest shortcuts (i.e. use shortcut results as part of other shortcuts).  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then use the result.
+There are two features that work in tandem to allow you to nest shortcuts (i.e. use shortcut results as part of other shortcuts).  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then get and use the result.
 
 ### Returning string arrays
 Firstly: an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when replacing a user-typed shortcut.
 
 ### Calling one shortcut from another
-Secondly: within an Expansion script you can call the function `getExpansion(text)`.  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like the shortcut text you type into a note, except that it returns the result (a string or string array), _instead_ of writing the result to the note.
+Secondly: within an Expansion script you can call the function `getExpansion(text)`.  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like a shortcut text that you type directly into a note, except that `getExpansion(text)` returns the result (a string or string array), _instead_ of writing the result to the note.
 
 ### Nesting shortcuts
-Given these features, here's how you can nest a shortcut within another.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut.  What it gets back is the second shortcut's Expansion result: a string or array of strings.  It can then use that result, or a piece of that result as needed.
+Given these features, here's how you can nest a shortcut within another.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut.  What it gets back is the second shortcut's Expansion result: a string or array of strings.  It can then use that result, or a piece of that result, as needed.
 
 ### Example
 | Test id | Test | Expansion |
@@ -415,7 +406,7 @@ Given these features, here's how you can nest a shortcut within another.  The fi
 |  2 | lastname | return ["LastName: ", "Smith"]; |
 |  3 | fullname | return [ "FullName: ", getExpansion("firstname")[1], " ", getExpansion("lastname")[1] ]; |
 
-Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (`!!firstname!` on mobile), then the expansion is "FirstName: Maggie".  This is true for shortcut #2 as well (expanding into "LastName: Smith").
+Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (`!!firstname!` on mobile), then the expansion is "FirstName: Maggie", since the array gets joined into a single string.  This is true for shortcut #2 as well (expanding into "LastName: Smith").
 
 If you type `;;fullname;` (`!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
 
@@ -425,7 +416,7 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 ***
 
 ## Known Issues
-- Undo of expansion works a bit differently between the old editor (CodeMirror 5, non-mobile) and the new editor (CodeMirror 6, mobile and new non-mobile).  When using the new editor, the triggering character does not show on undo.
+- Undo of expansion works a bit differently between the old editor (CodeMirror 5, non-mobile) and the new editor (CodeMirror 6, mobile and new non-mobile).  When using the new editor, the character that was typed just prior to the expansion does not show on undo.
 
 ***
 
