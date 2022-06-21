@@ -135,3 +135,11 @@
 	opacity: 0.5;
 	z-index: 100;
 }
+.tejs_version
+{
+	text-align: right;
+}
+.tejs_version + h2
+{
+	margin-top: 0;
+}

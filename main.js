@@ -77,6 +77,7 @@ const TextExpanderJsPlugin = (function(_super)
 	{
 		// Determine plugin title
 		this.title = this.manifest.name;
+		this.version = this.manifest.version;
 
 		// Determine platform
 		IS_MOBILE = this.app.isMobile;
@@ -123,7 +124,7 @@ const TextExpanderJsPlugin = (function(_super)
 		this.expansionErrorHandlerStack = [];
 
 		// Log starting the plugin
-		console.log(this.title + "\n    Loaded (" + this.manifest.version + ")");
+		console.log(this.title + "\n    Loaded (" + this.version + ")");
 	};
 
 	TextExpanderJsPlugin.prototype.onunload = function()
@@ -133,7 +134,7 @@ const TextExpanderJsPlugin = (function(_super)
 			cm => cm.off("keydown", this._cm5_handleExpansionTrigger));
 
 		// Log ending the plugin
-		console.log(this.title + "\n    Unloaded (" + this.manifest.version + ")");
+		console.log(this.title + "\n    Unloaded (" + this.version + ")");
 	};
 
 
@@ -661,7 +662,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		};
 
 
-
+		c.createEl("div", { text: this.plugin.version, cls: "tejs_version" });
 		c.createEl("h2", { text: "Shortcut Sources" });
 
 		////////////////////
@@ -920,6 +921,8 @@ const TextExpanderJsPluginSettings = (function(_super)
 					"WARNING: enabling this increases the " +
 					"danger from malicious shortcuts</div>";
 		}
+
+		c.createEl("div", { text: this.plugin.version, cls: "tejs_version" });
 	};
 
 	// THIS is where settings are saved!
