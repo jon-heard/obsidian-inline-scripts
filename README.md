@@ -186,9 +186,13 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
     2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
 
         ![Plugin options](readmeMedia/pluginOptions.png)
+
 3. Find the "Shortcut-files" setting.  It is just beneath "Shortcut Sources.
-4. To the right of the setting is the button "Get full library".  Click on that button and then confirm.  This will trigger the import.
-6. Once the import is finished, you should see a bunch of file names beneath the "Shortcut-files" setting.  Close the settings panel.
+4. To the right of the setting is the button "Import full library".  Click on that button and then confirm.  This will trigger the import.
+
+    ![Import full library](readmeMedia/importFullLibrary.png)
+
+6. Once the import is finished, you should see a bunch of file names added beneath the "Shortcut-files" setting (unless they were already there from a previous import).  Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
 7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;help mythic;`.
