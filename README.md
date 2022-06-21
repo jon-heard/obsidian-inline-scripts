@@ -174,7 +174,7 @@ __Text Expander JS__.
 Shortcuts, by their Javscript nature, have a risk of being malicious.  Make sure you trust a shortcut or shortcut-file before using it.
 
 ### Shortcut-file sources
-There is a library of shortcut-files for __Text Expander JS__ [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).  You can bring individual shortcut-files into your vault from this library, or from any other source you find.  Alternately, __Text Expander JS__ includes a feature to import that entire library into your vault all at once.
+There is a library of shortcut-files for __Text Expander JS__ [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).  You can bring individual shortcut-files into your vault from this library, or from any other source you find.  Alternately, __Text Expander JS__ includes a feature to import that entire library into your vault at once.
 
 ### Step-by-step: Adding the entire shortcut-file library to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
