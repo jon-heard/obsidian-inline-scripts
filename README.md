@@ -53,7 +53,7 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
 ## REFERENCE: Settings
 - __Shortcut-files__ - A list of addresses to notes containing shortcut-files.
     - The "Add file reference" button adds a new entry for a shortcut-file address.
-    - The "Import full library" button imports the full __Text Expander JS__ shortcut-file library into your vault.  Any existing library files are updated to the latest version.
+    - The "Import full library" button downloads and sets up the entire __Text Expander JS__ shortcut-file library into your vault.  Any existing library files are updated to the latest version.
     - To the right of each shortcut-file entry are a set of buttons.
         - The up and down button let you shift the entry up and down in the list.
         - The trashcan button lets you delete the entry.
@@ -191,7 +191,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
 6. Once the import is finished, you should see a bunch of file names beneath the "Shortcut-files" setting.  Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
-7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;state;`.
+7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;help mythic;`.
 
 ### Step-by-step: Adding a single shortcut-file to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
