@@ -195,7 +195,8 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
 6. Once the import is finished, you should see a bunch of file names added beneath the "Shortcut-files" setting (unless they were already there from a previous import).  Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
-7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;help mythic;`.
+7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;event;` or `;;une;`.
+8. You can type `;;help;` to start learning about the shortcuts provided by the library.
 
 ### Step-by-step: Adding a single shortcut-file to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
