@@ -474,7 +474,7 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Get list of all "help" shortcuts in list of all shortcuts
 		let helpShortcuts = [];
-		const helpRegex = new RegExp(/^\^(help [a-z]+)\$$/);
+		const helpRegex = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
 		for (let i = 0; i < this.shortcuts.length; i++)
 		{
 			if (!this.shortcuts[i].test) { continue; }

@@ -437,6 +437,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.15.1
+- bug fix: "help" system doesn't recognize help shortcuts that include numbers or underscore
+
 ### 0.15.0
 - new feature: "Import full library" button in settings - downloads and sets up the entire Text Expander JS shortcut-file library into the vault
 - bug fix: when on mobile, settings with multiple buttons don't separate buttons enough
