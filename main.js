@@ -789,14 +789,20 @@ const TextExpanderJsPluginSettings = (function(_super)
 					.setButtonText("Add defaults")
 					.onClick(function()
 					{
-						let shortcuts =
+						let defaultShortcuts =
 							this.plugin.parseShortcutList("Settings",
 							DEFAULT_SETTINGS.shortcuts, true);
-						for (let i = 0;
-						     i < shortcuts.length;
-						     i++)
+
+						// We don't want to duplicate shortcuts, and it's
+						// important to keep defaults in-order.  Remove
+						// any shortcuts from the ui list that are part
+						// of the defaults before adding the defaults to
+						// the end of the ui list.
+						this.removeShortcutsFromUi(defaultShortcuts);
+
+						for (let i = 0; i < defaultShortcuts.length; i++)
 						{
-							addShortcutUi(shortcuts[i]);
+							addShortcutUi(defaultShortcuts[i]);
 						}
 					}.bind(this));
 			});
@@ -950,16 +956,13 @@ const TextExpanderJsPluginSettings = (function(_super)
 		this.tmpSettings.shortcutFiles = this.getShortcutReferencesFromUi();
 
 		// Build Shortcuts string from UI
+		let shortcuts = this.getShortcutsFromUi();
 		this.tmpSettings.shortcuts = "";
-		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
+		for (let i = 0; i < shortcuts.length; i++)
 		{
-			const shortcutUi = this.shortcutUis.childNodes[i];
-			if (shortcutUi.childNodes[4].value)
-			{
-				this.tmpSettings.shortcuts +=
-					"~~\n" + shortcutUi.childNodes[0].value + "\n~~\n" +
-					shortcutUi.childNodes[4].value + "\n";
-			}
+			this.tmpSettings.shortcuts +=
+				"~~\n" + shortcuts[i].test + "\n" +
+				"~~\n" + shortcuts[i].expansion + "\n";
 		}
 
 		// If changes to settings-based shortcuts, "force" is set
@@ -1015,6 +1018,54 @@ const TextExpanderJsPluginSettings = (function(_super)
 		}
 		return result;
 	};
+
+	// Get shortcuts list from UI
+	TextExpanderJsPluginSettings.prototype.getShortcutsFromUi = function()
+	{
+		let result = [];
+		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
+		{
+			const shortcutUi = this.shortcutUis.childNodes[i];
+			if (shortcutUi.childNodes[4].value)
+			{
+				result.push({
+					test: shortcutUi.childNodes[0].value,
+					expansion: shortcutUi.childNodes[4].value
+				});
+			}
+		}
+		return result;
+	}
+
+	// Takes a list of shortcuts, and removes them from the ui list, if they are there
+	TextExpanderJsPluginSettings.prototype.removeShortcutsFromUi = function(shortcuts)
+	{
+		let toRemove = [];
+		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
+		{
+			const ui = this.shortcutUis.childNodes[i];
+			const test = ui.childNodes[0].value;
+			const expansion = ui.childNodes[4].value;
+			for (let k = 0; k < shortcuts.length; k++)
+			{
+				if (shortcuts[k].expansion != expansion)
+				{
+					continue;
+				}
+				if (shortcuts[k].test.source != test &&
+				    (shortcuts[k].test.source != "(?:)" || test != ""))
+				{
+					continue;
+				}
+				toRemove.push(ui);
+				break;
+			}
+		}
+		for (let i = 0; i < toRemove.length; i++)
+		{
+			toRemove[i].remove();
+		}
+	}
 
 	// Called when user clicks "Import full library" button and accepting confirmation
 	TextExpanderJsPluginSettings.prototype.importFullLibrary = async function()
