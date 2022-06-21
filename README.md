@@ -188,7 +188,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
         ![Plugin options](readmeMedia/pluginOptions.png)
 
 3. Find the "Shortcut-files" setting.  It is just beneath "Shortcut Sources.
-4. To the right of the setting is the button "Import full library".  Click on that button and then confirm.  This will trigger the import.
+4. To the right of the setting is the button "Import full library".  Click on that button and then confirm.  This will trigger the import.  It might take a minute to download, depending on your internet connection.
 
     ![Import full library](readmeMedia/importFullLibrary.png)
 
