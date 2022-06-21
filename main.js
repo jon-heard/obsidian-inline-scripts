@@ -173,8 +173,9 @@ const TextExpanderJsPlugin = (function(_super)
 		return tr;
 	};
 
-	// Tries to get shortcut beneath caret and expand it.  setTimeout pauses this for
-	// a frame to give the calling event the opportunity to finish processing
+	// Tries to get shortcut beneath caret and expand it.  setTimeout pauses for a frame to
+	// give the calling event the opportunity to finish processing.  This is especially
+	// important for CM5, as the typed key isn't in the editor at the time this is called.
 	TextExpanderJsPlugin.prototype.tryShortcutExpansion = function() {
 		setTimeout(() =>
 		{
@@ -187,11 +188,10 @@ const TextExpanderJsPlugin = (function(_super)
 			const suffixIndex = lineText.indexOf(
 				this.settings.suffix,
 				prefixIndex + this.settings.prefix.length);
-			if (prefixIndex == -1 || suffixIndex == -1)
-			{
-				return;
-			}
-			if ((suffixIndex + this.settings.suffix.length) < cursor.ch)
+
+			// If the caret is not at a shortcut, early out
+			if (prefixIndex == -1 || suffixIndex == -1 ||
+			    (suffixIndex + this.settings.suffix.length) < cursor.ch)
 			{
 				return;
 			}
