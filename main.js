@@ -995,6 +995,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		return result;
 	};
 
+	// Called when user clicks "Import full library" button and accepting confirmation
 	TextExpanderJsPluginSettings.prototype.downloadFullLibrary = async function()
 	{
 		const ADDRESS_REMOTE =
@@ -1042,7 +1043,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 				}
 			}
 		}
-		if (commonPath == ADDRESS_LOCAL) { commonPath == null; }
+		if (commonPath == ADDRESS_LOCAL) { commonPath = null; }
 		let libraryDestination = await new Promise((resolve, reject) =>
 		{
 			if (commonPath == null)
