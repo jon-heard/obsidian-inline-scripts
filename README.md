@@ -53,6 +53,7 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
 ## REFERENCE: Settings
 - __Shortcut-files__ - A list of addresses to notes containing shortcut-files.
     - The "Add file reference" button adds a new entry for a shortcut-file address.
+    - The "Import full library" button imports the full __Text Expander JS__ shortcut-file library into your vault.  Any existing library files are updated to the latest version.
     - To the right of each shortcut-file entry are a set of buttons.
         - The up and down button let you shift the entry up and down in the list.
         - The trashcan button lets you delete the entry.
@@ -173,9 +174,26 @@ __Text Expander JS__.
 Shortcuts, by their Javscript nature, have a risk of being malicious.  Make sure you trust a shortcut or shortcut-file before using it.
 
 ### Shortcut-file sources
-A library of shortcut-files can be found [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).  For example, [this](https://raw.githubusercontent.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary/main/tejs_state.md) file contains shortcuts related to storing and reproducing "clips" of text as well as shortcuts related to saving and loading session state, including any stored clips of text.
+There is a library of shortcut-files for __Text Expander JS__ [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).  You can bring individual shortcut-files into your vault from this library, or from any other source you find.  Alternately, __Text Expander JS__ includes a feature to import that entire library into your vault all at once.
 
-### Step-by-step: Adding a shortcut-file to the vault
+### Step-by-step: Adding the entire shortcut-file library to the vault
+1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
+2. Open the plugin options for the __Text Expander JS__ plugin.
+    1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
+
+        ![Settings button](readmeMedia/settings.png)
+
+    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
+
+        ![Plugin options](readmeMedia/pluginOptions.png)
+3. Find the "Shortcut-files" setting.  It is just beneath "Shortcut Sources.
+4. To the right of the setting is the button "Get full library".  Click on that button and then confirm.  This will trigger the import.
+6. Once the import is finished, you should see a bunch of file names beneath the "Shortcut-files" setting.  Close the settings panel.
+    - You can hit the X button on the top right of the settings panel to close it.
+    - You can click outside of the settings panel to close it.
+7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;state;`.
+
+### Step-by-step: Adding a single shortcut-file to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
 2. Get the contents of a shortcut-file into a note in your vault.  You can do this one of two ways.
     - Copy the shortcut-file's text content into an empty note.
@@ -188,12 +206,11 @@ A library of shortcut-files can be found [here](https://github.com/jon-heard/obs
     
         ![Settings button](readmeMedia/settings.png)
     
-    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for
-__Text Expander JS__.
+    2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
 
         ![Plugin options](readmeMedia/pluginOptions.png)
 5. Add a reference to the shortcut-file.
-    1. Find the "Shortcut-files" setting.  It is in plugin options, just beneath "Shortcut Sources" _(see picture below)_.
+    1. Find the "Shortcut-files" setting.  It is just beneath "Shortcut Sources" _(see picture below)_.
     2. In the "Shortcut-files" setting, click the "Add file reference" button on the right side.  This adds an empty textbox to the bottom of the "Shortcut-files" setting.  The new textbox should show the word "Filename" in grey text. _(see picture below)_
     3. Click on the new textbox and type in the shortcut-file note's address, determined in step 3.  The textbox will be red until a valid note address is entered. _(see picture below)_
         - Example: `support/tejs/TEJS_state`.
@@ -415,6 +432,11 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.15.0
+- new feature: "get full library" button in settings - downloads and sets up the shortcut-file library
+- bug fix: when on mobile, settings with multiple buttons don't separate buttons enough
+- bug fix: bad shortcut-file references aren't red on opening settings
+
 ### 0.14.3
 - bug fix: console error for each ; typed that doesn't expand
 
@@ -498,8 +520,8 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## TODO
 
-### 0.15.0
+### 0.16.0
 - React to community feedback until plugin is accepted into the community.
 
-### 0.16.0
+### 0.17.0
 - From beta to release (after responding to Obsidian community for, hopefully, a month)

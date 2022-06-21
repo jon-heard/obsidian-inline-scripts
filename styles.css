@@ -120,3 +120,7 @@
 	background-color: red;
 	color: white;
 }
+.is-mobile .tejs_button
+{
+	margin: 0em .25em !important;
+}

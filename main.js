@@ -607,12 +607,14 @@ const TextExpanderJsPluginSettings = (function(_super)
 
 		if (!err)
 		{
-			this.formattingErrMsgContainer.toggleClass("tejs_errMsgContainerShown", false);
+			this.formattingErrMsgContainer.toggleClass(
+				"tejs_errMsgContainerShown", false);
 			return true;
 		}
 		else
 		{
-			this.formattingErrMsgContainer.toggleClass("tejs_errMsgContainerShown", true);
+			this.formattingErrMsgContainer.toggleClass(
+				"tejs_errMsgContainerShown", true);
 			this.formattingErrMsgContent.innerText = err;
 			return false;
 		}
@@ -639,7 +641,8 @@ const TextExpanderJsPluginSettings = (function(_super)
 					{
 						this.group.remove();
 					}
-				}).open();
+				}
+			).open();
 		};
 		const upButtonClicked = function()
 		{
@@ -670,10 +673,32 @@ const TextExpanderJsPluginSettings = (function(_super)
 			.addButton((button) =>
 			{
 				return button
+					.setClass("tejs_button")
 					.setButtonText("Add file reference")
 					.onClick(() =>
 					{
 						addShortcutFileUi();
+					});
+			})
+			.addButton((button) =>
+			{
+				return button
+					.setClass("tejs_button")
+					.setButtonText("Import full library")
+					.onClick(() =>
+					{
+						new ConfirmDialogBox(
+							this.plugin.app,
+							"Confirm importing the full shortcut-" +
+							"files library into this vault.",
+							(confirmation) =>
+							{
+								if (confirmation)
+								{
+									this.downloadFullLibrary();
+								}
+							}
+						).open();
 					});
 			});
 		this.shortcutFileUis = c.createEl("div", { cls: "tejs_shortcutFiles" });
@@ -731,6 +756,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 			.addButton((button) =>
 			{
 				return button
+					.setClass("tejs_button")
 					.setButtonText("Add shortcut")
 					.onClick(() =>
 					{
@@ -740,6 +766,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 			.addButton((button) =>
 			{
 				return button
+					.setClass("tejs_button")
 					.setButtonText("Add defaults")
 					.onClick(function()
 					{
@@ -899,7 +926,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 	TextExpanderJsPluginSettings.prototype.hide = function()
 	{
 		// Get shortcut-files list
-		this.tmpSettings.shortcutFiles = this.getShortcutFilesFromUi();
+		this.tmpSettings.shortcutFiles = this.getShortcutReferencesFromUi();
 
 		// Build Shortcuts string from UI
 		this.tmpSettings.shortcuts = "";
@@ -953,7 +980,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 	};
 
 	// Get shortcut-files list from UI
-	TextExpanderJsPluginSettings.prototype.getShortcutFilesFromUi = function()
+	TextExpanderJsPluginSettings.prototype.getShortcutReferencesFromUi = function()
 	{
 		let result = [];
 		for (let i = 0; i < this.shortcutFileUis.childNodes.length; i++)
@@ -966,7 +993,124 @@ const TextExpanderJsPluginSettings = (function(_super)
 			}
 		}
 		return result;
-	}
+	};
+
+	TextExpanderJsPluginSettings.prototype.downloadFullLibrary = async function()
+	{
+		const ADDRESS_REMOTE =
+			"https://raw.githubusercontent.com/jon-heard/" +
+			"obsidian-text-expander-js_shortcutFileLibrary/main";
+		const ADDRESS_LOCAL = "tejs";
+		const FILE_README = "README.md";
+
+		// Get shortcut-file list from library readme
+		let shortcutFiles = await request({
+			url: ADDRESS_REMOTE + "/" + FILE_README,
+			method: "GET", cache: "no-cache"
+		});
+		shortcutFiles =
+			shortcutFiles.match(/### tejs_[_a-zA-Z0-9]+\n/g).
+			map(s => s.substring(4, s.length-1));
+
+		// Figure out library destination.  By default this is ADDRESSS_LOCAL.
+		// However, if all shortcut-file references in the settings that match files in
+		// the library are in a single folder, ask user if they want to use that folder
+		// instead of the default library destination.
+		let shortcutReferences = this.getShortcutReferencesFromUi();
+		let shortcutReferenceFilenames =
+			shortcutReferences.map(s => s.substring(s.lastIndexOf("/")+1, s.length-3));
+		let shortcutReferencePaths = shortcutReferences.map((s,i) =>
+		{
+			return s.substring(0, s.length-shortcutReferenceFilenames[i].length-4)
+		});
+		let commonPath = null;
+		for (let i = 0; i < shortcutReferences.length; i++)
+		{
+			if(shortcutFiles.contains(shortcutReferenceFilenames[i]))
+			{
+				if (commonPath === null)
+				{
+					commonPath = shortcutReferencePaths[i];
+				}
+				else
+				{
+					if (shortcutReferencePaths[i] != commonPath)
+					{
+						commonPath = null;
+						break;
+					}
+				}
+			}
+		}
+		if (commonPath == ADDRESS_LOCAL) { commonPath == null; }
+		let libraryDestination = await new Promise((resolve, reject) =>
+		{
+			if (commonPath == null)
+			{
+				resolve(ADDRESS_LOCAL);
+				return;
+			}
+			new ConfirmDialogBox(
+				this.plugin.app,
+				"All library references are currently in the folder \"" +
+				commonPath + "\".<br/>Would you like to import the library " +
+				"into \"" +commonPath + "\"?<br/>If not, the library will be " +
+				"imported into the folder \"" + ADDRESS_LOCAL + "\".",
+				(confirmation) =>
+				{
+					if (confirmation)
+					{
+						resolve(commonPath);
+					}
+					else
+					{
+						resolve(ADDRESS_LOCAL);
+					}
+				}
+			).open();
+		});
+
+		// Create library destination folder if necessary
+		if (!app.vault.fileMap.hasOwnProperty(libraryDestination))
+		{
+			this.plugin.app.vault.createFolder(libraryDestination);
+		}
+
+		// Download and create library files
+		for (let i = 0; i < shortcutFiles.length; i++)
+		{
+			// Download the file
+			let content = await request({
+				url: ADDRESS_REMOTE + "/" + shortcutFiles[i] + ".md",
+				method: "GET", cache: "no-cache"
+			});
+
+			let filename = libraryDestination + "/" + shortcutFiles[i] + ".md";
+			let file = app.vault.fileMap[filename];
+			if (file)
+			{
+				await this.plugin.app.vault.modify(file, content);
+			}
+			else
+			{
+				await this.plugin.app.vault.create(filename, content);
+			}
+		}
+
+		// Add references shortcut-files in settings
+		for (let i = 0; i < shortcutFiles.length; i++)
+		{
+			let filename = libraryDestination + "/" + shortcutFiles[i] + ".md";
+			if (!this.plugin.settings.shortcutFiles.contains(filename))
+			{
+				this.plugin.settings.shortcutFiles.push(filename);
+			}
+		}
+
+		// Refresh settings ui with new shortcut-file references
+		this.display();
+	};
+
 
 	return TextExpanderJsPluginSettings;
 
@@ -985,7 +1129,7 @@ const ConfirmDialogBox = (function(_super)
 	}
 	ConfirmDialogBox.prototype.onOpen = function ()
 	{
-		this.titleEl.setText(this.message);
+		this.titleEl.innerHTML = this.message;
 		new obsidian.Setting(this.contentEl)
 			.addButton((btn) =>
 			{
