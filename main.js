@@ -695,7 +695,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 							{
 								if (confirmation)
 								{
-									this.downloadFullLibrary();
+									this.importFullLibrary();
 								}
 							}
 						).open();
@@ -996,13 +996,17 @@ const TextExpanderJsPluginSettings = (function(_super)
 	};
 
 	// Called when user clicks "Import full library" button and accepting confirmation
-	TextExpanderJsPluginSettings.prototype.downloadFullLibrary = async function()
+	TextExpanderJsPluginSettings.prototype.importFullLibrary = async function()
 	{
 		const ADDRESS_REMOTE =
 			"https://raw.githubusercontent.com/jon-heard/" +
 			"obsidian-text-expander-js_shortcutFileLibrary/main";
 		const ADDRESS_LOCAL = "tejs";
 		const FILE_README = "README.md";
+
+		// Need to manually disable input until this process is finished
+		// (due to asynchronous downloading not blocking it)
+		this.addInputBlock();
 
 		// Get shortcut-file list from library readme
 		let shortcutFiles = await request({
@@ -1108,10 +1112,28 @@ const TextExpanderJsPluginSettings = (function(_super)
 			}
 		}
 
-		// Refresh settings ui with new shortcut-file references
+		// Refresh settings ui with the new shortcut-file references
+		this.removeInputBlock();
 		this.display();
 	};
 
+	// Adds a tinted full-screen div to prevent user-input
+	TextExpanderJsPluginSettings.prototype.addInputBlock = function()
+	{
+		let block = document.getElementById("tejs_inputBlock");
+		if (block) { return; }
+
+		block = document.createElement("div");
+		block.id = "tejs_inputBlock";
+		document.getElementsByTagName("body")[0].prepend(block);
+	};
+
+	// Removes the tinted full-screen div created by addInputBlock
+	TextExpanderJsPluginSettings.prototype.removeInputBlock = function()
+	{
+		let block = document.getElementById("tejs_inputBlock");
+		if (block) { block.remove(); }
+	};
 
 	return TextExpanderJsPluginSettings;
 

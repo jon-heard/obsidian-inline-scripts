@@ -174,9 +174,9 @@ __Text Expander JS__.
 Shortcuts, by their Javscript nature, have a risk of being malicious.  Make sure you trust a shortcut or shortcut-file before using it.
 
 ### Shortcut-file sources
-There is a library of shortcut-files for __Text Expander JS__ [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).  You can bring individual shortcut-files into your vault from this library, or from any other source you find.  Alternately, __Text Expander JS__ includes a feature to import that entire library into your vault at once.
+There is a library of shortcut-files for __Text Expander JS__ [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).  You can bring individual shortcut-files into your vault from this library, or from any other source you find.  Alternately, __Text Expander JS__ has a button to import the entire library to your vault at once.
 
-### Step-by-step: Adding the entire shortcut-file library to the vault
+### Step-by-step: Importing the entire shortcut-file library to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
 2. Open the plugin options for the __Text Expander JS__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
@@ -195,7 +195,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
 6. Once the import is finished, you should see a bunch of file names added beneath the "Shortcut-files" setting (unless they were already there from a previous import).  Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
-7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;event;` or `;;une;` (`!!event!` or `!!june!` on mobile).
+7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;event;` or `;;une;` (`!!event!` or `!!une!` on mobile).
 8. You can type `;;help;` (`!!help!` on mobile) to start learning about the shortcuts provided by the library.
 
 ### Step-by-step: Adding a single shortcut-file to the vault
@@ -436,6 +436,10 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 ***
 
 ## Release notes
+
+### 0.15.2
+- bug fix: Added input block for while importing library (since async file downloading does not)
+- bug fix: import library function asks user for choice as if "tejs" library folder is different from "tejs".
 
 ### 0.15.1
 - bug fix: "help" system doesn't recognize help shortcuts that include numbers or underscore
