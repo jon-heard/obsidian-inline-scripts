@@ -90,33 +90,34 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 ***
 
 ## TUTORIAL: Setup the plugin and try it out
-1. Setup the plugin.
-    1. NOTE: This will be _much_ easier once the plugin has been reviewed and added to the community.
-    2. If you don't yet have a vault to install __Text Expander JS__ into, create one now.
-    3. Get the "BRAT" plugin (Beta Reviewers Auto-update Tester)
-        1. Go to Settings > "Community Plugins".  Turn safe mode off, if it is on.
-        2. Click the "Browse" button beside the "Community Plugins" setting
-        3. Search for, install and enable the "BRAT" plugin
-    4. Add the __Text Expander JS__ plugin to "BRAT"
-        1. Go to Settings > "Obsidian42 - Brat" (it's near the bottom of the Settings menu)
-        2. Click on the button "Add Beta plugin" (in the "Beta Plugin List" section)
-        3. Enter the text "https://github.com/jon-heard/obsidian-text-expander-js"
-        4. Click "Add Plugin"
-    5. Enable the __Text Expander JS__ plugin
-        1. Go to Settings > "Community Plugins".
-        2. Find the __Text Expander JS__ plugin entry (it's near the bottom of the settings)
-        3. Turn on the toggle on the right-side of the entry.
-    6. Enable auto-update for the __Text Expander JS__ plugin (optional, but recommended)
-        1. Go to Settings > "Obsidian42 - Brat" (it's near the bottom of the Settings menu)
-        2. Turn on the setting "Auto-update plugins at startup" (it's the first setting).
-2. Try out the plugin.
-    1. Open a note to try out the plugin.
-    2. In the note, type `;;greet;` (`!!greet!` on mobile).
-    3. Note that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
-    4. In the note, type `;;d100;` (`!!d100!` on mobile).
-    5. Note that the shortcut expands to a roll-result as soon as you've finished typing it.
-    6. Repeat step iv.  Note that the roll result is (most likely) different.  If it is _not_ different, then you just got lucky so try step iv again.
+### Setup the plugin
+NOTE: This will be _much_ easier once the plugin has been reviewed and added to the community plugins list.
 
+1. If you don't yet have a vault to install __Text Expander JS__ into, create one now.
+2. Get the "BRAT" plugin (Beta Reviewers Auto-update Tester)
+    1. Go to Settings > "Community Plugins".  Turn safe mode off, if it is on.
+    2. Click the "Browse" button beside the "Community Plugins" setting
+    3. Search for, install and enable the "BRAT" plugin
+3. Add the __Text Expander JS__ plugin to "BRAT"
+    1. Go to Settings > "Obsidian42 - Brat" (it's near the bottom of the Settings menu)
+    2. Click on the button "Add Beta plugin" (in the "Beta Plugin List" section)
+    3. Enter the text `https://github.com/jon-heard/obsidian-text-expander-js`
+    4. Click "Add Plugin"
+4. Enable the __Text Expander JS__ plugin
+    1. Go to Settings > "Community Plugins".
+    2. Find the __Text Expander JS__ plugin entry (it's near the bottom of the settings)
+    3. Turn on the toggle on the right-side of the entry.
+5. _(optional, but recommended)_ Enable auto-update for the __Text Expander JS__ plugin
+    1. Go to Settings > "Obsidian42 - Brat" (it's near the bottom of the Settings menu)
+    2. Turn on the setting "Auto-update plugins at startup" (it's the first setting).
+
+### Try out the plugin
+1. Open a note to try out the plugin.
+2. In the note, type `;;greet;` (`!!greet!` on mobile).  Notice that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
+3. In the note, type `;;d100;` (`!!d100!` on mobile).  Notice that the shortcut expands to a roll-result as soon as you've finished typing it.
+4. Repeat step 3.  Note that the roll result is (most likely) different.  If it is _not_ different, then you just got lucky so try step 3 again.
+
+### Default shortcuts
 __Text Expander JS__ comes with the following shortcuts defined by default:
 - greet
 - date
