@@ -567,6 +567,24 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 	};
 
+	// Adds a tinted full-screen div to prevent user-input
+	TextExpanderJsPlugin.prototype.addInputBlock = function()
+	{
+		let block = document.getElementById("tejs_inputBlock");
+		if (block) { return; }
+
+		block = document.createElement("div");
+		block.id = "tejs_inputBlock";
+		document.getElementsByTagName("body")[0].prepend(block);
+	};
+
+	// Removes the tinted full-screen div created by addInputBlock
+	TextExpanderJsPlugin.prototype.removeInputBlock = function()
+	{
+		let block = document.getElementById("tejs_inputBlock");
+		if (block) { block.remove(); }
+	};
+
 	return TextExpanderJsPlugin;
 
 }(obsidian.Plugin));
@@ -1009,7 +1027,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 
 		// Need to manually disable input until this process is finished
 		// (due to asynchronous downloading not blocking it)
-		this.addInputBlock();
+		this.plugin.addInputBlock();
 
 		// Get shortcut-file list from library readme
 		let shortcutFiles = await request({
@@ -1060,7 +1078,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 			}
 
 			// We need to remove the input block to let the user choose
-			this.removeInputBlock();
+			this.plugin.removeInputBlock();
 
 			new ConfirmDialogBox(
 				this.plugin.app,
@@ -1083,7 +1101,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		});
 
 		// Readd input block if it was disabled for confirm dialog
-		this.addInputBlock();
+		this.plugin.addInputBlock();
 
 		// Create library destination folder if necessary
 		if (!app.vault.fileMap.hasOwnProperty(libraryDestination))
@@ -1123,26 +1141,8 @@ const TextExpanderJsPluginSettings = (function(_super)
 		}
 
 		// Refresh settings ui with the new shortcut-file references
-		this.removeInputBlock();
+		this.plugin.removeInputBlock();
 		this.display();
-	};
-
-	// Adds a tinted full-screen div to prevent user-input
-	TextExpanderJsPluginSettings.prototype.addInputBlock = function()
-	{
-		let block = document.getElementById("tejs_inputBlock");
-		if (block) { return; }
-
-		block = document.createElement("div");
-		block.id = "tejs_inputBlock";
-		document.getElementsByTagName("body")[0].prepend(block);
-	};
-
-	// Removes the tinted full-screen div created by addInputBlock
-	TextExpanderJsPluginSettings.prototype.removeInputBlock = function()
-	{
-		let block = document.getElementById("tejs_inputBlock");
-		if (block) { block.remove(); }
 	};
 
 	return TextExpanderJsPluginSettings;
