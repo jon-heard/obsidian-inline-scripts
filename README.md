@@ -111,9 +111,9 @@ If you've found this plugin useful, then a small donation lets me know that I sh
         2. Turn on the setting "Auto-update plugins at startup" (it's the first setting).
 2. Try out the plugin.
     1. Open a note to try out the plugin.
-    2. In the note, type `;;greet;` (or `!!greet!` on mobile).
+    2. In the note, type `;;greet;` (`!!greet!` on mobile).
     3. Note that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
-    4. In the note, type `;;d100;` (or `!!d100!` on mobile).
+    4. In the note, type `;;d100;` (`!!d100!` on mobile).
     5. Note that the shortcut expands to a roll-result as soon as you've finished typing it.
     6. Repeat step iv.  Note that the roll result is (most likely) different.  If it is _not_ different, then you just got lucky so try step iv again.
 
@@ -140,9 +140,9 @@ Each shortcut is defined by a pair of strings.
 ### Examples
 | Test | Expansion | Overview |
 | ---- | --------- | -------- |
-| greet | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;greet;` (or `!!greet!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;greet;` or `!!greet!`) will be replaced with `Hello! How are you?`. |
-| ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in your shortcuts, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (or `!!date!` on mobile) it will be replaced with the current date. |
-| ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; |  This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis make variable `$1`, a second parenthesis would make the variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3;` (or `!!age 3!` on mobile) the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21;` (or `!!age 21!`), it will be replaced with `I am 21 years old.`
+| greet | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;greet;` (`!!greet!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;greet;` or `!!greet!`) will be replaced with `Hello! How are you?`. |
+| ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in your shortcuts, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (`!!date!` on mobile) it will be replaced with the current date. |
+| ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; |  This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis make variable `$1`, a second parenthesis would make the variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3;` (`!!age 3!` on mobile) the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21;` (`!!age 21!` on mobile), it will be replaced with `I am 21 years old.`
 
 ### Step-by-step: Adding a shortcut
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
@@ -174,7 +174,7 @@ __Text Expander JS__.
 Shortcuts, by their Javscript nature, have a risk of being malicious.  Make sure you trust a shortcut or shortcut-file before using it.
 
 ### Shortcut-file sources
-There is a library of shortcut-files for __Text Expander JS__ [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).  You can bring individual shortcut-files into your vault from this library, or from any other source you find.  Alternately, __Text Expander JS__ includes a feature to import that entire library into your vault all at once.
+There is a library of shortcut-files for __Text Expander JS__ [here](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).  You can bring individual shortcut-files into your vault from this library, or from any other source you find.  Alternately, __Text Expander JS__ includes a feature to import that entire library into your vault at once.
 
 ### Step-by-step: Adding the entire shortcut-file library to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
@@ -188,15 +188,15 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
         ![Plugin options](readmeMedia/pluginOptions.png)
 
 3. Find the "Shortcut-files" setting.  It is just beneath "Shortcut Sources.
-4. To the right of the setting is the button "Import full library".  Click on that button and then confirm.  This will trigger the import.
+4. To the right of the setting is the button "Import full library".  Click on that button and then confirm.  This will trigger the import.  It might take a minute to download, depending on your internet connection.
 
     ![Import full library](readmeMedia/importFullLibrary.png)
 
 6. Once the import is finished, you should see a bunch of file names added beneath the "Shortcut-files" setting (unless they were already there from a previous import).  Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
-7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;event;` or `;;une;`.
-8. You can type `;;help;` to start learning about the shortcuts provided by the library.
+7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;event;` or `;;une;` (`!!event!` or `!!june!` on mobile).
+8. You can type `;;help;` (`!!help!` on mobile) to start learning about the shortcuts provided by the library.
 
 ### Step-by-step: Adding a single shortcut-file to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
@@ -414,9 +414,9 @@ Given these features, here's how you can nest a shortcut within another.  The fi
 |  2 | lastname | return ["LastName: ", "Smith"]; |
 |  3 | fullname | return [ "FullName: ", getExpansion("firstname")[1], " ", getExpansion("lastname")[1] ]; |
 
-Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (or `!!firstname!` on mobile), then the expansion is "FirstName: Maggie".  This is true for shortcut #2 as well (expanding into "LastName: Smith").
+Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (`!!firstname!` on mobile), then the expansion is "FirstName: Maggie".  This is true for shortcut #2 as well (expanding into "LastName: Smith").
 
-If you type `;;fullname;` (or `!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
+If you type `;;fullname;` (`!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
 
 ### The "isUserTriggered" variable
 Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the getExpansion function).
