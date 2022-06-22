@@ -245,7 +245,7 @@ const TextExpanderJsPlugin = (function(_super)
 			for (let k = 1; k < matchInfo.length; k++)
 			{
 				expansionText +=
-					"var $" + k + " = \"" +
+					"let $" + k + " = \"" +
 					matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
 			}
 
@@ -437,7 +437,6 @@ const TextExpanderJsPlugin = (function(_super)
 	// Creates all shortcuts based on shortcut lists from shortcut-files and settings
 	TextExpanderJsPlugin.prototype.setupShortcuts = function()
 	{
-		console.info(this.title + "\n    Recreating shortcut list");
 		// Add shortcuts defined directly in the settings
 		this.shortcuts = this.parseShortcutList("Settings", this.settings.shortcuts);
 		// Add a helper-block to segment helper scripts
@@ -865,7 +864,8 @@ const TextExpanderJsPluginSettings = (function(_super)
 				"D100" +
 				this.tmpSettings.suffix;
 		};
-		this.formattingErrMsgContainer = c.createEl("div", { cls: "tejs_errMsgContainer" });
+		this.formattingErrMsgContainer =
+			c.createEl("div", { cls: "tejs_errMsgContainer" });
 		const errMsgTitle = this.formattingErrMsgContainer.createEl(
 			"span", { text: "ERROR", cls: "tejs_errMsgTitle" });
 		this.formattingErrMsgContent = this.formattingErrMsgContainer.createEl("span");
@@ -945,10 +945,10 @@ const TextExpanderJsPluginSettings = (function(_super)
 							this.tmpSettings.allowExternal = value;
 						});
 				})
-				.descEl.innerHTML +=
-					"<div class='tejs_warning'>" +
-					"WARNING: enabling this increases the " +
-					"danger from malicious shortcuts</div>";
+				.descEl.createEl("div", {
+					cls: "tejs_warning",
+					text: "WARNING: enabling this increases the danger from " +
+					      "malicious shortcuts" });
 		}
 
 		c.createEl("div", { text: this.plugin.version, cls: "tejs_version" });
@@ -1218,7 +1218,9 @@ const ConfirmDialogBox = (function(_super)
 	}
 	ConfirmDialogBox.prototype.onOpen = function ()
 	{
+		// Using innerHTML to allow <br/> linebreaks in confirm message
 		this.titleEl.innerHTML = this.message;
+
 		new obsidian.Setting(this.contentEl)
 			.addButton((btn) =>
 			{
