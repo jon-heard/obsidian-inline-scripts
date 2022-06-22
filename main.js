@@ -17,8 +17,8 @@
 const obsidian = require("obsidian");
 const state = require("@codemirror/state");
 
-// This is not available when on mobile, but the
-// code that uses this is also blocked when on mobile.
+// This is a node.js library, so is not available for mobile.  However, the code that uses it is
+// blocked for mobile, so the plugin is still useful for mobile, just slightly more limited.
 const childProcess = require("child_process");
 
 const DEFAULT_SETTINGS =
@@ -1088,7 +1088,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		}
 	}
 
-	// Called when user clicks "Import full library" button
+	// Called when user clicks the "Import full library" button
 	async importFullLibrary()
 	{
 		const ADDRESS_REMOTE =
@@ -1098,10 +1098,10 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		const FILE_README = "README.md";
 
 		// Need to manually disable user-input until this process is finished
-		// (due to asynchronous downloading not blocking user-input directly)
+		// (due to asynchronous downloads not otherwise blocking user-input)
 		this.plugin.addInputBlock();
 
-		// Get shortcut-file list from library's readme on github
+		// Get list of shortcut-files from the projects github readme
 		let shortcutFiles = await request({
 			url: ADDRESS_REMOTE + "/" + FILE_README,
 			method: "GET", cache: "no-cache"
@@ -1115,12 +1115,15 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		// the library are in a single folder, ask user if they want to use that folder
 		// instead of the default library destination.
 		let shortcutReferences = this.getShortcutReferencesFromUi();
+		// The filenames of referenced shortcut-files
 		let shortcutReferenceFilenames =
 			shortcutReferences.map(s => s.substring(s.lastIndexOf("/")+1, s.length-3));
+		// The paths of referenced shortcut-files
 		let shortcutReferencePaths = shortcutReferences.map((s,i) =>
 		{
 			return s.substring(0, s.length-shortcutReferenceFilenames[i].length-4)
 		});
+		// Find a common path, or lack thereof, to shortcut-files belonging to the library
 		let commonPath = null;
 		for (let i = 0; i < shortcutReferences.length; i++)
 		{
@@ -1172,10 +1175,10 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			).open();
 		});
 
-		// Readd input block if it was disabled for confirm dialog
+		// Put the input block back (if it was disabled for confirm dialog)
 		this.plugin.addInputBlock();
 
-		// Create library destination folder if necessary
+		// Create the choosen library destination folder, if necessary
 		if (!app.vault.fileMap.hasOwnProperty(libraryDestination))
 		{
 			this.plugin.app.vault.createFolder(libraryDestination);
@@ -1202,7 +1205,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			}
 		}
 
-		// Add references shortcut-files in settings
+		// Add shortcut-file references, for new shortcut-files, to the settings
 		for (const shortcutFile of shortcutFiles)
 		{
 			let filename = libraryDestination + "/" + shortcutFile + ".md";
@@ -1277,66 +1280,75 @@ class Dfc
 	constructor(plugin, filenames, refreshFnc, monitorType)
 	{
 		this.plugin = plugin;
-		this.currentFile = "";
-		this.currentFileIsModified = false;
-
+		this.activeFilesName = "";
+		this.isActiveFileModified = false;
+		// The list of files this Dfc monitors
 		this.files = {};
+		// The callback for when monitored files have triggered a refresh
 		this.refreshFnc = refreshFnc;
+		// What happes to monitored files to trigger calling the refresh callback
+		// (changed, lost focus or none)
 		this.monitorType = monitorType;
-
-		plugin.registerEvent(plugin.app.vault.on(
-			"modify",
-			this.onFileModified.bind(this) ));
-		plugin.registerEvent(plugin.app.workspace.on(
-			"active-leaf-change",
-			this.onActiveLeafChange.bind(this)));
-
-		this.plugin.app.workspace.onLayoutReady(async () =>
-		{
-			plugin.registerEvent(plugin.app.vault.on(
-				"create",
-				this.onFileAddedOrRemoved.bind(this) ));
-			plugin.registerEvent(plugin.app.vault.on(
-				"delete",
-				this.onFileAddedOrRemoved.bind(this) ));
-		});
 
 		// Maintain the current active file, so that when "active-leaf-change" hits
 		// (i.e. a new active file) you can still refererence the prior active file
-		this.currentFile = plugin.app.workspace.getActiveFile()?.path ?? "";
+		this.activeFilesName = plugin.app.workspace.getActiveFile()?.path ?? "";
 
-		// The given refreshFnc might expect that this new dfc is returned to a var.
-		// Make sure it is returned and assigned before triggering refreshFnc.
+		// The refreshFnc might want this new dfc to be returned and assigned, before being
+		// called.  setTimeout makes sure new dfc is returned and assigned BEFORE
+		// updateFileList is called (which calls refreshFnc).
 		setTimeout(() =>
 		{
 			this.updateFileList(filenames);
 		}, 0);
 
-		return this;
+		// On Obsidian start, these events trigger somewhat randomly.  onLayoutReady makes
+		// sure the events are connected only after the random triggering is over.
+		this.plugin.app.workspace.onLayoutReady(async () =>
+		{
+			// Monitors when files are saved
+			plugin.registerEvent(plugin.app.vault.on(
+				"modify",
+				this.onAnyFileModified.bind(this) ));
+			// Monitors when the a different file becomes the active one
+			plugin.registerEvent(plugin.app.workspace.on(
+				"active-leaf-change",
+				this.onActiveLeafChange.bind(this)));
+			// Monitors when vault files are created (in or out of Obsidian)
+			plugin.registerEvent(plugin.app.vault.on(
+				"create",
+				this.onAnyFileAddedOrRemoved.bind(this) ));
+			// Monitors when vault files are removed (in or out of Obsidian)
+			plugin.registerEvent(plugin.app.vault.on(
+				"delete",
+				this.onAnyFileAddedOrRemoved.bind(this) ));
+		});
 	}
 
-	onFileModified(file)
+	onAnyFileModified(file)
 	{
-		if (file.path == this.currentFile)
+		if (file.path == this.activeFilesName)
 		{
-			this.currentFileIsModified = true;
+			this.isActiveFileModified = true;
 		}
 	}
 
 	onActiveLeafChange(leaf)
 	{
-		if (this.files.hasOwnProperty(this.currentFile) &&
+		if (this.files.hasOwnProperty(this.activeFilesName) &&
 		    ((this.monitorType == DfcMonitorType.OnChange &&
-		      this.currentFileIsModified) ||
+		      this.isActiveFileModified) ||
 		     (this.monitorType == DfcMonitorType.OnTouch)))
 		{
 			this.refresh(true);
 		}
-		this.currentFileIsModified = false;
-		this.currentFile = leaf.workspace.getActiveFile()?.path ?? "";
+
+		// Update Dfc state to monitor the new active file
+		this.isActiveFileModified = false;
+		this.activeFilesName = leaf.workspace.getActiveFile()?.path ?? "";
 	}
 
-	onFileAddedOrRemoved(file)
+	onAnyFileAddedOrRemoved(file)
 	{
 		if (this.files.hasOwnProperty(file.path))
 		{
@@ -1344,6 +1356,8 @@ class Dfc
 		}
 	}
 
+	// Pass in a new list of shortcut-files.  The Dfc's list is updated to
+	// match.  If this changes the Dfc's list, the refresh callback is called.
 	updateFileList(newFileList, forceRefresh)
 	{
 		let hasChanged = false;
@@ -1368,6 +1382,8 @@ class Dfc
 		this.refresh(hasChanged || forceRefresh);
 	}
 
+	// Calls the refresh callback, either when asked to ("forceRefresh") or because one
+	// of the monitored files has changed its modified date.
 	refresh(forceRefresh)
 	{
 		this.plugin.app.workspace.onLayoutReady(async () =>
