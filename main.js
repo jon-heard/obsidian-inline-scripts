@@ -179,7 +179,12 @@ const TextExpanderJsPlugin = (function(_super)
 	TextExpanderJsPlugin.prototype.tryShortcutExpansion = function() {
 		setTimeout(() =>
 		{
-			let editor = this.app.workspace.activeLeaf.view.editor;
+			const view = this.app.workspace.getActiveViewOfType(obsidian.MarkdownView);
+			if (!view)
+			{
+				return;
+			}
+			const editor = view.editor;
 
 			// Find bounds of the shortcut beneath the caret (if there is one)
 			const cursor = editor.getCursor();
