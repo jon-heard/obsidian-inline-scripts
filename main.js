@@ -632,7 +632,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			this.formattingErrMsgContent.innerText = err;
 			return false;
 		}
-	};
+	}
 
 
 	display()
@@ -1385,7 +1385,7 @@ class Dfc
 			}
 		});
 	}
-};
+}
 
 let DfcMonitorType =
 	{ None: "None", OnChange: "OnChange", OnTouch: "OnTouch" };
