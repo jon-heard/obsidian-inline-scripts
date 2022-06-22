@@ -455,7 +455,6 @@ const TextExpanderJsPlugin = (function(_super)
 		this.shortcuts = this.parseShortcutFile("Settings", this.settings.shortcuts);
 		// Add a helper-block to segment helper scripts
 		this.shortcuts.push({});
-
 		// Go over all shortcut-files
 		for (const filename of this.settings.shortcutFiles)
 		{
@@ -509,7 +508,7 @@ const TextExpanderJsPlugin = (function(_super)
 			"\\n\\n\";"
 
 		// Put generic "help" shortcut in line first so it can't be short-circuited
-		this.shortcuts.unshift({ test: "^help$", expansion: helpExpansion });
+		this.shortcuts.unshift({ test: new RegExp("^help$"), expansion: helpExpansion });
 	};
 
 	// This function is passed into all Expansion scripts to allow them to run shell commands
@@ -1313,12 +1312,16 @@ const Dfc = (function()
 		plugin.registerEvent(plugin.app.workspace.on(
 			"active-leaf-change",
 			this.onActiveLeafChange.bind(this)));
-		plugin.registerEvent(plugin.app.vault.on(
-			"create",
-			this.onFileAddedOrRemoved.bind(this) ));
-		plugin.registerEvent(plugin.app.vault.on(
-			"delete",
-			this.onFileAddedOrRemoved.bind(this) ));
+
+		this.plugin.app.workspace.onLayoutReady(async () =>
+		{
+			plugin.registerEvent(plugin.app.vault.on(
+				"create",
+				this.onFileAddedOrRemoved.bind(this) ));
+			plugin.registerEvent(plugin.app.vault.on(
+				"delete",
+				this.onFileAddedOrRemoved.bind(this) ));
+		});
 
 		// Maintain the current active file, so that when "active-leaf-change" hits
 		// (i.e. a new active file) you can still refererence the prior active file
@@ -1389,34 +1392,37 @@ const Dfc = (function()
 
 	Dfc.prototype.refresh = function(forceRefresh)
 	{
-		let hasChanged = false;
-
-		// If forceRefresh, then we know we're going to call refreshFnc, but we
-		// still need to keep the modDate tracking up to date.
-		for (const filename in this.files)
+		this.plugin.app.workspace.onLayoutReady(async () =>
 		{
-			const file = this.plugin.app.vault.fileMap[filename];
-			// File exists: see if we need to update the data on it and do so
-			if (file)
+			let hasChanged = false;
+
+			// If forceRefresh, then we know we're going to call refreshFnc, but we
+			// still need to keep the modDate tracking up to date.
+			for (const filename in this.files)
 			{
-				if (this.files[filename].modDate < file.stat.mtime)
+				const file = this.plugin.app.vault.fileMap[filename];
+				// File exists: see if we need to update the data on it and do so
+				if (file)
 				{
-					this.files[filename].modDate = file.stat.mtime;
+					if (this.files[filename].modDate < file.stat.mtime)
+					{
+						this.files[filename].modDate = file.stat.mtime;
+						hasChanged = true;
+					}
+				}
+				// File doesn't exist, but there's stored data on it: clear data
+				else if (this.files[filename].modDate != Number.MIN_SAFE_INTEGER)
+				{
+					this.files[filename].modDate = Number.MIN_SAFE_INTEGER;
 					hasChanged = true;
 				}
 			}
-			// File doesn't exist, but there's stored data on it: clear data
-			else if (this.files[filename].modDate != Number.MIN_SAFE_INTEGER)
-			{
-				this.files[filename].modDate = Number.MIN_SAFE_INTEGER;
-				hasChanged = true;
-			}
-		}
 
-		if ((hasChanged || forceRefresh) && this.refreshFnc)
-		{
-			this.refreshFnc();
-		}
+			if ((hasChanged || forceRefresh) && this.refreshFnc)
+			{
+				this.refreshFnc();
+			}
+		});
 	};
 
 	Dfc.MonitorType =

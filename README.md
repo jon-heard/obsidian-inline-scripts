@@ -429,6 +429,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.16.3
+- bug fix: app was glitching out at start due to not waiting for system to be ready before pulling files
+
 ### 0.16.2
 - Code polish (for passing review quickly)
 
