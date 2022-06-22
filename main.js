@@ -76,10 +76,6 @@ const TextExpanderJsPlugin = (function(_super)
 
 	TextExpanderJsPlugin.prototype.onload = async function()
 	{
-		// Determine plugin title
-		this.title = this.manifest.name;
-		this.version = this.manifest.version;
-
 		// Determine platform
 		IS_MOBILE = this.app.isMobile;
 		IS_WINDOWS = navigator.appVersion.contains("Windows");
@@ -684,7 +680,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		};
 
 
-		c.createEl("div", { text: this.plugin.version, cls: "tejs_version" });
+		c.createEl("div", { text: this.plugin.manifest.version, cls: "tejs_version" });
 		c.createEl("h2", { text: "Shortcut Sources" });
 
 		////////////////////
@@ -951,7 +947,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 					      "malicious shortcuts" });
 		}
 
-		c.createEl("div", { text: this.plugin.version, cls: "tejs_version" });
+		c.createEl("div", { text: this.plugin.manifest.version, cls: "tejs_version" });
 	};
 
 	// THIS is where settings are saved!
