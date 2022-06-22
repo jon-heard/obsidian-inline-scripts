@@ -429,6 +429,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.16.2
+- Code polish (for passing review quickly)
+
 ### 0.16.1
 - Code polish (for passing review quickly)
 

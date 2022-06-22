@@ -2,10 +2,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// NOTE: The "Text Expander JS" plugin uses a custom format for shortcut-file data.  I tried using
+// NOTE: The "Text Expander JS" plugin uses a custom format for shortcut-files.  I tried using
 // existing formats (json, xml, etc), but they were cumbersome for developing javascript code in.
-// The chosen format is simple, readable, and allows for wrapping scripts in js-fenced-code-blocks.
-// This makes it easy to write code within Obsidian which is, ultimately, my intended use-case.
+// The chosen format is simple, flexible, and allows for wrapping scripts in js-fenced-code-blocks.
+// This makes it easy to write Expansion scripts within Obsidian which is the intended use-case.
 //
 // For a summary of the format, see here:
 // https://github.com/jon-heard/obsidian-text-expander-js#tutorial-create-a-new-shortcut-file
@@ -449,7 +449,7 @@ const TextExpanderJsPlugin = (function(_super)
 	};
 
 	// Creates all shortcuts based on shortcut lists from shortcut-files and settings
-	TextExpanderJsPlugin.prototype.setupShortcuts = function()
+	TextExpanderJsPlugin.prototype.setupShortcuts = async function()
 	{
 		// Add shortcuts defined directly in the settings
 		this.shortcuts = this.parseShortcutFile("Settings", this.settings.shortcuts);
@@ -459,7 +459,9 @@ const TextExpanderJsPlugin = (function(_super)
 		// Go over all shortcut-files
 		for (const filename of this.settings.shortcutFiles)
 		{
-			const content = this.shortcutDfc.files[filename].content;
+			const file = this.app.vault.fileMap[filename];
+			if (!file) { continue; }
+			const content = await this.app.vault.cachedRead(file);
 
 			// If shortcut-file has no content, it's missing.
 			if (content == null)
@@ -1008,7 +1010,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		{
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
-				if (newShortcuts[i].test != oldShortcuts[i].test ||
+				if (newShortcuts[i].test.source != oldShortcuts[i].test.source ||
 				    newShortcuts[i].expansion != oldShortcuts[i].expansion)
 				{
 					forceRefreshShortcuts = true;
@@ -1305,12 +1307,21 @@ const Dfc = (function()
 		this.refreshFnc = refreshFnc;
 		this.monitorType = monitorType;
 
-		plugin.registerEvent(plugin.app.vault.on("modify", () =>
-		{
-			this.currentFileIsModified = true;
-		}));
+		plugin.registerEvent(plugin.app.vault.on(
+			"modify",
+			this.onFileModified.bind(this) ));
 		plugin.registerEvent(plugin.app.workspace.on(
-			"active-leaf-change", this.onActiveLeafChange.bind(this)));
+			"active-leaf-change",
+			this.onActiveLeafChange.bind(this)));
+		plugin.registerEvent(plugin.app.vault.on(
+			"create",
+			this.onFileAddedOrRemoved.bind(this) ));
+		plugin.registerEvent(plugin.app.vault.on(
+			"delete",
+			this.onFileAddedOrRemoved.bind(this) ));
+
+		// Maintain the current active file, so that when "active-leaf-change" hits
+		// (i.e. a new active file) you can still refererence the prior active file
 		this.currentFile = plugin.app.workspace.getActiveFile()?.path ?? "";
 
 		// The given refreshFnc might expect that this new dfc is returned to a var.
@@ -1323,6 +1334,14 @@ const Dfc = (function()
 		return this;
 	}
 
+	Dfc.prototype.onFileModified = function(file)
+	{
+		if (file.path == this.currentFile)
+		{
+			this.currentFileIsModified = true;
+		}
+	};
+
 	Dfc.prototype.onActiveLeafChange = function(leaf)
 	{
 		if (this.files.hasOwnProperty(this.currentFile) &&
@@ -1334,6 +1353,14 @@ const Dfc = (function()
 		}
 		this.currentFileIsModified = false;
 		this.currentFile = leaf.workspace.getActiveFile()?.path ?? "";
+	};
+
+	Dfc.prototype.onFileAddedOrRemoved = function(file)
+	{
+		if (this.files.hasOwnProperty(file.path))
+		{
+			this.refresh(true);
+		}
 	};
 
 	Dfc.prototype.updateFileList = function(newFileList, forceRefresh)
@@ -1352,8 +1379,7 @@ const Dfc = (function()
 			if (!this.files.hasOwnProperty(newFile))
 			{
 				this.files[newFile] = {
-					modDate: Number.MIN_SAFE_INTEGER,
-					content: null
+					modDate: Number.MIN_SAFE_INTEGER
 				};
 				hasChanged = true;
 			}
@@ -1363,43 +1389,34 @@ const Dfc = (function()
 
 	Dfc.prototype.refresh = function(forceRefresh)
 	{
-		this.plugin.app.workspace.onLayoutReady(async () =>
-		{
-			let hasChanged = false;
+		let hasChanged = false;
 
-			for (lconst filename in this.files)
+		// If forceRefresh, then we know we're going to call refreshFnc, but we
+		// still need to keep the modDate tracking up to date.
+		for (const filename in this.files)
+		{
+			const file = this.plugin.app.vault.fileMap[filename];
+			// File exists: see if we need to update the data on it and do so
+			if (file)
 			{
-				const file = this.plugin.app.vault.fileMap[filename];
-				// File exists: see if we need to update the data on it and do so
-				if (file)
+				if (this.files[filename].modDate < file.stat.mtime)
 				{
-					if (this.files[filename].modDate < file.stat.mtime)
-					{
-						// Update the stored data for the file
-						this.files[filename] = {
-							modDate: file.stat.mtime,
-							content: await
-								this.plugin.app.vault.read(file)
-						};
-						hasChanged = true;
-					}
-				}
-				// File doesn't exist, but there's stored data on it: clear data
-				else if (this.files[filename].content)
-				{
-					this.files[filename] = {
-						modDate: Number.MIN_SAFE_INTEGER,
-						content: null
-					};
+					this.files[filename].modDate = file.stat.mtime;
 					hasChanged = true;
 				}
 			}
-
-			if ((hasChanged || forceRefresh) && this.refreshFnc)
+			// File doesn't exist, but there's stored data on it: clear data
+			else if (this.files[filename].modDate != Number.MIN_SAFE_INTEGER)
 			{
-				this.refreshFnc();
+				this.files[filename].modDate = Number.MIN_SAFE_INTEGER;
+				hasChanged = true;
 			}
-		});
+		}
+
+		if ((hasChanged || forceRefresh) && this.refreshFnc)
+		{
+			this.refreshFnc();
+		}
 	};
 
 	Dfc.MonitorType =
