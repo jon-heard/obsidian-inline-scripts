@@ -36,8 +36,8 @@ const DEFAULT_SETTINGS =
 	,
 	prefix: ";;",
 	suffix: ";",
-	allowExternal: false,
-	devMode: false
+	devMode: false,
+	allowExternal: false
 };
 const DEFAULT_SETTINGS_MOBILE =
 {
@@ -47,6 +47,7 @@ const DEFAULT_SETTINGS_MOBILE =
 const LONG_NOTE_TIME = 8 * 1000;
 const INDENT = " ".repeat(4);
 const HELP_SHORCTUT_REGEX = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
+const LIBRARY_README_SHORTCUT_FILE_REGEX = new RegExp(/### tejs_[_a-zA-Z0-9]+\n/g);
 
 // These are set when the plugin starts
 let IS_MOBILE = false;
@@ -275,7 +276,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		if (isUserTriggered || !this.expansionErrorHandlerStack.length)
 		{
 			// ASSERT - This should never be true
-			if (!isUserTriggered || this.expansionErrorHandlerStack.length > 0)
+			if (this.expansionErrorHandlerStack.length > 0)
 			{
 				let msg =
 					"Stack was off by " +
@@ -299,7 +300,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		if (isUserTriggered || !this.expansionErrorHandlerStack.length)
 		{
 			// ASSERT - This should never be true
-			if (!isUserTriggered || this.expansionErrorHandlerStack.length > 0)
+			if (this.expansionErrorHandlerStack.length > 0)
 			{
 				let msg =
 					"Stack was off by " +
@@ -671,8 +672,9 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			p.insertBefore(p.childNodes[index], p.childNodes[index - 1]);
 		};
 
-
+		// App version (in header)
 		c.createEl("div", { text: this.plugin.manifest.version, cls: "tejs_version" });
+
 		c.createEl("h2", { text: "Shortcut Sources" });
 
 		////////////////////
@@ -836,9 +838,9 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 					e.value = shortcut.expansion;
 				}
 		};
+		// Add a shortcut ui item for each shortcut in settings
 		const shortcuts = this.plugin.parseShortcutFile(
 			"Settings", this.tmpSettings.shortcuts, true);
-		// Add a shortcut ui item for each shortcut in settings
 		for (const shortcut of shortcuts)
 		{
 			addShortcutUi(shortcut);
@@ -848,22 +850,18 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		// SHORTCUT FORMAT //
 		/////////////////////
 		c.createEl("h2", { text: "Shortcut format" });
-		let shortcutExample = null;
-		const refreshShortcutExample = () =>
-		{
-			shortcutExample.innerText =
-				this.tmpSettings.prefix +
-				"D100" +
-				this.tmpSettings.suffix;
-		};
+
+		// A ui for showing errors in shortcut format settings
 		this.formattingErrMsgContainer =
 			c.createEl("div", { cls: "tejs_errMsgContainer" });
 		const errMsgTitle = this.formattingErrMsgContainer.createEl(
 			"span", { text: "ERROR", cls: "tejs_errMsgTitle" });
 		this.formattingErrMsgContent = this.formattingErrMsgContainer.createEl("span");
+
+		// Prefix
 		new obsidian.Setting(c)
 			.setName("Prefix")
-			.setDesc("What to type before a shortcut.")
+			.setDesc("What to type BEFORE a shortcut.")
 			.addText((text) =>
 			{
 				return text
@@ -877,9 +875,11 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 					});
 			})
 			.settingEl.toggleClass("tejs_settingBundledTop", !IS_MOBILE);
+
+		// Suffix
 		new obsidian.Setting(c)
 			.setName("Suffix")
-			.setDesc("What to type after a shortcut.")
+			.setDesc("What to type AFTER a shortcut.")
 			.addText((text) =>
 			{
 				return text
@@ -893,6 +893,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 					});
 			})
 			.settingEl.toggleClass("tejs_settingBundled", !IS_MOBILE);
+
+		// Example
 		const exampleOuter = c.createEl("div", { cls: "setting-item" });
 			exampleOuter.toggleClass("tejs_settingBundled", !IS_MOBILE);
 		const exampleInfo = exampleOuter.createEl("div", { cls: "setting-item-info" });
@@ -904,13 +906,22 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		});
 		const exampleItemControl =
 			exampleOuter.createEl("div", { cls: "setting-item-control" });
-		shortcutExample = exampleItemControl.createEl("div", { cls: "tejs_labelControl" });
+		let shortcutExample = exampleItemControl.createEl("div", { cls: "tejs_labelControl" });
+		const refreshShortcutExample = () =>
+		{
+			shortcutExample.innerText =
+				this.tmpSettings.prefix +
+				"D100" +
+				this.tmpSettings.suffix;
+		};
 		refreshShortcutExample();
 
 		////////////////////
 		// OTHER SETTINGS //
 		////////////////////
 		c.createEl("h2", { text: "Other Settings" });
+
+		// Developer mode
 		new obsidian.Setting(c)
 			.setName("Developer mode")
 			.setDesc("Shortcut-files are monitored for updates if this is on.")
@@ -923,6 +934,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 						this.tmpSettings.devMode = value;
 					});
 			});
+
+		// Allow external (not available on mobile)
 		if (!IS_MOBILE)
 		{
 			new obsidian.Setting(c)
@@ -943,6 +956,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 					      "malicious shortcuts" });
 		}
 
+		// App version (in footer)
 		c.createEl("div", { text: this.plugin.manifest.version, cls: "tejs_version" });
 	}
 
@@ -952,7 +966,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		// Get shortcut-files list
 		this.tmpSettings.shortcutFiles = this.getShortcutReferencesFromUi();
 
-		// Build Shortcuts string from UI
+		// Build Shortcuts setting from UI (a string in Shortcut-file format)
 		let shortcuts = this.getShortcutsFromUi();
 		this.tmpSettings.shortcuts = "";
 		for (const shortcut of shortcuts)
@@ -962,14 +976,16 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 				"~~\n" + shortcut.expansion + "\n";
 		}
 
-		// If changes to shortcuts, "force" is set.  Start with different lengths.
+		// If the shortcut setting was changed, set the "forceRefreshShortcuts" variable.
+		// Start easy: check for a change in the number of shortcuts in the setting.
 		const oldShortcuts =
 			this.plugin.parseShortcutFile("", this.plugin.settings.shortcuts, true);
 		const newShortcuts =
 			this.plugin.parseShortcutFile("", this.tmpSettings.shortcuts, true);
 		let forceRefreshShortcuts = (newShortcuts.length != oldShortcuts.length);
 
-		// If shortcut lists have same lengths, check shortcut contents
+		// If old & new shortcut settings have the same shortcut count, check each
+		// individual shortcut for a change between old and new
 		if (!forceRefreshShortcuts)
 		{
 			for (let i = 0; i < newShortcuts.length; i++)
@@ -983,30 +999,34 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			}
 		}
 
-		// Only keep new prefix & suffix if they have no errors
+		// If the new settings for prefix & suffix have errors in them, revert to the old
+		// settings.
 		if (!this.checkFormatValid())
 		{
 			this.tmpSettings.prefix = this.plugin.settings.prefix;
 			this.tmpSettings.suffix = this.plugin.settings.suffix;
 		}
 
-		// Dev mode
+		// Dev mode - update setting from ui
 		this.plugin.shortcutDfc.monitorType =
 			this.tmpSettings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.None;
 
-		// Store new settings
+		// Copy the old settings into the new settings
 		this.plugin.settings = this.tmpSettings;
 
-		// Do AFTER plugin.settings are updated, since plugin.settings are used in refresh
+		// Update the shortcut-files list data.  This needs to happen After the copy above
 		this.plugin.shortcutDfc.updateFileList(
 			this.plugin.settings.shortcutFiles, forceRefreshShortcuts);
 
+		// Keep track of the last character in the shortcut suffix
 		this.plugin.suffixEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
+
+		// Store the settings to file
 		this.plugin.saveSettings();
 	}
 
-	// Get shortcut-files list from UI
+	// Create a shortcut-files list from the shortcut-files UI
 	getShortcutReferencesFromUi()
 	{
 		let result = [];
@@ -1021,7 +1041,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		return result;
 	}
 
-	// Get shortcuts list from UI
+	// Create a shortcuts list from the shortcuts UI
 	getShortcutsFromUi()
 	{
 		let result = [];
@@ -1039,7 +1059,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		return result;
 	}
 
-	// Takes a list of shortcuts, and removes them from the ui list, if they are there
+	// Takes a list of shortcuts, and removes them from the ui, if they are there.
 	removeShortcutsFromUi(shortcuts)
 	{
 		let toRemove = [];
@@ -1068,7 +1088,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		}
 	}
 
-	// Called when user clicks "Import full library" button and accepting confirmation
+	// Called when user clicks "Import full library" button
 	async importFullLibrary()
 	{
 		const ADDRESS_REMOTE =
@@ -1077,17 +1097,17 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		const ADDRESS_LOCAL = "tejs";
 		const FILE_README = "README.md";
 
-		// Need to manually disable input until this process is finished
-		// (due to asynchronous downloading not blocking it)
+		// Need to manually disable user-input until this process is finished
+		// (due to asynchronous downloading not blocking user-input directly)
 		this.plugin.addInputBlock();
 
-		// Get shortcut-file list from library readme
+		// Get shortcut-file list from library's readme on github
 		let shortcutFiles = await request({
 			url: ADDRESS_REMOTE + "/" + FILE_README,
 			method: "GET", cache: "no-cache"
 		});
 		shortcutFiles =
-			shortcutFiles.match(/### tejs_[_a-zA-Z0-9]+\n/g).
+			shortcutFiles.match(LIBRARY_README_SHORTCUT_FILE_REGEX).
 			map(s => s.substring(4, s.length-1));
 
 		// Figure out library destination.  By default this is ADDRESSS_LOCAL.

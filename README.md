@@ -429,6 +429,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.16.6
+- Polish code - minor fixes for review
+
 ### 0.16.5
 - Polish code - minor fixes for review
 
