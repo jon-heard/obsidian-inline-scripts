@@ -115,10 +115,9 @@ const TextExpanderJsPlugin = (function(_super)
 		this._runExternal = this.runExternal.bind(this);
 
 		// Setup a dfc to monitor shortcut-file notes.
-		dfc.setup(this);
-		this.shortcutDfc = dfc.create(
-			this.settings.shortcutFiles, this.setupShortcuts.bind(this),
-			this.settings.devMode);
+		this.shortcutDfc = new Dfc(
+			this, this.settings.shortcutFiles, this.setupShortcuts.bind(this),
+			this.settings.devMode ? Dfc.MonitorType.OnTouch : Dfc.MonitorType.None);
 
 		// Connect "code mirror 5" instances to this plugin to trigger expansions
 		this.registerCodeMirror(
@@ -282,7 +281,9 @@ const TextExpanderJsPlugin = (function(_super)
 		if (expansionText === null)
 		{
 			let msg = "Shortcut unidentified:\n" + INDENT + text;
-			this.notifyUser(msg, "", msg, false, true);
+			this.notifyUser(
+				"Shortcut unidentified:\n" + INDENT + text, "",
+				"Shortcut unidentified:\n" + text, false, true);
 		}
 
 		return expansionText;
@@ -458,6 +459,7 @@ const TextExpanderJsPlugin = (function(_super)
 		for (let filename of this.settings.shortcutFiles)
 		{
 			const content = this.shortcutDfc.files[filename].content;
+
 			// If shortcut-file has no content, it's missing.
 			if (content == null)
 			{
@@ -999,17 +1001,17 @@ const TextExpanderJsPluginSettings = (function(_super)
 			this.plugin.parseShortcutFile("", this.plugin.settings.shortcuts, true);
 		const newShortcuts =
 			this.plugin.parseShortcutFile("", this.tmpSettings.shortcuts, true);
-		let force = (newShortcuts.length != oldShortcuts.length);
+		let forceRefreshShortcuts = (newShortcuts.length != oldShortcuts.length);
 
 		// If shortcut lists have same lengths, check shortcut contents
-		if (!force)
+		if (!forceRefreshShortcuts)
 		{
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
 				if (newShortcuts[i].test != oldShortcuts[i].test ||
 				    newShortcuts[i].expansion != oldShortcuts[i].expansion)
 				{
-					force = true;
+					forceRefreshShortcuts = true;
 					break;
 				}
 			}
@@ -1023,12 +1025,16 @@ const TextExpanderJsPluginSettings = (function(_super)
 		}
 
 		// Dev mode
-		this.plugin.shortcutDfc.isMonitored = this.tmpSettings.devMode;
+		this.plugin.shortcutDfc.monitorType =
+			this.tmpSettings.devMode ? Dfc.MonitorType.OnTouch : Dfc.MonitorType.None;
 
 		// Store new settings
 		this.plugin.settings = this.tmpSettings;
-		dfc.updateFiles(	// Must do this AFTER plugin.settings is updated
-			this.plugin.shortcutDfc, this.tmpSettings.shortcutFiles, force);
+
+		// Do AFTER plugin.settings are updated, since plugin.settings are used in refresh
+		this.plugin.shortcutDfc.updateFileList(
+			this.plugin.settings.shortcutFiles, forceRefreshShortcuts);
+
 		this.plugin.suffixEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
 		this.plugin.saveSettings();
@@ -1234,13 +1240,15 @@ const TextExpanderJsPluginSettings = (function(_super)
 const ConfirmDialogBox = (function(_super)
 {
 	__extends(ConfirmDialogBox, _super);
-	function ConfirmDialogBox(app, message, callback) {
+	function ConfirmDialogBox(app, message, callback)
+	{
 		const result = _super.call(this, app) || this;
 		this.message = message;
 		this.callback = callback;
 		return result;
 	}
-	ConfirmDialogBox.prototype.onOpen = function ()
+
+	ConfirmDialogBox.prototype.onOpen = function()
 	{
 		// Using innerHTML to allow <br/> linebreaks in confirm message
 		this.titleEl.innerHTML = this.message;
@@ -1269,10 +1277,12 @@ const ConfirmDialogBox = (function(_super)
 			})
 			.settingEl.style.padding = "0";
 	};
-	ConfirmDialogBox.prototype.onClose = function ()
+
+	ConfirmDialogBox.prototype.onClose = function()
 	{
 		this.contentEl.empty();
 	};
+
 	return ConfirmDialogBox;
 }(obsidian.Modal));
 
@@ -1280,124 +1290,120 @@ const ConfirmDialogBox = (function(_super)
 // Dynamic File Content (dfc) - Maintain a list of files to (optionally) monitor for updates
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const dfc = {
-	instances: [],
-	hasEditorSaved: false,
-	plugin: null,
-	currentFile: null,
-
-	setup: function(plugin)
+const Dfc = (function()
+{
+	function Dfc(plugin, filenames, refreshFnc, monitorType)
 	{
-		dfc.plugin = plugin;
-		plugin.registerEvent(
-			plugin.app.vault.on("modify", () => { dfc.hasEditorSaved = true; }));
-		plugin.registerEvent(
-			plugin.app.workspace.on("active-leaf-change", dfc.onActiveLeafChange));
+		this.plugin = plugin;
+		this.currentFile = "";
+		this.currentFileIsModified = false;
 
-		dfc.currentFile = plugin.app.workspace.getActiveFile()?.path ?? dfc.currentFile;
-	},
+		this.files = {};
+		this.refreshFnc = refreshFnc;
+		this.monitorType = monitorType;
 
-	onActiveLeafChange: function(leaf)
-	{
-		// In practice, it's easier to recalculate even on no changes.  This allows user to
-		// see an error without needing to make token changes.
-		if (dfc.hasEditorSaved || true)
+		plugin.registerEvent(plugin.app.vault.on("modify", () =>
 		{
-			for (let dfcInstance of dfc.instances)
-			{
-				const instance = dfcInstance;
-				if (instance.isMonitored &&
-				    instance.files.hasOwnProperty(dfc.currentFile))
-				{
-					dfc.refreshInstance(dfcInstance);
-				}
-			}
-		}
-		dfc.hasEditorSaved = false;
-		const activeFile = leaf.workspace.getActiveFile();
-		dfc.currentFile = activeFile ? activeFile.path : "";
-	},
+			this.currentFileIsModified = true;
+		}));
+		plugin.registerEvent(plugin.app.workspace.on(
+			"active-leaf-change", this.onActiveLeafChange.bind(this)));
+		this.currentFile = plugin.app.workspace.getActiveFile()?.path ?? "";
 
-	create: function(filenames, onChangeCallback, isMonitored)
-	{
-		const result = {
-			files: {},
-			onChange: onChangeCallback,
-			isMonitored: isMonitored
-		};
-
-		// Delay final steps to allow assignment of return value before refreshing
+		// The given refreshFnc might expect that this new dfc is returned to a var.
+		// Make sure it is returned and assigned before triggering refreshFnc.
 		setTimeout(() =>
 		{
-			dfc.updateFiles(result, filenames, true);
-			dfc.instances.push(result);
+			this.updateFileList(filenames);
 		}, 0);
 
-		return result;
-	},
+		return this;
+	}
 
-	updateFiles: function(instance, newFileList, force)
+	Dfc.prototype.onActiveLeafChange = function(leaf)
+	{
+		if (this.files.hasOwnProperty(this.currentFile) &&
+		    ((this.monitorType == Dfc.MonitorType.OnChange &&
+		      this.currentFileIsModified) ||
+		     (this.monitorType == Dfc.MonitorType.OnTouch)))
+		{
+			this.refresh(true);
+		}
+		this.currentFileIsModified = false;
+		this.currentFile = leaf.workspace.getActiveFile()?.path ?? "";
+	};
+
+	Dfc.prototype.updateFileList = function(newFileList, forceRefresh)
 	{
 		let hasChanged = false;
-		for (let filename in instance.files)
+		for (let filename in this.files)
 		{
 			if (!newFileList.contains(filename))
 			{
-				delete instance.files[filename];
+				delete this.files[filename];
 				hasChanged = true;
 			}
 		}
 		for (let newFile of newFileList)
 		{
-			if (!instance.files.hasOwnProperty(newFile))
+			if (!this.files.hasOwnProperty(newFile))
 			{
-				instance.files[newFile] = {
+				this.files[newFile] = {
 					modDate: Number.MIN_SAFE_INTEGER,
 					content: null
 				};
 				hasChanged = true;
 			}
 		}
-		dfc.refreshInstance(instance, hasChanged || force);
-	},
+		this.refresh(hasChanged || forceRefresh);
+	};
 
-	refreshInstance: function(instance, force)
+	Dfc.prototype.refresh = function(forceRefresh)
 	{
-		dfc.plugin.app.workspace.onLayoutReady(async () =>
+		this.plugin.app.workspace.onLayoutReady(async () =>
 		{
 			let hasChanged = false;
 
-			for (let filename in instance.files)
+			for (let filename in this.files)
 			{
-				const file = dfc.plugin.app.vault.fileMap[filename];
+				const file = this.plugin.app.vault.fileMap[filename];
+				// File exists: see if we need to update the data on it and do so
 				if (file)
 				{
-					if (instance.files[filename].modDate < file.stat.mtime ||
-					    force)
+					if (this.files[filename].modDate < file.stat.mtime)
 					{
-						instance.files[filename] = {
+						// Update the stored data for the file
+						this.files[filename] = {
 							modDate: file.stat.mtime,
 							content: await
-								dfc.plugin.app.vault.read(file)
+								this.plugin.app.vault.read(file)
 						};
+						hasChanged = true;
 					}
-					hasChanged = true;
 				}
-				else if (instance.files[filename].content)
+				// File doesn't exist, but there's stored data on it: clear data
+				else if (this.files[filename].content)
 				{
-					instance.files[filename].modDate = Number.MIN_SAFE_INTEGER;
-					instance.files[filename].content = null;
+					this.files[filename] = {
+						modDate: Number.MIN_SAFE_INTEGER,
+						content: null
+					};
 					hasChanged = true;
 				}
 			}
 
-			if ((hasChanged || force) && instance.onChange)
+			if ((hasChanged || forceRefresh) && this.refreshFnc)
 			{
-				instance.onChange(instance);
+				this.refreshFnc();
 			}
 		});
-	}
-};
+	};
+
+	Dfc.MonitorType =
+		{ None: "None", OnChange: "OnChange", OnTouch: "OnTouch" };
+
+	return Dfc;
+}());
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

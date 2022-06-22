@@ -429,6 +429,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.16.1
+- Code polish (for passing review quickly)
+
 ### 0.16.0
 - Add defaults - doesn't allow duplicating default shortcuts that are already in the list.  Removes preexisting defaults from list, then append all defaults to list.
 - __Text Expander JS__ plugin version shows at top and bottom of settings
