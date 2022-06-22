@@ -57,39 +57,14 @@ Object.freeze(DEFAULT_SETTINGS_MOBILE);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Boilerplate code (coming from typescript)
-const extendStatics = function(d, b)
+class TextExpanderJsPlugin extends obsidian.Plugin
 {
-	const extendStatics =
-		Object.setPrototypeOf ||
-		({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-		function (d, b)
-		{
-			for (let p in b)
-				if (Object.prototype.hasOwnProperty.call(b, p))
-					d[p] = b[p];
-		};
-	return extendStatics(d, b);
-};
-const __extends = function(d, b)
-{
-	extendStatics(d, b);
-	function __() { this.constructor = d; }
-	d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-const TextExpanderJsPlugin = (function(_super)
-{
-	__extends(TextExpanderJsPlugin, _super);
-	function TextExpanderJsPlugin()
+	saveSettings()
 	{
-		return _super !== null && _super.apply(this, arguments) || this;
+		this.saveData(this.settings);
 	}
-	TextExpanderJsPlugin.prototype.saveSettings = function() { this.saveData(this.settings); };
 
-	TextExpanderJsPlugin.prototype.onload = async function()
+	async onload()
 	{
 		// Determine platform
 		IS_MOBILE = this.app.isMobile;
@@ -118,7 +93,7 @@ const TextExpanderJsPlugin = (function(_super)
 		// Setup a dfc to monitor shortcut-file notes.
 		this.shortcutDfc = new Dfc(
 			this, this.settings.shortcutFiles, this.setupShortcuts.bind(this),
-			this.settings.devMode ? Dfc.MonitorType.OnTouch : Dfc.MonitorType.None);
+			this.settings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.None);
 
 		// Connect "code mirror 5" instances to this plugin to trigger expansions
 		this.registerCodeMirror(
@@ -136,9 +111,9 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Log starting the plugin
 		this.notifyUser("Loaded (" + this.manifest.version + ")");
-	};
+	}
 
-	TextExpanderJsPlugin.prototype.onunload = function()
+	onunload()
 	{
 		// Disconnect "code mirror 5" instances from this plugin
 		this.app.workspace.iterateCodeMirrors(
@@ -146,20 +121,20 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Log ending the plugin
 		this.notifyUser("Unloaded (" + this.manifest.version + ")");
-	};
+	}
 
 
 	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt
-	TextExpanderJsPlugin.prototype.cm5_handleExpansionTrigger = function(cm, keydown)
+	cm5_handleExpansionTrigger(cm, keydown)
 	{
 		if (event.key == this.suffixEndCharacter)
 		{
 			this.tryShortcutExpansion();
 		}
-	};
+	}
 
 	// CM6 callback for editor events.  Used to kick off shortcut expansion attempt
-	TextExpanderJsPlugin.prototype.cm6_handleExpansionTrigger = function(tr)
+	cm6_handleExpansionTrigger(tr)
 	{
 		// Only bother with key inputs that have changed the document
 		if (!tr.isUserEvent("input.type") || !tr.docChanged) { return tr; }
@@ -182,12 +157,13 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 
 		return tr;
-	};
+	}
 
 	// Tries to get shortcut beneath caret and expand it.  setTimeout pauses for a frame to
 	// give the calling event the opportunity to finish processing.  This is especially
 	// important for CM5, as the typed key isn't in the editor at the time this is called.
-	TextExpanderJsPlugin.prototype.tryShortcutExpansion = function() {
+	tryShortcutExpansion()
+	{
 		setTimeout(() =>
 		{
 			const editor =
@@ -236,7 +212,7 @@ const TextExpanderJsPlugin = (function(_super)
 
 	// Take a shortcut string and return the proper Expansion string.
 	// WARNING: user-facing function
-	TextExpanderJsPlugin.prototype.getExpansion = function(text,  isUserTriggered)
+	getExpansion(text,  isUserTriggered)
 	{
 		if (!text) { return; }
 		let foundMatch = false;
@@ -288,14 +264,13 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 
 		return expansionText;
-	};
+	}
 
 	// Runs an expansion script, including error handling.
 	// NOTE: Error handling is being done through window "error" event, rather than through
 	// exceptions.  This is because exceptions don't provide error line numbers like the error
 	// event does.  Line numbers are important to create the useful "expansion failed" message.
-	TextExpanderJsPlugin.prototype.runExpansionScript =
-		function(expansionScript, isUserTriggered)
+	runExpansionScript(expansionScript, isUserTriggered)
 	{
 		// Prepare for possible Expansion script error
 		if (isUserTriggered)
@@ -339,12 +314,12 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// if shortcut doesn't return anything, better to return "" than undefined
 		return result ?? "";
-	};
+	}
 
 
 	// Called when something goes wrong during shortcut expansion.  Generates a useful
 	// error in the console and notification popup.
-	TextExpanderJsPlugin.prototype.handleExpansionError = function(e)
+	handleExpansionError(e)
 	{
 		// Block default error handling
 		e.preventDefault();
@@ -371,10 +346,10 @@ const TextExpanderJsPlugin = (function(_super)
 		// Clean up script error preparations (now that the error is handled)
 		this.expansionErrorHandlerStack = []; // Error causes nest to unwind.  Clear stack.
 		window.removeEventListener("error", this._handleExpansionError);
-	};
+	}
 
 	// Parses a shortcut-file's contents to produce a list of shortcuts
-	TextExpanderJsPlugin.prototype.parseShortcutFile = function(filename, content, keepFencing)
+	parseShortcutFile(filename, content, keepFencing)
 	{
 		content = content.split("~~").map((v) => v.trim());
 		let result = [];
@@ -446,10 +421,10 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 
 		return result;
-	};
+	}
 
 	// Creates all shortcuts based on shortcut lists from shortcut-files and settings
-	TextExpanderJsPlugin.prototype.setupShortcuts = async function()
+	async setupShortcuts()
 	{
 		// Add shortcuts defined directly in the settings
 		this.shortcuts = this.parseShortcutFile("Settings", this.settings.shortcuts);
@@ -509,11 +484,11 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Put generic "help" shortcut in line first so it can't be short-circuited
 		this.shortcuts.unshift({ test: new RegExp("^help$"), expansion: helpExpansion });
-	};
+	}
 
 	// This function is passed into all Expansion scripts to allow them to run shell commands
 	// WARNING: user-facing function
-	TextExpanderJsPlugin.prototype.runExternal = function(command, silentFail, dontFixSlashes)
+	runExternal(command, silentFail, dontFixSlashes)
 	{
 		if (IS_MOBILE)
 		{
@@ -567,11 +542,10 @@ const TextExpanderJsPlugin = (function(_super)
 			}
 			return null;
 		}
-	};
+	}
 
 	// Adds a notification and/or a console log
-	TextExpanderJsPlugin.prototype.notifyUser = function(
-		consoleMessage, errorType, popupMessage, detailOnConsole, isWarning)
+	notifyUser(consoleMessage, errorType, popupMessage, detailOnConsole, isWarning)
 	{
 		if (consoleMessage)
 		{
@@ -591,10 +565,10 @@ const TextExpanderJsPlugin = (function(_super)
 				(detailOnConsole ? "\n\n(see console for details)" : ""),
 				LONG_NOTE_TIME);
 		}
-	};
+	}
 
 	// Adds a tinted full-screen div to prevent user-input
-	TextExpanderJsPlugin.prototype.addInputBlock = function()
+	addInputBlock()
 	{
 		if (document.getElementById("tejs_inputBlock"))
 		{
@@ -603,39 +577,33 @@ const TextExpanderJsPlugin = (function(_super)
 		let block = document.createElement("div");
 		block.id = "tejs_inputBlock";
 		document.getElementsByTagName("body")[0].prepend(block);
-	};
+	}
 
 	// Removes the tinted full-screen div created by addInputBlock
-	TextExpanderJsPlugin.prototype.removeInputBlock = function()
+	removeInputBlock()
 	{
 		let block = document.getElementById("tejs_inputBlock");
 		if (block) { block.remove(); }
-	};
-
-	return TextExpanderJsPlugin;
-
-}(obsidian.Plugin));
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const TextExpanderJsPluginSettings = (function(_super)
+class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 {
-	__extends(TextExpanderJsPluginSettings, _super);
-
-	function TextExpanderJsPluginSettings(app, plugin)
+	constructor(app, plugin)
 	{
-		const result = _super !== null && _super.apply(this, arguments) || this;
+		super(app, plugin);
 		this.plugin = plugin;
 		this.tmpSettings = null;
 		this.formattingErrMsgContainer = null;
 		this.formattingErrMsgContent = null;
-		return result;
 	}
 
 	// Checks formatting settings for errors:
 	//   - blank prefix or suffix
 	//   - suffix contains prefix (disallowed as it messes up logic)
-	TextExpanderJsPluginSettings.prototype.checkFormatValid = function()
+	checkFormatValid()
 	{
 		let err = "";
 		if (!this.tmpSettings.prefix)
@@ -667,7 +635,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 	};
 
 
-	TextExpanderJsPluginSettings.prototype.display = function()
+	display()
 	{
 		// Clone temporary settings from plugin's settings
 		this.tmpSettings = JSON.parse(JSON.stringify(this.plugin.settings));
@@ -979,10 +947,10 @@ const TextExpanderJsPluginSettings = (function(_super)
 		}
 
 		c.createEl("div", { text: this.plugin.manifest.version, cls: "tejs_version" });
-	};
+	}
 
 	// THIS is where settings are saved!
-	TextExpanderJsPluginSettings.prototype.hide = function()
+	hide()
 	{
 		// Get shortcut-files list
 		this.tmpSettings.shortcutFiles = this.getShortcutReferencesFromUi();
@@ -1027,7 +995,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 
 		// Dev mode
 		this.plugin.shortcutDfc.monitorType =
-			this.tmpSettings.devMode ? Dfc.MonitorType.OnTouch : Dfc.MonitorType.None;
+			this.tmpSettings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.None;
 
 		// Store new settings
 		this.plugin.settings = this.tmpSettings;
@@ -1039,10 +1007,10 @@ const TextExpanderJsPluginSettings = (function(_super)
 		this.plugin.suffixEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
 		this.plugin.saveSettings();
-	};
+	}
 
 	// Get shortcut-files list from UI
-	TextExpanderJsPluginSettings.prototype.getShortcutReferencesFromUi = function()
+	getShortcutReferencesFromUi()
 	{
 		let result = [];
 		for (const shortcutFileUi of this.shortcutFileUis.childNodes)
@@ -1054,10 +1022,10 @@ const TextExpanderJsPluginSettings = (function(_super)
 			}
 		}
 		return result;
-	};
+	}
 
 	// Get shortcuts list from UI
-	TextExpanderJsPluginSettings.prototype.getShortcutsFromUi = function()
+	getShortcutsFromUi()
 	{
 		let result = [];
 		for (const shortcutUi of this.shortcutUis.childNodes)
@@ -1075,7 +1043,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 	}
 
 	// Takes a list of shortcuts, and removes them from the ui list, if they are there
-	TextExpanderJsPluginSettings.prototype.removeShortcutsFromUi = function(shortcuts)
+	removeShortcutsFromUi(shortcuts)
 	{
 		let toRemove = [];
 		for (const shortcutUi of this.shortcutUis.childNodes)
@@ -1104,7 +1072,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 	}
 
 	// Called when user clicks "Import full library" button and accepting confirmation
-	TextExpanderJsPluginSettings.prototype.importFullLibrary = async function()
+	async importFullLibrary()
 	{
 		const ADDRESS_REMOTE =
 			"https://raw.githubusercontent.com/jon-heard/" +
@@ -1230,26 +1198,21 @@ const TextExpanderJsPluginSettings = (function(_super)
 		// Refresh settings ui with the new shortcut-file references
 		this.plugin.removeInputBlock();
 		this.display();
-	};
-
-	return TextExpanderJsPluginSettings;
-
-}(obsidian.PluginSettingTab));
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const ConfirmDialogBox = (function(_super)
+class ConfirmDialogBox extends obsidian.Modal
 {
-	__extends(ConfirmDialogBox, _super);
-	function ConfirmDialogBox(app, message, callback)
+	constructor(app, message, callback)
 	{
-		const result = _super.call(this, app) || this;
+		super(app);
 		this.message = message;
 		this.callback = callback;
-		return result;
 	}
 
-	ConfirmDialogBox.prototype.onOpen = function()
+	onOpen()
 	{
 		this.message = this.message.split("\n");
 		for (const line of this.message)
@@ -1280,23 +1243,21 @@ const ConfirmDialogBox = (function(_super)
 					})
 			})
 			.settingEl.style.padding = "0";
-	};
+	}
 
-	ConfirmDialogBox.prototype.onClose = function()
+	onClose()
 	{
 		this.contentEl.empty();
-	};
-
-	return ConfirmDialogBox;
-}(obsidian.Modal));
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Dynamic File Content (dfc) - Maintain a list of files to (optionally) monitor for updates
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Dfc = (function()
+class Dfc
 {
-	function Dfc(plugin, filenames, refreshFnc, monitorType)
+	constructor(plugin, filenames, refreshFnc, monitorType)
 	{
 		this.plugin = plugin;
 		this.currentFile = "";
@@ -1337,36 +1298,36 @@ const Dfc = (function()
 		return this;
 	}
 
-	Dfc.prototype.onFileModified = function(file)
+	onFileModified(file)
 	{
 		if (file.path == this.currentFile)
 		{
 			this.currentFileIsModified = true;
 		}
-	};
+	}
 
-	Dfc.prototype.onActiveLeafChange = function(leaf)
+	onActiveLeafChange(leaf)
 	{
 		if (this.files.hasOwnProperty(this.currentFile) &&
-		    ((this.monitorType == Dfc.MonitorType.OnChange &&
+		    ((this.monitorType == DfcMonitorType.OnChange &&
 		      this.currentFileIsModified) ||
-		     (this.monitorType == Dfc.MonitorType.OnTouch)))
+		     (this.monitorType == DfcMonitorType.OnTouch)))
 		{
 			this.refresh(true);
 		}
 		this.currentFileIsModified = false;
 		this.currentFile = leaf.workspace.getActiveFile()?.path ?? "";
-	};
+	}
 
-	Dfc.prototype.onFileAddedOrRemoved = function(file)
+	onFileAddedOrRemoved(file)
 	{
 		if (this.files.hasOwnProperty(file.path))
 		{
 			this.refresh(true);
 		}
-	};
+	}
 
-	Dfc.prototype.updateFileList = function(newFileList, forceRefresh)
+	updateFileList(newFileList, forceRefresh)
 	{
 		let hasChanged = false;
 		for (const filename in this.files)
@@ -1388,9 +1349,9 @@ const Dfc = (function()
 			}
 		}
 		this.refresh(hasChanged || forceRefresh);
-	};
+	}
 
-	Dfc.prototype.refresh = function(forceRefresh)
+	refresh(forceRefresh)
 	{
 		this.plugin.app.workspace.onLayoutReady(async () =>
 		{
@@ -1423,13 +1384,11 @@ const Dfc = (function()
 				this.refreshFnc();
 			}
 		});
-	};
+	}
+};
 
-	Dfc.MonitorType =
-		{ None: "None", OnChange: "OnChange", OnTouch: "OnTouch" };
-
-	return Dfc;
-}());
+let DfcMonitorType =
+	{ None: "None", OnChange: "OnChange", OnTouch: "OnTouch" };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

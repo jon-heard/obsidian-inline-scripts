@@ -429,6 +429,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.16.4
+- All "classes" are now official JS classes.
+
 ### 0.16.3
 - bug fix: app was glitching out at start due to not waiting for system to be ready before pulling files
 
