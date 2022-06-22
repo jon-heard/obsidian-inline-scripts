@@ -46,6 +46,7 @@ const DEFAULT_SETTINGS_MOBILE =
 };
 const LONG_NOTE_TIME = 8 * 1000;
 const INDENT = " ".repeat(4);
+const HELP_SHORCTUT_REGEX = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
 
 // These are set when the plugin starts
 let IS_MOBILE = false;
@@ -397,7 +398,7 @@ const TextExpanderJsPlugin = (function(_super)
 			if (keepFencing)
 			{
 				// "keepFencing" makes no sense with a RegExp object.
-				// Instead, create RegExp-style-dummy to retain fence with API.
+				// Instead, create RegExp-style-dummy to retain fence within API.
 				testRegex = { source: content[i] };
 			}
 			else
@@ -488,10 +489,9 @@ const TextExpanderJsPlugin = (function(_super)
 
 		// Get list of all "help" shortcuts in list of all shortcuts
 		let helpShortcuts = [];
-		const helpRegex = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
 		for (const shortcut of this.shortcuts)
 		{
-			const matchInfo = shortcut.test?.source.match(helpRegex);
+			const matchInfo = shortcut.test?.source.match(HELP_SHORCTUT_REGEX);
 			if (matchInfo)
 			{
 				helpShortcuts.push(matchInfo[1]);
