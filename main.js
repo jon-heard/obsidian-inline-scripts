@@ -1169,8 +1169,8 @@ const TextExpanderJsPluginSettings = (function(_super)
 			new ConfirmDialogBox(
 				this.plugin.app,
 				"All library references are currently in the folder \"" +
-				commonPath + "\".<br/>Would you like to import the library " +
-				"into \"" +commonPath + "\"?<br/>If not, the library will be " +
+				commonPath + "\".\nWould you like to import the library " +
+				"into \"" +commonPath + "\"?\nIf not, the library will be " +
 				"imported into the folder \"" + ADDRESS_LOCAL + "\".",
 				(confirmation) =>
 				{
@@ -1250,8 +1250,11 @@ const ConfirmDialogBox = (function(_super)
 
 	ConfirmDialogBox.prototype.onOpen = function()
 	{
-		// Using innerHTML to allow <br/> linebreaks in confirm message
-		this.titleEl.innerHTML = this.message;
+		this.message = this.message.split("\n");
+		for (let line of this.message)
+		{
+			this.titleEl.createEl("div", { text: line });
+		}
 
 		new obsidian.Setting(this.contentEl)
 			.addButton((btn) =>
