@@ -430,6 +430,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		this.shortcuts = this.parseShortcutFile("Settings", this.settings.shortcuts);
 		// Add a helper-block to segment helper scripts within their shortcut-files
 		this.shortcuts.push({});
+
 		// Go over all shortcut-files
 		for (const filename of this.settings.shortcutFiles)
 		{
@@ -1302,8 +1303,8 @@ class Dfc
 			this.updateFileList(filenames);
 		}, 0);
 
-		// On Obsidian start, these events trigger somewhat randomly.  onLayoutReady makes
-		// sure the events are connected only after the random triggering is over.
+		// At Obsidian start, these events trigger randomly.  onLayoutReady makes
+		// sure we only connect to the events AFTER the random triggering is over.
 		this.plugin.app.workspace.onLayoutReady(async () =>
 		{
 			// Monitors when files are saved
@@ -1383,7 +1384,7 @@ class Dfc
 	}
 
 	// Calls the refresh callback, either when asked to ("forceRefresh") or because one
-	// of the monitored files has changed its modified date.
+	// of the monitored files has been modified since it was last checked.
 	refresh(forceRefresh)
 	{
 		this.plugin.app.workspace.onLayoutReady(async () =>
