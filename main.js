@@ -1,5 +1,19 @@
 "use strict";
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// NOTE: The "Text Expander JS" plugin uses a custom format for shortcut-file data.  I tried using
+// existing formats (json, xml, etc), but they were cumbersome for developing javascript code in.
+// The chosen format is simple, readable, and allows for wrapping scripts in js-fenced-code-blocks.
+// This makes it easy to write code within Obsidian which is, ultimately, my intended use-case.
+//
+// For a summary of the format, see here:
+// https://github.com/jon-heard/obsidian-text-expander-js#tutorial-create-a-new-shortcut-file
+// and here:
+// https://github.com/jon-heard/obsidian-text-expander-js#development-aid-fenced-code-blocks
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 const obsidian = require("obsidian");
 const state = require("@codemirror/state");
 
