@@ -190,12 +190,13 @@ const TextExpanderJsPlugin = (function(_super)
 	TextExpanderJsPlugin.prototype.tryShortcutExpansion = function() {
 		setTimeout(() =>
 		{
-			const view = this.app.workspace.getActiveViewOfType(obsidian.MarkdownView);
-			if (!view)
+			const editor =
+				this.app.workspace.
+				getActiveViewOfType(obsidian.MarkdownView)?.editor;
+			if (!editor)
 			{
 				return;
 			}
-			const editor = view.editor;
 
 			// Find bounds of the shortcut beneath the caret (if there is one)
 			const cursor = editor.getCursor();
@@ -242,6 +243,7 @@ const TextExpanderJsPlugin = (function(_super)
 		let expansionText = "";
 		for (let shortcut of this.shortcuts)
 		{
+			// Does the shortcut fit? (or is it a helper script?)
 			const matchInfo = text.match(shortcut.test);
 			if (!matchInfo) { continue; }
 
@@ -296,7 +298,16 @@ const TextExpanderJsPlugin = (function(_super)
 		// Prepare for possible Expansion script error
 		if (isUserTriggered)
 		{
-			this.expansionErrorHandlerStack = [];
+			// ASSERT - This should never be true
+			if (this.expansionErrorHandlerStack.length > 0)
+			{
+				let msg =
+					"Stack was off by " +
+					this.expansionErrorHandlerStack.length + ".\n" +
+					this.expansionErrorHandlerStack.join("\n-------\n");
+				this.notifyUser(msg, "EXPANSION-ERROR-HANDLER-ERROR");
+				this.expansionErrorHandlerStack = [];
+			}
 			window.addEventListener("error", this._handleExpansionError);
 		}
 		this.expansionErrorHandlerStack.push(expansionScript);
@@ -325,7 +336,7 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 
 		// if shortcut doesn't return anything, better to return "" than undefined
-		return result || "";
+		return result ?? "";
 	};
 
 
@@ -478,11 +489,10 @@ const TextExpanderJsPlugin = (function(_super)
 		const helpRegex = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
 		for (let shortcut of this.shortcuts)
 		{
-			if (!shortcut.test) { continue; }
-			const r = shortcut.test.source.match(helpRegex);
-			if (r)
+			const matchInfo = shortcut.test?.source.match(helpRegex);
+			if (matchInfo)
 			{
-				helpShortcuts.push(r[1]);
+				helpShortcuts.push(matchInfo[1]);
 			}
 		}
 
@@ -583,10 +593,11 @@ const TextExpanderJsPlugin = (function(_super)
 	// Adds a tinted full-screen div to prevent user-input
 	TextExpanderJsPlugin.prototype.addInputBlock = function()
 	{
-		let block = document.getElementById("tejs_inputBlock");
-		if (block) { return; }
-
-		block = document.createElement("div");
+		if (document.getElementById("tejs_inputBlock"))
+		{
+			return;
+		}
+		let block = document.createElement("div");
 		block.id = "tejs_inputBlock";
 		document.getElementsByTagName("body")[0].prepend(block);
 	};
@@ -621,7 +632,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 	// Checks formatting settings for errors:
 	//   - blank prefix or suffix
 	//   - suffix contains prefix (disallowed as it messes up logic)
-	TextExpanderJsPluginSettings.prototype.checkFormatErrs = function()
+	TextExpanderJsPluginSettings.prototype.checkFormatValid = function()
 	{
 		let err = "";
 		if (!this.tmpSettings.prefix)
@@ -740,9 +751,6 @@ const TextExpanderJsPluginSettings = (function(_super)
 		});
 		const addShortcutFileUi = (text) =>
 		{
-			// Remove ".md" extension from filename
-			if (text) { text = text.substr(0, text.length - 3); }
-
 			let g = this.shortcutFileUis.createEl("div");
 			let e = g.createEl(
 					"input", { cls: "tejs_shortcutFile" });
@@ -758,7 +766,12 @@ const TextExpanderJsPluginSettings = (function(_super)
 					this.toggleClass("tejs_badInput", isBadInput);
 				});
 				// Assign given text argument to the textfield
-				if (text) { e.setAttr("value", text); }
+				if (text)
+				{
+					// Remove ".md" extension from filename
+					text = text.substr(0, text.length - 3);
+					e.setAttr("value", text);
+				}
 				e.dispatchEvent(new Event("input"));
 			e = g.createEl("button", { cls: "tejs_upButton" });
 				e.group = g;
@@ -829,6 +842,8 @@ const TextExpanderJsPluginSettings = (function(_super)
 				if (shortcut)
 				{
 					e.value = shortcut.test.source;
+
+					// Translate regex compiled "blank" test
 					if (e.value == "(?:)")
 					{
 						e.value = "";
@@ -890,7 +905,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 					{
 						this.tmpSettings.prefix = value;
 						refreshShortcutExample();
-						this.checkFormatErrs();
+						this.checkFormatValid();
 					});
 			})
 			.settingEl.toggleClass("tejs_settingBundledTop", !IS_MOBILE);
@@ -906,7 +921,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 					{
 						this.tmpSettings.suffix = value;
 						refreshShortcutExample();
-						this.checkFormatErrs();
+						this.checkFormatValid();
 					});
 			})
 			.settingEl.toggleClass("tejs_settingBundled", !IS_MOBILE);
@@ -979,12 +994,14 @@ const TextExpanderJsPluginSettings = (function(_super)
 				"~~\n" + shortcut.expansion + "\n";
 		}
 
-		// If changes to settings-based shortcuts, "force" is set
+		// If changes to shortcuts, "force" is set.  Start with different lengths.
 		const oldShortcuts =
 			this.plugin.parseShortcutFile("", this.plugin.settings.shortcuts, true);
 		const newShortcuts =
 			this.plugin.parseShortcutFile("", this.tmpSettings.shortcuts, true);
 		let force = (newShortcuts.length != oldShortcuts.length);
+
+		// If shortcut lists have same lengths, check shortcut contents
 		if (!force)
 		{
 			for (let i = 0; i < newShortcuts.length; i++)
@@ -999,7 +1016,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		}
 
 		// Only keep new prefix & suffix if they have no errors
-		if (!this.checkFormatErrs())
+		if (!this.checkFormatValid())
 		{
 			this.tmpSettings.prefix = this.plugin.settings.prefix;
 			this.tmpSettings.suffix = this.plugin.settings.suffix;
@@ -1038,6 +1055,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		let result = [];
 		for (let shortcutUi of this.shortcutUis.childNodes)
 		{
+			// Accept any shortcuts with a non-empty Expansion string
 			if (shortcutUi.childNodes[4].value)
 			{
 				result.push({
@@ -1276,11 +1294,7 @@ const dfc = {
 		plugin.registerEvent(
 			plugin.app.workspace.on("active-leaf-change", dfc.onActiveLeafChange));
 
-		// If run on app start, active file won't be available yet
-		if (plugin.app.workspace.getActiveFile())
-		{
-			dfc.currentFile = plugin.app.workspace.getActiveFile().path;
-		}
+		dfc.currentFile = plugin.app.workspace.getActiveFile()?.path ?? dfc.currentFile;
 	},
 
 	onActiveLeafChange: function(leaf)
@@ -1289,7 +1303,7 @@ const dfc = {
 		// see an error without needing to make token changes.
 		if (dfc.hasEditorSaved || true)
 		{
-			for (let dcfInstance of dfc.instances)
+			for (let dfcInstance of dfc.instances)
 			{
 				const instance = dfcInstance;
 				if (instance.isMonitored &&
