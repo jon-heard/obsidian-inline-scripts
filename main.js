@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS_MOBILE =
 	suffix: "!"
 };
 const LONG_NOTE_TIME = 8 * 1000;
+const INDENT = " ".repeat(4);
 
 // These are set when the plugin starts
 let IS_MOBILE = false;
@@ -124,7 +125,7 @@ const TextExpanderJsPlugin = (function(_super)
 		this.expansionErrorHandlerStack = [];
 
 		// Log starting the plugin
-		console.log(this.title + "\n    Loaded (" + this.version + ")");
+		this.notifyUser("Loaded (" + this.manifest.version + ")");
 	};
 
 	TextExpanderJsPlugin.prototype.onunload = function()
@@ -134,7 +135,7 @@ const TextExpanderJsPlugin = (function(_super)
 			cm => cm.off("keydown", this._cm5_handleExpansionTrigger));
 
 		// Log ending the plugin
-		console.log(this.title + "\n    Unloaded (" + this.version + ")");
+		this.notifyUser("Unloaded (" + this.manifest.version + ")");
 	};
 
 
@@ -268,8 +269,8 @@ const TextExpanderJsPlugin = (function(_super)
 		// If shortcut parsing amounted to nothing.  Notify user of bad shortcut entry.
 		if (expansionText === null)
 		{
-			console.warn(this.title + "\n    Shortcut unidentified: \"" + text + "\"");
-			new obsidian.Notice("Shortcut unidentified:\n" + text);
+			let msg = "Shortcut unidentified:\n" + INDENT + text;
+			this.notifyUser(msg, "", msg, false, true);
 		}
 
 		return expansionText;
@@ -303,12 +304,11 @@ const TextExpanderJsPlugin = (function(_super)
 			// ASSERT - This should never be true
 			if (this.expansionErrorHandlerStack.length > 0)
 			{
-				console.error(
-					this.title + "\n" +
-					"    EXPANSION-ERROR-HANDLER-ERROR\n" +
-					"    stack was off by " +
+				let msg =
+					"Stack was off by " +
 					this.expansionErrorHandlerStack.length + ".\n" +
-					this.expansionErrorHandlerStack.join("\n-------\n"));
+					this.expansionErrorHandlerStack.join("\n-------\n");
+				this.notifyUser(msg, "EXPANSION-ERROR-HANDLER-ERROR");
 				this.expansionErrorHandlerStack = [];
 			}
 			window.removeEventListener("error", this._handleExpansionError);
@@ -337,16 +337,13 @@ const TextExpanderJsPlugin = (function(_super)
 		expansionText.splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
 		expansionText = expansionText.join("\n");
 
-		// Notify user of error
-		console.error(
-			this.title + "\n" +
-			"    SHORTCUT-EXPANSION-ERROR\n" +
-			"    " + e.message + "\n" +
-			"    line: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
-			"    " + "─".repeat(20) + "\n" + expansionText);
-		new obsidian.Notice(
-			"ERROR: shortcut expansion issues\n\n(see console for details)",
-			LONG_NOTE_TIME);
+		let msg =
+			e.message + "\n" + INDENT +
+			"line: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
+			INDENT + "─".repeat(20) + "\n" + expansionText;
+		this.notifyUser(
+			msg, "SHORTCUT-EXPANSION-ERROR",
+			"Shortcut expansion issues.", true);
 
 		// Clean up script error preparations (now that the error is handled)
 		this.expansionErrorHandlerStack = []; // Error causes nest to unwind.  Clear stack.
@@ -363,11 +360,9 @@ const TextExpanderJsPlugin = (function(_super)
 		// Check for the obvious error of misnumbered "~~"
 		if (!(content.length % 2))
 		{
-			console.error(
-				this.title + "\n" +
-				"    MISNUMBERED-SECTION-COUNT-ERROR\n" +
-				"    In Shortcut-file \"" +
-				filename + "\"");
+			this.notifyUser(
+				"In Shortcut-file \"" + filename + "\"",
+				"MISNUMBERED-SECTION-COUNT-ERROR");
 			fileHasErrors = true;
 		}
 
@@ -399,11 +394,9 @@ const TextExpanderJsPlugin = (function(_super)
 				}
 				catch (e)
 				{
-					console.error(
-						this.title + "\n" +
-						"    BAD-TEST-STRING-ERROR\n" +
-						"    In shortcut-file \"" +
-						filename + "\":\n    " + c);
+					this.notifyUser(
+						"In shortcut-file \"" + filename + "\":\n" +
+						INDENT + c, "BAD-TEST-STRING-ERROR");
 					fileHasErrors = true;
 					continue;
 				}
@@ -426,9 +419,7 @@ const TextExpanderJsPlugin = (function(_super)
 
 		if (fileHasErrors)
 		{
-			new obsidian.Notice(
-				"ERROR: shortcut-file issues\n" + filename +
-				"\n\n(see console for details)", LONG_NOTE_TIME);
+			this.notifyUser("", "ERR", "Shortcut-file issues\n" + filename, true);
 		}
 
 		return result;
@@ -450,13 +441,9 @@ const TextExpanderJsPlugin = (function(_super)
 			// If shortcut-file has no content, it's missing.
 			if (content == null)
 			{
-				console.error(
-					this.title + "\n" +
-					"    MISSING-SHORTCUT-FILE-ERROR\n" +
-					"    " + filename);
-				new obsidian.Notice(
-					"ERROR: Missing shortcut-file\n" + filename,
-					LONG_NOTE_TIME);
+				this.notifyUser(
+					filename, "MISSING-SHORTCUT-FILE-ERROR",
+					"Missing shortcut-file\n" + filename, false);
 				continue;
 			}
 
@@ -506,15 +493,13 @@ const TextExpanderJsPlugin = (function(_super)
 	// WARNING: user-facing function
 	TextExpanderJsPlugin.prototype.runExternal = function(command, silentFail, dontFixSlashes)
 	{
-		// This function does not work on mobile.  Notify user and early out.
-		// Might as well fail semi-silently.  No use in spamming the user with notices.
 		if (IS_MOBILE)
 		{
-			console.error(
-				this.title + "\n" +
-				"    RUNEXTERNAL-ERROR\n" +
-				"    Call to runExternal (unavailable on mobile)\n" +
-				"    runExternal(\"" + command + "\")");
+			this.notifyUser(
+				"Unauthorized \"runExternal\" call " +
+				"(NOT available on mobile):\n" + INDENT +
+				"runExternal(\"" + command + "\")", "RUNEXTERNAL-ERROR",
+				"Unauthorized \"runExternal\" call", true);
 			return null;
 		}
 
@@ -522,17 +507,13 @@ const TextExpanderJsPlugin = (function(_super)
 		// to explicitly allowed shortcuts to call shell commands.
 		if (!this.settings.allowExternal)
 		{
-			console.error(
-				this.title + "\n" +
-				"    RUNEXTERNAL-ERROR\n" +
-				"    Unauthorized runExternal call\n" +
-				"    runExternal(\"" + command + "\")\n" +
-				"    NOTE: You can authorize runExternal by " +
-				"enabling \"Allow external\" in the settings.");
-			new obsidian.Notice(
-				"ERROR: Unauthorized runExternal call." +
-				"\n\n(see console for details)",
-				LONG_NOTE_TIME);
+			this.notifyUser(
+				"Unauthorized \"runExternal\" call " +
+				"(disallowed by user):\n" + INDENT +
+				"runExternal(\"" + command + "\")\n" + INDENT +
+				"NOTE: User can allow runExternal by turning on " +
+				"\"Allow external\" in the settings.", "RUNEXTERNAL-ERROR",
+				"Unauthorized \"runExternal\" call", true);
 			return null;
 		}
 
@@ -556,18 +537,37 @@ const TextExpanderJsPlugin = (function(_super)
 		{
 			if (!silentFail)
 			{
-				console.error(
-					this.title + "\n" +
-					"    RUNEXTERNAL-ERROR\n" +
-					"    Call to runExternal failed:\n" +
-					"    curDir: " + vaultDir + "\n" +
-					"    " + e.message);
-				new obsidian.Notice(
-					"ERROR: runExternal(\"" + command + "\")" +
-					"\n\n(see console for details)",
-					LONG_NOTE_TIME);
+				this.notifyUser(
+					"Failed \"runExternal\" call:\n" + INDENT +
+					"curDir: " + vaultDir + "\n" + INDENT +
+					e.message, "RUNEXTERNAL-ERROR",
+					"Failed \"runExternal\" call", true);
 			}
 			return null;
+		}
+	};
+
+	// Adds a notification and/or a console log
+	TextExpanderJsPlugin.prototype.notifyUser = function(
+		consoleMessage, errorType, popupMessage, detailOnConsole, isWarning)
+	{
+		if (consoleMessage)
+		{
+			consoleMessage =
+				this.manifest.name + "\n" +
+				(errorType ? (INDENT + errorType + "\n") : "") +
+				INDENT + consoleMessage;
+			errorType ? console.error(consoleMessage) :
+			isWarning ? console.warn(consoleMessage) :
+			console.info(consoleMessage);
+		}
+		if (popupMessage)
+		{
+			new obsidian.Notice(
+				(errorType ? "ERROR: " : "") +
+				popupMessage +
+				(detailOnConsole ? "\n\n(see console for details)" : ""),
+				LONG_NOTE_TIME);
 		}
 	};
 
