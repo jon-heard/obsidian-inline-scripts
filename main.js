@@ -240,7 +240,7 @@ const TextExpanderJsPlugin = (function(_super)
 		if (!text) { return; }
 		let foundMatch = false;
 		let expansionText = "";
-		for (let shortcut of this.shortcuts)
+		for (const shortcut of this.shortcuts)
 		{
 			// Does the shortcut fit? (or is it a helper script?)
 			const matchInfo = text.match(shortcut.test);
@@ -456,7 +456,7 @@ const TextExpanderJsPlugin = (function(_super)
 		this.shortcuts.push({});
 
 		// Go over all shortcut-files
-		for (let filename of this.settings.shortcutFiles)
+		for (const filename of this.settings.shortcutFiles)
 		{
 			const content = this.shortcutDfc.files[filename].content;
 
@@ -477,7 +477,7 @@ const TextExpanderJsPlugin = (function(_super)
 			this.shortcuts.push({});
 
 			// Look for a "setup" script in this shortcut-file.  Run if found.
-			for (let newShortcut of newShortcuts)
+			for (const newShortcut of newShortcuts)
 			{
 				if (newShortcut.test.source == "^tejs setup$")
 				{
@@ -489,7 +489,7 @@ const TextExpanderJsPlugin = (function(_super)
 		// Get list of all "help" shortcuts in list of all shortcuts
 		let helpShortcuts = [];
 		const helpRegex = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
-		for (let shortcut of this.shortcuts)
+		for (const shortcut of this.shortcuts)
 		{
 			const matchInfo = shortcut.test?.source.match(helpRegex);
 			if (matchInfo)
@@ -789,7 +789,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 				e.typeTitle = "shortcut-file";
 		};
 		// Add a filename ui item for each shortcut-file in settings
-		for (let shortcutFile of this.tmpSettings.shortcutFiles)
+		for (const shortcutFile of this.tmpSettings.shortcutFiles)
 		{
 			addShortcutFileUi(shortcutFile);
 		}
@@ -828,7 +828,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 						// the end of the ui list.
 						this.removeShortcutsFromUi(defaultShortcuts);
 
-						for (let defaultShortcut of defaultShortcuts)
+						for (const defaultShortcut of defaultShortcuts)
 						{
 							addShortcutUi(defaultShortcut);
 						}
@@ -873,7 +873,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		const shortcuts = this.plugin.parseShortcutFile(
 			"Settings", this.tmpSettings.shortcuts, true);
 		// Add a shortcut ui item for each shortcut in settings
-		for (let shortcut of shortcuts)
+		for (const shortcut of shortcuts)
 		{
 			addShortcutUi(shortcut);
 		}
@@ -989,7 +989,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		// Build Shortcuts string from UI
 		let shortcuts = this.getShortcutsFromUi();
 		this.tmpSettings.shortcuts = "";
-		for (let shortcut of shortcuts)
+		for (const shortcut of shortcuts)
 		{
 			this.tmpSettings.shortcuts +=
 				"~~\n" + shortcut.test + "\n" +
@@ -1044,7 +1044,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 	TextExpanderJsPluginSettings.prototype.getShortcutReferencesFromUi = function()
 	{
 		let result = [];
-		for (let shortcutFileUi of this.shortcutFileUis.childNodes)
+		for (const shortcutFileUi of this.shortcutFileUis.childNodes)
 		{
 			if (shortcutFileUi.childNodes[0].value)
 			{
@@ -1059,7 +1059,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 	TextExpanderJsPluginSettings.prototype.getShortcutsFromUi = function()
 	{
 		let result = [];
-		for (let shortcutUi of this.shortcutUis.childNodes)
+		for (const shortcutUi of this.shortcutUis.childNodes)
 		{
 			// Accept any shortcuts with a non-empty Expansion string
 			if (shortcutUi.childNodes[4].value)
@@ -1077,7 +1077,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 	TextExpanderJsPluginSettings.prototype.removeShortcutsFromUi = function(shortcuts)
 	{
 		let toRemove = [];
-		for (let shortcutUi of this.shortcutUis.childNodes)
+		for (const shortcutUi of this.shortcutUis.childNodes)
 		{
 			const test = shortcutUi.childNodes[0].value;
 			const expansion = shortcutUi.childNodes[4].value;
@@ -1096,7 +1096,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 				break;
 			}
 		}
-		for (let shortcutUi of toRemove)
+		for (const shortcutUi of toRemove)
 		{
 			shortcutUi.remove();
 		}
@@ -1196,7 +1196,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		}
 
 		// Download and create library files
-		for (let shortcutFile of shortcutFiles)
+		for (const shortcutFile of shortcutFiles)
 		{
 			// Download the file
 			let content = await request({
@@ -1217,7 +1217,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 		}
 
 		// Add references shortcut-files in settings
-		for (let shortcutFile of shortcutFiles)
+		for (const shortcutFile of shortcutFiles)
 		{
 			let filename = libraryDestination + "/" + shortcutFile + ".md";
 			if (!this.plugin.settings.shortcutFiles.contains(filename))
@@ -1251,7 +1251,7 @@ const ConfirmDialogBox = (function(_super)
 	ConfirmDialogBox.prototype.onOpen = function()
 	{
 		this.message = this.message.split("\n");
-		for (let line of this.message)
+		for (const line of this.message)
 		{
 			this.titleEl.createEl("div", { text: line });
 		}
@@ -1339,7 +1339,7 @@ const Dfc = (function()
 	Dfc.prototype.updateFileList = function(newFileList, forceRefresh)
 	{
 		let hasChanged = false;
-		for (let filename in this.files)
+		for (const filename in this.files)
 		{
 			if (!newFileList.contains(filename))
 			{
@@ -1347,7 +1347,7 @@ const Dfc = (function()
 				hasChanged = true;
 			}
 		}
-		for (let newFile of newFileList)
+		for (const newFile of newFileList)
 		{
 			if (!this.files.hasOwnProperty(newFile))
 			{
@@ -1367,7 +1367,7 @@ const Dfc = (function()
 		{
 			let hasChanged = false;
 
-			for (let filename in this.files)
+			for (lconst filename in this.files)
 			{
 				const file = this.plugin.app.vault.fileMap[filename];
 				// File exists: see if we need to update the data on it and do so
