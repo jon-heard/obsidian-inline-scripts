@@ -257,7 +257,6 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		// If shortcut parsing amounted to nothing.  Notify user of bad shortcut entry.
 		if (expansionText === null)
 		{
-			let msg = "Shortcut unidentified:\n" + INDENT + text;
 			this.notifyUser(
 				"Shortcut unidentified:\n" + INDENT + text, "",
 				"Shortcut unidentified:\n" + text, false, true);
@@ -273,10 +272,10 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	runExpansionScript(expansionScript, isUserTriggered)
 	{
 		// Prepare for possible Expansion script error
-		if (isUserTriggered)
+		if (isUserTriggered || !this.expansionErrorHandlerStack.length)
 		{
 			// ASSERT - This should never be true
-			if (this.expansionErrorHandlerStack.length > 0)
+			if (!isUserTriggered || this.expansionErrorHandlerStack.length > 0)
 			{
 				let msg =
 					"Stack was off by " +
@@ -297,10 +296,10 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 
 		// Clean up script error preparations (it wouldn't have got here if we'd hit one)
 		this.expansionErrorHandlerStack.pop();
-		if (isUserTriggered)
+		if (isUserTriggered || !this.expansionErrorHandlerStack.length)
 		{
 			// ASSERT - This should never be true
-			if (this.expansionErrorHandlerStack.length > 0)
+			if (!isUserTriggered || this.expansionErrorHandlerStack.length > 0)
 			{
 				let msg =
 					"Stack was off by " +
@@ -349,7 +348,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	}
 
 	// Parses a shortcut-file's contents to produce a list of shortcuts
-	parseShortcutFile(filename, content, keepFencing)
+	parseShortcutFile(filename, content, maintainCodeFence)
 	{
 		content = content.split("~~").map((v) => v.trim());
 		let result = [];
@@ -365,14 +364,14 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		}
 
 		// Parse each shortcut in the file
-		// NOTE: for compares i+1 and increments by 2, since we are using i AND i+1
+		// NOTE: this loop checks i+1 and increments by 2.  We are using both i AND i+1
 		for (let i = 1; i+1 < content.length; i += 2)
 		{
 			// Test string handling
 			let testRegex = null;
-			if (keepFencing)
+			if (maintainCodeFence)
 			{
-				// "keepFencing" makes no sense with a RegExp object.
+				// "maintainCodeFence" is not possible with a real RegExp object.
 				// Instead, create RegExp-style-dummy to retain fence within API.
 				testRegex = { source: content[i] };
 			}
@@ -403,7 +402,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			// Expansion string handling
 			let c = content[i+1];
 			// Handle the Expansion being in a javascript fenced code-block
-			if (!keepFencing)
+			if (!maintainCodeFence)
 			{
 				if (c.startsWith("```js") && c.endsWith("```"))
 				{
@@ -423,22 +422,18 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		return result;
 	}
 
-	// Creates all shortcuts based on shortcut lists from shortcut-files and settings
+	// Creates entire shortcut list based on shortcuts from shortcut-files and settings
 	async setupShortcuts()
 	{
 		// Add shortcuts defined directly in the settings
 		this.shortcuts = this.parseShortcutFile("Settings", this.settings.shortcuts);
-		// Add a helper-block to segment helper scripts
+		// Add a helper-block to segment helper scripts within their shortcut-files
 		this.shortcuts.push({});
 		// Go over all shortcut-files
 		for (const filename of this.settings.shortcutFiles)
 		{
 			const file = this.app.vault.fileMap[filename];
-			if (!file) { continue; }
-			const content = await this.app.vault.cachedRead(file);
-
-			// If shortcut-file has no content, it's missing.
-			if (content == null)
+			if (!file)
 			{
 				this.notifyUser(
 					filename, "MISSING-SHORTCUT-FILE-ERROR",
@@ -446,11 +441,13 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 				continue;
 			}
 
+			const content = await this.app.vault.cachedRead(file);
+
 			// Parse shortcut-file contents and add new shortcuts to list
 			const newShortcuts = this.parseShortcutFile(filename, content)
 			this.shortcuts = this.shortcuts.concat(newShortcuts);
 
-			// Add a helper-block to segment helper scripts
+			// Add another helper-block to segment helper scripts
 			this.shortcuts.push({});
 
 			// Look for a "setup" script in this shortcut-file.  Run if found.
