@@ -240,13 +240,13 @@ const TextExpanderJsPlugin = (function(_super)
 		if (!text) { return; }
 		let foundMatch = false;
 		let expansionText = "";
-		for (let i = 0; i < this.shortcuts.length; i++)
+		for (let shortcut of this.shortcuts)
 		{
-			const matchInfo = text.match(this.shortcuts[i].test);
+			const matchInfo = text.match(shortcut.test);
 			if (!matchInfo) { continue; }
 
 			// Helper-block (empty shortcut) erases helper scripts before it
-			if (!this.shortcuts[i].test && !this.shortcuts[i].expansion)
+			if (!shortcut.test && !shortcut.expansion)
 			{
 				expansionText = "";
 				continue;
@@ -261,10 +261,10 @@ const TextExpanderJsPlugin = (function(_super)
 			}
 
 			// Add the shortcut's Expansion string to the total Expanson script
-			expansionText += this.shortcuts[i].expansion + "\n";
+			expansionText += shortcut.expansion + "\n";
 
 			// If not a helper script, stop checking shortcut matches, we're done
-			if (this.shortcuts[i].test.source != "(?:)")
+			if (shortcut.test.source != "(?:)")
 			{
 				foundMatch = true;
 				break;
@@ -361,7 +361,7 @@ const TextExpanderJsPlugin = (function(_super)
 	};
 
 	// Parses a shortcut-file's contents to produce a list of shortcuts
-	TextExpanderJsPlugin.prototype.parseShortcutList = function(filename, content, keepFencing)
+	TextExpanderJsPlugin.prototype.parseShortcutFile = function(filename, content, keepFencing)
 	{
 		content = content.split("~~").map((v) => v.trim());
 		let result = [];
@@ -377,7 +377,7 @@ const TextExpanderJsPlugin = (function(_super)
 		}
 
 		// Parse each shortcut in the file
-		// NOTE: for check compares i+1, since we are using both i and i+1
+		// NOTE: for compares i+1 and increments by 2, since we are using i AND i+1
 		for (let i = 1; i+1 < content.length; i += 2)
 		{
 			// Test string handling
@@ -439,14 +439,13 @@ const TextExpanderJsPlugin = (function(_super)
 	TextExpanderJsPlugin.prototype.setupShortcuts = function()
 	{
 		// Add shortcuts defined directly in the settings
-		this.shortcuts = this.parseShortcutList("Settings", this.settings.shortcuts);
+		this.shortcuts = this.parseShortcutFile("Settings", this.settings.shortcuts);
 		// Add a helper-block to segment helper scripts
 		this.shortcuts.push({});
 
 		// Go over all shortcut-files
-		for (let i = 0; i < this.settings.shortcutFiles.length; i++)
+		for (let filename of this.settings.shortcutFiles)
 		{
-			const filename = this.settings.shortcutFiles[i];
 			const content = this.shortcutDfc.files[filename].content;
 			// If shortcut-file has no content, it's missing.
 			if (content == null)
@@ -458,18 +457,18 @@ const TextExpanderJsPlugin = (function(_super)
 			}
 
 			// Parse shortcut-file contents and add new shortcuts to list
-			const newShortcuts = this.parseShortcutList(filename, content)
+			const newShortcuts = this.parseShortcutFile(filename, content)
 			this.shortcuts = this.shortcuts.concat(newShortcuts);
 
 			// Add a helper-block to segment helper scripts
 			this.shortcuts.push({});
 
 			// Look for a "setup" script in this shortcut-file.  Run if found.
-			for (let i = 0; i < newShortcuts.length; i++)
+			for (let newShortcut of newShortcuts)
 			{
-				if (newShortcuts[i].test.source == "^tejs setup$")
+				if (newShortcut.test.source == "^tejs setup$")
 				{
-					this.runExpansionScript(newShortcuts[i].expansion);
+					this.runExpansionScript(newShortcut.expansion);
 				}
 			}
 		}
@@ -477,10 +476,10 @@ const TextExpanderJsPlugin = (function(_super)
 		// Get list of all "help" shortcuts in list of all shortcuts
 		let helpShortcuts = [];
 		const helpRegex = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
-		for (let i = 0; i < this.shortcuts.length; i++)
+		for (let shortcut of this.shortcuts)
 		{
-			if (!this.shortcuts[i].test) { continue; }
-			const r = this.shortcuts[i].test.source.match(helpRegex);
+			if (!shortcut.test) { continue; }
+			const r = shortcut.test.source.match(helpRegex);
 			if (r)
 			{
 				helpShortcuts.push(r[1]);
@@ -775,9 +774,9 @@ const TextExpanderJsPluginSettings = (function(_super)
 				e.typeTitle = "shortcut-file";
 		};
 		// Add a filename ui item for each shortcut-file in settings
-		for (let i = 0; i < this.tmpSettings.shortcutFiles.length; i++)
+		for (let shortcutFile of this.tmpSettings.shortcutFiles)
 		{
-			addShortcutFileUi(this.tmpSettings.shortcutFiles[i]);
+			addShortcutFileUi(shortcutFile);
 		}
 
 		///////////////
@@ -804,7 +803,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 					.onClick(function()
 					{
 						let defaultShortcuts =
-							this.plugin.parseShortcutList("Settings",
+							this.plugin.parseShortcutFile("Settings",
 							DEFAULT_SETTINGS.shortcuts, true);
 
 						// We don't want to duplicate shortcuts, and it's
@@ -814,9 +813,9 @@ const TextExpanderJsPluginSettings = (function(_super)
 						// the end of the ui list.
 						this.removeShortcutsFromUi(defaultShortcuts);
 
-						for (let i = 0; i < defaultShortcuts.length; i++)
+						for (let defaultShortcut of defaultShortcuts)
 						{
-							addShortcutUi(defaultShortcuts[i]);
+							addShortcutUi(defaultShortcut);
 						}
 					}.bind(this));
 			});
@@ -854,12 +853,12 @@ const TextExpanderJsPluginSettings = (function(_super)
 					e.value = shortcut.expansion;
 				}
 		};
-		const shortcuts = this.plugin.parseShortcutList(
+		const shortcuts = this.plugin.parseShortcutFile(
 			"Settings", this.tmpSettings.shortcuts, true);
 		// Add a shortcut ui item for each shortcut in settings
-		for (let i = 0; i < shortcuts.length; i++)
+		for (let shortcut of shortcuts)
 		{
-			addShortcutUi(shortcuts[i]);
+			addShortcutUi(shortcut);
 		}
 
 		/////////////////////
@@ -973,18 +972,18 @@ const TextExpanderJsPluginSettings = (function(_super)
 		// Build Shortcuts string from UI
 		let shortcuts = this.getShortcutsFromUi();
 		this.tmpSettings.shortcuts = "";
-		for (let i = 0; i < shortcuts.length; i++)
+		for (let shortcut of shortcuts)
 		{
 			this.tmpSettings.shortcuts +=
-				"~~\n" + shortcuts[i].test + "\n" +
-				"~~\n" + shortcuts[i].expansion + "\n";
+				"~~\n" + shortcut.test + "\n" +
+				"~~\n" + shortcut.expansion + "\n";
 		}
 
 		// If changes to settings-based shortcuts, "force" is set
 		const oldShortcuts =
-			this.plugin.parseShortcutList("", this.plugin.settings.shortcuts, true);
+			this.plugin.parseShortcutFile("", this.plugin.settings.shortcuts, true);
 		const newShortcuts =
-			this.plugin.parseShortcutList("", this.tmpSettings.shortcuts, true);
+			this.plugin.parseShortcutFile("", this.tmpSettings.shortcuts, true);
 		let force = (newShortcuts.length != oldShortcuts.length);
 		if (!force)
 		{
@@ -1011,7 +1010,7 @@ const TextExpanderJsPluginSettings = (function(_super)
 
 		// Store new settings
 		this.plugin.settings = this.tmpSettings;
-		dfc.updateFileList(	// Must do this AFTER plugin.settings is updated
+		dfc.updateFiles(	// Must do this AFTER plugin.settings is updated
 			this.plugin.shortcutDfc, this.tmpSettings.shortcutFiles, force);
 		this.plugin.suffixEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
@@ -1022,13 +1021,12 @@ const TextExpanderJsPluginSettings = (function(_super)
 	TextExpanderJsPluginSettings.prototype.getShortcutReferencesFromUi = function()
 	{
 		let result = [];
-		for (let i = 0; i < this.shortcutFileUis.childNodes.length; i++)
+		for (let shortcutFileUi of this.shortcutFileUis.childNodes)
 		{
-			if (this.shortcutFileUis.childNodes[i].childNodes[0].value)
+			if (shortcutFileUi.childNodes[0].value)
 			{
 				result.push(obsidian.normalizePath(
-					this.shortcutFileUis.childNodes[i].childNodes[0].
-					value + ".md"));
+					shortcutFileUi.childNodes[0].value + ".md"));
 			}
 		}
 		return result;
@@ -1038,9 +1036,8 @@ const TextExpanderJsPluginSettings = (function(_super)
 	TextExpanderJsPluginSettings.prototype.getShortcutsFromUi = function()
 	{
 		let result = [];
-		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
+		for (let shortcutUi of this.shortcutUis.childNodes)
 		{
-			const shortcutUi = this.shortcutUis.childNodes[i];
 			if (shortcutUi.childNodes[4].value)
 			{
 				result.push({
@@ -1056,11 +1053,10 @@ const TextExpanderJsPluginSettings = (function(_super)
 	TextExpanderJsPluginSettings.prototype.removeShortcutsFromUi = function(shortcuts)
 	{
 		let toRemove = [];
-		for (let i = 0; i < this.shortcutUis.childNodes.length; i++)
+		for (let shortcutUi of this.shortcutUis.childNodes)
 		{
-			const ui = this.shortcutUis.childNodes[i];
-			const test = ui.childNodes[0].value;
-			const expansion = ui.childNodes[4].value;
+			const test = shortcutUi.childNodes[0].value;
+			const expansion = shortcutUi.childNodes[4].value;
 			for (let k = 0; k < shortcuts.length; k++)
 			{
 				if (shortcuts[k].expansion != expansion)
@@ -1072,13 +1068,13 @@ const TextExpanderJsPluginSettings = (function(_super)
 				{
 					continue;
 				}
-				toRemove.push(ui);
+				toRemove.push(shortcutUi);
 				break;
 			}
 		}
-		for (let i = 0; i < toRemove.length; i++)
+		for (let shortcutUi of toRemove)
 		{
-			toRemove[i].remove();
+			shortcutUi.remove();
 		}
 	}
 
@@ -1176,15 +1172,15 @@ const TextExpanderJsPluginSettings = (function(_super)
 		}
 
 		// Download and create library files
-		for (let i = 0; i < shortcutFiles.length; i++)
+		for (let shortcutFile of shortcutFiles)
 		{
 			// Download the file
 			let content = await request({
-				url: ADDRESS_REMOTE + "/" + shortcutFiles[i] + ".md",
+				url: ADDRESS_REMOTE + "/" + shortcutFile + ".md",
 				method: "GET", cache: "no-cache"
 			});
 
-			let filename = libraryDestination + "/" + shortcutFiles[i] + ".md";
+			let filename = libraryDestination + "/" + shortcutFile + ".md";
 			let file = app.vault.fileMap[filename];
 			if (file)
 			{
@@ -1197,9 +1193,9 @@ const TextExpanderJsPluginSettings = (function(_super)
 		}
 
 		// Add references shortcut-files in settings
-		for (let i = 0; i < shortcutFiles.length; i++)
+		for (let shortcutFile of shortcutFiles)
 		{
-			let filename = libraryDestination + "/" + shortcutFiles[i] + ".md";
+			let filename = libraryDestination + "/" + shortcutFile + ".md";
 			if (!this.plugin.settings.shortcutFiles.contains(filename))
 			{
 				this.plugin.settings.shortcutFiles.push(filename);
@@ -1293,13 +1289,13 @@ const dfc = {
 		// see an error without needing to make token changes.
 		if (dfc.hasEditorSaved || true)
 		{
-			for (let i = 0; i < dfc.instances.length; i++)
+			for (let dcfInstance of dfc.instances)
 			{
-				const instance = dfc.instances[i];
+				const instance = dfcInstance;
 				if (instance.isMonitored &&
 				    instance.files.hasOwnProperty(dfc.currentFile))
 				{
-					dfc.refreshInstance(dfc.instances[i]);
+					dfc.refreshInstance(dfcInstance);
 				}
 			}
 		}
@@ -1319,29 +1315,29 @@ const dfc = {
 		// Delay final steps to allow assignment of return value before refreshing
 		setTimeout(() =>
 		{
-			dfc.updateFileList(result, filenames, true);
+			dfc.updateFiles(result, filenames, true);
 			dfc.instances.push(result);
 		}, 0);
 
 		return result;
 	},
 
-	updateFileList: function(instance, newFileList, force)
+	updateFiles: function(instance, newFileList, force)
 	{
 		let hasChanged = false;
-		for (let key in instance.files)
+		for (let filename in instance.files)
 		{
-			if (!newFileList.contains(key))
+			if (!newFileList.contains(filename))
 			{
-				delete instance.files[key];
+				delete instance.files[filename];
 				hasChanged = true;
 			}
 		}
-		for (let i = 0; i < newFileList.length; i++)
+		for (let newFile of newFileList)
 		{
-			if (!instance.files.hasOwnProperty(newFileList[i]))
+			if (!instance.files.hasOwnProperty(newFile))
 			{
-				instance.files[newFileList[i]] = {
+				instance.files[newFile] = {
 					modDate: Number.MIN_SAFE_INTEGER,
 					content: null
 				};
@@ -1357,14 +1353,15 @@ const dfc = {
 		{
 			let hasChanged = false;
 
-			for (let key in instance.files)
+			for (let filename in instance.files)
 			{
-				const file = dfc.plugin.app.vault.fileMap[key];
+				const file = dfc.plugin.app.vault.fileMap[filename];
 				if (file)
 				{
-					if (instance.files[key].modDate < file.stat.mtime || force)
+					if (instance.files[filename].modDate < file.stat.mtime ||
+					    force)
 					{
-						instance.files[key] = {
+						instance.files[filename] = {
 							modDate: file.stat.mtime,
 							content: await
 								dfc.plugin.app.vault.read(file)
@@ -1372,10 +1369,10 @@ const dfc = {
 					}
 					hasChanged = true;
 				}
-				else if (instance.files[key].content)
+				else if (instance.files[filename].content)
 				{
-					instance.files[key].modDate = Number.MIN_SAFE_INTEGER;
-					instance.files[key].content = null;
+					instance.files[filename].modDate = Number.MIN_SAFE_INTEGER;
+					instance.files[filename].content = null;
 					hasChanged = true;
 				}
 			}
