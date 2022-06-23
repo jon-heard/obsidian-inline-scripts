@@ -65,7 +65,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	{
 		// Load settings
 		const currentDefaultSettings =
-			this.app.isMobile ?
+			obsidian.Platform.isMobile ?
 			Object.assign({}, DEFAULT_SETTINGS, DEFAULT_SETTINGS_MOBILE) :
 			DEFAULT_SETTINGS;
 		this.settings = Object.assign({}, currentDefaultSettings, await this.loadData());
@@ -481,7 +481,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	// WARNING: user-facing function
 	runExternal(command, silentFail, dontFixSlashes)
 	{
-		if (this.app.isMobile)
+		if (obsidian.Platform.isMobile)
 		{
 			this.notifyUser(
 				"Unauthorized \"runExternal\" call " +
@@ -867,7 +867,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 						this.checkFormatValid();
 					});
 			})
-			.settingEl.toggleClass("tejs_settingBundledTop", !this.plugin.app.isMobile);
+			.settingEl.toggleClass("tejs_settingBundledTop", !obsidian.Platform.isMobile);
 
 		// Suffix
 		new obsidian.Setting(c)
@@ -885,11 +885,11 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 						this.checkFormatValid();
 					});
 			})
-			.settingEl.toggleClass("tejs_settingBundled", !this.plugin.app.isMobile);
+			.settingEl.toggleClass("tejs_settingBundled", !obsidian.Platform.isMobile);
 
 		// Example
 		const exampleOuter = c.createEl("div", { cls: "setting-item" });
-			exampleOuter.toggleClass("tejs_settingBundled", !this.plugin.app.isMobile);
+			exampleOuter.toggleClass("tejs_settingBundled", !obsidian.Platform.isMobile);
 		const exampleInfo = exampleOuter.createEl("div", { cls: "setting-item-info" });
 		exampleInfo.createEl("div", { text: "Example", cls: "setting-item-name" });
 		exampleInfo.createEl("div",
@@ -929,7 +929,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			});
 
 		// Allow external (not available on mobile)
-		if (!this.plugin.app.isMobile)
+		if (!obsidian.Platform.isMobile)
 		{
 			new obsidian.Setting(c)
 				.setName("Allow external")

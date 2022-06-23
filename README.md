@@ -429,6 +429,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.16.10
+- review response - Replaced "plugin.app.isMobile" with "obsidian.Platform.isMobile".
+
 ### 0.16.9
 - bug fix - changing the shortcut-files list in the settings ui, then immediately importing the library causes the changes to be reverted.
 
