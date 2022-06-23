@@ -33,35 +33,50 @@ const DEFAULT_SETTINGS = Object.freeze(
 ^hi$
 ~~
 return "Hello! How are you?";
+~~
+hi - Expands into "Hello! How are you?".  A simple shortcut to see if Text Expander JS is running.
 
 ~~
 ^date$
 ~~
 return new Date().toLocaleDateString();
+~~
+date - Expands into the current, local date.
 
 ~~
 ^time$
 ~~
 return new Date().toLocaleTimeString();
+~~
+time - Expands into the current, local time.
 
 ~~
 ^datetime$
 ~~
 return new Date().toLocaleString();
+~~
+datetime - Expands into the current, local date and time.
 
 ~~
 ~~
 function roll(max) { return Math.trunc(Math.random() * max + 1); }
+~~
+A random "roll" function for other shortcuts.
 
 ~~
 ^[d|D]([0-9]+)$
 ~~
 return "🎲 " + roll($1) + " /D" + $1;
+~~
+d{max} - A dice roller shortcut.  Expands into "🎲 {roll result} /D{max}".  {max} is a required parameter: a positive integer giving the size of dice to roll.
+    - Examples - d3, d20, d57, d999
 
 ~~
 ^[f|F][d|D]([0-9]+)$
 ~~
 return "<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>" + roll($1) + "</b> /D" + $1 + "</span>";
+~~
+fd{max} - Same as d{max}, but with fancy formatting.
 
 ~~
 ^([0-9]*)[d|D]([0-9]+)(|(?:\\+[0-9]+)|(?:\\-[0-9]+))$
@@ -80,7 +95,10 @@ if ($3) {
 	label += $3;
 }
 if (isNaN(label.substr(1))) { label = "(" + label + ")"; }
-return "🎲 " + result + " /" + label;"
+return "🎲 " + result + " /" + label;
+~~
+{count}d{max}{add} - Same as d{max}, but with optional {count} and {add} parameters.  {count} is a positive integer giving the number of dice to roll and add together.  {add} is "+" or "-" followed by a positive integer giving the amount to adjust the result by.
+    - Examples - d100, 3d20, d10+5, 3d6+6"
 `
 });
 
@@ -92,9 +110,9 @@ const DEFAULT_SETTINGS_MOBILE = Object.freeze(
 
 const LONG_NOTE_TIME = 8 * 1000;
 const INDENT = " ".repeat(4);
-const REGEX_HELP_SHORTCUT = /^\^(help [_a-zA-Z0-9]+)\$$/;
 const REGEX_LIBRARY_README_SHORTCUT_FILE = /### tejs_[_a-zA-Z0-9]+\n/g;
 const REGEX_NOTE_METADATA = /^\n*---\n(?:[^-]+\n)?---\n/;
+const REGEX_SPLIT_FIRST_DASH = / - (.*)/s;
 const SHORTCUT_PRINT = function(message)
 {
 	console.info("TEJS Shortcut:\n\t" + message);
@@ -427,17 +445,24 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	}
 
 	// Parses a shortcut-file's contents into a useful data format and returns it
-	parseShortcutFile(filename, content, maintainCodeFence)
+	parseShortcutFile(filename, content, maintainCodeFence, maintainAboutString)
 	{
 		// Remove any note metadata
 		content = content.replace(REGEX_NOTE_METADATA, "");
 
-		content = content.split("~~").map((v) => v.trim());
-		let result = [];
+		// Result vars
+		let fileAbout = "";
+		let shortcutAbouts = [];
+		let shortcuts = [];
+
+		// Flag set when an error occurs.  Used for single popup for ALL file errors.
 		let fileHasErrors = false;
 
-		// Check for the obvious error of misnumbered "~~"
-		if (!(content.length % 2))
+		content = content.split("~~").map(v => v.trim());
+		fileAbout = content[0];
+
+		// Check for the obvious error of misnumbered sections (bounded by "~~")
+		if (!!((content.length-1) % 3))
 		{
 			this.notifyUser(
 				"In Shortcut-file \"" + filename + "\"",
@@ -446,8 +471,8 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		}
 
 		// Parse each shortcut in the file
-		// NOTE: this loop checks i+1 and increments by 2 as we are using both i AND i+1
-		for (let i = 1; i+1 < content.length; i += 2)
+		// NOTE: this loop checks i+2 and increments by 3 as it uses i, i+1 and i+2.
+		for (let i = 1; i+2 < content.length; i += 3)
 		{
 			// Test string handling
 			let testRegex = null;
@@ -482,18 +507,41 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			}
 
 			// Expansion string handling
-			let c = content[i+1];
+			let exp = content[i+1];
 			// Handle the Expansion being in a javascript fenced code-block
 			if (!maintainCodeFence)
 			{
-				if (c.startsWith("```js") && c.endsWith("```"))
+				if (exp.startsWith("```js") && exp.endsWith("```"))
 				{
-					c = c.substring(5, c.length-3).trim();
+					exp = exp.substring(5, exp.length-3).trim();
 				}
 			}
 
 			// Add shortcut to result
-			result.push({ test: testRegex, expansion: c });
+			if (maintainAboutString)
+			{
+				shortcuts.push({
+					test: testRegex, expansion: exp, about: content[i+2] });
+			}
+			else
+			{
+				shortcuts.push({ test: testRegex, expansion: exp });
+			}
+
+			// About string handling
+			// only if not helper script, helper block or setup script
+			if (testRegex.source != "(?:)" && testRegex.source != "^tejs setup$" &&
+			    testRegex.source != "^tejs shutdown$")
+			{
+				let about = content[i+2];
+				about = about.split(REGEX_SPLIT_FIRST_DASH).map(v => v.trim());
+				// If no syntax is included, use the Regex string for the syntax
+				if (about.length == 1)
+				{
+					about = [testRegex.source, about[0]];
+				}
+				shortcutAbouts.push({ syntax: about[0], description: about[1] });
+			}
 		}
 
 		if (fileHasErrors)
@@ -501,14 +549,23 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			this.notifyUser("", "ERR", "Shortcut-file issues\n" + filename, true);
 		}
 
-		return result;
+		return {
+			shortcuts: shortcuts,
+			fileAbout: fileAbout,
+			shortcutAbouts: shortcutAbouts
+		};
 	}
 
-	// Creates entire shortcut list based on shortcuts from shortcut-files and settings
+	// Creates entire shortcut list based on shortcuts from settings and shortcut-files
 	async setupShortcuts()
 	{
+		let abouts = [];
+
 		// Add shortcuts defined directly in the settings
-		this.shortcuts = this.parseShortcutFile("Settings", this.settings.shortcuts);
+		let parseResult = this.parseShortcutFile("settings", this.settings.shortcuts);
+		this.shortcuts = parseResult.shortcuts;
+		abouts.push({ filename: "", shortcutAbouts: parseResult.shortcutAbouts });
+
 		// Add a helper-block to segment helper scripts within their shortcut-files
 		this.shortcuts.push({});
 
@@ -527,27 +584,27 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			const content = await this.app.vault.cachedRead(file);
 
 			// Parse shortcut-file contents
-			let newShortcuts = this.parseShortcutFile(filename, content);
+			parseResult = this.parseShortcutFile(filename, content)
 
 			// Look for a "setup" script in this shortcut-file.  Run if found.
-			for (const newShortcut of newShortcuts)
+			for (const newShortcut of parseResult.shortcuts)
 			{
 				if (newShortcut.test.source == "^tejs setup$")
 				{
 					// If setup script returns TRUE, don't use shortcuts
 					if (this.runExpansionScript(newShortcut.expansion))
 					{
-						newShortcuts = null;
+						parseResults.shortcuts = null;
 					}
 					break;
 				}
 			}
 
 			// If setup script returned true, abort adding the new shortcuts
-			if (!newShortcuts) { continue; }
+			if (!parseResults.shortcuts) { continue; }
 
 			// Look for "shutdown" script in this shortcut-file.  Store if found.
-			for (const newShortcut of newShortcuts)
+			for (const newShortcut of parseResult.shortcuts)
 			{
 				if (newShortcut.test.source == "^tejs shutdown$")
 				{
@@ -557,32 +614,121 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 				}
 			}
 
-			// Add new shortcuts to master list, followed by helper-block.
-			this.shortcuts = this.shortcuts.concat(newShortcuts);
+			// Add new shortcuts to master list, followed by helper-block
+			this.shortcuts = this.shortcuts.concat(parseResult.shortcuts);
 			this.shortcuts.push({});
+
+			// Get the file About string and shortcut About strings
+			let baseName =
+				filename.substring(filename.lastIndexOf("/")+1, filename.length-3);
+			baseName = baseName.startsWith("tejs_") ? baseName.substr(5) : baseName;
+			abouts.push(
+			{
+				filename: baseName,
+				fileAbout: parseResult.fileAbout,
+				shortcutAbouts: parseResult.shortcutAbouts
+			});
 		}
 
-		// Get list of all "help" shortcuts in list of all shortcuts
-		let helpShortcuts = [];
-		for (const shortcut of this.shortcuts)
+		this.setupHelpShortcuts(abouts);
+	}
+
+	// Creates systems help shortcuts and adds them to the shortcuts list
+	setupHelpShortcuts(abouts)
+	{
+		let result = [];
+
+		// Support functions
+		function capitalize(s)
 		{
-			const matchInfo = shortcut.test?.source.match(REGEX_HELP_SHORTCUT);
-			if (matchInfo)
+			return s.charAt(0).toUpperCase() + s.slice(1);
+		}
+		function stringifyString(s)
+		{
+			return s.replaceAll("\"", "\\\"").replaceAll("\n", "\\n");
+		}
+		function makeRefShortcut(groupName, abouts, displayName)
+		{
+			displayName = displayName || capitalize(groupName);
+			let expansion =
+				"let result = \"### Reference - " + displayName + "\\n\";\n";
+			for (const about of abouts)
 			{
-				helpShortcuts.push(matchInfo[1]);
+				let description = "";
+				if (about.description)
+				{
+					description = " - " + stringifyString(about.description);
+				}
+				expansion +=
+					"result += \"- __" + about.syntax + "__" + description +
+					"\\n\";\n";
+			}
+			if (!abouts.length)
+			{
+				expansion += "result += \"   No shortcuts\\n\";\n";
+			}
+			expansion += "return result + \"\\n\";";
+			const test = new RegExp("^ref(?:erence)? " + groupName + "$");
+			result.push({ test: test, expansion: expansion });
+		}
+		function makeAboutShortcut(name, about)
+		{
+			const expansion =
+				"return \"### About - " + capitalize(name) + "\\n" +
+				stringifyString(about) + "\\n\\n\";";
+			const test = new RegExp("^about " + name + "$");
+			result.push({ test: test, expansion: expansion });
+		}
+
+		// Gather info
+		let settingsAbouts = [];
+		let shortcutFileAbouts = [];
+		let shortcutFileList = "";
+		for (const about of abouts)
+		{
+			if (about.filename)
+			{
+				// Make "ref" shortcut
+				makeRefShortcut(about.filename, about.shortcutAbouts);
+				// Make "about" shortcut
+				makeAboutShortcut(about.filename, about.fileAbout);
+
+				shortcutFileList +=
+					"- __about " + about.filename + "__, __ref " +
+					about.filename + "__\\n";
+				shortcutFileAbouts =
+					shortcutFileAbouts.concat(about.shortcutAbouts);
+			}
+			else if (about.shortcutAbouts.length > 0)
+			{
+				settingsAbouts = about.shortcutAbouts;
 			}
 		}
 
-		// Manually build and add generic "help" shortcut based on "help" shortcuts list
-		const helpExpansion =
-			"return \"These shortcuts provide detailed help:\\n" +
-			(helpShortcuts.length ?
-				( "- " + helpShortcuts.join("\\n- ") ) :
-				"NONE AVAILABLE") +
-			"\\n\\n\";"
+		// Create "ref all" shortcut
+		makeRefShortcut("all", settingsAbouts.concat(shortcutFileAbouts), "All shortcuts");
 
-		// Put generic "help" shortcut in line first so it can't be short-circuited
-		this.shortcuts.unshift({ test: new RegExp("^help$"), expansion: helpExpansion });
+		// Create "ref settings" shortcut
+		makeRefShortcut("settings", settingsAbouts);
+
+		// Create "help" shortcut
+		let expansion =
+			"return \"The following shortcuts provide help for all shortcuts and " +
+			"shortcut-files currently setup with __Text Expander JS__:\\n" +
+			"- __help__ - Shows this text.\\n" +
+			"- __ref settings__ - Summarizes shortcuts defined in the Settings.\\n" +
+			"- __ref all__ - Summarizes all shortcuts (except the ones in " +
+			"this list).\\n" +
+			shortcutFileList + "\\n\";";
+		const test = new RegExp("^help$");
+		result.push({ test: test, expansion: expansion });
+
+		// Reversing ensures that "ref all" and "ref shortcut" aren't superseded
+		// by a poorly named shortcut-file
+		result.reverse();
+
+		// Add help shortcuts to main shortcuts list
+		this.shortcuts = result.concat(this.shortcuts);
 	}
 
 	// This function is passed into all Expansion scripts to allow them to run shell commands
@@ -791,8 +937,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			.addButton((button) =>
 			{
 				return button
-					.setClass("tejs_button")
 					.setButtonText("Add file reference")
+					.setClass("tejs_button")
 					.onClick(() =>
 					{
 						addShortcutFileUi();
@@ -801,8 +947,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			.addButton((button) =>
 			{
 				return button
-					.setClass("tejs_button")
 					.setButtonText("Import full library")
+					.setClass("tejs_button")
 					.onClick(() =>
 					{
 						new ConfirmDialogBox(
@@ -826,9 +972,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		});
 		const addShortcutFileUi = (text) =>
 		{
-			let g = this.shortcutFileUis.createEl("div");
-			let e = g.createEl(
-					"input", { cls: "tejs_shortcutFile" });
+			let g = this.shortcutFileUis.createEl("div", { cls: "tejs_shortcutFile" });
+			let e = g.createEl("input", { cls: "tejs_shortcutFileAddress" });
 				e.setAttr("type", "text");
 				e.setAttr("placeholder", "Filename");
 				e.plugin = this.plugin;
@@ -848,14 +993,14 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 					e.setAttr("value", text);
 				}
 				e.dispatchEvent(new Event("input"));
-			e = g.createEl("button", { cls: "tejs_upButton" });
+			e = g.createEl("button", { cls: "tejs_upButton tejs_button" });
 				e.group = g;
 				e.onclick = upButtonClicked;
 				e.listOffset = 1;
-			e = g.createEl("button", { cls: "tejs_downButton" });
+			e = g.createEl("button", { cls: "tejs_downButton tejs_button" });
 				e.group = g;
 				e.onclick = downButtonClicked;
-			e = g.createEl("button", { cls: "tejs_deleteButton" });
+			e = g.createEl("button", { cls: "tejs_deleteButton tejs_button" });
 				e.group = g;
 				e.onclick = deleteButtonClicked;
 				e.plugin = this.plugin;
@@ -876,8 +1021,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			.addButton((button) =>
 			{
 				return button
-					.setClass("tejs_button")
 					.setButtonText("Add shortcut")
+					.setClass("tejs_button")
 					.onClick(() =>
 					{
 						addShortcutUi();
@@ -886,13 +1031,14 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			.addButton((button) =>
 			{
 				return button
-					.setClass("tejs_button")
 					.setButtonText("Add defaults")
+					.setClass("tejs_button")
 					.onClick(function()
 					{
 						let defaultShortcuts =
 							this.plugin.parseShortcutFile("Settings",
-							DEFAULT_SETTINGS.shortcuts, true);
+							DEFAULT_SETTINGS.shortcuts, true, true).
+							shortcuts;
 
 						// We don't want to duplicate shortcuts, and it's
 						// important to keep defaults in-order.  Remove
@@ -924,14 +1070,14 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 						e.value = "";
 					}
 				}
-			e = g.createEl("button", { cls: "tejs_upButton" });
+			e = g.createEl("button", { cls: "tejs_upButton tejs_button" });
 				e.group = g;
 				e.onclick = upButtonClicked;
 				e.listOffset = 0;
-			e = g.createEl("button", { cls: "tejs_downButton" });
+			e = g.createEl("button", { cls: "tejs_downButton tejs_button" });
 				e.group = g;
 				e.onclick = downButtonClicked;
-			e = g.createEl("button", { cls: "tejs_deleteButton" });
+			e = g.createEl("button", { cls: "tejs_deleteButton tejs_button" });
 				e.group = g;
 				e.onclick = deleteButtonClicked;
 				e.plugin = this.plugin;
@@ -942,10 +1088,16 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 				{
 					e.value = shortcut.expansion;
 				}
+			e = g.createEl("textarea", { cls: "tejs_shortcutAbout" });
+				e.setAttr("placeholder", "About (text)");
+				if (shortcut)
+				{
+					e.value = shortcut.about;
+				}
 		};
 		// Add a shortcut ui item for each shortcut in settings
 		const shortcuts = this.plugin.parseShortcutFile(
-			"Settings", this.tmpSettings.shortcuts, true);
+			"Settings", this.tmpSettings.shortcuts, true, true).shortcuts;
 		for (const shortcut of shortcuts)
 		{
 			addShortcutUi(shortcut);
@@ -1078,15 +1230,16 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		{
 			this.tmpSettings.shortcuts +=
 				"~~\n" + shortcut.test + "\n" +
-				"~~\n" + shortcut.expansion + "\n";
+				"~~\n" + shortcut.expansion + "\n" +
+				"~~\n" + shortcut.about + "\n\n";
 		}
 
 		// If the shortcut setting was changed, set the "forceRefreshShortcuts" variable.
 		// Start easy: check for a change in the number of shortcuts in the setting.
-		const oldShortcuts =
-			this.plugin.parseShortcutFile("", this.plugin.settings.shortcuts, true);
-		const newShortcuts =
-			this.plugin.parseShortcutFile("", this.tmpSettings.shortcuts, true);
+		const oldShortcuts = this.plugin.parseShortcutFile(
+			"", this.plugin.settings.shortcuts, true, true).shortcuts;
+		const newShortcuts = this.plugin.parseShortcutFile(
+			"", this.tmpSettings.shortcuts, true, true).shortcuts;
 		let forceRefreshShortcuts = (newShortcuts.length != oldShortcuts.length);
 
 		// If old & new shortcut settings have the same shortcut count, check each
@@ -1096,7 +1249,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			for (let i = 0; i < newShortcuts.length; i++)
 			{
 				if (newShortcuts[i].test.source != oldShortcuts[i].test.source ||
-				    newShortcuts[i].expansion != oldShortcuts[i].expansion)
+				    newShortcuts[i].expansion != oldShortcuts[i].expansion ||
+				    newShortcuts[i].about != oldShortcuts[i].about)
 				{
 					forceRefreshShortcuts = true;
 					break;
@@ -1157,7 +1311,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			{
 				result.push({
 					test: shortcutUi.childNodes[0].value,
-					expansion: shortcutUi.childNodes[4].value
+					expansion: shortcutUi.childNodes[4].value,
+					about: shortcutUi.childNodes[5].value
 				});
 			}
 		}

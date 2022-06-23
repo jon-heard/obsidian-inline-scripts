@@ -27,9 +27,16 @@
 }
 .tejs_shortcutFile
 {
-	width: calc(90% - 5.9em) !important;
 	margin-bottom: 1em;
+}
+.tejs_shortcutFileAddress
+{
+	width: calc(90% - 5.9em);
 	display: inline !important;
+}
+.is-mobile .tejs_shortcutFileAddress
+{
+	width: calc(90% - 6.6em) !important;
 }
 .tejs_badInput
 {
@@ -37,21 +44,27 @@
 }
 .tejs_shortcut
 {
-	text-align: right;
-	width: 100%;
-	margin-bottom: 1em;
+	margin-bottom: 2em;
 }
 .tejs_shortcutTest
 {
-	width: calc(90% - 5.9em) !important;
+	width: calc(90% - 5.9em);
 	display: inline !important;
 }
-.tejs_shortcutExpansion
+.is-mobile .tejs_shortcutTest
+{
+	width: calc(90% - 6.6em) !important;
+}
+.tejs_shortcutExpansion, .tejs_shortcutAbout
 {
 	width: 90%;
 	margin-top: 0.2em;
 	background: var(--background-modifier-form-field);
 	height: 6em;
+}
+.tejs_shortcutAbout
+{
+	height: 4.5em;
 }
 .tejs_deleteButton, .tejs_upButton, .tejs_downButton
 {
@@ -120,10 +133,6 @@
 	background-color: red;
 	color: white;
 }
-.is-mobile .tejs_button
-{
-	margin: 0em .25em !important;
-}
 #tejs_inputBlock
 {
 	position: absolute;
@@ -142,4 +151,8 @@
 .tejs_version + h2
 {
 	margin-top: 0;
+}
+.tejs_button
+{
+	margin-left: .25em !important;
 }

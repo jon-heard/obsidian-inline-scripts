@@ -58,7 +58,7 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
     - To the right of each shortcut-file entry are a set of buttons.
         - The up and down button let you shift the shortcut-file entry up and down in the list.
         - The trashcan button lets you delete the shortcut-file entry.
-- __Shortcuts__ - A list of shortcuts, which are Test and Expansion string pairs.  This lets you add individual shortcuts directly, without needing a shortcut-file.
+- __Shortcuts__ - A list of shortcuts, each of which includes a Test, Expansion and About string.  This lets you add individual shortcuts directly, without needing a shortcut-file.
     - The "Add shortcut" button adds a blank shortcut entry to the bottom of the Shortcuts setting.
     - The "Add defaults" button adds default shortcuts to the Shortcuts setting.
     - To the right of each shortcut entry are a set of buttons.
@@ -114,7 +114,7 @@ NOTE: This will be _much_ easier once the plugin has been reviewed and added to 
 
 ### Try out the plugin
 1. Open a note to try out the plugin.
-2. In the note, type `;;hi;` (`!!hi!` on mobile).  Notice that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
+2. In the note, type `;;hi;` (`!!hi!` on mobile).  Notice that the shortcut expands to "Hello! How are you?" as soon as you've finished typing it.
 3. In the note, type `;;d100;` (`!!d100!` on mobile).  Notice that the shortcut expands to a roll-result as soon as you've finished typing it.
 4. Repeat step 3.  Note that the roll result is (most likely) different.  If it is _not_ different, then you just got lucky so try step 3 again.
 
@@ -124,10 +124,10 @@ __Text Expander JS__ comes with the following sample shortcuts defined by defaul
 - date
 - time
 - datetime
-- d{max} - Dice roll.
+- d{max} - Dice roller.
     - Examples - d3, d20, d57, d999
 - fd{max} - Same as d{max}, but with fancier formatting.
-- {count}d{max}{add} - Same as d{max}, but with optional {count} and {add}.  {count} is the number of dice to roll and add together.  {add} is "+" or "-" followed by a number to shift the result by.
+- {count}d{max}{add} - Same as d{max}, but with optional {count} and {add}.
     - Examples - d100, 3d20, d10+5, 3d6+6
 
 ***
@@ -135,16 +135,31 @@ __Text Expander JS__ comes with the following sample shortcuts defined by defaul
 
 ## TUTORIAL: Create a new shortcut
 ### Shortcut components
-Each shortcut is defined by a pair of strings.
+Each shortcut is defined by three strings.
 - __Test string__ - This is a regex.  That means that it is a code used to identify a pattern in another string.  The Test string is regex used to determine whether a shortcut the user has typed matches _this_ shortcut.
 - __Expansion string__ - This is a javascript script.  It is used to define what this shortcut expands into.  If the user types a shortcut, and it is accepted by the Test string, the Expansion string script is called and the result is added to the note, replacing the user-typed shortcut.
+- __About string__ - This is formatted prose to describe this shortcut's syntax, expansion and purpose.  It begins with the shortcut's syntax, then there is a dash, followed by a description of the shortcut.  __The About string _can_ be safely left blank.__
 
-### Examples
-| Test | Expansion | Overview |
-| ---- | --------- | -------- |
-| hi | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;hi;` (`!!hi!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;hi;` or `!!hi!`) will be replaced with `Hello! How are you?`. |
-| ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in all of your shortcuts, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (`!!date!` on mobile) it will be replaced with the current date. |
-| ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; |  This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis make variable `$1`, a second parenthesis would make the variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3;` (`!!age 3!` on mobile) the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21;` (`!!age 21!` on mobile), it will be replaced with `I am 21 years old.`
+| Id | Test string | Expansion string | About string |
+| -- | ----------- | ---------------- | ------------ |
+|  1 | hi | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | hi - Expands into "Hello! How are you?".  A simple shortcut to see if Text Expander JS is running. |
+|  2 | ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | Expands into the current, local date. |
+|  3 | ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; | age {how old} - Expands into "I am {how old} years old".  {how old} is a required parameter that can be any positive integer.  This is a demo shortcut written for this documentation. |
+
+#### Shortcut #1 - hi (basic)
+At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;hi;` (`!!hi!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;hi;` or `!!hi!`) will be replaced with `Hello! How are you?`.
+
+Note the format of the About string.  It contains the syntax ("hi"), a dash, then the description: the shortcut's expansion and purpose.
+
+#### Shortcut #2 - date (intermediate)
+This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in all of your test strings, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (`!!date!` on mobile) it will be replaced with the current date.
+
+This About string contains no syntax or purpose, only the expansion.  The purpose is obvious, so is left out.  The syntax, if ommitted, always defaults to the Test string.  For this shortcut, the About syntax is `^date$`.
+
+#### Shortcut #3 - age (advanced)
+This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis are put into variable `$1`, a second parenthesis would be put into variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3;` (`!!age 3!` on mobile) the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21;` (`!!age 21!` on mobile), it will be replaced with `I am 21 years old`.
+
+The About string starts with the syntax, including a named descriptor `{how old}` representing the single parameter text.  After the syntax (and dash) is the expansion.  Then `{how old}` is described, including whether the parameter is __required__ or __optional__ and what format it accepts.
 
 ### Step-by-step: Adding a shortcut
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see the tutorial [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out).)
@@ -152,14 +167,15 @@ Each shortcut is defined by a pair of strings.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
     2. In the left menu of the settings panel, find and click __Text Expander JS__.  It is beneath "Plugin Options", near the bottom.  This opens the Plugin options for __Text Expander JS__.
 3. Go down to the "Shortcuts" setting.  It's the second setting in the panel, just after "Shortcut-files". _(see picture below)_
-4. The setting has two buttons: "Add shortcut" and "Add defaults".  Click on the "Add shortcut" button.  This adds a shortcut entry to the bottom of the "Shortcuts" setting.  The new entry should include two textboxes with the words "Test (regex)" and "Expansion (javascript)" in grey text. _(see picture below)_
-5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: `test` and `return "The test worked.";`. _(see picture below)_
+4. The setting has two buttons: "Add shortcut" and "Add defaults".  Click on the "Add shortcut" button.  This adds a shortcut entry to the bottom of the "Shortcuts" setting.  The new entry should include three textboxes with the greyed text "Test (regex)", "Expansion (javascript)" and "About (text)".  _(see picture below)_
+5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: `test` and `return "The test worked.";`.  The About string is optional.  If entered, follow the format: syntax, dash, description.  _(see picture below)_
 
     ![Shortcuts](readmeMedia/shortcuts.png)
-7. Close the settings panel.
+
+6. Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
-8. Try typing your new shortcut into a note to make sure it works.
+7. Try typing your new shortcut into a note to make sure it works.
 
 ***
 ***
@@ -186,7 +202,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
 7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;event;` or `;;une;` (`!!event!` or `!!une!` on mobile).
-8. You can type `;;help;` (`!!help!` on mobile) to start learning about the shortcuts provided by the library.
+8. You can type `;;help;` (`!!help!` on mobile) to start learning about all of the shortcuts provided by the library.
 
 ### Step-by-step: Adding a SINGLE shortcut-file to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
@@ -213,7 +229,12 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
 7. The shortcuts defined in the shortcut-file should now work.  Try typing one of the shortcuts to confirm this.
 
 ### Help shortcuts
-Each shortcut-file should have a "help" shortcut that lists the shortcuts provided by the file.  For example, the "state" shortcut-file includes the shortcut `help state`.  __Text Expander JS__ includes a hardcoded shortcut `help` which lists all of the help shortcuts currently active in the vault.
+There are a series of help shortcuts that are always available:
+- `help` shows a summary of all help shortcuts available.
+- `about name` shortcut is created for each shortcut-file, providing a description of the shortcut-file's purpose.
+    - Example - `about state` shows a description of the "tejs_state" shortcut-file.
+- `ref name` is created for each shortcut-file, providing a list of shortcuts with a summary for each.
+    - Example - `ref state` shows a list and summary all shortcuts provided by the "tejs_state" shortcut-file.
 
 ***
 ***
@@ -222,9 +243,9 @@ Each shortcut-file should have a "help" shortcut that lists the shortcuts provid
 
 ### NOTE: If you make a shortcut-file you think others would like, it'd be real nice if you could share it [here](https://github.com/jon-heard/obsidian-text-expander-js/discussions)!  If it is polished and generally useful, then I'll even add it to the [library of shortcut-files](https://github.com/jon-heard/obsidian-text-expander-js_shortcutFileLibrary).
 
-This tutorial assumes that you have read and understood the tutorial [Create a new shortcut](#tutorial-create-a-new-shortcut), and are at least aware that the tutorial [Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault) shows how to setup an existing shortcut-file.
+This tutorial assumes that you have read and understood the tutorial "[Create a new shortcut](#tutorial-create-a-new-shortcut)", and are at least aware that the tutorial "[Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)" shows how to setup an existing shortcut-file.
 
-A shortcut-file contains multiple shortcuts.  Each shortcut contains a Test string and an Expansion string.  A shortcut-file will typically bundle collections of shortcuts that work toward a common goal, such as a particular functionality (saving & loading) or a particular system (Dungeons and Dragons).
+A shortcut-file contains multiple shortcuts.  Each shortcut contains a Test string, an Expansion string and an About string.  A shortcut-file will typically bundle collections of shortcuts that work toward a common goal, such as a particular functionality (saving & loading) or a particular system (Dungeons and Dragons).
 
 ### Examples
 Here is a minimal example of a shortcut-file's contents:
@@ -232,6 +253,7 @@ Here is a minimal example of a shortcut-file's contents:
 > test<br/>
 > ~~<br/>
 > return "The test worked.";<br/>
+> ~~
 
 This shortcut-file contains a single shortcut.  Notice that `~~` separate each section.
 
@@ -243,13 +265,18 @@ Here is another, more meaty, example:
 > ^name$<br/>
 > ~~<br/>
 > return "Maggie Smith";<br/>
+> ~~<br/>
+> name - Expands to "Maggie smith".<br/>
 > <br/>
 > ~~<br/>
-> ^expand ([a-zA-Z])$<br/>
+> ^repeat ([a-zA-Z])$<br/>
 > ~~<br/>
-> return $1.repeat(10);<br/>
+> return $1.repeat(5);<br/>
+> ~~<br/>
+> repeat {to repeat} - Expands to 5 repetitions of {to repeat}: "aaaaa".  {to repeat} is a required parameter that contains a single alpha character.<br/>
+>
 
-This shortcut-file begins with some comments, then it contains two shortcuts.  Notice that the first `~~` is placed after the initial comments.  Every shortcut-file starts with a section for comments.  This includes the minimal example before this one, though in that case the comments section is empty.  Also notice that there are empty lines between sections.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
+This shortcut-file begins with an About string (a description of itself), then it contains two shortcuts.  Notice that the first `~~` is placed after the shorcut-file's About string.  Every shortcut-file starts with an About string, including the minimal example, though in that case the About string is empty.  Also notice that there are empty lines between each section of this shortcut-file.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
 
 ### Developer mode
 Developer mode is an on/off setting available at the bottom of the __Text Expander JS__ plugin options _(see picture below)_.  When "Developer mode" is on, all shortcuts will be reloaded whenever you leave a shortcut-file note (by selecting a different note, or closing the shortcut-file note).  This lets you edit a shortcut-file note, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
@@ -257,7 +284,7 @@ Developer mode is an on/off setting available at the bottom of the __Text Expand
 ![Developer mode](readmeMedia/devMode.png)
 
 ### Help shortcuts
-It is _highly_ recommended that every shortcut-file contain a "help" shortcut, preferrably as the first shortcut in the file.  A "help" shortcut is written to provide a reference to users of the shortcut-file.  It should expand into a list of the shortcuts and a brief description of each.  When writing a help shortcut, use "^help name$" for its Test string, where "name" is specific to the shortcut-file.  For example, the "state" shortcut-file includes the shortcut `help state`.  This pattern lets the system recognize "help" shortcuts.
+A shortcut-file's About text, and each shortcut's about text are used to create help shortcuts for the user.  See the section [Help shortcuts](#help-shortcuts) for more information about this.
 
 ***
 ***
@@ -333,8 +360,8 @@ Be aware that the runExternal function will _always_ fail with an authorization 
 ![Allow external setting](readmeMedia/allowExternal.png)
 
 ### Examples
-| Test | Expansion | Overview |
-| ---- | --------- | -------- |
+| Test string | Expansion string | Overview |
+| ----------- | ---------------- | -------- |
 | ^test&nbsp;shell$ | return&nbsp;runExternal("echo&nbsp;Hello&nbsp;from&nbsp;the&nbsp;shell"); | When the user types `;;test shell;`, the shell command `echo Hello from the shell` is run, which prints "Hello from the shell" to the console.  Once the echo command is finished, its console output is returned from runExternal, then that is returned from the Expansion script and, finally, expanded into the note. |
 | ^runMyScript$ | return&nbsp;runExternal("python&nbsp;myscript.py"); | When the user types `;;runMyScript;`, the command will execute python on "myscript.py", which may print something to the console.  Once the command is finished, runExternal will return any console output (or an empty string if there was none), which is then returned from the Expansion script and, thus, expanded into the note.<br/><br/>If Python is setup properly, the Expansion script could have simply been `return runExternal("myscript.py");`.<br/><br/>If python is not installed, or myscript.py is not in the vault's root folder, or even if myscript.py has a python error, then the shell command will fail.  This will cause runExternal to return null, and an error notification and console log to show up. |
 | ^exec&nbsp;(.*)$ | let&nbsp;result&nbsp;=&nbsp;runExternal($1);<br/>if&nbsp;(result === null)&nbsp;{&nbsp;result&nbsp;=&nbsp;"FAILED";&nbsp;}<br/>return&nbsp;"Shell&nbsp;command&nbsp;result&nbsp;=&nbsp;\""&nbsp;+&nbsp;result&nbsp;+&nbsp;"\"."; | This shortcut allows the user to run _any_ shell command.  For example, typing `;;exec dir;` will get the vault root-folder's contents and expand them into the note. |
@@ -368,16 +395,19 @@ If you add a shortcut with an empty Test string, then that shortcut is a "helper
 If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper block".  A helper block prevents any helper scripts above it from being available to any shortcuts after it.  You probably won't need helper blocks, but they are there in case you do.  They are also used to separate shortcut-files so that the helper scripts in one shortcut-file don't affect the shortcuts of other files.
 
 ### Example
-| id | Test  | Expansion                                                      |
-| -- | ----  | -------------------------------------------------------------- |
-|  1 | hi    | return "Hello! How are you?";                                  |
-|  2 |       | function roll(x) { return Math.trunc(Math.random() * x) + 1; } |
-|  3 | d10   | return "Rolled " + roll(10) + " on a D10.";                    |
-|  4 | d20   | return "Rolled " + roll(20) + " on a D20.";                    |
-|  5 |       |                                                                |
-|  6 | bye   | return "Goodbye.  Thanks for your time!";                      |
+| id | Test string | Expansion string                                               |
+| -- | ----------- | -------------------------------------------------------------- |
+|  1 | hi          | return "Hello! How are you?";                                  |
+|  2 |             | function roll(x) { return Math.trunc(Math.random() * x) + 1; } |
+|  3 | d10         | return "Rolled " + roll(10) + " on a D10.";                    |
+|  4 | d20         | return "Rolled " + roll(20) + " on a D20.";                    |
+|  5 |             |                                                                |
+|  6 | bye         | return "Goodbye.  Thanks for your time!";                      |
 
 In this list of shortcuts, the shortcut #2 has an empty Test string.  That means that it is a "helper script". The code in its Expansion string (a function called "roll") is available to shortcuts after it.  Shortcut #5 is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  The net effect is that shortcuts #3 and #4 have access to the helper script, while shortcuts #1 and #6 do not.
+
+### Help shortcuts
+Helper scripts and Helper blocks are not mentioned in the help shortcuts, though their About string can still contain help text.
 
 ***
 
@@ -387,8 +417,8 @@ A shortcut-file can contain a "setup script".  A setup script will run whenever 
 A shortcut-file can contain a "shutdown script".  A shutdown script will run when a shortcut-file is being disabled, either when it is removed from the shortcut-file list, or when __Text Expander JS__ is being disabled or uninstalled.  A shutdown script is defined as a shortcut with a specific Test string of `^tejs shutdown$`.  This feature is useful if your shortcut-file needs to clean-up when being disabled.
 
 ### Example
-| Test | Expansion | Overview |
-| ---- | --------- | -------- |
+| Test string | Expansion string | Overview |
+| ----------- | ---------------- | -------- |
 | ^tejs&nbsp;setup$ | window._tejsState&nbsp;\|\|=&nbsp;{};<br/>window._tejsState.clips&nbsp;\|\|=&nbsp;{}; | This setup script creates some global variables that shortcuts in the shortcut-file presumably rely upon.<br/><br/>Notice that the setup script only creates the global variables if they don't yet exist (`\|\|=`).  This is important as a setup script _may_ be run many times during a session.  We don't want later runs to wipe out anything that was created earlier. |
 
 ***
