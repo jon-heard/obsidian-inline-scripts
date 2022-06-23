@@ -1356,8 +1356,7 @@ class Dfc
 	// If the file is one of the ones being monitored, refreshFnc is called.
 	onAnyFileAddedOrRemoved(file)
 	{
-		if (this.files.hasOwnProperty(file.path) &&
-		    this.monitorType != DfcMonitorType.None)
+		if (this.files.hasOwnProperty(file.path))
 		{
 			this.refresh(true);
 		}
@@ -1367,7 +1366,6 @@ class Dfc
 	// The Dfc's current monitored files list is updated to match.
 	// If this ends up changing the Dfc's list, refreshFnc called.
 	// Alternately, forceRefresh being true will force refreshFnc to be called.
-	// NOTE: This is the only way refreshFnc is called when monitorType is "None".
 	updateFileList(newFileList, forceRefresh)
 	{
 		let hasChanged = false;
