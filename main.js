@@ -49,10 +49,6 @@ const INDENT = " ".repeat(4);
 const HELP_SHORCTUT_REGEX = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
 const LIBRARY_README_SHORTCUT_FILE_REGEX = new RegExp(/### tejs_[_a-zA-Z0-9]+\n/g);
 
-// These are set when the plugin starts
-let IS_MOBILE = false;
-let IS_WINDOWS = false;
-
 Object.freeze(DEFAULT_SETTINGS);
 Object.freeze(DEFAULT_SETTINGS_MOBILE);
 
@@ -67,13 +63,9 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 
 	async onload()
 	{
-		// Determine platform
-		IS_MOBILE = this.app.isMobile;
-		IS_WINDOWS = navigator.appVersion.contains("Windows");
-
 		// Load settings
 		const currentDefaultSettings =
-			IS_MOBILE ?
+			this.app.isMobile ?
 			Object.assign({}, DEFAULT_SETTINGS, DEFAULT_SETTINGS_MOBILE) :
 			DEFAULT_SETTINGS;
 		this.settings = Object.assign({}, currentDefaultSettings, await this.loadData());
@@ -489,7 +481,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	// WARNING: user-facing function
 	runExternal(command, silentFail, dontFixSlashes)
 	{
-		if (IS_MOBILE)
+		if (this.app.isMobile)
 		{
 			this.notifyUser(
 				"Unauthorized \"runExternal\" call " +
@@ -517,7 +509,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		if (!command) { return null; }
 
 		// Fix slashes in Windows commands
-		if (IS_WINDOWS && !dontFixSlashes)
+		if (navigator.appVersion.contains("Windows") && !dontFixSlashes)
 		{
 			command = command.replaceAll("/", "\\");
 		}
@@ -875,7 +867,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 						this.checkFormatValid();
 					});
 			})
-			.settingEl.toggleClass("tejs_settingBundledTop", !IS_MOBILE);
+			.settingEl.toggleClass("tejs_settingBundledTop", !this.plugin.app.isMobile);
 
 		// Suffix
 		new obsidian.Setting(c)
@@ -893,11 +885,11 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 						this.checkFormatValid();
 					});
 			})
-			.settingEl.toggleClass("tejs_settingBundled", !IS_MOBILE);
+			.settingEl.toggleClass("tejs_settingBundled", !this.plugin.app.isMobile);
 
 		// Example
 		const exampleOuter = c.createEl("div", { cls: "setting-item" });
-			exampleOuter.toggleClass("tejs_settingBundled", !IS_MOBILE);
+			exampleOuter.toggleClass("tejs_settingBundled", !this.plugin.app.isMobile);
 		const exampleInfo = exampleOuter.createEl("div", { cls: "setting-item-info" });
 		exampleInfo.createEl("div", { text: "Example", cls: "setting-item-name" });
 		exampleInfo.createEl("div",
@@ -937,7 +929,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			});
 
 		// Allow external (not available on mobile)
-		if (!IS_MOBILE)
+		if (!this.plugin.app.isMobile)
 		{
 			new obsidian.Setting(c)
 				.setName("Allow external")
