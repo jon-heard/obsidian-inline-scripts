@@ -429,6 +429,10 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.16.11
+- Polished code - refactored "settings.getShortcutReferencesFromUi()" to "settings.getShortcutFilesFromUi()"
+- Polished code - Improved code readability of DEFAULT_SETTINGS
+
 ### 0.16.10
 - review response - Replaced "plugin.app.isMobile" with "obsidian.Platform.isMobile".
 

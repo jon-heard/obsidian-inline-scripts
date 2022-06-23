@@ -23,21 +23,51 @@ const childProcess = require("child_process");
 
 const DEFAULT_SETTINGS =
 {
-	shortcutFiles: [],
-	shortcuts:
-		"~~\ngreet\n~~\nreturn \"Hello.  How are you?\";\n\n" +
-		"~~\n^date$\n~~\nreturn new Date().toLocaleDateString();\n\n" +
-		"~~\n^time$\n~~\nreturn new Date().toLocaleTimeString();\n\n" +
-		"~~\n^datetime$\n~~\nreturn new Date().toLocaleString();\n\n" +
-		"~~\n~~\nfunction roll(max) { return Math.trunc(Math.random() * max + 1); }\n\n" +
-		"~~\n^[d|D]([0-9]+)$\n~~\nreturn \"🎲 \" + roll($1) + \" /D\" + $1;\n\n" +
-		"~~\n^[f|F][d|D]([0-9]+)$\n~~\nreturn \"<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>\" + roll($1) + \"</b> /D\" + $1 + \"</span>\";\n\n" +
-		"~~\n^([0-9]*)[d|D]([0-9]+)(|(?:\\+[0-9]+)|(?:\\-[0-9]+))$\n~~\n$1 = Number($1) || 1;\nlet result = 0;\nlet label = \"D\" + $2;\nif ($1 > 1) { label += \"x\" + $1; }\nfor (let i = 0; i < $1; i++) { result += roll($2); }\nif ($3) {\n\tif ($3.startsWith(\"+\")) {\n\t\tresult += Number($3.substr(1));\n\t} else {\n\t\tresult -= Number($3.substr(1));\n\t}\n\tlabel += $3;\n}\nif (isNaN(label.substr(1))) { label = \"(\" + label + \")\"; }\nreturn \"🎲 \" + result + \" /\" + label;\n\n"
-	,
 	prefix: ";;",
 	suffix: ";",
 	devMode: false,
-	allowExternal: false
+	allowExternal: false,
+	shortcutFiles: [],
+	shortcuts:
+		"~~\n" +
+		"greet\n" +
+		"~~\n" +
+		"return \"Hello.  How are you?\";\n\n" +
+
+		"~~\n" +
+		"^date$\n" +
+		"~~\n" +
+		"return new Date().toLocaleDateString();\n\n" +
+
+		"~~\n" +
+		"^time$\n" +
+		"~~\n" +
+		"return new Date().toLocaleTimeString();\n\n" +
+
+		"~~\n" +
+		"^datetime$\n" +
+		"~~\n" +
+		"return new Date().toLocaleString();\n\n" +
+
+		"~~\n" +
+		"~~\n" +
+		"function roll(max) { return Math.trunc(Math.random() * max + 1); }\n\n" +
+
+		"~~\n" +
+		"^[d|D]([0-9]+)$\n" +
+		"~~\n" +
+		"return \"ðŸŽ² \" + roll($1) + \" /D\" + $1;\n\n" +
+
+		"~~\n" +
+		"^[f|F][d|D]([0-9]+)$\n" +
+		"~~\n" +
+		"return \"<span style='background-color:lightblue;color:black;padding:0 .25em'>ðŸŽ² <b>\" + roll($1) + \"</b> /D\" + $1 + \"</span>\";\n\n" +
+
+		"~~\n" +
+		"^([0-9]*)[d|D]([0-9]+)(|(?:\\+[0-9]+)|(?:\\-[0-9]+))$\n" +
+		"~~\n" +
+		"$1 = Number($1) || 1;\n" +
+		"let result = 0;\nlet label = \"D\" + $2;\nif ($1 > 1) { label += \"x\" + $1; }\nfor (let i = 0; i < $1; i++) { result += roll($2); }\nif ($3) {\n\tif ($3.startsWith(\"+\")) {\n\t\tresult += Number($3.substr(1));\n\t} else {\n\t\tresult -= Number($3.substr(1));\n\t}\n\tlabel += $3;\n}\nif (isNaN(label.substr(1))) { label = \"(\" + label + \")\"; }\nreturn \"ðŸŽ² \" + result + \" /\" + label;\n\n"
 };
 const DEFAULT_SETTINGS_MOBILE =
 {
@@ -957,7 +987,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 	hide()
 	{
 		// Get shortcut-files list
-		this.tmpSettings.shortcutFiles = this.getShortcutReferencesFromUi();
+		this.tmpSettings.shortcutFiles = this.getShortcutFilesFromUi();
 
 		// Build Shortcuts setting from UI (a string in Shortcut-file format)
 		let shortcuts = this.getShortcutsFromUi();
@@ -1020,7 +1050,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 	}
 
 	// Create a shortcut-files list from the shortcut-files UI
-	getShortcutReferencesFromUi()
+	getShortcutFilesFromUi()
 	{
 		let result = [];
 		for (const shortcutFileUi of this.shortcutFileUis.childNodes)
@@ -1107,7 +1137,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		// However, if all shortcut-file references in the settings that match files in
 		// the library are in a single folder, ask user if they want to use that folder
 		// instead of the default library destination.
-		let shortcutReferences = this.getShortcutReferencesFromUi();
+		let shortcutReferences = this.getShortcutFilesFromUi();
 		// The filenames of referenced shortcut-files
 		let shortcutReferenceFilenames =
 			shortcutReferences.map(s => s.substring(s.lastIndexOf("/")+1, s.length-3));
@@ -1200,7 +1230,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 
 		// Before adding the library shortcut-files to the plugin settings, we should
 		// update the plugin settings with the latest changes made in the settings ui.
-		this.plugin.settings.shortcutFiles = this.getShortcutReferencesFromUi();
+		this.plugin.settings.shortcutFiles = this.getShortcutFilesFromUi();
 
 		// Add shortcut-file references, for new shortcut-files, to the settings
 		for (const shortcutFile of shortcutFiles)
