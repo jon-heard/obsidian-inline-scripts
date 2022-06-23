@@ -1293,12 +1293,12 @@ class Dfc
 		// (DfcMonitorType: None, OnChange or OnTouch)
 		this.monitorType = monitorType || DfcMonitorType.None;
 
-		// Delay setting up the monitored files list, since it will probably trigger a
-		// refreshFnc call.  refreshFnc might expect this Dfc to already be assigned
-		// to a variable, which won't happen until after this constructor is finished.
+		// Delay setting up the monitored files list, since it will trigger a refreshFnc
+		// call, and refreshFnc might expect this Dfc to already be assigned to a variable,
+		// which it won't be until AFTER this constructor is finished.
 		setTimeout(() =>
 		{
-			this.updateFileList(filenames);
+			this.updateFileList(filenames, true);
 		}, 0);
 
 		// At Obsidian start, the following events trigger randomly.  We use onLayoutReady
