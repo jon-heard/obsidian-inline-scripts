@@ -429,6 +429,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.16.9
+- bug fix - changing the shortcut-files list in the settings ui, then immediately importing the library causes the changes to be reverted.
+
 ### 0.16.8
 - Responded to review: replaced plugin's platform vars with direct API references.
 - Responded to review: renamed local copy of "activeFile" to better signify its meaning (a cache to reference upon the activeFile changing).

@@ -1198,6 +1198,10 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			}
 		}
 
+		// Before adding the library shortcut-files to the plugin settings, we should
+		// update the plugin settings with the latest changes made in the settings ui.
+		this.plugin.settings.shortcutFiles = this.getShortcutReferencesFromUi();
+
 		// Add shortcut-file references, for new shortcut-files, to the settings
 		for (const shortcutFile of shortcutFiles)
 		{
