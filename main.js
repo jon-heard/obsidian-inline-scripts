@@ -1273,84 +1273,101 @@ class Dfc
 	constructor(plugin, filenames, refreshFnc, monitorType)
 	{
 		this.plugin = plugin;
-		this.activeFilesName = "";
-		this.isActiveFileModified = false;
-		// The list of files this Dfc monitors
-		this.files = {};
-		// The callback for when monitored files have triggered a refresh
-		this.refreshFnc = refreshFnc;
-		// What happes to monitored files to trigger calling the refresh callback
-		// (changed, lost focus or none)
-		this.monitorType = monitorType;
 
 		// Maintain the current active file, so that when "active-leaf-change" hits
-		// (i.e. a new active file) you can still refererence the prior active file
-		this.activeFilesName = plugin.app.workspace.getActiveFile()?.path ?? "";
+		// (i.e. a new active file) you can still refererence the prior active file.
+		this.currentFilesName = plugin.app.workspace.getActiveFile()?.path ?? "";
 
-		// The refreshFnc might want this new dfc to be returned and assigned, before being
-		// called.  setTimeout makes sure new dfc is returned and assigned BEFORE
-		// updateFileList is called (which calls refreshFnc).
+		// Keep track of whether the current active file has been saved, in case
+		// monitorType is set to "OnChange", meaning refresh is called when one of the
+		// monitored files changes and then loses focus.
+		this.isCurrentFileModified = false;
+
+		// The list of files this Dfc monitors
+		this.files = {};
+
+		// The callback for when monitored files have triggered a refresh
+		this.refreshFnc = refreshFnc;
+
+		// Determine What need to happen to monitored files to trigger calling refreshFnc.
+		// (DfcMonitorType: None, OnChange or OnTouch)
+		this.monitorType = monitorType || DfcMonitorType.None;
+
+		// Delay setting up the monitored files list, since it will probably trigger a
+		// refreshFnc call.  refreshFnc might expect this Dfc to already be assigned
+		// to a variable, which won't happen until after this constructor is finished.
 		setTimeout(() =>
 		{
 			this.updateFileList(filenames);
 		}, 0);
 
-		// At Obsidian start, these events trigger randomly.  onLayoutReady makes
-		// sure we only connect to the events AFTER the random triggering is over.
+		// At Obsidian start, the following events trigger randomly.  We use onLayoutReady
+		// to wait to connect to the events until AFTER the random triggering is past.
 		this.plugin.app.workspace.onLayoutReady(async () =>
 		{
-			// Monitors when files are saved
+			// Monitor when the current files is saved
 			plugin.registerEvent(plugin.app.vault.on(
 				"modify",
 				this.onAnyFileModified.bind(this) ));
-			// Monitors when the a different file becomes the active one
+			// Monitor when a different file becomes the active one
 			plugin.registerEvent(plugin.app.workspace.on(
 				"active-leaf-change",
 				this.onActiveLeafChange.bind(this)));
-			// Monitors when vault files are created (in or out of Obsidian)
+			// Monitor when files are added to the vault
 			plugin.registerEvent(plugin.app.vault.on(
 				"create",
 				this.onAnyFileAddedOrRemoved.bind(this) ));
-			// Monitors when vault files are removed (in or out of Obsidian)
+			// Monitor when files are removed from the vault
 			plugin.registerEvent(plugin.app.vault.on(
 				"delete",
 				this.onAnyFileAddedOrRemoved.bind(this) ));
 		});
 	}
 
+	// Monitor when the current file is saved.
+	// MonitorType of "OnChange" relies on this information.
 	onAnyFileModified(file)
 	{
-		if (file.path == this.activeFilesName)
+		if (file.path == this.currentFilesName)
 		{
-			this.isActiveFileModified = true;
+			this.isCurrentFileModified = true;
 		}
 	}
 
+	// Monitor when a different file becomes the active one.
+	// If the prior active file is one of the files being monitored then
+	// this can trigger a refreshFnc call.
 	onActiveLeafChange(leaf)
 	{
-		if (this.files.hasOwnProperty(this.activeFilesName) &&
+		if (this.files.hasOwnProperty(this.currentFilesName) &&
 		    ((this.monitorType == DfcMonitorType.OnChange &&
-		      this.isActiveFileModified) ||
+		      this.isCurrentFileModified) ||
 		     (this.monitorType == DfcMonitorType.OnTouch)))
 		{
 			this.refresh(true);
 		}
 
 		// Update Dfc state to monitor the new active file
-		this.isActiveFileModified = false;
-		this.activeFilesName = leaf.workspace.getActiveFile()?.path ?? "";
+		this.isCurrentFileModified = false;
+		this.currentFilesName = leaf.workspace.getActiveFile()?.path ?? "";
 	}
 
+	// Monitor when files are added to or removed from the vault.
+	// If the file is one of the ones being monitored, refreshFnc is called.
 	onAnyFileAddedOrRemoved(file)
 	{
-		if (this.files.hasOwnProperty(file.path))
+		if (this.files.hasOwnProperty(file.path) &&
+		    this.monitorType != DfcMonitorType.None)
 		{
 			this.refresh(true);
 		}
 	}
 
-	// Pass in a new list of shortcut-files.  The Dfc's list is updated to
-	// match.  If this changes the Dfc's list, the refresh callback is called.
+	// Pass in a new list of files to monitor.
+	// The Dfc's current monitored files list is updated to match.
+	// If this ends up changing the Dfc's list, refreshFnc called.
+	// Alternately, forceRefresh being true will force refreshFnc to be called.
+	// NOTE: This is the only way refreshFnc is called when monitorType is "None".
 	updateFileList(newFileList, forceRefresh)
 	{
 		let hasChanged = false;
@@ -1375,8 +1392,9 @@ class Dfc
 		this.refresh(hasChanged || forceRefresh);
 	}
 
-	// Calls the refresh callback, either when asked to ("forceRefresh") or because one
-	// of the monitored files has been modified since it was last checked.
+	// Calls refreshFnc, the callback for when monitored files require a refresh.
+	// Either calls refreshFnc automatically, when forceRefresh is true, or calls it if
+	// one of the monitored files has changed (i.e. their modified date has changed).
 	refresh(forceRefresh)
 	{
 		this.plugin.app.workspace.onLayoutReady(async () =>
@@ -1384,11 +1402,13 @@ class Dfc
 			let hasChanged = false;
 
 			// If forceRefresh, then we know we're going to call refreshFnc, but we
-			// still need to keep the modDate tracking up to date.
+			// still need check modified dates to keep our records up to date.
 			for (const filename in this.files)
 			{
 				const file = this.plugin.app.vault.fileMap[filename];
-				// File exists: see if we need to update the data on it and do so
+
+				// File exists: check mod-date to update records and, if newer,
+				// update records and trigger refreshFnc call.
 				if (file)
 				{
 					if (this.files[filename].modDate < file.stat.mtime)
@@ -1397,7 +1417,9 @@ class Dfc
 						hasChanged = true;
 					}
 				}
-				// File doesn't exist, but there's stored data on it: clear data
+
+				// File doesn't exist: if mod-date record is valid, invalidate it
+				// and trigger refreshFnc call.
 				else if (this.files[filename].modDate != Number.MIN_SAFE_INTEGER)
 				{
 					this.files[filename].modDate = Number.MIN_SAFE_INTEGER;
@@ -1405,6 +1427,7 @@ class Dfc
 				}
 			}
 
+			// call refreshFnc if a file has changed, or refresh is being forced
 			if ((hasChanged || forceRefresh) && this.refreshFnc)
 			{
 				this.refreshFnc();

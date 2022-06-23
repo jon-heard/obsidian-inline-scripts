@@ -429,6 +429,11 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+### 0.16.8
+- Responded to review: replaced plugin's platform vars with direct API references.
+- Responded to review: renamed local copy of "activeFile" to better signify its meaning (a cache to reference upon the activeFile changing).
+- Improved comments in Dfc class.
+
 ### 0.16.7
 - Polish code - minor fixes for review
 
