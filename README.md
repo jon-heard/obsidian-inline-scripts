@@ -113,13 +113,13 @@ NOTE: This will be _much_ easier once the plugin has been reviewed and added to 
 
 ### Try out the plugin
 1. Open a note to try out the plugin.
-2. In the note, type `;;greet;` (`!!greet!` on mobile).  Notice that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
+2. In the note, type `;;hi;` (`!!hi!` on mobile).  Notice that the shortcut expands to "Hello.  How are you?" as soon as you've finished typing it.
 3. In the note, type `;;d100;` (`!!d100!` on mobile).  Notice that the shortcut expands to a roll-result as soon as you've finished typing it.
 4. Repeat step 3.  Note that the roll result is (most likely) different.  If it is _not_ different, then you just got lucky so try step 3 again.
 
 ### Default shortcut samples
 __Text Expander JS__ comes with the following sample shortcuts defined by default:
-- greet
+- hi
 - date
 - time
 - datetime
@@ -141,7 +141,7 @@ Each shortcut is defined by a pair of strings.
 ### Examples
 | Test | Expansion | Overview |
 | ---- | --------- | -------- |
-| greet | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;greet;` (`!!greet!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;greet;` or `!!greet!`) will be replaced with `Hello! How are you?`. |
+| hi | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;hi;` (`!!hi!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;hi;` or `!!hi!`) will be replaced with `Hello! How are you?`. |
 | ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in all of your shortcuts, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (`!!date!` on mobile) it will be replaced with the current date. |
 | ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; |  This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis make variable `$1`, a second parenthesis would make the variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3;` (`!!age 3!` on mobile) the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21;` (`!!age 21!` on mobile), it will be replaced with `I am 21 years old.`
 
@@ -364,14 +364,14 @@ If you add a shortcut with an empty Test string, then that shortcut is a "helper
 If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper block".  A helper block prevents any helper scripts above it from being available to any shortcuts after it.  You probably won't need helper blocks, but they are there in case you do.  They are also used to separate shortcut-files so that the helper scripts in one shortcut-file don't affect the shortcuts of other files.
 
 ### Example
-| Test id | Test  | Expansion                                                      |
-| ------- | ----  | -------------------------------------------------------------- |
-|    1    | greet | return "Hello!  How are you?";                                 |
-|    2    |       | function roll(x) { return Math.trunc(Math.random() * x) + 1; } |
-|    3    | d10   | return "Rolled " + roll(10) + " on a D10.";                    |
-|    4    | d20   | return "Rolled " + roll(20) + " on a D20.";                    |
-|    5    |       |                                                                |
-|    6    | bye   | return "Goodbye.  Thanks for your time!";                      |
+| id | Test  | Expansion                                                      |
+| -- | ----  | -------------------------------------------------------------- |
+|  1 | hi    | return "Hello! How are you?";                                  |
+|  2 |       | function roll(x) { return Math.trunc(Math.random() * x) + 1; } |
+|  3 | d10   | return "Rolled " + roll(10) + " on a D10.";                    |
+|  4 | d20   | return "Rolled " + roll(20) + " on a D20.";                    |
+|  5 |       |                                                                |
+|  6 | bye   | return "Goodbye.  Thanks for your time!";                      |
 
 In this list of shortcuts, the shortcut #2 has an empty Test string.  That means that it is a "helper script". The code in its Expansion string (a function called "roll") is available to shortcuts after it.  Shortcut #5 is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  The net effect is that shortcuts #3 and #4 have access to the helper script, while shortcuts #1 and #6 do not.
 
@@ -428,6 +428,12 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 ***
 
 ## Release notes
+
+## 0.16.12
+- Polish - Wrote DEFAULT_SETTING.shortcuts with backtick string for readability
+- Polish - fixed typo
+- Polish - changed "greet" shortcut to "hi"
+- Polish - Put Object.freeze into DEFAULT_SETTINGS assignment
 
 ### 0.16.11
 - Polished code - refactored "settings.getShortcutReferencesFromUi()" to "settings.getShortcutFilesFromUi()"

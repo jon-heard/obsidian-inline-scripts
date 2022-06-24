@@ -21,66 +21,79 @@ const state = require("@codemirror/state");
 // blocked for mobile, so the plugin is still useful for mobile, just slightly more limited.
 const childProcess = require("child_process");
 
-const DEFAULT_SETTINGS =
+const DEFAULT_SETTINGS = Object.freeze(
 {
 	prefix: ";;",
 	suffix: ";",
 	devMode: false,
 	allowExternal: false,
 	shortcutFiles: [],
-	shortcuts:
-		"~~\n" +
-		"greet\n" +
-		"~~\n" +
-		"return \"Hello.  How are you?\";\n\n" +
+	shortcuts: `
+~~
+^hi$
+~~
+return "Hello! How are you?";
 
-		"~~\n" +
-		"^date$\n" +
-		"~~\n" +
-		"return new Date().toLocaleDateString();\n\n" +
+~~
+^date$
+~~
+return new Date().toLocaleDateString();
 
-		"~~\n" +
-		"^time$\n" +
-		"~~\n" +
-		"return new Date().toLocaleTimeString();\n\n" +
+~~
+^time$
+~~
+return new Date().toLocaleTimeString();
 
-		"~~\n" +
-		"^datetime$\n" +
-		"~~\n" +
-		"return new Date().toLocaleString();\n\n" +
+~~
+^datetime$
+~~
+return new Date().toLocaleString();
 
-		"~~\n" +
-		"~~\n" +
-		"function roll(max) { return Math.trunc(Math.random() * max + 1); }\n\n" +
+~~
+~~
+function roll(max) { return Math.trunc(Math.random() * max + 1); }
 
-		"~~\n" +
-		"^[d|D]([0-9]+)$\n" +
-		"~~\n" +
-		"return \"ðŸŽ² \" + roll($1) + \" /D\" + $1;\n\n" +
+~~
+^[d|D]([0-9]+)$
+~~
+return "🎲 " + roll($1) + " /D" + $1;
 
-		"~~\n" +
-		"^[f|F][d|D]([0-9]+)$\n" +
-		"~~\n" +
-		"return \"<span style='background-color:lightblue;color:black;padding:0 .25em'>ðŸŽ² <b>\" + roll($1) + \"</b> /D\" + $1 + \"</span>\";\n\n" +
+~~
+^[f|F][d|D]([0-9]+)$
+~~
+return "<span style='background-color:lightblue;color:black;padding:0 .25em'>🎲 <b>" + roll($1) + "</b> /D" + $1 + "</span>";
 
-		"~~\n" +
-		"^([0-9]*)[d|D]([0-9]+)(|(?:\\+[0-9]+)|(?:\\-[0-9]+))$\n" +
-		"~~\n" +
-		"$1 = Number($1) || 1;\n" +
-		"let result = 0;\nlet label = \"D\" + $2;\nif ($1 > 1) { label += \"x\" + $1; }\nfor (let i = 0; i < $1; i++) { result += roll($2); }\nif ($3) {\n\tif ($3.startsWith(\"+\")) {\n\t\tresult += Number($3.substr(1));\n\t} else {\n\t\tresult -= Number($3.substr(1));\n\t}\n\tlabel += $3;\n}\nif (isNaN(label.substr(1))) { label = \"(\" + label + \")\"; }\nreturn \"ðŸŽ² \" + result + \" /\" + label;\n\n"
-};
-const DEFAULT_SETTINGS_MOBILE =
+~~
+^([0-9]*)[d|D]([0-9]+)(|(?:\\+[0-9]+)|(?:\\-[0-9]+))$
+~~
+$1 = Number($1) || 1;
+let result = 0;
+let label = "D" + $2;
+if ($1 > 1) { label += "x" + $1; }
+for (let i = 0; i < $1; i++) { result += roll($2); }
+if ($3) {
+	if ($3.startsWith("+")) {
+		result += Number($3.substr(1));
+	} else {
+		result -= Number($3.substr(1));
+	}
+	label += $3;
+}
+if (isNaN(label.substr(1))) { label = "(" + label + ")"; }
+return "🎲 " + result + " /" + label;"
+`
+});
+
+const DEFAULT_SETTINGS_MOBILE = Object.freeze(
 {
 	prefix: "!!",
 	suffix: "!"
-};
+});
+
 const LONG_NOTE_TIME = 8 * 1000;
 const INDENT = " ".repeat(4);
-const HELP_SHORCTUT_REGEX = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
+const HELP_SHORTCUT_REGEX = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
 const LIBRARY_README_SHORTCUT_FILE_REGEX = new RegExp(/### tejs_[_a-zA-Z0-9]+\n/g);
-
-Object.freeze(DEFAULT_SETTINGS);
-Object.freeze(DEFAULT_SETTINGS_MOBILE);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -488,7 +501,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		let helpShortcuts = [];
 		for (const shortcut of this.shortcuts)
 		{
-			const matchInfo = shortcut.test?.source.match(HELP_SHORCTUT_REGEX);
+			const matchInfo = shortcut.test?.source.match(HELP_SHORTCUT_REGEX);
 			if (matchInfo)
 			{
 				helpShortcuts.push(matchInfo[1]);
