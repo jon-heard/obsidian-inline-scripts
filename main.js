@@ -92,8 +92,9 @@ const DEFAULT_SETTINGS_MOBILE = Object.freeze(
 
 const LONG_NOTE_TIME = 8 * 1000;
 const INDENT = " ".repeat(4);
-const HELP_SHORTCUT_REGEX = new RegExp(/^\^(help [_a-zA-Z0-9]+)\$$/);
-const LIBRARY_README_SHORTCUT_FILE_REGEX = new RegExp(/### tejs_[_a-zA-Z0-9]+\n/g);
+const REGEX_HELP_SHORTCUT = /^\^(help [_a-zA-Z0-9]+)\$$/;
+const REGEX_LIBRARY_README_SHORTCUT_FILE = /### tejs_[_a-zA-Z0-9]+\n/g;
+const REGEX_NOTE_METADATA = /^\n*---\n(?:[^-]+\n)?---\n/;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -393,6 +394,9 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	// Parses a shortcut-file's contents to produce a list of shortcuts
 	parseShortcutFile(filename, content, maintainCodeFence)
 	{
+		// Remove any note metadata
+		content = content.replace(REGEX_NOTE_METADATA, "");
+
 		content = content.split("~~").map((v) => v.trim());
 		let result = [];
 		let fileHasErrors = false;
@@ -508,7 +512,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		let helpShortcuts = [];
 		for (const shortcut of this.shortcuts)
 		{
-			const matchInfo = shortcut.test?.source.match(HELP_SHORTCUT_REGEX);
+			const matchInfo = shortcut.test?.source.match(REGEX_HELP_SHORTCUT);
 			if (matchInfo)
 			{
 				helpShortcuts.push(matchInfo[1]);
@@ -1150,7 +1154,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			method: "GET", cache: "no-cache"
 		});
 		shortcutFiles =
-			shortcutFiles.match(LIBRARY_README_SHORTCUT_FILE_REGEX).
+			shortcutFiles.match(REGEX_LIBRARY_README_SHORTCUT_FILE).
 			map(s => s.substring(4, s.length-1));
 
 		// Figure out library destination.  By default this is ADDRESSS_LOCAL.
