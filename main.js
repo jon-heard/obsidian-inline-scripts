@@ -514,7 +514,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			this.shortcuts.push({});
 
 			// Look for a "setup" script in this shortcut-file.  Run if found.
-			// Look for "shutdown" script in this shrotcut-file.  Store if found.
+			// Look for "shutdown" script in this shortcut-file.  Store if found.
 			for (const newShortcut of newShortcuts)
 			{
 				if (newShortcut.test.source == "^tejs setup$")
