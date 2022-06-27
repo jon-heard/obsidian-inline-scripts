@@ -129,7 +129,8 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 
 		// Setup a dfc to monitor shortcut-file notes.
 		this.shortcutDfc = new Dfc(
-			this, this.settings.shortcutFiles, this.setupShortcuts.bind(this), true);
+			this, this.settings.shortcutFiles, this.setupShortcuts.bind(this), true,
+			this.onShortcutFileDisabled.bind(this));
 		this.shortcutDfc.setMonitorType(
 			this.settings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.OnModify);
 
@@ -147,6 +148,9 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		// This keeps track of multiple expansion error handlers for nested expansions
 		this.expansionErrorHandlerStack = [];
 
+		// Track shutdown scripts in loaded shortcut-files to be called when unloaded.
+		this.shortcutFileShutdownScripts = {};
+
 		// Log starting the plugin
 		this.notifyUser("Loaded (" + this.manifest.version + ")");
 	}
@@ -156,6 +160,12 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		// Shutdown the shortcutDfc
 		this.shortcutDfc.destructor();
 
+		// Call shutdown script on scene files
+		for (const filename in this.shortcutFileShutdownScripts)
+		{
+			this.onShortcutFileDisabled(filename);
+		}
+
 		// Disconnect "code mirror 5" instances from this plugin
 		this.app.workspace.iterateCodeMirrors(
 			cm => cm.off("keydown", this._cm5_handleExpansionTrigger));
@@ -164,6 +174,11 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		this.notifyUser("Unloaded (" + this.manifest.version + ")");
 	}
 
+	onShortcutFileDisabled(filename)
+	{
+		this.runExpansionScript(this.shortcutFileShutdownScripts[filename]);
+		delete this.shortcutFileShutdownScripts[filename];
+	}
 
 	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt
 	cm5_handleExpansionTrigger(cm, keydown)
@@ -499,11 +514,17 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			this.shortcuts.push({});
 
 			// Look for a "setup" script in this shortcut-file.  Run if found.
+			// Look for "shutdown" script in this shrotcut-file.  Store if found.
 			for (const newShortcut of newShortcuts)
 			{
 				if (newShortcut.test.source == "^tejs setup$")
 				{
 					this.runExpansionScript(newShortcut.expansion);
+				}
+				else if (newShortcut.test.source == "^tejs shutdown$")
+				{
+					this.shortcutFileShutdownScripts[filename] =
+						newShortcut.expansion;
 				}
 			}
 		}
@@ -1328,7 +1349,7 @@ class ConfirmDialogBox extends obsidian.Modal
 
 class Dfc
 {
-	constructor(plugin, filenames, refreshFnc, fileOrderImportant)
+	constructor(plugin, filenames, refreshFnc, fileOrderImportant, onFileRemoved)
 	{
 		this.plugin = plugin;
 
@@ -1337,6 +1358,9 @@ class Dfc
 
 		// If true, changes to the file order are considered changes to the files
 		this.fileOrderImportant = fileOrderImportant;
+
+		// A callback for when files are removed from the list
+		this.onFileRemoved = onFileRemoved;
 
 		// The list of files this Dfc monitors
 		this.fileData = {};
@@ -1499,6 +1523,10 @@ class Dfc
 		{
 			if (!newFileList.contains(filename))
 			{
+				if (this.onFileRemoved)
+				{
+					this.onFileRemoved(filename);
+				}
 				delete this.fileData[filename];
 				hasChanged = true;
 			}
