@@ -237,6 +237,9 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 				expansionText = expansionText.join("");
 			}
 
+			// Make sure we have a proper string
+			expansionText = expansionText + "";
+
 			// Replace written shortcut with Expansion result
 			editor.replaceRange(
 				expansionText,

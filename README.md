@@ -429,6 +429,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+## 0.16.13
+- bug fix: if expansion returns something other than string or string array, it's not handled right.
+
 ## 0.16.12
 - Polish - Wrote DEFAULT_SETTING.shortcuts with backtick string for readability
 - Polish - fixed typo
