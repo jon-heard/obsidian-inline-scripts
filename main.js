@@ -124,7 +124,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		//Setup bound versons of these function for persistant use
 		this._cm5_handleExpansionTrigger = this.cm5_handleExpansionTrigger.bind(this);
 		this._handleExpansionError = this.handleExpansionError.bind(this);
-		this._getExpansion = this.getExpansion.bind(this);
+		this._expand = this.expand.bind(this);
 		this._runExternal = this.runExternal.bind(this);
 
 		// Setup a dfc to monitor shortcut-file notes.
@@ -248,7 +248,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			// Run the Expansion script on the shortcut under the caret
 			const sourceText = lineText.substring(
 				prefixIndex + this.settings.prefix.length, suffixIndex);
-			let expansionText = this.getExpansion(sourceText, true);
+			let expansionText = this.expand(sourceText, true);
 			if (expansionText === null) { return; }
 
 			// Handle a string array from the Expansion result
@@ -271,7 +271,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 
 	// Take a shortcut string and return the proper Expansion string.
 	// WARNING: user-facing function
-	getExpansion(text,  isUserTriggered)
+	expand(text,  isUserTriggered)
 	{
 		if (!text) { return; }
 		let foundMatch = false;
@@ -348,10 +348,10 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		this.expansionErrorHandlerStack.push(expansionScript);
 
 		// Run the Expansion script
-		// Pass getExpansion function and isUserTriggered flag for use in Expansion script
+		// Pass expand function and isUserTriggered flag for use in Expansion script
 		let result = (new Function(
-				"getExpansion", "isUserTriggered", "runExternal", expansionScript))
-				(this._getExpansion, isUserTriggered, this._runExternal);
+				"expand", "isUserTriggered", "runExternal", expansionScript))
+				(this._expand, isUserTriggered, this._runExternal);
 
 		// Clean up script error preparations (it wouldn't have got here if we'd hit one)
 		this.expansionErrorHandlerStack.pop();

@@ -394,24 +394,24 @@ There are two features that work in tandem to allow you to nest shortcuts (i.e. 
 Firstly: an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when replacing a user-typed shortcut.
 
 ### Calling one shortcut from another
-Secondly: within an Expansion script you can call the function `getExpansion(text)`.  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like a shortcut text that you type directly into a note, except that `getExpansion(text)` returns the result (a string or string array), _instead_ of writing the result to the note.
+Secondly: within an Expansion script you can call the function `expand(text)`.  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like a shortcut text that you type directly into a note, except that `expand(text)` returns the result (a string or string array), _instead_ of writing the result to the note.
 
 ### Nesting shortcuts
-Given these features, here's how you can nest a shortcut within another.  The first shortcut's Expansion script calls getExpansion(), passing in the second shortcut.  What it gets back is the second shortcut's Expansion result: a string or array of strings.  It can then use that result, or a piece of that result, as needed.
+Given these features, here's how you can nest a shortcut within another.  The first shortcut's Expansion script calls expand(), passing in the second shortcut.  What it gets back is the second shortcut's Expansion result: a string or array of strings.  It can then use that result, or a piece of that result, as needed.
 
 ### Example
-| Test id | Test | Expansion |
-| ------- | ---- | --------- |
-|  1 | firstname | return ["FirstName: ", "Maggie"]; |
-|  2 | lastname | return ["LastName: ", "Smith"]; |
-|  3 | fullname | return [ "FullName: ", getExpansion("firstname")[1], " ", getExpansion("lastname")[1] ]; |
+| id | Test string | Expansion string |
+| -- | ----------- | ---------------- |
+|  1 | firstname   | return ["FirstName: ", "Maggie"]; |
+|  2 | lastname    | return ["LastName: ", "Smith"]; |
+|  3 | fullname    | return [ "FullName: ", expand("firstname")[1], " ", expand("lastname")[1] ]; |
 
 Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (`!!firstname!` on mobile), then the expansion is "FirstName: Maggie", since the array gets joined into a single string.  This is true for shortcut #2 as well (expanding into "LastName: Smith").
 
-If you type `;;fullname;` (`!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to getExpansion get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
+If you type `;;fullname;` (`!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to expand get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
 
 ### The "isUserTriggered" variable
-Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the getExpansion function).
+Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the expand function).
 
 ***
 
@@ -433,7 +433,7 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 - polish - added pre-release test: a text file with steps to test ALL features of TEJS.
 
 ## 0.16.13
-- bug fix: if expansion returns something other than string or string array, it's not handled right.
+- bug fix - if expansion returns something other than string or string array, it's not handled right.
 
 ## 0.16.12
 - Polish - Wrote DEFAULT_SETTING.shortcuts with backtick string for readability
