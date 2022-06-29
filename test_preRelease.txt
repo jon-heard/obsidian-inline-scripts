@@ -1,0 +1,516 @@
+
+////////////////////////////
+////////////////////////////
+//// TEST - PRE-RELEASE ////
+////////////////////////////
+////////////////////////////
+
+
+////////////////////
+// COMMON ACTIONS //
+////////////////////
+
+CHECK SHORTCUT X
+1. Type ";;X;" ("!!X!" on mobile), where X is the shortcut to check
+2. Confirm that the typed text is replaced with something.
+3. Confirm that there are no new console messages
+
+CHECK INVALID SHORTCUT X
+1. Type ";;X;" ("!!X!" on mobile), where X is the shortcut to check
+2. Confirm that a popup shows the shortcut as unidentified
+3. Confirm that a console log show the shortcut as unidentified
+
+
+//////////
+// TEST //
+//////////
+
+PREP
+1. Setup an empty vault
+2. Install the plugin
+3. Make note titled "testResults" in which to type everything for the test
+4. Open console (ctrl-shift-i)
+5. Make sure the plugin is disabled
+6. Make sure legacy editor is turned off (non-mobile only)
+7. Close Obsidian
+8. Delete plugin "data.json" file if it exists
+
+SETUP & SHUTDOWN
+1. Open Obsidian
+2. Enable plugin, disable, then renable it
+3. Confirm that the console shows 3 logs from the plugin
+4. Close and reopen Obsidian
+5. Confirm that the console shows 1 log from the plugin
+
+BASIC FUNCTIONALITY
+1. Check shortcut "hi" (common action)
+2. Check invalid shortcut "no" (common action)
+
+OLD EDITOR, CM5 !! NON-MOBILE ONLY !!
+1. Go to the Editor options
+2. Turn ON "Use legacy editor"
+3. Click the "Relaunch" button
+4. Check shortcut "hi" (common action)
+5. Go to the Editor options
+6. Turn OFF "Use legacy editor"
+7. Click the "Relaunch" button
+
+BASIC SETTINGS
+1. Open and close plugin settings
+2. Check shortcut "hi" (common action)
+3. Open plugin settings
+4. Delete all shortcuts (can use "enter" key to accept confirmation popup)
+5. Close plugin settings
+6. Check invalid shortcut "hi" (common action)
+7. Open plugin settings
+8. Click "Add defaults" button in "Shortcuts" setting
+9. Close plugin settings
+10. Check shortcut "hi" (common action)
+11. Type "<<hi>>" and confirm that nothing happens
+12. Open plugin settings
+13. Change prefix & suffix settings (near the bottom) to "<<" and ">>"
+14. Close plugin settings
+15. Use prefix & suffix of "<<" & ">>" to check shortcut "hi" (common action)
+16. Type ";;hi;" ("!!hi!" on mobile) and confirm that nothing happens
+17. Open plugin settings
+18. Change prefix & suffix to ";;" and ";" ("!!" and "!" on mobile)
+19. Close plugin settings
+20. Check shortcut "hi" (common action)
+21. Type "<<hi>>" and confirm that nothing happens
+
+BASIC SETTINGS ERRORS
+1. Open plugin settings
+2. Delete the Prefix setting (under "Shortcut format")
+3. Confirm that a red error box appears above the prefix setting, warning you about invalid prefix
+4. Close and open plugin settings
+5. Confirm that the prefix setting is back to what it was at the start
+6. Delete the Suffix setting
+7. Confirm that a red error box appears above the prefix setting, warning about invalid suffix
+8. Close and open plugin settings
+9. Confirm that the suffix setting is back to what it was at the start
+10. Set the prefix setting to the suffix setting
+11. Confirm that a red error box appears above the prefix setting, warning about suffix containing prefix
+12. Close and open plugin settings
+13. Confirm that the prefix setting is back to what it was at the start
+
+BASIC SHORTCUTS
+1. Check invalid shortcut "test 1" (common action)
+2. Check shortcut "hi" (common action)
+3. Open plugin settings
+4. Click "Add shortcut" button in Shortcuts setting
+5. In the new shortcut enter the following:
+	Test - ^test 1$
+	Expansion - return "Test 1 successful";
+6. Close plugin settings
+7. Check shortcut "test 1" (common action)
+8. Check shortcut "hi" (common action)
+9. Open plugin settings
+10. Modify the Expansion string of shortcut "^test 1$":
+	Expansion - return [ "Test 1 ", "successful" ];
+11. Close plugin settings
+12. Check shortcut "test 1" (common action)
+13. Open plugin settings
+14. Delete the shortcut "^test 1$"
+15. Close shortcuts
+16. Check invalid shortcut "test 1" (common action)
+17. Check shortcut "hi" (common action)
+
+BASIC SHORTCUT ERRORS
+1. Open plugin settings
+2. Add new shortcut:
+	Test - [^test 2$
+	Expansion - return "Test 2 successful";
+3. Close plugin settings
+4. Confirm that popup tells about shortcut-file issues
+5. Confirm that BAD-TEST-STRING-ERROR is added to the console
+6. Check invalid shortcut "test 2" (common action)
+7. Open plugin settings
+8. Modify new Test and Expansion strings for shortcut "[^test 2$":
+	Test - ^test 2$
+	Expansion - [return "Test 2 successful";
+9. Close plugin settings
+10. Confirm that no popup or console entry appears
+11. Run shortcut "test 2"
+12. Confirm that popup appears about shortcut expansion issues
+13. Confirm that SHORTCUT-EXPANSION-ERROR is added to the console
+14. Open plugin settings
+15. Modify new shortcut's Expansion string:
+	Expansion - return { a: "Test 2 successful" };
+16. Close plugin settings
+17. Check shortcut "test 2" (common action)
+18. Confirm that the test expands to "[object Object]"
+19. Open plugin settings
+20. Remove shortcut "^test 2$"
+21. Close plugin settings
+22. Confirm that no popup appears
+23. Confirm that no new console entry appears
+
+SHORTCUT ORDER
+1. Open plugin settings
+2. Add two shortcuts, in this order
+	- shortcut 1
+		- Test: ^test 3$
+		- Expansion: return "Test 3A successful";
+	- shortcut 2
+		- Test: ^test 3$
+		- Expansion: return "Test 3B successful";
+3. Close plugin settings
+4. Check shortcut "test 3" (common action)
+5. Confirm that the expansion is "Test 3A successful"
+6. Open plugin settings
+7. Use the shortcut's arrow buttons to swap the order of the 2 "^test 3$" shortcuts
+8. Close plugin settings
+9. Check shortcut "test 3" (common action)
+10. Confirm that the expansion is "Test 3B successful"
+11. Open plugin settings
+12. Remove the 2 new shortcuts
+13. Close plugin settings
+
+SHORTCUTS - ADD DEFAULTS
+1. Open plugin settings
+2. Remove ALL shortcuts (can use "enter" key to accept confirmation popup)
+3. Hit the "Add defaults" button
+4. Confirm that a bunch of shortcuts are added
+5. Remove all shortcuts except for "^date$" (the 2nd shortcut)
+6. Add two shortcuts with Tests of "first" and "second" (blank otherwise)
+7. Hit the down arrow on the shortcut "^date$".
+8. Confirm that the shortcuts are (in order): "first", "^date$", "second"
+9. Hit the "Add defaults" button
+10. Confirm that the "first" and "second" shortcuts are at the top
+11. Confirm that the "^date$" shortcut has been moved below the "^hi$" shortcut
+12. Remove the "first" and "second" shortcuts
+13. Close plugin settings
+
+SHORTCUTS - EXPAND FUNCTION
+1. Open plugin settings
+2. Add two shortcuts, in this order
+	- shortcut 1
+		- Test: ^test 4$
+		- Expansion: return "Test 4 successful" + (isUserTriggered ? ": user triggered" : ": not user triggered");
+	- shortcut 2
+		- Test: ^test 5$
+		- Expansion: return getExpansion("test 4");
+3. Close plugin settings
+4. Check shortcut "test 4" (common action)
+5. Confirm that the expansion is "Test 4 successful: user triggered"
+6. Check shortcut "test 5" (common action)
+7. Confirm that the expansion is "Test 4 successful: not user triggered"
+8. Open plugin settings
+9. Change shortcut "^test 4$" expansion to:
+	- return [ "Test 4 successful", (isUserTriggered ? ": user triggered" : ": not user triggered") ];
+10. Close plugin settings
+11. Check shortcut "test 4" (common action)
+12. Confirm that the expansion is "Test 4 successful: user triggered"
+13. Check shortcut "test 5" (common action)
+14. Confirm that the expansion is "Test 4 successful: not user triggered"
+15. Open plugin settings
+16. Change shortcut "^test 5$" expansion to:
+	- return getExpansion("test 4")[0];
+17. Close plugin settings
+18. Check shortcut "test 5" (common action)
+19. Confirm that the expansion is "Test 4 successful"
+20. Open plugin settings
+21. Change shortcut "^test 5$" expansion to:
+	- return getExpansion("test 4")[0] + " (run by test 5)"[;
+22. Close plugin settings
+23. Type ";;test 5;" ("!!test 5!" on mobile)
+24. Confirm that a popup appears with "Shortcut expansion issues"
+25. Confirm that SHORTCUT-EXPANSION-ERROR is added to the console
+26. Open plugin settings
+27. Remove shortcuts "^test 4$" and "^test 5$"
+28. Close plugin settings
+
+SHORTCUTS - RUNEXTERNAL FUNCTION !! NON-MOBILE ONLY !!
+1. Open plugin settings
+2. Add 3 shortcuts, in this order
+	- shortcut 1
+		- Test: ^test 6$
+		- Expansion: return runExternal("dir");
+	- shortcut 2
+		- Test: ^test 7$
+		- Expansion: return runExternal("start /wait timeout 5 && dir", false, true);
+	- shortcut 3
+		- Test: ^test 8$
+		- Expansion: return runExternal("invalid");
+3. If OS is NOT windows (Linux or Mac), change "^test 7" shortcut expansion to:
+	- return runExternal("sleep 5 && dir");
+4. Make sure that the "Allow external" setting is off (it's at the bottom)
+5. Close plugin settings
+6. Type ";;test 6;" ("!!test 6!" on mobile)
+7. Confirm that "Unauthorized runExternal call" popup appears
+8. Confirm that RUNEXTERNAL-ERROR is added to the console
+9. Open plugin settings
+10. Turn on "Allow external" setting (at the bottom)
+11. Close plugin settings
+12. Check shortcut "test 6" (common action)
+13. Confirm that the expansion is a file directory
+14. Check shortcut "test 7" (common action)
+15. Confirm that obsidian pauses for 5 seconds, then the expansion is a file directory
+16. Type ";;test 8;" ("!!test 8!" on mobile)
+17. Confirm that popup appears with "failed runExternal call"
+18. Confirm that RUNEXTERNAL-ERROR is added to the console
+19. Open plugin settings
+20. Remove shortcuts "^test 6$", "^test 7$", "^test 8$"
+21. Turn off "Allow external" setting
+22. Close plugin settings
+
+BASIC SHORTCUT-FILES
+1. Check invalid shortcut "test 9" (common action)
+2. Check invalid shortcut "test 10" (common action)
+3. Make a note with address of "testing/tejs_testfile"
+4. Add the following content and remove tabs (select all and hit shift-tab):
+	Test file
+
+	~~
+	^test 9$
+
+	~~
+	```js
+	return "Test 9 successful";
+	```
+	~~
+	```
+	^test 10$
+	```
+	~~
+
+	return "Test 10 successful";
+5. Go to the note "testResults"
+6. Open plugin settings
+7. Click on "Add file reference" button in the Shortcut-files setting
+8. In the new entry, type "testing/tejs_testfile"
+9. Confirm that entry turns red once typing has started
+10. Confirm that entry turns dark grey once entry is finished
+11. Close plugin settings
+12. Check shortcut "test 9" (common action)
+13. Check shortcut "test 10" (common action)
+14. Open plugin settings
+15. Remove shortcut-file entry for "testing/tejs_testfile"
+16. Close plugin settings
+17. Check invalid shortcut "test 9" (common action)
+18. Check invalid shortcut "test 10" (common action)
+19. Remove the note "testing/testfile"
+
+BASIC SHORTCUT-FILE ERRORS - MISSING-SHORTCUT-FILE-ERROR
+1. Open plugin settings
+2. Add a new shortcut-file entry "invalidFile"
+3. Confirm that the new entry is red
+4. Close plugin settings
+5. Confirm that a popup shows that "invalidFile" is missing
+6. Confirm that MISSING-SHORTCUT-FILE-ERROR is added to the console
+7. Open plugin settings
+8. Confirm that the "invalidFile" shortcut-file entry is red
+9. Close plugin settings
+10. Confirm that no popup or console entry appears
+11. Open plugin settings
+12. Delete the "invalidFile" shortcut-file entry
+13. Close plugin settings
+14. Confirm that no popup or console entry appears
+
+BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
+1. Make a note with address of "testing/tejs_testfile"
+2. Add the following content and remove tabs (select all and hit shift-tab):
+	~~
+	^test 11$
+	~~
+	return "Test 11 successful";
+	~~
+3. Go to the note "testResults"
+4. Open plugin settings
+5. Click on "Add file reference" button in the Shortcut-files setting
+6. In the new entry, type "testing/tejs_testfile"
+7. Confirm that entry turns dark grey once entry is finished
+8. Close plugin settings
+9. Confirm that a popup about shortcut-file issues appears
+10. Confirm that MISNUMBERED-SECTION-COUNT-ERROR is added to the console
+11. Check shortcut "test 11" (common action)
+12. Go to note "testing/tejs_testfile"
+13. Go to the note "testResults"
+14. Confirm that no popup or console entry appears
+15. Check shortcut "test 11" (common action)
+16. Go to note "testing/tejs_testfile"
+17. Remove the final line, containing "~~"
+18. Go to the note "testResults"
+19. Confirm that no no popup or console entry appears
+20. Check shortcut "test 11" (common action)
+21. Open plugin settings
+22. Remove the shortcut-file entry for "testing/tejs_testfile"
+23. Close plugin settings
+24. Remove the note "testing/tejs_testfile"
+
+DEVELOPER MODE
+1. Make a note with address of "testing/tejs_testfile"
+2. Add the following content and remove tabs (select all and hit shift-tab):
+	~~
+	^test 12$
+	~~
+	return "Test 12 successful";
+	~~
+3. Go to the note "testResults"
+4. Open plugin settings
+5. Click on "Add file reference" button in the Shortcut-files setting
+6. In the new entry, type "testing/tejs_testfile"
+7. Confirm that entry turns dark grey once entry is finished
+8. Close plugin settings
+9. Confirm that a new popup shows shortcut-file issues
+10. Confirm MISNUMBERED-SECTION-COUNT-ERROR is added to the console
+11. Go to the note "testing/tejs_testfile"
+12. Go to the note "testResults"
+13. Confirm that no new popup or console entry appears
+14. Open plugin settings
+15. Turn on "Developer mode" (near bottom)
+16. Close plugin settings
+17. Confirm that no new popup or console entry appears
+18. Go to the note "testing/tejs_testfile"
+19. Go to the note "testResults"
+20. Confirm that a new popup shows shortcut-file issues
+21. Confirm that MISNUMBERED-SECTION-COUNT-ERROR is added to the console
+22. Open plugin settings
+23. Turn off "Developer mode"
+24. Close plugin settings
+25. Go to the note "testing/tejs_testfile"
+26. Go to the note "testResults"
+27. Confirm that no popup or console entry appears
+28. Open plugin settings
+29. Remove the shortcut-file entry for "testing/tejs_testfile"
+30. Close plugin settings
+31. Remove the note "testing/tejs_testfile"
+
+SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
+1. Make a note with address of "testing/tejs_testfile1"
+2. Add the following content and remove tabs (select all and hit shift-tab):
+	~~
+	^test 13$
+	~~
+	return "Test 13a successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
+
+	~~
+	~~
+	function tstFnc1() {};
+
+	~~
+	^test 14$
+	~~
+	return "Test 14 successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
+3. Make a note with address of "testing/tejs_testfile2"
+4. Add the following content and remove tabs (select all and hit shift-tab):
+	~~
+	^test 13$
+	~~
+	return "Test 13b successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
+
+	~~
+	^test 15$
+	~~
+	return "Test 15 successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
+
+	~~
+	~~
+	function tstFnc2() {};
+
+	~~
+	^test 16$
+	~~
+	return "Test 16 successful: " + (typeof tstFnc2 === "function" ? "has tstFnc2" : "no tstFnc2");
+
+	~~
+	~~
+
+	~~
+	^test 17$
+	~~
+	return "Test 17 successful: " + (typeof tstFnc2 === "function" ? "has tstFnc2" : "no tstFnc2");
+5. Go to the note "testResults"
+6. Open plugin settings
+7. Add 2 shortcut-file references in "Shortcut-files" setting
+	- testing/tejs_testfile1
+	- testing/tejs_testfile2
+8. Turn on the "Developer mode" setting
+9. Close plugin settings
+10. Check shortcut "test 13" (common action)
+11. Confirm that the expansion is "Test 13a successful: no tstFnc1"
+12. Check shortcut "test 14" (common action)
+13. Confirm that the expansion is "Test 14 successful: has tstFnc1"
+14. Check shortcut "test 15" (common action)
+15. Confirm that the expansion is "Test 15 successful: no tstFnc1"
+16. Check shortcut "test 16" (common action)
+17. Confirm that the expansion is "Test 16 successful: has tstFnc2"
+18. Check shortcut "test 17" (common action)
+19. Confirm that the expansion is "Test 17 successful: no tstFnc2"
+20. Open plugin settings
+21. In the shortcut-files setting, use the arrow keys to swap the two shortcut-file entries
+22. Close plugin settings
+23. Go to the note "test1/tejs_testfile1"
+24. Go to the note "testResults"
+25. Check shortcut "test 13" (common action)
+26. Confirm that the expansion is "Test 13b successful: no tstFnc1"
+27. Open plugin settings
+28. Remove both shortcut-file entries in the "Shortcut-files" setting
+29. Turn off the "Developer mode" setting
+30. Close plugin settings
+31. Remove the two files:
+	- testing/tejs_testfile1
+	- testing/tejs_testfile2
+
+SHORTCUT-FILE - SETUP SCRIPTS
+1. Make a note with address of "testing/tejs_testfile"
+2. Add the following content and remove tabs (select all and hit shift-tab):
+	~~
+	^tejs setup$
+	~~
+	console.log("Setting up testfile");
+3. Open plugin settings
+4. Add the shortcut-file entry "testing/tejs_testfile"
+5. Close plugin settings
+6. Confirm that a console entry is added "Setting up testfile"
+7. Open and close plugin settings
+8. Confirm that a console entry is added "Setting up testfile"
+9. Disable and enable the plugin
+10. Confirm that a console entry is added "Setting up testfile"
+11. Open plugin settings
+12. Remove the shortcut-files entry "testing/tejs_testfile"
+13. Close plugin settings
+14. Delete note "testing/tejs_testfile"
+
+SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
+1. Open plugin settings
+2. Remove any existing shortcut-file entries at the "shortcut-files" setting
+3. Click the "Import full library" button beside the "Shortcut-files" setting
+4. Click the "Cancel" button in the confirmation popup
+5. Confirm that there are no shortcut-file entries
+6. Click the "Import full library" button beside the "Shortcut-files" setting
+7. Click "Confirm" button in confirmation popup
+8. Confirm that a bunch of shortcut-file entries have been added
+9. Count (and remember) the number of shortcut-file entries
+10. Close plugin settings
+11. Confirm that there is a new "tejs" folder with files in it.
+12. Confirm that the number of files matches the count from step 8
+13. Open plugin settings
+14. Delete all shortcut-file entries (can use "enter" key to accept confirmation popup)
+15. Close plugin settings
+16. Delete the "tejs" folder (and the files within)
+17. Open plugin settings
+18. Add a shortcut-file entry "support/tejs/tejs_state" (it's ok that it's red)
+19. Click the "Import full library" button
+20. Click the "Confirm" button on the confirmation popup
+21. Click the "Confirm" button on the second confirmation popup
+22. Confirm that a bunch of new entries have been added to Shortcut-files
+23. Confirm that the entry count matches the count from step 8
+24. Confirm that all entries start with "support/tejs/"
+25. Close plugin settings
+26. Confirm that there is a folder "support" with a subfolder "tejs"
+27. Confirm that within the subfolder "tejs" there are files with a count equal to that from step 8
+28. Open plugin settings
+29. Click the "Import full library" button
+30. Click the "Confirm" button on the confirmation popup
+31. Click the "Cancel" button on the second confirmation popup
+32. Confirm that there are twice as many shortcut-file entries as the count from step 8
+33. Confirm that the first entries start with "support/tejs/"
+34. Confirm that the last entries start with "tejs/"
+35. Close plugin settings
+36. Confirm that the old "support/tejs/*" still exist
+37. Confirm that a new "tejs" folder exists with the same files
+38. Open plugin settings
+39. Delete all shortcut-file entries (can use "enter" key to accept confirmation popup)
+40. Close plugin settings
+41. Delete the "support" and "tejs" folders (and the folders and files within)

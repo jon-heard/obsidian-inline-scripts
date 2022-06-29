@@ -429,6 +429,9 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ## Release notes
 
+## 0.16.14
+- polish - added pre-release test: a text file with steps to test ALL features of TEJS.
+
 ## 0.16.13
 - bug fix: if expansion returns something other than string or string array, it's not handled right.
 
