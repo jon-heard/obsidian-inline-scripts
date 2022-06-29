@@ -26,7 +26,7 @@ This plugin works on all platforms, including mobile.
     - Advanced shortcuts
         - [Running external applications and scripts](#advanced-shortcuts-running-external-applications-and-scripts)
         - [Helper scripts](#advanced-shortcuts-helper-scripts)
-        - [Setup scripts](#advanced-shortcuts-setup-scripts)
+        - [Setup and shutdown scripts](#advanced-shortcuts-setup-and-shutdown-scripts)
         - [Nesting shortcuts](#advanced-shortcuts-nesting-shortcuts)
 - Technical
     - [Known Issues](#known-issues)
@@ -377,8 +377,10 @@ In this list of shortcuts, the shortcut #2 has an empty Test string.  That means
 
 ***
 
-## ADVANCED SHORTCUTS: Setup scripts
-Shortcut-files can contain a "setup script".  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with a specific Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
+## ADVANCED SHORTCUTS: Setup and shutdown scripts
+A shortcut-file can contain a "setup script".  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with a specific Test string of `^tejs setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.
+
+A shortcut-file can contain a "shutdown script".  A shutdown script will run when a shortcut-file is being disabled, either when it is removed from the shortcut-file list, or when __Text Expander JS__ is being disabled or uninstalled.  A shutdown script is defined as a shortcut with a specific Test string of `^tejs shutdown$`.  This feature is useful if your shortcut-file needs to clean-up when being disabled.
 
 ### Example
 | Test | Expansion | Overview |
