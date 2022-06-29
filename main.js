@@ -160,7 +160,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		// Shutdown the shortcutDfc
 		this.shortcutDfc.destructor();
 
-		// Call shutdown script on scene files
+		// Call shutdown script on shortcut files
 		for (const filename in this.shortcutFileShutdownScripts)
 		{
 			this.onShortcutFileDisabled(filename);
@@ -174,6 +174,8 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		this.notifyUser("Unloaded (" + this.manifest.version + ")");
 	}
 
+	// Call the given shortcut-file's shutdown script.
+	// Note: This is called when shortcut-file is being disabled
 	onShortcutFileDisabled(filename)
 	{
 		this.runExpansionScript(this.shortcutFileShutdownScripts[filename]);
@@ -218,56 +220,47 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	// Tries to get shortcut beneath caret and expand it.  setTimeout pauses for a frame to
 	// give the calling event the opportunity to finish processing.  This is especially
 	// important for CM5, as the typed key isn't in the editor at the time this is called.
-	tryShortcutExpansion()
+	tryShortcutExpansion() { setTimeout(() =>
 	{
-		setTimeout(() =>
+		const editor =
+			this.app.workspace.getActiveViewOfType(obsidian.MarkdownView)?.editor;
+		if (!editor) { return; }
+
+		// Find bounds of the shortcut beneath the caret (if there is one)
+		const cursor = editor.getCursor();
+		const lineText = editor.getLine(cursor.line);
+		const prefixIndex = lineText.lastIndexOf(this.settings.prefix, cursor.ch);
+		const suffixIndex = lineText.indexOf(
+			this.settings.suffix, prefixIndex + this.settings.prefix.length);
+
+		// If the caret is not at a shortcut, early out
+		if (prefixIndex == -1 || suffixIndex == -1 ||
+		    (suffixIndex + this.settings.suffix.length) < cursor.ch)
 		{
-			const editor =
-				this.app.workspace.
-				getActiveViewOfType(obsidian.MarkdownView)?.editor;
-			if (!editor)
-			{
-				return;
-			}
+			return;
+		}
 
-			// Find bounds of the shortcut beneath the caret (if there is one)
-			const cursor = editor.getCursor();
-			const lineText = editor.getLine(cursor.line);
-			const prefixIndex = lineText.lastIndexOf(this.settings.prefix, cursor.ch);
-			const suffixIndex = lineText.indexOf(
-				this.settings.suffix,
-				prefixIndex + this.settings.prefix.length);
+		// Run the Expansion script on the shortcut under the caret
+		const sourceText =
+			lineText.substring(prefixIndex + this.settings.prefix.length, suffixIndex);
+		let expansionText = this.expand(sourceText, true);
+		if (expansionText === null) { return; }
 
-			// If the caret is not at a shortcut, early out
-			if (prefixIndex == -1 || suffixIndex == -1 ||
-			    (suffixIndex + this.settings.suffix.length) < cursor.ch)
-			{
-				return;
-			}
+		// Handle a string array from the Expansion result
+		if (Array.isArray(expansionText))
+		{
+			expansionText = expansionText.join("");
+		}
 
-			// Run the Expansion script on the shortcut under the caret
-			const sourceText = lineText.substring(
-				prefixIndex + this.settings.prefix.length, suffixIndex);
-			let expansionText = this.expand(sourceText, true);
-			if (expansionText === null) { return; }
+		// Make sure we have a proper string
+		expansionText = expansionText + "";
 
-			// Handle a string array from the Expansion result
-			if (Array.isArray(expansionText))
-			{
-				expansionText = expansionText.join("");
-			}
-
-			// Make sure we have a proper string
-			expansionText = expansionText + "";
-
-			// Replace written shortcut with Expansion result
-			editor.replaceRange(
-				expansionText,
-				{ line: cursor.line, ch: prefixIndex },
-				{ line: cursor.line,
-				  ch:   suffixIndex + this.settings.suffix.length });
-		}, 0);
-	}
+		// Replace written shortcut with Expansion result
+		editor.replaceRange(
+			expansionText,
+			{ line: cursor.line, ch: prefixIndex },
+			{ line: cursor.line, ch: suffixIndex + this.settings.suffix.length } );
+	}, 0); }
 
 	// Take a shortcut string and return the proper Expansion string.
 	// WARNING: user-facing function
@@ -278,16 +271,17 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		let expansionText = "";
 		for (const shortcut of this.shortcuts)
 		{
-			// Does the shortcut fit? (or is it a helper script?)
-			const matchInfo = text.match(shortcut.test);
-			if (!matchInfo) { continue; }
-
-			// Helper-block (empty shortcut) erases helper scripts before it
-			if (!shortcut.test && !shortcut.expansion)
+			// Helper-block (empty shortcut) just erases helper scripts before it
+			if ((!shortcut.test || shortcut.test.source == "(?:)") &&
+			    !shortcut.expansion)
 			{
 				expansionText = "";
 				continue;
 			}
+
+			// Does the shortcut fit? (or is it a helper script?)
+			const matchInfo = text.match(shortcut.test);
+			if (!matchInfo) { continue; }
 
 			// Translate regex groups into variables
 			for (let k = 1; k < matchInfo.length; k++)
@@ -382,13 +376,15 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		// Block default error handling
 		e.preventDefault();
 
-		// Insert line numbers and arrows into code
+		// Get expansion script, modified by line numbers and arrow pointing to error
 		let expansionText = this.expansionErrorHandlerStack.last();
 		expansionText = expansionText.split("\n");
+		// Add line numbers
 		for (let i = 0; i < expansionText.length; i++)
 		{
 			expansionText[i] = String(i+1).padStart(4, "0") + " " + expansionText[i];
 		}
+		// Add arrows (pointing to error)
 		expansionText.splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
 		expansionText.splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
 		expansionText = expansionText.join("\n");
@@ -406,7 +402,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		window.removeEventListener("error", this._handleExpansionError);
 	}
 
-	// Parses a shortcut-file's contents to produce a list of shortcuts
+	// Parses a shortcut-file's contents into a useful data format and returns it
 	parseShortcutFile(filename, content, maintainCodeFence)
 	{
 		// Remove any note metadata
@@ -426,7 +422,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		}
 
 		// Parse each shortcut in the file
-		// NOTE: this loop checks i+1 and increments by 2.  We are using both i AND i+1
+		// NOTE: this loop checks i+1 and increments by 2 as we are using both i AND i+1
 		for (let i = 1; i+1 < content.length; i += 2)
 		{
 			// Test string handling
@@ -610,7 +606,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		}
 	}
 
-	// Adds a notification and/or a console log
+	// Adds a console entry and/or a popup notification
 	notifyUser(consoleMessage, errorType, popupMessage, detailOnConsole, isWarning)
 	{
 		if (consoleMessage)
@@ -661,7 +657,11 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 	{
 		super(app, plugin);
 		this.plugin = plugin;
+
+		// Keep a copy of the current settings to modify
 		this.tmpSettings = null;
+
+		// Keep the ui for format errors, for updating
 		this.formattingErrMsgContainer = null;
 		this.formattingErrMsgContent = null;
 	}
