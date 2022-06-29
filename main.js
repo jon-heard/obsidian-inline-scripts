@@ -452,8 +452,8 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 
 		// Result vars
 		let fileAbout = "";
-		let shortcutAbouts = [];
 		let shortcuts = [];
+		let shortcutAbouts = [];
 
 		// Flag set when an error occurs.  Used for single popup for ALL file errors.
 		let fileHasErrors = false;
@@ -529,13 +529,13 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			}
 
 			// About string handling
-			// only if not helper script, helper block or setup script
+			// Skip if a helper script, helper block or setup script
 			if (testRegex.source != "(?:)" && testRegex.source != "^tejs setup$" &&
 			    testRegex.source != "^tejs shutdown$")
 			{
 				let about = content[i+2];
 				about = about.split(REGEX_SPLIT_FIRST_DASH).map(v => v.trim());
-				// If no syntax is included, use the Regex string for the syntax
+				// If no syntax string is included, use the Regex string instead
 				if (about.length == 1)
 				{
 					about = [testRegex.source, about[0]];
@@ -559,6 +559,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	// Creates entire shortcut list based on shortcuts from settings and shortcut-files
 	async setupShortcuts()
 	{
+		// To fill with data for the help-shortcut creation
 		let abouts = [];
 
 		// Add shortcuts defined directly in the settings
@@ -673,6 +674,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		}
 		function makeAboutShortcut(name, about)
 		{
+			about ||= "No information available.";
 			const expansion =
 				"return \"### About - " + capitalize(name) + "\\n" +
 				stringifyString(about) + "\\n\\n\";";
@@ -723,11 +725,11 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		const test = new RegExp("^help$");
 		result.push({ test: test, expansion: expansion });
 
-		// Reversing ensures that "ref all" and "ref shortcut" aren't superseded
+		// Reversing ensures that "ref all" and "ref settings" aren't superseded
 		// by a poorly named shortcut-file
 		result.reverse();
 
-		// Add help shortcuts to main shortcuts list
+		// Prepend help shortcuts to start of main shortcuts list
 		this.shortcuts = result.concat(this.shortcuts);
 	}
 
