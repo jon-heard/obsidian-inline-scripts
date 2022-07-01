@@ -1355,7 +1355,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 	{
 		const ADDRESS_REMOTE =
 			"https://raw.githubusercontent.com/jon-heard/" +
-			"obsidian-text-expander-js_shortcutFileLibrary/main";
+			"obsidian-text-expander-js_shortcutFileLibrary/shortcutAboutString";
 		const ADDRESS_LOCAL = "tejs";
 		const FILE_README = "README.md";
 

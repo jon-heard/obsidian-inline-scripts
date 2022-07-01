@@ -33,7 +33,8 @@ This plugin works on all platforms, including mobile.
     - [Known Issues](#known-issues)
     - [Credits](#credits)
     - [Release notes](#release-notes)
-    - [TODO](#todo)
+    - [Todo](#todo)
+    - [Future feature possibilities](#future-feature-possibilities)
 
 ***
 
@@ -613,10 +614,12 @@ Note: There is a variable "isUserTriggered" that is accessible from any Expansio
 
 ***
 
-## TODO
-
-### 0.16.0
+## Todo
 - React to community feedback until plugin is accepted into the community.
-
-### 0.17.0
+- have "import library" button enforce library shortcut-file order
+- fix so it works with auto-added characters (example: prefix={{ and suffix-}})
+- force undo between shortcut entered and expansion on cm6
 - From beta to release (after responding to Obsidian community for, hopefully, a month)
+
+## Future feature possibilities
+- autocomplete based on about syntax string
