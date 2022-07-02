@@ -24,6 +24,7 @@ This plugin works on all platforms, including mobile.
         - [The console](#development-aid-the-console)
         - [Fenced code blocks](#development-aid-fenced-code-blocks)
     - Advanced shortcuts
+        - [print() function](#advanced-shortcuts-print-function)
         - [Running external applications and scripts](#advanced-shortcuts-running-external-applications-and-scripts)
         - [Helper scripts](#advanced-shortcuts-helper-scripts)
         - [Setup and shutdown scripts](#advanced-shortcuts-setup-and-shutdown-scripts)
@@ -315,6 +316,9 @@ can be written as:
 The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` ` for Test string!  ` ```javascript `, ` ```JS `, or anything else will break the shortcut.
 
 ***
+
+## ADVANCED SHORTCUTS: print() function
+Within a shortcut, print(message) can be called.  This will take the given message and add both a console entry and a popup notification with it.
 
 ## ADVANCED SHORTCUTS: Running external applications and scripts
 This feature is unavailable on mobile (Obsidian's backend doesn't allow it).

@@ -95,6 +95,12 @@ const INDENT = " ".repeat(4);
 const REGEX_HELP_SHORTCUT = /^\^(help [_a-zA-Z0-9]+)\$$/;
 const REGEX_LIBRARY_README_SHORTCUT_FILE = /### tejs_[_a-zA-Z0-9]+\n/g;
 const REGEX_NOTE_METADATA = /^\n*---\n(?:[^-]+\n)?---\n/;
+const SHORTCUT_PRINT = function(message)
+{
+	console.info("TEJS Shortcut:\n\t" + message);
+	new obsidian.Notice("TEJS Shortcut:\n" + message, LONG_NOTE_TIME);
+	return message;
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -344,8 +350,9 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		// Run the Expansion script
 		// Pass expand function and isUserTriggered flag for use in Expansion script
 		let result = (new Function(
-				"expand", "isUserTriggered", "runExternal", expansionScript))
-				(this._expand, isUserTriggered, this._runExternal);
+				"expand", "isUserTriggered", "runExternal", "print",
+				expansionScript))
+				(this._expand, isUserTriggered, this._runExternal, SHORTCUT_PRINT);
 
 		// Clean up script error preparations (it wouldn't have got here if we'd hit one)
 		this.expansionErrorHandlerStack.pop();

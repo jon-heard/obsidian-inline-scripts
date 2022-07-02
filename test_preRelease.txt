@@ -110,10 +110,17 @@ BASIC SHORTCUTS
 11. Close plugin settings
 12. Check shortcut "test 1" (common action)
 13. Open plugin settings
-14. Delete the shortcut "^test 1$"
-15. Close shortcuts
-16. Check invalid shortcut "test 1" (common action)
-17. Check shortcut "hi" (common action)
+14. Modify the Expansion string of shortcut "^test 1$":
+	Expansion - return print("test 1 successful");
+15. Close plugin settings
+16. Check shortcut "test 1" (common action)
+17. Confirm that popup and console entry both appear with "TEJS Shortcut: test 1 successful"
+18. Confirm that expansion is "test 1 successful"
+19. Open plugin settings
+20. Delete the shortcut "^test 1$"
+21. Close shortcuts
+22. Check invalid shortcut "test 1" (common action)
+23. Check shortcut "hi" (common action)
 
 BASIC SHORTCUT ERRORS
 1. Open plugin settings
