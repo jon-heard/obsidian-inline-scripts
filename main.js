@@ -666,7 +666,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			}
 			if (!abouts.length)
 			{
-				expansion += "result += \"   No shortcuts\\n\";\n";
+				expansion += "result += \"No shortcuts\\n\";\n";
 			}
 			expansion += "return result + \"\\n\";";
 			const test = new RegExp("^ref(?:erence)? " + groupName + "$");
@@ -690,6 +690,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		{
 			if (about.filename)
 			{
+				if (about.shortcutAbouts.length == 0) { continue; }
 				// Make "ref" shortcut
 				makeRefShortcut(about.filename, about.shortcutAbouts);
 				// Make "about" shortcut
