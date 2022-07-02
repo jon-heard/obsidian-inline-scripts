@@ -595,14 +595,14 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 					// If setup script returns TRUE, don't use shortcuts
 					if (this.runExpansionScript(newShortcut.expansion))
 					{
-						parseResults.shortcuts = null;
+						parseResult.shortcuts = null;
 					}
 					break;
 				}
 			}
 
 			// If setup script returned true, abort adding the new shortcuts
-			if (!parseResults.shortcuts) { continue; }
+			if (!parseResult.shortcuts) { continue; }
 
 			// Look for "shutdown" script in this shortcut-file.  Store if found.
 			for (const newShortcut of parseResult.shortcuts)
