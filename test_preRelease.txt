@@ -478,13 +478,13 @@ SHORTCUT-FILE - SETUP AND SHUTDOWN SCRIPTS
 	^tejs shutdown$
 	~~
 	console.log("Shutting down testfile");
-3. Open plugin settings
-4. Add the shortcut-file entry "testing/tejs_testfile"
-5. Close plugin settings
-6. Confirm that a console entry is added "Setting up testfile"
-7. Go to the note "testing/tejs_testfile"
-8. Add a newline to the end of the file
-9. Go to the note "testResults"
+3. Go to the note "testResults"
+4. Open plugin settings
+5. Add the shortcut-file entry "testing/tejs_testfile"
+6. Close plugin settings
+7. Confirm that a console entry is added "Setting up testfile"
+8. Go to the note "testing/tejs_testfile"
+9. Add a newline to the end of the file
 10. Confirm that a console entry is added "Setting up testfile"
 11. Disable the plugin
 12. Confirm that a console entry is added "Shutting down testfile"
@@ -494,7 +494,33 @@ SHORTCUT-FILE - SETUP AND SHUTDOWN SCRIPTS
 16. Remove the shortcut-files entry "testing/tejs_testfile"
 17. Close plugin settings
 18. Confirm that a console entry is added "Shutting down testfile"
-19. Delete note "testing/tejs_testfile"
+19. Modify "testing/tejs_testfile" content to this (without tabs):
+	~~
+	^tejs setup$
+	~~
+	console.log("Setting up testfile");
+	return true;
+
+	~~
+	^test 18$
+	~~
+	return "Test 18 successful";
+
+	~~
+	^tejs shutdown$
+	~~
+	console.log("Shutting down testfile");
+20. Go to the note "testResults"
+21. Open plugin settings
+22. Add the shortcut-file entry "testing/tejs_testfile"
+23. Close plugin settings
+24. Confirm that a console entry is added "Setting up testfile"
+25. Check invalid shortcut "test 18" (common action)
+26. Open plugin settings
+27. Remove the shortcut-files entry "testing/tejs_testfile"
+28. Close plugin settings
+29. Confirm that a console entry is NOT added "Shutting down testfile"
+30. Delete note "testing/tejs_testfile"
 
 SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 1. Open plugin settings

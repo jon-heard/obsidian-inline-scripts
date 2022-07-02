@@ -99,7 +99,6 @@ const SHORTCUT_PRINT = function(message)
 {
 	console.info("TEJS Shortcut:\n\t" + message);
 	new obsidian.Notice("TEJS Shortcut:\n" + message, LONG_NOTE_TIME);
-	return message;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -509,27 +508,40 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 
 			const content = await this.app.vault.cachedRead(file);
 
-			// Parse shortcut-file contents and add new shortcuts to list
-			const newShortcuts = this.parseShortcutFile(filename, content)
-			this.shortcuts = this.shortcuts.concat(newShortcuts);
-
-			// Add another helper-block to segment helper scripts
-			this.shortcuts.push({});
+			// Parse shortcut-file contents
+			let newShortcuts = this.parseShortcutFile(filename, content);
 
 			// Look for a "setup" script in this shortcut-file.  Run if found.
-			// Look for "shutdown" script in this shortcut-file.  Store if found.
 			for (const newShortcut of newShortcuts)
 			{
 				if (newShortcut.test.source == "^tejs setup$")
 				{
-					this.runExpansionScript(newShortcut.expansion);
+					// If setup script returns TRUE, don't use shortcuts
+					if (this.runExpansionScript(newShortcut.expansion))
+					{
+						newShortcuts = null;
+					}
+					break;
 				}
-				else if (newShortcut.test.source == "^tejs shutdown$")
+			}
+
+			// If setup script returned true, abort adding the new shortcuts
+			if (!newShortcuts) { continue; }
+
+			// Look for "shutdown" script in this shortcut-file.  Store if found.
+			for (const newShortcut of newShortcuts)
+			{
+				if (newShortcut.test.source == "^tejs shutdown$")
 				{
 					this.shortcutFileShutdownScripts[filename] =
 						newShortcut.expansion;
+					break;
 				}
 			}
+
+			// Add new shortcuts to master list, followed by helper-block.
+			this.shortcuts = this.shortcuts.concat(newShortcuts);
+			this.shortcuts.push({});
 		}
 
 		// Get list of all "help" shortcuts in list of all shortcuts
