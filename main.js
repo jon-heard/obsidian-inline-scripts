@@ -319,6 +319,24 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 				"Shortcut unidentified:\n" + INDENT + text, "",
 				"Shortcut unidentified:\n" + text, false, true);
 		}
+		// If there are any listeners for the expansion event, call them
+		else if (isUserTriggered && window._tejs?.listeners?.tejs?.onExpansion)
+		{
+			for (const key in window._tejs.listeners.tejs.onExpansion)
+			{
+				const listener = window._tejs.listeners.tejs.onExpansion[key];
+				if (typeof listener !== "function")
+				{
+					this.notifyUser(
+						"Non-function listener:\n" + INDENT + listener,
+						null,
+						"Non-function listener:\n" + listener,
+						false, true);
+					continue;
+				}
+				listener(expansionText);
+			}
+		}
 
 		return expansionText;
 	}
