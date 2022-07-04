@@ -29,6 +29,7 @@ This plugin works on all platforms, including mobile.
         - [Helper scripts](#advanced-shortcuts-helper-scripts)
         - [Setup and shutdown scripts](#advanced-shortcuts-setup-and-shutdown-scripts)
         - [Nesting shortcuts](#advanced-shortcuts-nesting-shortcuts)
+        - [Hidden shortcuts](#advanced-shortcuts-hidden-shortcuts)
 - Technical
     - [Known Issues](#known-issues)
     - [Credits](#credits)
@@ -449,6 +450,11 @@ If you type `;;fullname;` (`!!fullname!` on mobile), the expansion is "FullName:
 
 ### The "isUserTriggered" variable
 Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the expand function).
+
+***
+
+## ADVANCED SHORTCUTS: Hidden shortcuts
+If the syntax string that starts a shortcut's About string is "hidden", then that shortcut will not show up in the help system (the "ref" shortcuts), though it can still be used.  This is helpful to prevent cluttering the help system with shortcuts that are not useful to the user, only to other shortcuts.
 
 ***
 

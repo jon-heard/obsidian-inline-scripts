@@ -529,9 +529,11 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			}
 
 			// About string handling
-			// Skip if a helper script, helper block or setup script
+			// Skip if a helper script, helper block or setup script, or if About
+			// string is "hidden"
 			if (testRegex.source != "(?:)" && testRegex.source != "^tejs setup$" &&
-			    testRegex.source != "^tejs shutdown$")
+			    testRegex.source != "^tejs shutdown$" &&
+			    !content[i+2].startsWith("hidden - "))
 			{
 				let about = content[i+2];
 				about = about.split(REGEX_SPLIT_FIRST_DASH).map(v => v.trim());
