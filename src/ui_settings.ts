@@ -169,8 +169,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 					.onClick(function()
 					{
 						let defaultShortcuts: Array<any> =
-							this.plugin.parseShortcutFile("Settings",
-							DEFAULT_SETTINGS.shortcuts, true, true).
+							this.plugin.shortcutExpander.parseShortcutFile(
+								"Settings", DEFAULT_SETTINGS.shortcuts, true, true).
 							shortcuts;
 
 						// We don't want to duplicate shortcuts, and it's
@@ -229,7 +229,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 				}
 		};
 		// Add a shortcut ui item for each shortcut in settings
-		const shortcuts: any = this.plugin.parseShortcutFile(
+		const shortcuts: any = this.plugin.shortcutExpander.parseShortcutFile(
 			"Settings", this.tmpSettings.shortcuts, true, true).shortcuts;
 		for (const shortcut of shortcuts)
 		{
@@ -369,9 +369,9 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 
 		// If the shortcut setting was changed, set the "forceRefreshShortcuts" variable.
 		// Start easy: check for a change in the number of shortcuts in the setting.
-		const oldShortcuts: any = this.plugin.parseShortcutFile(
+		const oldShortcuts: any = this.plugin.shortcutExpander.parseShortcutFile(
 			"", this.plugin.settings.shortcuts, true, true).shortcuts;
-		const newShortcuts: any = this.plugin.parseShortcutFile(
+		const newShortcuts: any = this.plugin.shortcutExpander.parseShortcutFile(
 			"", this.tmpSettings.shortcuts, true, true).shortcuts;
 		let forceRefreshShortcuts: boolean = (newShortcuts.length != oldShortcuts.length);
 

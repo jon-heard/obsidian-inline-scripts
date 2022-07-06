@@ -1,18 +1,25 @@
 {
 	"compilerOptions":
 	{
-		"outFile": "../main.js",
+		// Basic settings
 		"baseUrl": ".",
+		"outFile": "../main.js",
+		"target": "ES6",
+		"lib": [ "DOM", "ES2021" ],
+
+		// Debug info
 		"inlineSourceMap": false,
 		"inlineSources": false,
-		"target": "ES6",
+
+		// Error @ compile as much as possible
 		"noImplicitAny": true,
-		"lib":
-		[
-			"DOM",
-			"ES2021"
-		]
+		"checkJs": true,
+
+		// Minify output
+		"removeComments": true
 	},
+
+	// File ordering
 	"include":
 	[
 		"globals.ts",
