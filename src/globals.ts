@@ -1,0 +1,1 @@
+const obsidian = require("obsidian");

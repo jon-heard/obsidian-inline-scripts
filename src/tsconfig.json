@@ -1,0 +1,21 @@
+{
+	"compilerOptions":
+	{
+		"outFile": "../main.js",
+		"baseUrl": ".",
+		"inlineSourceMap": false,
+		"inlineSources": false,
+		"target": "ES6",
+		"noImplicitAny": true,
+		"lib":
+		[
+			"DOM",
+			"ES2021"
+		]
+	},
+	"include":
+	[
+		"globals.ts",
+		"*.ts"
+	]
+}

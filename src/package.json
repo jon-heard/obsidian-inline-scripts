@@ -1,0 +1,25 @@
+{
+  "name": "obsidian-text-expander-js",
+  "version": "0.16.14",
+  "description": "This Obsidian plugin allows the user to type text shortcuts that are replaced by (or 'expanded into') javascript generated text.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jon-heard/obsidian-text-expander-js.git"
+  },
+  "keywords": [],
+  "author": "Jonathan Heard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jon-heard/obsidian-text-expander-js/issues"
+  },
+  "homepage": "https://github.com/jon-heard/obsidian-text-expander-js",
+  "devDependencies": {
+    "@types/node": "^18.0.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.4"
+  }
+}
