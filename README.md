@@ -393,8 +393,8 @@ By default, on Windows, any forward-slashes in the shell command are automatical
 ## ADVANCED SHORTCUTS: Helper scripts
 If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  A helper script provides common code that any shortcuts listed after it can use.
 
-### Helper blocks
-If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper block".  A helper block prevents any helper scripts above it from being available to any shortcuts after it.  You probably won't need helper blocks, but they are there in case you do.  They are also used to separate shortcut-files so that the helper scripts in one shortcut-file don't affect the shortcuts of other files.
+### Helper-blockers
+If you add a shortcut with an empty Test string AND an empty Expansion string, then that shortcut is a "helper-blocker".  A helper-blocker prevents any helper scripts above it from being available to any shortcuts after it.  You probably won't need helper-blockers, but they are there in case you do.  They are also inserted between shortcuts from different shortcut-files so that the helper scripts from one shortcut-file won't affect the shortcuts of any other files.
 
 ### Example
 | id | Test string | Expansion string                                               |
@@ -406,10 +406,7 @@ If you add a shortcut with an empty Test string AND an empty Expansion string, t
 |  5 |             |                                                                |
 |  6 | bye         | return "Goodbye.  Thanks for your time!";                      |
 
-In this list of shortcuts, the shortcut #2 has an empty Test string.  That means that it is a "helper script". The code in its Expansion string (a function called "roll") is available to shortcuts after it.  Shortcut #5 is empty in both its Test AND Expansion strings.  That means that it is a "helper block".  Shortcuts after it do not have access to helper scripts before it.  The net effect is that shortcuts #3 and #4 have access to the helper script, while shortcuts #1 and #6 do not.
-
-### Help shortcuts
-Helper scripts and Helper blocks are not mentioned in the help shortcuts, though their About string can still contain help text.
+In this list of shortcuts, the shortcut #2 has an empty Test string.  That means that it is a "helper script". The code in its Expansion string (a function called "roll") is available to shortcuts after it.  Shortcut #5 is empty in both its Test AND Expansion strings.  That means that it is a "helper-blocker".  Shortcuts after it do not have access to helper scripts before it.  The net effect is that shortcuts #3 and #4 have access to the helper script, while shortcuts #1 and #6 do not.
 
 ***
 

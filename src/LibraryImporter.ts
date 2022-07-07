@@ -6,15 +6,24 @@
 
 const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp = /### tejs_[_a-zA-Z0-9]+\n/g;
 
-class LibraryImporter
+abstract class LibraryImporter
 {
-	public constructor(plugin: any, settingsUi: any)
+	public static initialize(settingsUi: any)
 	{
-		this.plugin = plugin;
 		this.settingsUi = settingsUi;
 	}
 
-	public async execute(): void
+	// Pull the official TEJS library from github & add it to the current vault
+	public static run(): void
+	{
+		this.run_internal();
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+	private static settingsUi: any;
+
+	public static async run_internal(): Promise<void>
 	{
 		const ADDRESS_REMOTE: string =
 			"https://raw.githubusercontent.com/jon-heard/" +
@@ -24,7 +33,7 @@ class LibraryImporter
 
 		// Need to manually disable user-input until this process is finished
 		// (due to asynchronous downloads not otherwise blocking user-input)
-		this.plugin.addInputBlock();
+		InputBlocker.setEnabled(true);
 
 		// Get list of shortcut-files from the projects github readme
 		const readmeContent: string = await window.request({
@@ -77,11 +86,11 @@ class LibraryImporter
 				return;
 			}
 
-			// We need to remove the input block to let the user choose
-			this.plugin.removeInputBlock();
+			// We need to remove the input blocker to let the user choose
+			InputBlocker.setEnabled(false);
 
 			new ConfirmDialogBox(
-				this.plugin.app,
+				this.settingsUi.plugin.app,
 				"All library references are currently in the folder \"" + commonPath +
 				"\".\nWould you like to import the library into \"" + commonPath +
 				"\"?\nIf not, the library will be imported into the folder \"" + ADDRESS_LOCAL +
@@ -100,13 +109,13 @@ class LibraryImporter
 			).open();
 		});
 
-		// Put the input block back (if it was disabled for confirm dialog)
-		this.plugin.addInputBlock();
+		// Put the input blocker back (if it was disabled for confirm dialog)
+		InputBlocker.setEnabled(true);
 
 		// Create the choosen library destination folder, if necessary
-		if (!this.plugin.app.vault.fileMap.hasOwnProperty(libraryDestination))
+		if (!this.settingsUi.plugin.app.vault.fileMap.hasOwnProperty(libraryDestination))
 		{
-			this.plugin.app.vault.createFolder(libraryDestination);
+			this.settingsUi.plugin.app.vault.createFolder(libraryDestination);
 		}
 
 		// Download and create library files
@@ -119,38 +128,33 @@ class LibraryImporter
 			});
 
 			let filename: string = libraryDestination + "/" + shortcutFile + ".md";
-			let file: any = this.plugin.app.vault.fileMap[filename];
+			let file: any = this.settingsUi.plugin.app.vault.fileMap[filename];
 			if (file)
 			{
-				await this.plugin.app.vault.modify(file, content);
+				await this.settingsUi.plugin.app.vault.modify(file, content);
 			}
 			else
 			{
-				await this.plugin.app.vault.create(filename, content);
+				await this.settingsUi.plugin.app.vault.create(filename, content);
 			}
 		}
 
 		// Before adding the library shortcut-files to the plugin settings, we should
 		// update the plugin settings with the latest changes made in the settings ui.
-		this.plugin.settings.shortcutFiles = this.settingsUi.getShortcutFilesFromUi();
+		this.settingsUi.plugin.settings.shortcutFiles = this.settingsUi.getShortcutFilesFromUi();
 
 		// Add shortcut-file references, for new shortcut-files, to the settings
 		for (const shortcutFile of shortcutFiles)
 		{
 			let filename: string = libraryDestination + "/" + shortcutFile + ".md";
-			if (!this.plugin.settings.shortcutFiles.includes(filename))
+			if (!this.settingsUi.plugin.settings.shortcutFiles.includes(filename))
 			{
-				this.plugin.settings.shortcutFiles.push(filename);
+				this.settingsUi.plugin.settings.shortcutFiles.push(filename);
 			}
 		}
 
 		// Refresh settings ui with the new shortcut-file references
-		this.plugin.removeInputBlock();
+		InputBlocker.setEnabled(false);
 		this.settingsUi.display();
 	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private plugin: any;
-	private settingsUi: any;
 }

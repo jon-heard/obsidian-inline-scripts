@@ -18,8 +18,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		this.formattingErrMsgContainer = undefined;
 		this.formattingErrMsgContent = undefined;
 
-		// Hold a LibraryImporter instance, in case the user opts to import the library
-		this.libraryImporter = new LibraryImporter(plugin, this);
+		// Initialize the library importer static class
+		LibraryImporter.initialize(this);
 	}
 
 	public display(): void
@@ -91,7 +91,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 							{
 								if (confirmation)
 								{
-									this.libraryImporter.execute();
+									LibraryImporter.run();
 								}
 							}
 						).open();
@@ -164,7 +164,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 					.onClick(function()
 					{
 						let defaultShortcuts: Array<any> =
-							this.plugin.shortcutExpander.parseShortcutFile(
+							ShortcutLoader.parseShortcutFile(
 								"Settings", DEFAULT_SETTINGS.shortcuts, true, true).shortcuts;
 
 						// We don't want to duplicate shortcuts, and it's
@@ -223,7 +223,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 				}
 		};
 		// Add a shortcut ui item for each shortcut in settings
-		const shortcuts: any = this.plugin.shortcutExpander.parseShortcutFile(
+		const shortcuts: any = ShortcutLoader.parseShortcutFile(
 			"Settings", this.tmpSettings.shortcuts, true, true).shortcuts;
 		for (const shortcut of shortcuts)
 		{
@@ -352,9 +352,9 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 
 		// If the shortcut setting was changed, set the "forceRefreshShortcuts" variable.
 		// Start easy: check for a change in the number of shortcuts in the setting.
-		const oldShortcuts: any = this.plugin.shortcutExpander.parseShortcutFile(
+		const oldShortcuts: any = ShortcutLoader.parseShortcutFile(
 			"", this.plugin.settings.shortcuts, true, true).shortcuts;
-		const newShortcuts: any = this.plugin.shortcutExpander.parseShortcutFile(
+		const newShortcuts: any = ShortcutLoader.parseShortcutFile(
 			"", this.tmpSettings.shortcuts, true, true).shortcuts;
 		let forceRefreshShortcuts: boolean = (newShortcuts.length != oldShortcuts.length);
 
@@ -420,7 +420,6 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 	private tmpSettings: any;
 	private formattingErrMsgContainer: any;
 	private formattingErrMsgContent: any;
-	private libraryImporter: LibraryImporter;
 
 	// Checks formatting settings for errors:
 	//   - blank prefix or suffix

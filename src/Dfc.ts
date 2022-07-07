@@ -1,6 +1,6 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Dynamic File Content (dfc) - Maintain a list of files to (optionally) monitor for updates
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Dynamic File Content (dfc) - Maintain a list of files to (optionally) monitor for updates //
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 "use strict";
 
@@ -9,32 +9,77 @@ enum DfcMonitorType { None, OnModify, OnTouch };
 class Dfc
 {
 	public constructor(
-		plugin: any, filenames: Array<string>, refreshFnc: Function, fileOrderImportant: boolean,
-		onFileRemoved: Function)
+		plugin: any, filenames: Array<string>, refreshFnc: Function, onFileRemoved: Function,
+		fileOrderImportant: boolean)
+	{
+		this.constructor_internal(plugin, filenames, refreshFnc, onFileRemoved, fileOrderImportant);
+	}
+
+	// Called when this Dfc is no longer needed.
+	public destructor(): void
+	{
+		this.setMonitorType(DfcMonitorType.None);
+	}
+
+	// Define what triggers this Dfc to call the refreshFnc
+	// - None - refreshFnc is never called
+	// - OnModify - refreshFnc is called when a monitored file is changed, and moved away from.
+	// - OnTouch - refreshFnc is called when a monitored file is moved away from.
+	public setMonitorType(monitorType: DfcMonitorType): void
+	{
+		this.setMonitorType_internal(monitorType);
+	}
+
+	// Pass in a new list of files to monitor.
+	// The Dfc's current monitored files list is updated to match.
+	// If this ends up changing the Dfc's list, refreshFnc called.
+	// Alternately, forceRefresh being true will force refreshFnc to be called.
+	public updateFileList(newFileList: Array<string>, forceRefresh?: boolean) : void
+	{
+		this.updateFileList_internal(newFileList, forceRefresh);
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+	private plugin: any;
+	private refreshFnc: Function;
+	private fileOrderImportant: boolean;
+	private onFileRemoved: Function;
+	private fileData: any;
+	private monitorType: DfcMonitorType;
+	private currentFilesName: string;
+	private currentFileWasModified: boolean;
+	private _onAnyFileModified: any;
+	private _onActiveLeafChange: any;
+	private _onAnyFileAddedOrRemoved: any;
+
+	private constructor_internal(
+		plugin: any, filenames: Array<string>, refreshFnc: Function, onFileRemoved: Function,
+		fileOrderImportant: boolean): void
 	{
 		this.plugin = plugin;
 
 		// The callback for when monitored files have triggered a refresh
 		this.refreshFnc = refreshFnc;
 
-		// If true, changes to the file order are considered changes to the files
-		this.fileOrderImportant = fileOrderImportant;
-
 		// A callback for when files are removed from the list
 		this.onFileRemoved = onFileRemoved;
+
+		// If true, changes to the order of the files trigger a refresh (just like file changes do)
+		this.fileOrderImportant = fileOrderImportant;
 
 		// The list of files this Dfc monitors
 		this.fileData = {};
 
-		// This var determines What need to happen to monitored files to trigger calling
-		// refreshFnc.  (DfcMonitorType: None, OnModify or OnTouch).  It has a setter.
+		// This var determines What need to happen to monitored files to trigger calling refreshFnc.
+		// Note - DfcMonitorType: None, OnModify or OnTouch).  It has a setter.
 		this.monitorType = DfcMonitorType.None;
 
-		// Maintain the current active file, so that when "active-leaf-change" hits
-		// (i.e. a new active file) you can still refererence the prior active file.
+		// Maintain the current active-file, so that when "active-leaf-change" hits (i.e. the 
+		// active-file is set to a different file) you still have access to the prior active-file.
 		this.currentFilesName = this.plugin.app.workspace.getActiveFile()?.path ?? "";
 
-		// Flag set when current file modified and this is monitoring changes to files
+		// Flag set when the current file is modified.
 		this.currentFileWasModified = false;
 
 		// Setup bound versions of these functions for persistent use
@@ -42,7 +87,7 @@ class Dfc
 		this._onActiveLeafChange = this.onActiveLeafChange.bind(this);
 		this._onAnyFileAddedOrRemoved = this.onAnyFileAddedOrRemoved.bind(this);
 
-		// Delay setting up the monitored files list, since it will trigger a refreshFnc
+		// Delay setting up the monitored files list, since it WILL trigger a refreshFnc
 		// call, and refreshFnc might expect this Dfc to already be assigned to a variable,
 		// which it won't be until AFTER this constructor is finished.
 		setTimeout(() =>
@@ -51,13 +96,7 @@ class Dfc
 		}, 0);
 	}
 
-	public destructor(): void
-	{
-		this.setMonitorType(DfcMonitorType.None);
-	}
-
-	// Setup
-	public setMonitorType(monitorType: DfcMonitorType): void
+	private setMonitorType_internal(monitorType: DfcMonitorType): void
 	{
 		if (monitorType == this.monitorType) { return; }
 
@@ -90,70 +129,6 @@ class Dfc
 			this.currentFilesName = this.plugin.app.workspace.getActiveFile()?.path ?? "";
 		});
 	}
-
-	// Pass in a new list of files to monitor.
-	// The Dfc's current monitored files list is updated to match.
-	// If this ends up changing the Dfc's list, refreshFnc called.
-	// Alternately, forceRefresh being true will force refreshFnc to be called.
-	public updateFileList(newFileList: Array<string>, forceRefresh?: boolean) : void
-	{
-		let hasChanged: boolean = false;
-
-		// Synchronize this.fileData with newFileList
-		for (const filename in this.fileData)
-		{
-			if (!newFileList.includes(filename))
-			{
-				if (this.onFileRemoved)
-				{
-					this.onFileRemoved(filename);
-				}
-				delete this.fileData[filename];
-				hasChanged = true;
-			}
-		}
-		for (const newFile of newFileList)
-		{
-			if (!this.fileData.hasOwnProperty(newFile))
-			{
-				this.fileData[newFile] = { modDate: Number.MIN_SAFE_INTEGER };
-				if (this.fileOrderImportant)
-				{
-					this.fileData[newFile].ordering = -1;
-				}
-				hasChanged = true;
-			}
-		}
-
-		// Check changes to file order
-		if (this.fileOrderImportant)
-		{
-			for (let i: number = 0; i < newFileList.length; i++)
-			{
-				if (this.fileData[newFileList[i]].ordering != i)
-				{
-					this.fileData[newFileList[i]].ordering = i;
-					hasChanged = true;
-				}
-			}
-		}
-
-		this.refresh(hasChanged || forceRefresh);
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private plugin: any;
-	private refreshFnc: Function;
-	private fileOrderImportant: boolean;
-	private onFileRemoved: Function;
-	private fileData: any;
-	private monitorType: DfcMonitorType;
-	private currentFilesName: string;
-	private currentFileWasModified: boolean;
-	private _onAnyFileModified: any;
-	private _onActiveLeafChange: any;
-	private _onAnyFileAddedOrRemoved: any;
 
 	// Monitor when the current file is modified.  If it is, turn on "active leaf changed"
 	// event to handle refreshFnc call.
@@ -206,6 +181,52 @@ class Dfc
 		{
 			this.refresh(true);
 		}
+	}
+
+	public updateFileList_internal(newFileList: Array<string>, forceRefresh?: boolean) : void
+	{
+		let hasChanged: boolean = false;
+
+		// Synchronize this.fileData with newFileList
+		for (const filename in this.fileData)
+		{
+			if (!newFileList.includes(filename))
+			{
+				if (this.onFileRemoved)
+				{
+					this.onFileRemoved(filename);
+				}
+				delete this.fileData[filename];
+				hasChanged = true;
+			}
+		}
+		for (const newFile of newFileList)
+		{
+			if (!this.fileData.hasOwnProperty(newFile))
+			{
+				this.fileData[newFile] = { modDate: Number.MIN_SAFE_INTEGER };
+				if (this.fileOrderImportant)
+				{
+					this.fileData[newFile].ordering = -1;
+				}
+				hasChanged = true;
+			}
+		}
+
+		// Check changes to file order
+		if (this.fileOrderImportant)
+		{
+			for (let i: number = 0; i < newFileList.length; i++)
+			{
+				if (this.fileData[newFileList[i]].ordering != i)
+				{
+					this.fileData[newFileList[i]].ordering = i;
+					hasChanged = true;
+				}
+			}
+		}
+
+		this.refresh(hasChanged || forceRefresh);
 	}
 
 	// Calls refreshFnc if warranted.  refreshFnc is the callback for when monitored files

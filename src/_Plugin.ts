@@ -8,7 +8,6 @@
 // existing formats (json, xml, etc), but they were cumbersome for developing javascript code in.
 // The chosen format is simple, flexible, and allows for wrapping scripts in js-fenced-code-blocks.
 // This makes it easy to write Expansion scripts within Obsidian which is the intended use-case.
-//
 // For a summary of the format, see here:
 // https://github.com/jon-heard/obsidian-text-expander-js#tutorial-create-a-new-shortcut-file
 // and here:
@@ -18,17 +17,9 @@
 // it is blocked for mobile, so the plugin is still viable for mobile, just slightly more limited.
 const childProcess = require("child_process");
 
-const LONG_NOTE_TIME: number = 8 * 1000;
-const INDENT: string = " ".repeat(4);
-
 class TextExpanderJsPlugin extends obsidian.Plugin
 {
-	public saveSettings(): void
-	{
-		this.saveData(this.settings);
-	}
-
-	public async onload(): void
+	public async onload(): Promise<void>
 	{
 		// Load settings
 		const currentDefaultSettings: object =
@@ -43,19 +34,19 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		// Attach settings UI
 		this.addSettingTab(new TextExpanderJsPluginSettings(this.app, this));
 
-		//Setup bound versons of this function for persistant use
-		this._cm5_handleExpansionTrigger = this.cm5_handleExpansionTrigger.bind(this);
-
-		// Setup support obects for various tasks
-		this.shortcutLoader = new ShortcutLoader(this);
-		this.shortcutExpander = new ShortcutExpander(this, this.runExternal.bind(this));
-
-		// Setup a dfc to monitor shortcut-file notes.
+		// Initialize support objects
+		ShortcutLoader.initialize(this);
+		ShortcutExpander.initialize(this);
+		UserNotifier.initialize(this);
+		ExternalRunner.initialize(this);
 		this.shortcutDfc = new Dfc(
-			this, this.settings.shortcutFiles, this.shortcutLoader.getBoundSetupShortcuts(), true,
-			this.onShortcutFileDisabled.bind(this));
+			this, this.settings.shortcutFiles, ShortcutLoader.getFunction_setupShortcuts(),
+			this.onShortcutFileDisabled.bind(this), true);
 		this.shortcutDfc.setMonitorType(
 			this.settings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.OnModify);
+
+		//Setup bound verson of this function for persistant use
+		this._cm5_handleExpansionTrigger = this.cm5_handleExpansionTrigger.bind(this);
 
 		// Connect "code mirror 5" instances to this plugin to trigger expansions
 		this.registerCodeMirror( (cm: any) => cm.on("keydown", this._cm5_handleExpansionTrigger) );
@@ -70,7 +61,11 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		this.shortcutFileShutdownScripts = {};
 
 		// Log starting the plugin
-		this.notifyUser("Loaded (" + this.manifest.version + ")");
+		UserNotifier.run(
+		{
+			consoleMessage: "Loaded (" + this.manifest.version + ")",
+			messageLevel: "info"
+		});
 	}
 
 	public onunload(): void
@@ -89,48 +84,16 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			(cm: any) => cm.off("keydown", this._cm5_handleExpansionTrigger));
 
 		// Log ending the plugin
-		this.notifyUser("Unloaded (" + this.manifest.version + ")");
-	}
-
-	// Adds a console entry and/or a popup notification
-	public notifyUser(
-		consoleMessage: string, errorType?: string, popupMessage?: string,
-		detailOnConsole?: boolean, isWarning?: boolean)
-	{
-		if (consoleMessage)
+		UserNotifier.run(
 		{
-			consoleMessage =
-				this.manifest.name + "\n" +
-				(errorType ? (INDENT + errorType + "\n") : "") +
-				INDENT + consoleMessage;
-			errorType ? console.error(consoleMessage) :
-			isWarning ? console.warn(consoleMessage) :
-			console.info(consoleMessage);
-		}
-		if (popupMessage)
-		{
-			new obsidian.Notice(
-				(errorType ? "ERROR: " : "") +
-				popupMessage +
-				(detailOnConsole ? "\n\n(see console for details)" : ""),
-				LONG_NOTE_TIME);
-		}
+			consoleMessage: "Unloaded (" + this.manifest.version + ")",
+			messageLevel: "info"
+		});
 	}
 
-	// Adds a tinted full-screen div to prevent user-input
-	public addInputBlock(): void
+	public saveSettings(): void
 	{
-		if (document.getElementById("tejs_inputBlock")) { return; }
-		let block: any = document.createElement("div");
-		block.id = "tejs_inputBlock";
-		document.getElementsByTagName("body")[0].prepend(block);
-	}
-
-	// Removes the tinted full-screen div created by addInputBlock
-	public removeInputBlock(): void
-	{
-		let block: any = document.getElementById("tejs_inputBlock");
-		if (block) { block.remove(); }
+		this.saveData(this.settings);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,14 +103,13 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	private _cm5_handleExpansionTrigger: any;
 	private shortcutDfc: Dfc;
 	private shortcutFileShutdownScripts: any;
-	private shortcutLoader: ShortcutLoader;
-	private shortcutExpander: ShortcutExpander;
 
 	// Call the given shortcut-file's shutdown script.
 	// Note: This is called when shortcut-file is being disabled
 	private onShortcutFileDisabled(filename: string): void
 	{
-		this.runExpansionScript(this.shortcutFileShutdownScripts[filename]);
+		if (!this.shortcutFileShutdownScripts[filename]) { return; }
+		ShortcutExpander.runExpansionScript(this.shortcutFileShutdownScripts[filename]);
 		delete this.shortcutFileShutdownScripts[filename];
 	}
 
@@ -212,7 +174,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		// Run the Expansion script on the shortcut under the caret
 		const sourceText: string =
 			lineText.substring(prefixIndex + this.settings.prefix.length, suffixIndex);
-		let expansionText: string = this.shortcutExpander.expand(sourceText, true);
+		let expansionText: string = ShortcutExpander.expand(sourceText, true);
 		if (expansionText === undefined) { return; }
 
 		// Handle a string array from the Expansion result
@@ -230,64 +192,6 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			{ line: cursor.line, ch: prefixIndex },
 			{ line: cursor.line, ch: suffixIndex + this.settings.suffix.length } );
 	}, 0); }
-
-	// This function is passed into all Expansion scripts to allow them to run shell commands
-	// WARNING: user-facing function
-	private runExternal(command: string, silentFail?: boolean, dontFixSlashes?: boolean): string
-	{
-		if (obsidian.Platform.isMobile)
-		{
-			this.notifyUser(
-				"Unauthorized \"runExternal\" call " +
-				"(NOT available on mobile):\n" + INDENT +
-				"runExternal(\"" + command + "\")", "RUNEXTERNAL-ERROR",
-				"Unauthorized \"runExternal\" call", true);
-			return undefined;
-		}
-
-		// Block this function call if user hasn't turned on the "Allow external" setting
-		// to explicitly allowed shortcuts to call shell commands.
-		if (!this.settings.allowExternal)
-		{
-			this.notifyUser(
-				"Unauthorized \"runExternal\" call " +
-				"(disallowed by user):\n" + INDENT +
-				"runExternal(\"" + command + "\")\n" + INDENT +
-				"NOTE: User can allow runExternal by turning on " +
-				"\"Allow external\" in the settings.", "RUNEXTERNAL-ERROR",
-				"Unauthorized \"runExternal\" call", true);
-			return undefined;
-		}
-
-		// Empty commands always fail
-		if (!command) { return undefined; }
-
-		// Fix slashes in Windows commands
-		if (navigator.appVersion.includes("Windows") && !dontFixSlashes)
-		{
-			command = command.replaceAll("/", "\\");
-		}
-
-		// Do the shell command
-		let vaultDir: string = this.app.fileManager.vault.adapter.basePath;
-		try
-		{
-			let result: string = childProcess.execSync(command, { cwd: vaultDir});
-			return (result + "").replaceAll("\r", "");
-		}
-		catch (e: any)
-		{
-			if (!silentFail)
-			{
-				this.notifyUser(
-					"Failed \"runExternal\" call:\n" + INDENT +
-					"curDir: " + vaultDir + "\n" + INDENT +
-					e.message, "RUNEXTERNAL-ERROR",
-					"Failed \"runExternal\" call", true);
-			}
-			return undefined;
-		}
-	}
 }
 
 module.exports = TextExpanderJsPlugin;

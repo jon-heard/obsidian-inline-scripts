@@ -1,47 +1,40 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Shortcut loader - Code to load the shortcuts from the list of shortcut-files and from settings //
-////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Shortcut loader - Load shortcuts from a shortcut-file, or from all shortcut-files & settings. //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 "use strict";
 
 const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
 const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
 
-class ShortcutLoader
+abstract class ShortcutLoader
 {
-	public constructor(plugin: any)
+	public static initialize(plugin: any)
 	{
 		this.plugin = plugin;
-
-		//Setup bound versons of these function for persistant use
-		this._setupShortcuts_internal = this.setupShortcuts_internal.bind(this);
 	}
 
-	public setupShortcuts(): void
-	{
-		this.setupShortcuts_internal();
-	}
-	
-	public parseShortcutFile(
+	// Parses a shortcut-file's contents into a useful data format and returns it
+	public static parseShortcutFile(
 		filename: string, content: string, maintainCodeFence?: boolean,
 		maintainAboutString?: boolean) : any
 	{
 		return this.parseShortcutFile_internal(
 			filename, content, maintainCodeFence, maintainAboutString);
 	}
-	
-	public getBoundSetupShortcuts(): Function
+
+	// Offer "setupShortcuts" function for use as a callback.
+	// Function loads all shortcuts from the settings and shortcut-file list into the plugin.
+	public static getFunction_setupShortcuts(): Function
 	{
-		return this._setupShortcuts_internal;
+		return this.setupShortcuts_internal.bind(this);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private plugin: any;
-	private _setupShortcuts_internal: Function;
+	private static plugin: any;
 
-	// Parses a shortcut-file's contents into a useful data format and returns it
-	private parseShortcutFile_internal(
+	private static parseShortcutFile_internal(
 		filename: string, content: string, maintainCodeFence?: boolean,
 		maintainAboutString?: boolean) : any
 	{
@@ -62,8 +55,11 @@ class ShortcutLoader
 		// Check for the obvious error of misnumbered sections (bounded by "~~")
 		if (!!((sections.length-1) % 3))
 		{
-			this.plugin.notifyUser(
-				"In Shortcut-file \"" + filename + "\"", "MISNUMBERED-SECTION-COUNT-ERROR");
+			UserNotifier.run(
+			{
+				consoleMessage: "In shortcut-file \"" + filename + "\"",
+				messageType: "MISNUMBERED-SECTION-COUNT-ERROR"
+			});
 			fileHasErrors = true;
 		}
 
@@ -95,9 +91,11 @@ class ShortcutLoader
 				}
 				catch (e: any)
 				{
-					this.plugin.notifyUser(
-						"In shortcut-file \"" + filename + "\":\n" + INDENT + c,
-						"BAD-TEST-STRING-ERROR");
+					UserNotifier.run(
+					{
+						consoleMessage: "In shortcut-file \"" + filename + "\":\n" + INDENT + c,
+						messageType: "BAD-TEST-STRING-ERROR"
+					});
 					fileHasErrors = true;
 					continue;
 				}
@@ -126,8 +124,8 @@ class ShortcutLoader
 			}
 
 			// About string handling
-			// Skip if a helper script, helper block or setup script, or if About
-			// string is "hidden"
+			// Skip if it's a helper script, helper blocker or setup script, or if the About
+			// string's syntax string is the string "hidden"
 			if (testRegex.source != "(?:)" && testRegex.source != "^tejs setup$" &&
 			    testRegex.source != "^tejs shutdown$" && !sections[i+2].startsWith("hidden - "))
 			{
@@ -142,27 +140,36 @@ class ShortcutLoader
 			}
 		}
 
+		// If errors during parsing, notify user in a general popup notification.
+		// Any errors were added to console at the moment they were found.
 		if (fileHasErrors)
 		{
-			this.plugin.notifyUser("", "ERR", "Shortcut-file issues\n" + filename, true);
+			UserNotifier.run(
+			{
+				popupMessage: "Shortcut-file issues\n" + filename,
+				consoleHasDetails: true
+			});
 		}
 
+		// Return result of parsing the shortcut file
 		return { shortcuts: shortcuts, fileAbout: fileAbout, shortcutAbouts: shortcutAbouts };
 	}
 
-	// Creates entire shortcut list based on shortcuts from settings and shortcut-files
-	private async setupShortcuts_internal(): void
+	private static async setupShortcuts_internal(): Promise<void>
 	{
-		// To fill with data for the help-shortcut creation
+		let result: any = { shortcuts: [], shutdownScripts: {} };
+
+		// To fill with data for the generation of help shortcuts
 		let abouts: Array<any> = [];
 
 		// Add shortcuts defined directly in the settings
-		let parseResult: any = this.parseShortcutFile("settings", this.plugin.settings.shortcuts);
-		this.plugin.shortcuts = parseResult.shortcuts;
+		let parseResult: any =
+			this.parseShortcutFile_internal("settings", this.plugin.settings.shortcuts);
+		result.shortcuts = parseResult.shortcuts;
 		abouts.push({ filename: "", shortcutAbouts: parseResult.shortcutAbouts });
 
-		// Add a helper-block to segment helper scripts within their shortcut-files
-		this.plugin.shortcuts.push({});
+		// Add a helper-blocker to segment helper scripts within their shortcut-files
+		result.shortcuts.push({});
 
 		// Go over all shortcut-files
 		for (const filename of this.plugin.settings.shortcutFiles)
@@ -170,9 +177,12 @@ class ShortcutLoader
 			const file: any = this.plugin.app.vault.fileMap[filename];
 			if (!file)
 			{
-				this.plugin.notifyUser(
-					filename, "MISSING-SHORTCUT-FILE-ERROR", "Missing shortcut-file\n" + filename,
-					false);
+				UserNotifier.run(
+				{
+					popupMessage: "Missing shortcut-file\n" + filename,
+					consoleMessage: filename,
+					messageType: "MISSING-SHORTCUT-FILE-ERROR"
+				});
 				continue;
 			}
 
@@ -187,7 +197,7 @@ class ShortcutLoader
 				if (newShortcut.test.source == "^tejs setup$")
 				{
 					// If setup script returns TRUE, don't use shortcuts
-					if (this.plugin.shortcutExpander.expand(newShortcut.expansion))
+					if (ShortcutExpander.expand(newShortcut.expansion))
 					{
 						parseResult.shortcuts = undefined;
 					}
@@ -203,14 +213,14 @@ class ShortcutLoader
 			{
 				if (newShortcut.test.source == "^tejs shutdown$")
 				{
-					this.plugin.shortcutFileShutdownScripts[filename] = newShortcut.expansion;
+					result.shortcutFileShutdownScripts[filename] = newShortcut.expansion;
 					break;
 				}
 			}
 
-			// Add new shortcuts to master list, followed by helper-block
-			this.plugin.shortcuts = this.plugin.shortcuts.concat(parseResult.shortcuts);
-			this.plugin.shortcuts.push({});
+			// Add new shortcuts to master list, followed by helper-blocker
+			result.shortcuts = result.shortcuts.concat(parseResult.shortcuts);
+			result.shortcuts.push({});
 
 			// Get the file About string and shortcut About strings
 			let baseName: string =
@@ -224,12 +234,19 @@ class ShortcutLoader
 			});
 		}
 
-		this.generateHelpShortcuts(abouts);
+		// Generate and add help shortcuts
+		result.shortcuts = this.generateHelpShortcuts(abouts).concat(result.shortcuts);
+
+		// Assign new shortcuts to the plugin.  Also, add any shutdown scripts that were found.
+		this.plugin.shortcuts = result.shortcuts;
+		this.plugin.shortcutFileShutdownScripts =
+			Object.assign(this.plugin.shortcutFileShutdownScripts, result.shutdownScripts);
 	}
 
-	// Creates systems help shortcuts and adds them to the shortcuts list
-	private generateHelpShortcuts(abouts: any): void
+	// Creates help shortcuts based on "about" info from shortcuts and shortcut-files
+	private static generateHelpShortcuts(abouts: any): Array<any>
 	{
+		// The final list of help shortcuts
 		let result: Array<any> = [];
 
 		// Support functions
@@ -240,6 +257,15 @@ class ShortcutLoader
 		function stringifyString(s: string)
 		{
 			return s.replaceAll("\"", "\\\"").replaceAll("\n", "\\n");
+		}
+		function makeAboutShortcut(name: string, about: string)
+		{
+			about ||= "No information available.";
+			const expansion: string =
+				"return \"### About - " + capitalize(name) + "\\n" + stringifyString(about) +
+				"\\n\\n\";";
+			const test: RegExp = new RegExp("^about " + name + "$");
+			result.push({ test: test, expansion: expansion });
 		}
 		function makeRefShortcut(groupName: string, abouts: any, displayName?: string)
 		{
@@ -263,15 +289,6 @@ class ShortcutLoader
 			const test: RegExp = new RegExp("^ref(?:erence)? " + groupName + "$");
 			result.push({ test: test, expansion: expansion });
 		}
-		function makeAboutShortcut(name: string, about: string)
-		{
-			about ||= "No information available.";
-			const expansion: string =
-				"return \"### About - " + capitalize(name) + "\\n" + stringifyString(about) +
-				"\\n\\n\";";
-			const test: RegExp = new RegExp("^about " + name + "$");
-			result.push({ test: test, expansion: expansion });
-		}
 
 		// Gather info
 		let settingsAbouts: Array<any> = [];
@@ -279,31 +296,35 @@ class ShortcutLoader
 		let shortcutFileList: string = "";
 		for (const about of abouts)
 		{
+			// If not the "settings" shortcut-file (the only about with a blank filename)
 			if (about.filename)
 			{
+				// Add help only for shortcut-files that contain non-hidden shortcuts
 				if (about.shortcutAbouts.length == 0) { continue; }
-				// Make "ref" shortcut
-				makeRefShortcut(about.filename, about.shortcutAbouts);
-				// Make "about" shortcut
+				// Make "about" shortcut for this shortcut-file
 				makeAboutShortcut(about.filename, about.fileAbout);
-
+				// Make "ref" shortcut for this shortcut-file
+				makeRefShortcut(about.filename, about.shortcutAbouts);
+				// Add to the general "help" shortcut's expansion
 				shortcutFileList +=
 					"- __about " + about.filename + "__, __ref " + about.filename + "__\\n";
+				// Add to "ref all" list: reference of ALL shortcuts
 				shortcutFileAbouts = shortcutFileAbouts.concat(about.shortcutAbouts);
 			}
 			else if (about.shortcutAbouts.length > 0)
 			{
+				// Add to "ref all" list: reference of ALL shortcuts
 				settingsAbouts = about.shortcutAbouts;
 			}
 		}
 
-		// Create "ref all" shortcut
+		// Create "ref all" shortcut: expands to a reference for ALL shortcuts
 		makeRefShortcut("all", settingsAbouts.concat(shortcutFileAbouts), "All shortcuts");
 
-		// Create "ref settings" shortcut
+		// Create "ref settings" shortcut: expands to a reference for shortcuts defined in settings
 		makeRefShortcut("settings", settingsAbouts);
 
-		// Create "help" shortcut
+		// Create "help" shortcut: expands to a general help text which lists all help shortcuts
 		const expansion: string =
 			"return \"The following shortcuts provide help for all shortcuts and " +
 			"shortcut-files currently setup with __Text Expander JS__:\\n" +
@@ -315,11 +336,11 @@ class ShortcutLoader
 		const test: RegExp = /^help$"/;
 		result.push({ test: test, expansion: expansion });
 
-		// Reversing ensures that "ref all" and "ref settings" aren't superseded
-		// by a poorly named shortcut-file
+		// Reversing ensures that "ref all" and "ref settings" aren't superseded by a poorly named
+		// shortcut-file
 		result.reverse();
 
-		// Prepend help shortcuts to start of main shortcuts list
-		this.plugin.shortcuts = result.concat(this.plugin.shortcuts);
+		// Return list of help shortcuts we just generated
+		return result;
 	}
 }
