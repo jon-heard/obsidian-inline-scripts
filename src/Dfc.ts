@@ -4,11 +4,13 @@
 
 "use strict";
 
+enum DfcMonitorType { None, OnModify, OnTouch };
+
 class Dfc
 {
 	public constructor(
-		plugin: any, filenames: Array<string>, refreshFnc: Function,
-		fileOrderImportant: boolean, onFileRemoved: Function)
+		plugin: any, filenames: Array<string>, refreshFnc: Function, fileOrderImportant: boolean,
+		onFileRemoved: Function)
 	{
 		this.plugin = plugin;
 
@@ -49,18 +51,15 @@ class Dfc
 		}, 0);
 	}
 
-	public destructor()
+	public destructor(): void
 	{
 		this.setMonitorType(DfcMonitorType.None);
 	}
 
 	// Setup
-	public setMonitorType(monitorType: DfcMonitorType)
+	public setMonitorType(monitorType: DfcMonitorType): void
 	{
-		if (monitorType == this.monitorType)
-		{
-			return;
-		}
+		if (monitorType == this.monitorType) { return; }
 
 		// At Obsidian start, some Obsidian events trigger haphazardly.  We use
 		// onLayoutReady to wait to connect to the events until AFTER the random triggering
@@ -70,18 +69,10 @@ class Dfc
 			// React to old monitor type
 			if (this.monitorType != DfcMonitorType.None)
 			{
-				this.plugin.app.vault.off(
-					"modify",
-					this._onAnyFileModified);
-				this.plugin.app.workspace.off(
-					"active-leaf-change",
-					this._onActiveLeafChange);
-				this.plugin.app.vault.off(
-					"create",
-					this._onAnyFileAddedOrRemoved);
-				this.plugin.app.vault.off(
-					"delete",
-					this._onAnyFileAddedOrRemoved);
+				this.plugin.app.vault.off("modify", this._onAnyFileModified);
+				this.plugin.app.workspace.off("active-leaf-change", this._onActiveLeafChange);
+				this.plugin.app.vault.off("create", this._onAnyFileAddedOrRemoved);
+				this.plugin.app.vault.off("delete", this._onAnyFileAddedOrRemoved);
 			}
 
 			this.monitorType = monitorType;
@@ -89,23 +80,14 @@ class Dfc
 			// React to new monitor type
 			if (this.monitorType != DfcMonitorType.None)
 			{
-				this.plugin.app.vault.on(
-					"modify",
-					this._onAnyFileModified);
-				this.plugin.app.workspace.on(
-					"active-leaf-change",
-					this._onActiveLeafChange);
-				this.plugin.app.vault.on(
-					"create",
-					this._onAnyFileAddedOrRemoved);
-				this.plugin.app.vault.on(
-					"delete",
-					this._onAnyFileAddedOrRemoved);
+				this.plugin.app.vault.on("modify", this._onAnyFileModified);
+				this.plugin.app.workspace.on("active-leaf-change", this._onActiveLeafChange);
+				this.plugin.app.vault.on("create", this._onAnyFileAddedOrRemoved);
+				this.plugin.app.vault.on("delete", this._onAnyFileAddedOrRemoved);
 			}
 
 			// Update Dfc state to monitor the active file
-			this.currentFilesName =
-				this.plugin.app.workspace.getActiveFile()?.path ?? "";
+			this.currentFilesName = this.plugin.app.workspace.getActiveFile()?.path ?? "";
 		});
 	}
 
@@ -113,7 +95,7 @@ class Dfc
 	// The Dfc's current monitored files list is updated to match.
 	// If this ends up changing the Dfc's list, refreshFnc called.
 	// Alternately, forceRefresh being true will force refreshFnc to be called.
-	public updateFileList(newFileList: Array<string>, forceRefresh?: boolean)
+	public updateFileList(newFileList: Array<string>, forceRefresh?: boolean) : void
 	{
 		let hasChanged: boolean = false;
 
@@ -134,9 +116,7 @@ class Dfc
 		{
 			if (!this.fileData.hasOwnProperty(newFile))
 			{
-				this.fileData[newFile] = {
-					modDate: Number.MIN_SAFE_INTEGER
-				};
+				this.fileData[newFile] = { modDate: Number.MIN_SAFE_INTEGER };
 				if (this.fileOrderImportant)
 				{
 					this.fileData[newFile].ordering = -1;
@@ -161,6 +141,8 @@ class Dfc
 		this.refresh(hasChanged || forceRefresh);
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 	private plugin: any;
 	private refreshFnc: Function;
 	private fileOrderImportant: boolean;
@@ -175,13 +157,10 @@ class Dfc
 
 	// Monitor when the current file is modified.  If it is, turn on "active leaf changed"
 	// event to handle refreshFnc call.
-	private onAnyFileModified(file: any)
+	private onAnyFileModified(file: any): void
 	{
 		// Ignore unmonitored files
-		if (!this.fileData[file.path])
-		{
-			return;
-		}
+		if (!this.fileData[file.path]) { return; }
 
 		// If current file was modified, remember to call refreshFnc when leaving the file
 		// the file
@@ -199,14 +178,13 @@ class Dfc
 
 	// Monitor when a different file becomes the active one. If the prior active file is one
 	// of the files being monitored then this can trigger a refreshFnc call.
-	private onActiveLeafChange()
+	private onActiveLeafChange(): void
 	{
 		// Ignore unmonitored files
 		if (this.fileData[this.currentFilesName])
 		{
 			// If leaving a file and it was changed, or monitorType == OnTouch, refresh
-			if (this.currentFileWasModified ||
-			    this.monitorType == DfcMonitorType.OnTouch)
+			if (this.currentFileWasModified || this.monitorType == DfcMonitorType.OnTouch)
 			{
 				this.refresh(true);
 			}
@@ -219,13 +197,10 @@ class Dfc
 
 	// Monitor when files are added to or removed from the vault. If the file is one of the
 	// ones being monitored, refreshFnc is called.
-	private onAnyFileAddedOrRemoved(file: any)
+	private onAnyFileAddedOrRemoved(file: any): void
 	{
 		// Ignore unmonitored files
-		if (!this.fileData[file.path])
-		{
-			return;
-		}
+		if (!this.fileData[file.path]) { return; }
 
 		if (this.fileData.hasOwnProperty(file.path))
 		{
@@ -236,7 +211,7 @@ class Dfc
 	// Calls refreshFnc if warranted.  refreshFnc is the callback for when monitored files
 	// require a refresh.  This calls refreshFnc either when forceRefresh is true, or if one or
 	// more of the monitored files have changed (i.e. their modified date has changed).
-	private refresh(forceRefresh?: boolean)
+	private refresh(forceRefresh?: boolean): void
 	{
 		this.plugin.app.workspace.onLayoutReady(async () =>
 		{
@@ -262,8 +237,7 @@ class Dfc
 
 				// If file doesn't exist, but a valid mod-date is recorded for it,
 				// invalidate mod-date and record that refreshFnc should be called
-				else if (this.fileData[filename].modDate !=
-				         Number.MIN_SAFE_INTEGER)
+				else if (this.fileData[filename].modDate != Number.MIN_SAFE_INTEGER)
 				{
 					this.fileData[filename].modDate = Number.MIN_SAFE_INTEGER;
 					hasChanged = true;
@@ -278,5 +252,3 @@ class Dfc
 		});
 	}
 }
-
-enum DfcMonitorType { None, OnModify, OnTouch };

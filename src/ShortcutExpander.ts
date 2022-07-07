@@ -1,9 +1,21 @@
+/////////////////////////////////////////////////////////////////////////////////
+// Shortcut expander - Code to "expand" a shortcut written in an Obsidian note //
+/////////////////////////////////////////////////////////////////////////////////
+
+"use strict";
+
+const SHORTCUT_PRINT: Function = function(message: string): void
+{
+	console.info("TEJS Shortcut:\n\t" + message);
+	new obsidian.Notice("TEJS Shortcut:\n" + message, LONG_NOTE_TIME);
+};
 
 class ShortcutExpander
 {
-	public constructor(plugin: any)
+	public constructor(plugin: any, runExternal: Function)
 	{
 		this.plugin = plugin;
+		this.runExternal = runExternal;
 		
 		//Setup bound versons of these function for persistant use
 		this._expand_internal = this.expand_internal.bind(this);
@@ -23,9 +35,10 @@ class ShortcutExpander
 		return this._expand_internal;
 	}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private plugin: any;
+	private runExternal: Function;
 	private _expand_internal: any;
 	private _handleExpansionError: any;
 	private expansionErrorHandlerStack: Array<any>;
@@ -40,8 +53,7 @@ class ShortcutExpander
 		for (const shortcut of this.plugin.shortcuts)
 		{
 			// Helper-block (empty shortcut) just erases helper scripts before it
-			if ((!shortcut.test || shortcut.test.source == "(?:)") &&
-			    !shortcut.expansion)
+			if ((!shortcut.test || shortcut.test.source == "(?:)") && !shortcut.expansion)
 			{
 				expansionText = "";
 				continue;
@@ -55,8 +67,7 @@ class ShortcutExpander
 			for (let k: number = 1; k < matchInfo.length; k++)
 			{
 				expansionText +=
-					"let $" + k + " = \"" +
-					matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
+					"let $" + k + " = \"" + matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
 			}
 
 			// Add the shortcut's Expansion string to the total Expanson script
@@ -71,9 +82,7 @@ class ShortcutExpander
 		}
 
 		expansionText =
-			!foundMatch ?
-			undefined :
-			this.runExpansionScript(expansionText, isUserTriggered);
+			foundMatch ? this.runExpansionScript(expansionText, isUserTriggered) : undefined;
 
 		// If shortcut parsing amounted to nothing.  Notify user of bad shortcut entry.
 		if (expansionText === undefined)
@@ -108,7 +117,7 @@ class ShortcutExpander
 	// NOTE: Error handling is being done through window "error" event, rather than through
 	// exceptions.  This is because exceptions don't provide error line numbers like the error
 	// event does.  Line numbers are important to create the useful "expansion failed" message.
-	private runExpansionScript(expansionScript: string, isUserTriggered?: boolean)
+	private runExpansionScript(expansionScript: string, isUserTriggered?: boolean): any
 	{
 		// Prepare for possible Expansion script error
 		if (isUserTriggered || !this.expansionErrorHandlerStack.length)
@@ -117,8 +126,7 @@ class ShortcutExpander
 			if (this.expansionErrorHandlerStack.length > 0)
 			{
 				let msg: string =
-					"Stack was off by " +
-					this.expansionErrorHandlerStack.length + ".\n" +
+					"Stack was off by " + this.expansionErrorHandlerStack.length + ".\n" +
 					this.expansionErrorHandlerStack.join("\n-------\n");
 				this.plugin.notifyUser(msg, "EXPANSION-ERROR-HANDLER-ERROR");
 				this.expansionErrorHandlerStack = [];
@@ -132,7 +140,7 @@ class ShortcutExpander
 		let result: any = (new Function(
 				"expand", "isUserTriggered", "runExternal", "print",
 				expansionScript))
-				(this._expand_internal, isUserTriggered, this.plugin._runExternal, SHORTCUT_PRINT);
+				(this._expand_internal, isUserTriggered, this.runExternal, SHORTCUT_PRINT);
 
 		// Clean up script error preparations (it wouldn't have got here if we'd hit one)
 		this.expansionErrorHandlerStack.pop();
@@ -142,8 +150,7 @@ class ShortcutExpander
 			if (this.expansionErrorHandlerStack.length > 0)
 			{
 				let msg: string =
-					"Stack was off by " +
-					this.expansionErrorHandlerStack.length + ".\n" +
+					"Stack was off by " + this.expansionErrorHandlerStack.length + ".\n" +
 					this.expansionErrorHandlerStack.join("\n-------\n");
 				this.plugin.notifyUser(msg, "EXPANSION-ERROR-HANDLER-ERROR");
 				this.expansionErrorHandlerStack = [];
@@ -157,7 +164,7 @@ class ShortcutExpander
 
 	// Called when something goes wrong during shortcut expansion.  Generates a useful
 	// error in the console and notification popup.
-	private handleExpansionError(e: any)
+	private handleExpansionError(e: any): void
 	{
 		// Block default error handling
 		e.preventDefault();
@@ -177,12 +184,9 @@ class ShortcutExpander
 		expansionText = expansionLines.join("\n");
 
 		let msg: string =
-			e.message + "\n" + INDENT +
-			"line: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
+			e.message + "\n" + INDENT + "line: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
 			INDENT + "─".repeat(20) + "\n" + expansionText;
-		this.plugin.notifyUser(
-			msg, "SHORTCUT-EXPANSION-ERROR",
-			"Shortcut expansion issues.", true);
+		this.plugin.notifyUser(msg, "SHORTCUT-EXPANSION-ERROR", "Shortcut expansion issues.", true);
 
 		// Clean up script error preparations (now that the error is handled)
 		this.expansionErrorHandlerStack = []; // Error causes nest to unwind.  Clear stack.

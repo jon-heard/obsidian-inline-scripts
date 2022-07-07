@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Shortcut loader - Code to load the shortcuts from the list of shortcut-files and from settings //
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+"use strict";
+
+const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
+const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
 
 class ShortcutLoader
 {
@@ -9,7 +17,7 @@ class ShortcutLoader
 		this._setupShortcuts_internal = this.setupShortcuts_internal.bind(this);
 	}
 
-	public setupShortcuts()
+	public setupShortcuts(): void
 	{
 		this.setupShortcuts_internal();
 	}
@@ -22,12 +30,12 @@ class ShortcutLoader
 			filename, content, maintainCodeFence, maintainAboutString);
 	}
 	
-	public getBoundSetupShortcuts()
+	public getBoundSetupShortcuts(): Function
 	{
 		return this._setupShortcuts_internal;
 	}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private plugin: any;
 	private _setupShortcuts_internal: Function;
@@ -55,8 +63,7 @@ class ShortcutLoader
 		if (!!((sections.length-1) % 3))
 		{
 			this.plugin.notifyUser(
-				"In Shortcut-file \"" + filename + "\"",
-				"MISNUMBERED-SECTION-COUNT-ERROR");
+				"In Shortcut-file \"" + filename + "\"", "MISNUMBERED-SECTION-COUNT-ERROR");
 			fileHasErrors = true;
 		}
 
@@ -89,8 +96,8 @@ class ShortcutLoader
 				catch (e: any)
 				{
 					this.plugin.notifyUser(
-						"In shortcut-file \"" + filename + "\":\n" +
-						INDENT + c, "BAD-TEST-STRING-ERROR");
+						"In shortcut-file \"" + filename + "\":\n" + INDENT + c,
+						"BAD-TEST-STRING-ERROR");
 					fileHasErrors = true;
 					continue;
 				}
@@ -122,19 +129,16 @@ class ShortcutLoader
 			// Skip if a helper script, helper block or setup script, or if About
 			// string is "hidden"
 			if (testRegex.source != "(?:)" && testRegex.source != "^tejs setup$" &&
-			    testRegex.source != "^tejs shutdown$" &&
-			    !sections[i+2].startsWith("hidden - "))
+			    testRegex.source != "^tejs shutdown$" && !sections[i+2].startsWith("hidden - "))
 			{
 				let aboutParts: Array<string> =
-					sections[i+2].split(REGEX_SPLIT_FIRST_DASH).
-					map((v: string) => v.trim());
+					sections[i+2].split(REGEX_SPLIT_FIRST_DASH).map((v: string) => v.trim());
 				// If no syntax string is included, use the Regex string instead
 				if (aboutParts.length == 1)
 				{
 					aboutParts = [testRegex.source, aboutParts[0]];
 				}
-				shortcutAbouts.push(
-					{ syntax: aboutParts[0], description: aboutParts[1] });
+				shortcutAbouts.push({ syntax: aboutParts[0], description: aboutParts[1] });
 			}
 		}
 
@@ -143,22 +147,17 @@ class ShortcutLoader
 			this.plugin.notifyUser("", "ERR", "Shortcut-file issues\n" + filename, true);
 		}
 
-		return {
-			shortcuts: shortcuts,
-			fileAbout: fileAbout,
-			shortcutAbouts: shortcutAbouts
-		};
+		return { shortcuts: shortcuts, fileAbout: fileAbout, shortcutAbouts: shortcutAbouts };
 	}
 
 	// Creates entire shortcut list based on shortcuts from settings and shortcut-files
-	private async setupShortcuts_internal()
+	private async setupShortcuts_internal(): void
 	{
 		// To fill with data for the help-shortcut creation
 		let abouts: Array<any> = [];
 
 		// Add shortcuts defined directly in the settings
-		let parseResult: any =
-			this.parseShortcutFile("settings", this.plugin.settings.shortcuts);
+		let parseResult: any = this.parseShortcutFile("settings", this.plugin.settings.shortcuts);
 		this.plugin.shortcuts = parseResult.shortcuts;
 		abouts.push({ filename: "", shortcutAbouts: parseResult.shortcutAbouts });
 
@@ -172,8 +171,8 @@ class ShortcutLoader
 			if (!file)
 			{
 				this.plugin.notifyUser(
-					filename, "MISSING-SHORTCUT-FILE-ERROR",
-					"Missing shortcut-file\n" + filename, false);
+					filename, "MISSING-SHORTCUT-FILE-ERROR", "Missing shortcut-file\n" + filename,
+					false);
 				continue;
 			}
 
@@ -204,8 +203,7 @@ class ShortcutLoader
 			{
 				if (newShortcut.test.source == "^tejs shutdown$")
 				{
-					this.plugin.shortcutFileShutdownScripts[filename] =
-						newShortcut.expansion;
+					this.plugin.shortcutFileShutdownScripts[filename] = newShortcut.expansion;
 					break;
 				}
 			}
@@ -230,7 +228,7 @@ class ShortcutLoader
 	}
 
 	// Creates systems help shortcuts and adds them to the shortcuts list
-	private generateHelpShortcuts(abouts: any)
+	private generateHelpShortcuts(abouts: any): void
 	{
 		let result: Array<any> = [];
 
@@ -246,8 +244,7 @@ class ShortcutLoader
 		function makeRefShortcut(groupName: string, abouts: any, displayName?: string)
 		{
 			displayName = displayName || capitalize(groupName);
-			let expansion: string =
-				"let result = \"### Reference - " + displayName + "\\n\";\n";
+			let expansion: string = "let result = \"### Reference - " + displayName + "\\n\";\n";
 			for (const about of abouts)
 			{
 				let description: string = "";
@@ -256,8 +253,7 @@ class ShortcutLoader
 					description = " - " + stringifyString(about.description);
 				}
 				expansion +=
-					"result += \"- __" + about.syntax + "__" + description +
-					"\\n\";\n";
+					"result += \"- __" + about.syntax + "__" + description + "\\n\";\n";
 			}
 			if (!abouts.length)
 			{
@@ -271,8 +267,8 @@ class ShortcutLoader
 		{
 			about ||= "No information available.";
 			const expansion: string =
-				"return \"### About - " + capitalize(name) + "\\n" +
-				stringifyString(about) + "\\n\\n\";";
+				"return \"### About - " + capitalize(name) + "\\n" + stringifyString(about) +
+				"\\n\\n\";";
 			const test: RegExp = new RegExp("^about " + name + "$");
 			result.push({ test: test, expansion: expansion });
 		}
@@ -292,10 +288,8 @@ class ShortcutLoader
 				makeAboutShortcut(about.filename, about.fileAbout);
 
 				shortcutFileList +=
-					"- __about " + about.filename + "__, __ref " +
-					about.filename + "__\\n";
-				shortcutFileAbouts =
-					shortcutFileAbouts.concat(about.shortcutAbouts);
+					"- __about " + about.filename + "__, __ref " + about.filename + "__\\n";
+				shortcutFileAbouts = shortcutFileAbouts.concat(about.shortcutAbouts);
 			}
 			else if (about.shortcutAbouts.length > 0)
 			{

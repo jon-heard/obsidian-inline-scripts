@@ -1,3 +1,8 @@
+//////////////////////////////////////////////////////////////////
+// Settings - the settings ui and logic for this plugin project //
+//////////////////////////////////////////////////////////////////
+
+"use strict";
 
 class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 {
@@ -17,7 +22,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		this.libraryImporter = new LibraryImporter(plugin, this);
 	}
 
-	public display()
+	public display(): void
 	{
 		// Clone temporary settings from plugin's settings
 		this.tmpSettings = JSON.parse(JSON.stringify(this.plugin.settings));
@@ -28,17 +33,14 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		// General button callbacks
 		const deleteButtonClicked: Function = function()
 		{
-			new ConfirmDialogBox(
-				this.plugin.app,
-				"Confirm removing a " + this.typeTitle + ".",
+			new ConfirmDialogBox( this.plugin.app, "Confirm removing a " + this.typeTitle + ".",
 				(confirmation: boolean) =>
 				{
 					if (confirmation)
 					{
 						this.group.remove();
 					}
-				}
-			).open();
+				} ).open();
 		};
 		const upButtonClicked: Function = function()
 		{
@@ -72,10 +74,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 				return button
 					.setButtonText("Add file reference")
 					.setClass("tejs_button")
-					.onClick(() =>
-					{
-						addShortcutFileUi();
-					});
+					.onClick( () => addShortcutFileUi() );
 			})
 			.addButton((button: any) =>
 			{
@@ -114,8 +113,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 				e.addEventListener("input", function()
 				{
 					const isBadInput: boolean =
-						this.value &&
-						!this.plugin.app.vault.fileMap[this.value+".md"]
+						(this.value && !this.plugin.app.vault.fileMap[this.value+".md"]);
 					this.toggleClass("tejs_badInput", isBadInput);
 				});
 				// Assign given text argument to the textfield
@@ -156,10 +154,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 				return button
 					.setButtonText("Add shortcut")
 					.setClass("tejs_button")
-					.onClick(() =>
-					{
-						addShortcutUi();
-					});
+					.onClick( () => addShortcutUi() );
 			})
 			.addButton((button: any) =>
 			{
@@ -170,8 +165,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 					{
 						let defaultShortcuts: Array<any> =
 							this.plugin.shortcutExpander.parseShortcutFile(
-								"Settings", DEFAULT_SETTINGS.shortcuts, true, true).
-							shortcuts;
+								"Settings", DEFAULT_SETTINGS.shortcuts, true, true).shortcuts;
 
 						// We don't want to duplicate shortcuts, and it's
 						// important to keep defaults in-order.  Remove
@@ -242,10 +236,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		c.createEl("h2", { text: "Shortcut format" });
 
 		// A ui for showing errors in shortcut format settings
-		this.formattingErrMsgContainer =
-			c.createEl("div", { cls: "tejs_errMsgContainer" });
-		const errMsgTitle: any = this.formattingErrMsgContainer.createEl(
-			"span", { text: "ERROR", cls: "tejs_errMsgTitle" });
+		this.formattingErrMsgContainer = c.createEl("div", { cls: "tejs_errMsgContainer" });
+		this.formattingErrMsgContainer.createEl("span", { text: "ERROR", cls: "tejs_errMsgTitle" });
 		this.formattingErrMsgContent = this.formattingErrMsgContainer.createEl("span");
 
 		// Prefix
@@ -286,7 +278,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 
 		// Example
 		const exampleOuter: any = c.createEl("div", { cls: "setting-item" });
-			exampleOuter.toggleClass("tejs_settingBundled", !obsidian.Platform.isMobile);
+		exampleOuter.toggleClass("tejs_settingBundled", !obsidian.Platform.isMobile);
 		const exampleInfo: any = exampleOuter.createEl("div", { cls: "setting-item-info" });
 		exampleInfo.createEl("div", { text: "Example", cls: "setting-item-name" });
 		exampleInfo.createEl("div",
@@ -299,10 +291,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		let shortcutExample: any = exampleItemControl.createEl("div", { cls: "tejs_labelControl" });
 		const refreshShortcutExample: Function = () =>
 		{
-			shortcutExample.innerText =
-				this.tmpSettings.prefix +
-				"D100" +
-				this.tmpSettings.suffix;
+			shortcutExample.innerText = this.tmpSettings.prefix + "D100" + this.tmpSettings.suffix;
 		};
 		refreshShortcutExample();
 
@@ -319,10 +308,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			{
 				return toggle
 					.setValue(this.tmpSettings.devMode)
-					.onChange((value: string) =>
-					{
-						this.tmpSettings.devMode = value;
-					});
+					.onChange((value: string) => this.tmpSettings.devMode = value );
 			});
 
 		// Allow external (not available on mobile)
@@ -335,10 +321,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 				{
 					return toggle
 						.setValue(this.tmpSettings.allowExternal)
-						.onChange((value: string) =>
-						{
-							this.tmpSettings.allowExternal = value;
-						});
+						.onChange((value: string) => this.tmpSettings.allowExternal = value );
 				})
 				.descEl.createEl("div", {
 					cls: "tejs_warning",
@@ -351,7 +334,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 	}
 
 	// THIS is where settings are saved!
-	public hide()
+	public hide(): void
 	{
 		// Get shortcut-files list
 		this.tmpSettings.shortcutFiles = this.getShortcutFilesFromUi();
@@ -426,13 +409,13 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		{
 			if (shortcutFileUi.childNodes[0].value)
 			{
-				result.push(obsidian.normalizePath(
-					shortcutFileUi.childNodes[0].value + ".md"));
+				result.push(obsidian.normalizePath( shortcutFileUi.childNodes[0].value + ".md" ));
 			}
 		}
 		return result;
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private tmpSettings: any;
 	private formattingErrMsgContainer: any;
@@ -442,7 +425,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 	// Checks formatting settings for errors:
 	//   - blank prefix or suffix
 	//   - suffix contains prefix (disallowed as it messes up logic)
-	private checkFormatValid()
+	private checkFormatValid(): boolean
 	{
 		let err: string = "";
 		if (!this.tmpSettings.prefix)
@@ -493,7 +476,8 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 	}
 
 	// Takes a list of shortcuts, and removes them from the ui, if they are there.
-	private removeShortcutsFromUi(shortcuts: any)
+	// @ts-ignore
+	private removeShortcutsFromUi(shortcuts: any): void
 	{
 		let toRemove: Array<any> = [];
 		for (const shortcutUi of this.shortcutUis.childNodes)
@@ -502,10 +486,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 			const expansion: string = shortcutUi.childNodes[4].value;
 			for (let k: number = 0; k < shortcuts.length; k++)
 			{
-				if (shortcuts[k].expansion != expansion)
-				{
-					continue;
-				}
+				if (shortcuts[k].expansion != expansion) { continue; }
 				if (shortcuts[k].test.source != test &&
 				    (shortcuts[k].test.source != "(?:)" || test != ""))
 				{

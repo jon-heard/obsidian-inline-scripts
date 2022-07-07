@@ -4,6 +4,8 @@
 
 "use strict";
 
+const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp = /### tejs_[_a-zA-Z0-9]+\n/g;
+
 class LibraryImporter
 {
 	public constructor(plugin: any, settingsUi: any)
@@ -12,7 +14,7 @@ class LibraryImporter
 		this.settingsUi = settingsUi;
 	}
 
-	public async execute()
+	public async execute(): void
 	{
 		const ADDRESS_REMOTE: string =
 			"https://raw.githubusercontent.com/jon-heard/" +
@@ -80,10 +82,10 @@ class LibraryImporter
 
 			new ConfirmDialogBox(
 				this.plugin.app,
-				"All library references are currently in the folder \"" +
-				commonPath + "\".\nWould you like to import the library " +
-				"into \"" + commonPath + "\"?\nIf not, the library will be " +
-				"imported into the folder \"" + ADDRESS_LOCAL + "\".",
+				"All library references are currently in the folder \"" + commonPath +
+				"\".\nWould you like to import the library into \"" + commonPath +
+				"\"?\nIf not, the library will be imported into the folder \"" + ADDRESS_LOCAL +
+				"\".",
 				(confirmation: boolean) =>
 				{
 					if (confirmation)
@@ -146,6 +148,8 @@ class LibraryImporter
 		this.plugin.removeInputBlock();
 		this.settingsUi.display();
 	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private plugin: any;
 	private settingsUi: any;

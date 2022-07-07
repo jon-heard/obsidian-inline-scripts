@@ -51,6 +51,8 @@ class ConfirmDialogBox extends obsidian.Modal
 		this.contentEl.empty();
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 	private message: string;
 	private callback: Function;
 }

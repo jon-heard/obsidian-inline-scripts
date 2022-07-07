@@ -2,6 +2,8 @@
 // Default plugin settings //
 /////////////////////////////
 
+"use strict";
+
 const DEFAULT_SUB_SETTINGS_MOBILE: object = Object.freeze(
 {
 	prefix: "!!",

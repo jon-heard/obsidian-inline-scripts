@@ -1,6 +1,8 @@
-"use strict";
+//////////////////////////////////////////////////////////////////////
+// plugin - Class containing the main logic for this plugin project //
+//////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+"use strict";
 
 // NOTE: The "Text Expander JS" plugin uses a custom format for shortcut-files.  I tried using
 // existing formats (json, xml, etc), but they were cumbersome for developing javascript code in.
@@ -12,35 +14,21 @@
 // and here:
 // https://github.com/jon-heard/obsidian-text-expander-js#development-aid-fenced-code-blocks
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-const state = require("@codemirror/state");
-
-// This is a node.js library, so is not available for mobile.  However, the code that uses it is
-// blocked for mobile, so the plugin is still useful for mobile, just slightly more limited.
+// child_process is a node.js library, so is not available for mobile.  However, the code that uses
+// it is blocked for mobile, so the plugin is still viable for mobile, just slightly more limited.
 const childProcess = require("child_process");
 
 const LONG_NOTE_TIME: number = 8 * 1000;
 const INDENT: string = " ".repeat(4);
-const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp = /### tejs_[_a-zA-Z0-9]+\n/g;
-const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
-const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
-const SHORTCUT_PRINT: Function = function(message: string)
-{
-	console.info("TEJS Shortcut:\n\t" + message);
-	new obsidian.Notice("TEJS Shortcut:\n" + message, LONG_NOTE_TIME);
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class TextExpanderJsPlugin extends obsidian.Plugin
 {
-	public saveSettings()
+	public saveSettings(): void
 	{
 		this.saveData(this.settings);
 	}
 
-	public async onload()
+	public async onload(): void
 	{
 		// Load settings
 		const currentDefaultSettings: object =
@@ -50,36 +38,31 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		this.settings = Object.assign({}, currentDefaultSettings, await this.loadData());
 
 		// Now that settings are loaded, keep track of the suffix's finishing character
-		this.suffixEndCharacter =
-			this.settings.suffix.charAt(this.settings.suffix.length - 1);
+		this.suffixEndCharacter = this.settings.suffix.charAt(this.settings.suffix.length - 1);
 
 		// Attach settings UI
 		this.addSettingTab(new TextExpanderJsPluginSettings(this.app, this));
 
-		//Setup bound versons of these function for persistant use
+		//Setup bound versons of this function for persistant use
 		this._cm5_handleExpansionTrigger = this.cm5_handleExpansionTrigger.bind(this);
-		this._runExternal = this.runExternal.bind(this);
 
 		// Setup support obects for various tasks
 		this.shortcutLoader = new ShortcutLoader(this);
-		this.shortcutExpander = new ShortcutExpander(this);
+		this.shortcutExpander = new ShortcutExpander(this, this.runExternal.bind(this));
 
 		// Setup a dfc to monitor shortcut-file notes.
 		this.shortcutDfc = new Dfc(
-			this, this.settings.shortcutFiles, this.shortcutLoader.getBoundSetupShortcuts(),
-			true, this.onShortcutFileDisabled.bind(this));
+			this, this.settings.shortcutFiles, this.shortcutLoader.getBoundSetupShortcuts(), true,
+			this.onShortcutFileDisabled.bind(this));
 		this.shortcutDfc.setMonitorType(
 			this.settings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.OnModify);
 
 		// Connect "code mirror 5" instances to this plugin to trigger expansions
-		this.registerCodeMirror(
-			(cm: any) =>
-				cm.on("keydown", this._cm5_handleExpansionTrigger));
+		this.registerCodeMirror( (cm: any) => cm.on("keydown", this._cm5_handleExpansionTrigger) );
 
 		// Setup "code mirror 6" editor extension management to trigger expansions
-		this.storeTransaction = state.StateEffect.define();
 		this.registerEditorExtension([
-			state.EditorState.transactionFilter.of(
+			require("@codemirror/state").EditorState.transactionFilter.of(
 				this.cm6_handleExpansionTrigger.bind(this))
 		]);
 
@@ -90,7 +73,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		this.notifyUser("Loaded (" + this.manifest.version + ")");
 	}
 
-	public onunload()
+	public onunload(): void
 	{
 		// Shutdown the shortcutDfc
 		this.shortcutDfc.destructor();
@@ -109,26 +92,67 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		this.notifyUser("Unloaded (" + this.manifest.version + ")");
 	}
 
+	// Adds a console entry and/or a popup notification
+	public notifyUser(
+		consoleMessage: string, errorType?: string, popupMessage?: string,
+		detailOnConsole?: boolean, isWarning?: boolean)
+	{
+		if (consoleMessage)
+		{
+			consoleMessage =
+				this.manifest.name + "\n" +
+				(errorType ? (INDENT + errorType + "\n") : "") +
+				INDENT + consoleMessage;
+			errorType ? console.error(consoleMessage) :
+			isWarning ? console.warn(consoleMessage) :
+			console.info(consoleMessage);
+		}
+		if (popupMessage)
+		{
+			new obsidian.Notice(
+				(errorType ? "ERROR: " : "") +
+				popupMessage +
+				(detailOnConsole ? "\n\n(see console for details)" : ""),
+				LONG_NOTE_TIME);
+		}
+	}
+
+	// Adds a tinted full-screen div to prevent user-input
+	public addInputBlock(): void
+	{
+		if (document.getElementById("tejs_inputBlock")) { return; }
+		let block: any = document.createElement("div");
+		block.id = "tejs_inputBlock";
+		document.getElementsByTagName("body")[0].prepend(block);
+	}
+
+	// Removes the tinted full-screen div created by addInputBlock
+	public removeInputBlock(): void
+	{
+		let block: any = document.getElementById("tejs_inputBlock");
+		if (block) { block.remove(); }
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 	private settings: any;
 	private suffixEndCharacter: string;
 	private _cm5_handleExpansionTrigger: any;
-	private _runExternal: any;
 	private shortcutDfc: Dfc;
-	private storeTransaction: any;
 	private shortcutFileShutdownScripts: any;
 	private shortcutLoader: ShortcutLoader;
 	private shortcutExpander: ShortcutExpander;
 
 	// Call the given shortcut-file's shutdown script.
 	// Note: This is called when shortcut-file is being disabled
-	private onShortcutFileDisabled(filename: string)
+	private onShortcutFileDisabled(filename: string): void
 	{
 		this.runExpansionScript(this.shortcutFileShutdownScripts[filename]);
 		delete this.shortcutFileShutdownScripts[filename];
 	}
 
 	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt
-	private cm5_handleExpansionTrigger(cm: any, keydown: KeyboardEvent)
+	private cm5_handleExpansionTrigger(cm: any, keydown: KeyboardEvent): void
 	{
 		if ((event as any)?.key == this.suffixEndCharacter)
 		{
@@ -137,7 +161,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	}
 
 	// CM6 callback for editor events.  Used to kick off shortcut expansion attempt
-	private cm6_handleExpansionTrigger(tr: any)
+	private cm6_handleExpansionTrigger(tr: any): any
 	{
 		// Only bother with key inputs that have changed the document
 		if (!tr.isUserEvent("input.type") || !tr.docChanged) { return tr; }
@@ -166,10 +190,9 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	// Tries to get shortcut beneath caret and expand it.  setTimeout pauses for a frame to
 	// give the calling event the opportunity to finish processing.  This is especially
 	// important for CM5, as the typed key isn't in the editor at the time this is called.
-	private tryShortcutExpansion() { setTimeout(() =>
+	private tryShortcutExpansion(): void { setTimeout(() =>
 	{
-		const editor: any  =
-			this.app.workspace.getActiveViewOfType(obsidian.MarkdownView)?.editor;
+		const editor: any  = this.app.workspace.getActiveViewOfType(obsidian.MarkdownView)?.editor;
 		if (!editor) { return; }
 
 		// Find bounds of the shortcut beneath the caret (if there is one)
@@ -210,7 +233,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 
 	// This function is passed into all Expansion scripts to allow them to run shell commands
 	// WARNING: user-facing function
-	private runExternal(command: string, silentFail?: boolean, dontFixSlashes?: boolean)
+	private runExternal(command: string, silentFail?: boolean, dontFixSlashes?: boolean): string
 	{
 		if (obsidian.Platform.isMobile)
 		{
@@ -265,52 +288,6 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			return undefined;
 		}
 	}
-
-	// Adds a console entry and/or a popup notification
-	private notifyUser(
-		consoleMessage: string, errorType?: string, popupMessage?: string,
-		detailOnConsole?: boolean, isWarning?: boolean)
-	{
-		if (consoleMessage)
-		{
-			consoleMessage =
-				this.manifest.name + "\n" +
-				(errorType ? (INDENT + errorType + "\n") : "") +
-				INDENT + consoleMessage;
-			errorType ? console.error(consoleMessage) :
-			isWarning ? console.warn(consoleMessage) :
-			console.info(consoleMessage);
-		}
-		if (popupMessage)
-		{
-			new obsidian.Notice(
-				(errorType ? "ERROR: " : "") +
-				popupMessage +
-				(detailOnConsole ? "\n\n(see console for details)" : ""),
-				LONG_NOTE_TIME);
-		}
-	}
-
-	// Adds a tinted full-screen div to prevent user-input
-	private addInputBlock()
-	{
-		if (document.getElementById("tejs_inputBlock"))
-		{
-			return;
-		}
-		let block: any = document.createElement("div");
-		block.id = "tejs_inputBlock";
-		document.getElementsByTagName("body")[0].prepend(block);
-	}
-
-	// Removes the tinted full-screen div created by addInputBlock
-	private removeInputBlock()
-	{
-		let block: any = document.getElementById("tejs_inputBlock");
-		if (block) { block.remove(); }
-	}
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 module.exports = TextExpanderJsPlugin;
