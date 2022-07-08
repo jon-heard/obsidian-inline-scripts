@@ -32,7 +32,7 @@ This plugin is currently in __open beta__.
         - [Setup and shutdown scripts](#advanced-shortcuts-setup-and-shutdown-scripts)
         - [Nesting shortcuts](#advanced-shortcuts-nesting-shortcuts)
         - [Hidden shortcuts](#advanced-shortcuts-hidden-shortcuts)
-	- [Expansion listeners](#advanced-shortcuts-expansion-listeners)
+        - [Expansion listeners](#advanced-shortcuts-expansion-listeners)
 - Technical
     - [Known Issues](#known-issues)
     - [Credits](#credits)
