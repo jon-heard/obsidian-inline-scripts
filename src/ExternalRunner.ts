@@ -85,6 +85,7 @@ abstract class ExternalRunner
 					popupMessage: "Failed \"runExternal\" call",
 					consoleMessage:
 						"Failed \"runExternal\" call:\ncurDir: " + vaultDir + "\n" + e.message,
+					messageType: "RUNEXTERNAL-ERROR",
 					consoleHasDetails: true
 				});
 			}

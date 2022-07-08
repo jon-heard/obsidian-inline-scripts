@@ -197,7 +197,7 @@ abstract class ShortcutLoader
 				if (newShortcut.test.source == "^tejs setup$")
 				{
 					// If setup script returns TRUE, don't use shortcuts
-					if (ShortcutExpander.expand(newShortcut.expansion))
+					if (ShortcutExpander.runExpansionScript(newShortcut.expansion))
 					{
 						parseResult.shortcuts = undefined;
 					}
@@ -213,7 +213,7 @@ abstract class ShortcutLoader
 			{
 				if (newShortcut.test.source == "^tejs shutdown$")
 				{
-					result.shortcutFileShutdownScripts[filename] = newShortcut.expansion;
+					result.shutdownScripts[filename] = newShortcut.expansion;
 					break;
 				}
 			}
@@ -239,8 +239,8 @@ abstract class ShortcutLoader
 
 		// Assign new shortcuts to the plugin.  Also, add any shutdown scripts that were found.
 		this._plugin.shortcuts = result.shortcuts;
-		this._plugin.shortcutFileShutdownScripts =
-			Object.assign(this._plugin.shortcutFileShutdownScripts, result.shutdownScripts);
+		this._plugin.shutdownScripts =
+			Object.assign(this._plugin.shutdownScripts, result.shutdownScripts);
 	}
 
 	// Creates help shortcuts based on "about" info from shortcuts and shortcut-files
@@ -333,7 +333,7 @@ abstract class ShortcutLoader
 			"- __ref all__ - Summarizes all shortcuts (except the ones in " +
 			"this list).\\n" +
 			shortcutFileList + "\\n\";";
-		const test: RegExp = /^help$"/;
+		const test: RegExp = /^help$/;
 		result.push({ test: test, expansion: expansion });
 
 		// Reversing ensures that "ref all" and "ref settings" aren't superseded by a poorly named

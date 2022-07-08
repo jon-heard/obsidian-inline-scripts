@@ -47,11 +47,12 @@ namespace UserNotifier
 
 	let _pluginName: string = "Plugin";
 
-	function print(message: string): void
+	function print(message: any): any
 	{
 		// Send the message to user as a popup notification and a console log.
 		new obsidian.Notice("TEJS Shortcut:\n" + message, LONG_NOTE_TIME);
 		console.info("TEJS Shortcut:\n\t" + message);
+		return message;
 	};
 
 	function run_internal(parameters: any): void
@@ -65,7 +66,7 @@ namespace UserNotifier
 		// Message parameters
 		const popupMessage: string = parameters.popupMessage || parameters.message || "";
 		const consoleMessage: string =
-			(parameters.consoleMessage || parameters.message || "").replaceAll("\n", INDENT + "\n");
+			(parameters.consoleMessage || parameters.message || "").replaceAll("\n", "\n" + INDENT);
 
 		// Message type and level parameters
 		const messageType: string = parameters.messageType || "";

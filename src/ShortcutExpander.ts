@@ -67,7 +67,7 @@ abstract class ShortcutExpander
 			}
 
 			// Add the shortcut's Expansion string to the Expanson script
-			expansionScript += shortcut.expansion + "\n";
+			expansionScript += shortcut.expansion;
 
 			// If this shortcut is not a helper script, stop checking for shortcut matches
 			if (shortcut.test.source != "(?:)")
@@ -75,10 +75,16 @@ abstract class ShortcutExpander
 				foundMatch = true;
 				break;
 			}
+			else
+			{
+				expansionScript += "\n";
+			}
 		}
 
 		const expansionResult =
-			foundMatch ? this.runExpansionScript(expansionScript, isUserTriggered) : undefined;
+			foundMatch ?
+			this.runExpansionScript_internal(expansionScript, isUserTriggered) :
+			undefined;
 
 		// If shortcut parsing amounted to nothing.  Notify user of bad shortcut entry.
 		if (expansionResult === undefined)
@@ -105,7 +111,7 @@ abstract class ShortcutExpander
 			}
 		}
 
-		return expansionScript;
+		return expansionResult;
 	}
 
 	// Runs an expansion script, including error handling.
@@ -120,7 +126,7 @@ abstract class ShortcutExpander
 		{
 			// ASSERT - This should never be true, and signifies a potential issue.  It's not
 			// intrinsically a problem, though.
-			if (this._expansionErrorHandlerStack.length > 0 || !isUserTriggered)
+			if (this._expansionErrorHandlerStack.length > 0)
 			{
 				UserNotifier.run(
 				{
@@ -149,7 +155,7 @@ abstract class ShortcutExpander
 		{
 			// ASSERT - This should never be true, and signifies a potential issue.  It's not
 			// intrinsically a problem, though.
-			if (this._expansionErrorHandlerStack.length > 0 || !isUserTriggered)
+			if (this._expansionErrorHandlerStack.length > 0)
 			{
 				UserNotifier.run(
 				{
@@ -179,7 +185,7 @@ abstract class ShortcutExpander
 			this._expansionErrorHandlerStack[this._expansionErrorHandlerStack.length-1];
 		let expansionLines = expansionText.split("\n");
 		// Add line numbers
-		for (let i: number = 0; i < expansionText.length; i++)
+		for (let i: number = 0; i < expansionLines.length; i++)
 		{
 			expansionLines[i] = String(i+1).padStart(4, "0") + " " + expansionLines[i];
 		}

@@ -45,7 +45,7 @@ abstract class SettingUi_Shortcuts
 						// We don't want to duplicate shortcuts, and it's important to keep
 						// defaults in-order.  Remove any shortcuts from the ui list that are part
 						// of the defaults before adding the defaults to the end of the ui list.
-						this.removeShortcutsFromUi(DEFAULT_SETTINGS.shortcuts);
+						this.removeShortcutsFromUi(defaultShortcuts);
 
 						for (const defaultShortcut of defaultShortcuts)
 						{

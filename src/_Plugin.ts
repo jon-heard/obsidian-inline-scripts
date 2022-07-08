@@ -23,15 +23,19 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	public settings: any;
 	// Keep track of the suffix's final character
 	public suffixEndCharacter: string;
+	// Keep track of shutdown scripts for any shortcut-files that have them
+	public shutdownScripts: any;
+	// Keep a Dfc for shortcut-files.  This lets us monitor changes to them.
+	public shortcutDfc: Dfc;
 
 	public onload(): void
 	{
-		onload_internal();
+		this.onload_internal();
 	}
 
 	public onunload(): void
 	{
-		onunload_internal();
+		this.onunload_internal();
 	}
 
 	public saveSettings(): void
@@ -42,8 +46,6 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private _cm5_handleExpansionTrigger: any;
-	private _shortcutDfc: Dfc;
-	private _shortcutFileShutdownScripts: any;
 
 	private async onload_internal(): Promise<void>
 	{
@@ -65,10 +67,10 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		ShortcutExpander.initialize(this);
 		UserNotifier.initialize(this);
 		ExternalRunner.initialize(this);
-		this._shortcutDfc = new Dfc(
+		this.shortcutDfc = new Dfc(
 			this, this.settings.shortcutFiles, ShortcutLoader.getFunction_setupShortcuts(),
 			this.onShortcutFileDisabled.bind(this), true);
-		this._shortcutDfc.setMonitorType(
+		this.shortcutDfc.setMonitorType(
 			this.settings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.OnModify);
 
 		//Setup bound verson of this function for persistant use
@@ -84,7 +86,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		]);
 
 		// Track shutdown scripts in loaded shortcut-files to call when shortcut-file is unloaded.
-		this._shortcutFileShutdownScripts = {};
+		this.shutdownScripts = {};
 
 		// Log that the plugin has loaded
 		UserNotifier.run(
@@ -97,10 +99,10 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	public onunload_internal(): void
 	{
 		// Shutdown the shortcutDfc
-		this._shortcutDfc.destructor();
+		this.shortcutDfc.destructor();
 
 		// Call all shutdown scripts of shortcut-files
-		for (const filename in this._shortcutFileShutdownScripts)
+		for (const filename in this.shutdownScripts)
 		{
 			this.onShortcutFileDisabled(filename);
 		}
@@ -121,9 +123,9 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	// Note: This is called when shortcut-file is being disabled
 	private onShortcutFileDisabled(filename: string): void
 	{
-		if (!this._shortcutFileShutdownScripts[filename]) { return; }
-		ShortcutExpander.runExpansionScript(this._shortcutFileShutdownScripts[filename]);
-		delete this._shortcutFileShutdownScripts[filename];
+		if (!this.shutdownScripts[filename]) { return; }
+		ShortcutExpander.runExpansionScript(this.shutdownScripts[filename]);
+		delete this.shutdownScripts[filename];
 	}
 
 	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt.
