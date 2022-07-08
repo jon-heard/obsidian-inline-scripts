@@ -27,7 +27,7 @@ namespace LibraryImporter
 	{
 		const ADDRESS_REMOTE: string =
 			"https://raw.githubusercontent.com/jon-heard/" +
-			"obsidian-text-expander-js_shortcutFileLibrary/shortcutAboutString";
+			"obsidian-text-expander-js_shortcutFileLibrary/main";
 		const ADDRESS_LOCAL: string = "tejs";
 		const FILE_README: string = "README.md";
 

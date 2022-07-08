@@ -457,6 +457,44 @@ If the syntax string that starts a shortcut's About string is "hidden", then tha
 
 ***
 
+## ADVANCED SHORTCUTS: Expansion listeners
+If a shortcut-file needs to react to user-triggered shortcut expansions, it can now register a callback function to be called on such an event.  The callback should take two parameters: the input text and the expansion text.  Registration is done by assigning the function to a unique key in `window._tejs.listeners.tejs.onExpansion`.  Note that this object heirarchy isn't created automatically.
+
+In addition, if the callback function returns a string, then _that_ string is expanded as a shortcut and the result replaces the old expansion.
+
+### Example shortcut-file
+```
+~~
+^tejs setup$
+~~
+window._tejs ||= {};
+window._tejs.listeners ||= {};
+window._tejs.listeners.tejs ||= {};
+window._tejs.listeners.tejs.onExpansion ||= {};
+window._tejs.listeners.tejs.onExpansion.testCallback ||= (input, expansion) =>
+{
+	if (input.contains("d"))
+	{
+		// Force expansion to be result of the "hi" shortcut
+		return "hi";
+	}
+	else
+	{
+		print("Shortcut input '" + input + "' expanded to '" + expansion + "'.");
+	}
+};
+~~
+
+~~
+^tejs shutdown$
+~~
+delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
+~~
+```
+
+
+***
+
 ## Known Issues
 - Undo of expansion works a bit differently between the old editor (CodeMirror 5, non-mobile) and the new editor (CodeMirror 6, mobile and new non-mobile).  When using the new editor, the character that was typed just prior to the expansion does not show on undo.
 
@@ -470,6 +508,18 @@ If the syntax string that starts a shortcut's About string is "hidden", then tha
 ***
 
 ## Release notes
+
+## 0.17.0
+- feature - Each shortcut now has an "About" string, to store a short documentation on the shortcut.
+- feature - A robust help system is now available, built around the shortcut "About" string.
+- feature - shortcut-files are now parsed properly when they have a metadata frontmatter section.
+- feature - Dfc now ALWAYS refreshes shortcuts when shortcut-file is modified.  Dev-mode causes refresh on sfile touch.
+- feature - shortcut-files can now contain shutdown scripts: shortcuts run when shortcut-file is removed, or plugin is disabled.
+- feature - A new function is available to shortcuts: print(message) shows message in popup and console, then returns the message.
+- feature - If a setup script returns true, the shortcut-file's shortcuts are not loaded into the system.
+- feature - Feature to allow adding callbacks for when an expansion occurs
+- feature - "Import Library" now always maintains the order of library shortcut-files when imported into the shortcut-files list.
+- refactor - the "getExpansion()" function, runnable from shortcuts, is now "expand()".
 
 ## 0.16.14
 - polish - added pre-release test: a text file with steps to test ALL features of TEJS.
@@ -621,7 +671,6 @@ If the syntax string that starts a shortcut's About string is "hidden", then tha
 
 ## Todo
 - React to community feedback until plugin is accepted into the community.
-- have "import library" button enforce library shortcut-file order
 - fix so it works with auto-added characters (example: prefix={{ and suffix-}})
 - force undo between shortcut entered and expansion on cm6
 - From beta to release (after responding to Obsidian community for, hopefully, a month)

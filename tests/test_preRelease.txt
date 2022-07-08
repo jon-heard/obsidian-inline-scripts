@@ -674,3 +674,52 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 42. Delete all shortcut-file entries (can use "enter" key to accept confirmation popup)
 43. Close plugin settings
 44. Delete the "support" and "tejs" folders (and the folders and files within)
+
+SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
+1. Make a note with address of "testing/tejs_testfile"
+2. Add the following content and remove tabs (select all and hit shift-tab):
+	~~
+	^tejs setup$
+	~~
+	window._tejs ||= {};
+	window._tejs.listeners ||= {};
+	window._tejs.listeners.tejs ||= {};
+	window._tejs.listeners.tejs.onExpansion ||= {};
+	window._tejs.listeners.tejs.onExpansion.testCallback ||= (input, expansion) =>
+	{
+		if (input.contains("d"))
+		{
+			return "hi";
+		}
+		else
+		{
+			print("Shortcut input '" + input + "' expanded to '" + expansion + "'.");
+		}
+	};
+	~~
+
+	~~
+	^tejs shutdown$
+	~~
+	delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
+	~~
+
+3. Go to the note "testResults"
+4. Open plugin settings
+5. Add the shortcut-file entry "testing/tejs_testfile"
+6. Close plugin settings
+7. Check shortcut "hi" (common action)
+8. Confirm that a popup and console log are added that show the input and expansion text.
+9. Check shortcut "date" (common action)
+10. Confirm that the expansion string is for the "hi" shortcut.
+11. Check shortcut "d100" (common action)
+12. Confirm that the expansion string is for the "hi" shortcut.
+13. Check shortcut "time" (common action)
+14. Confirm that the expansion string is for the "time shortcut.
+15. Confirm that a popup and console message are added.
+16. Open plugin settings
+17. Remove the shortcut-file entry "testing/tejs_testfile"
+18. Close plugin settings
+19. Check shortcut "hi" (common action)
+20. Confirm that no popup or expansion text shows up.
+21. Delete note "testing/tejs_testfile"

@@ -39,7 +39,7 @@ abstract class ShortcutExpander
 
 	// Take a shortcut string and return the proper Expansion script.
 	// WARNING: user-facing function
-	private static expand_internal(shortcutString: string,  isUserTriggered?: boolean): any
+	private static expand_internal(shortcutString: string, isUserTriggered?: boolean): any
 	{
 		if (!shortcutString) { return; }
 		let foundMatch: boolean = false;
@@ -81,7 +81,7 @@ abstract class ShortcutExpander
 			}
 		}
 
-		const expansionResult =
+		let expansionResult =
 			foundMatch ?
 			this.runExpansionScript_internal(expansionScript, isUserTriggered) :
 			undefined;
@@ -96,9 +96,11 @@ abstract class ShortcutExpander
 			});
 		}
 
-		// If there are any listeners for the expansion event, call them
+		// If there are any listeners for the expansion event, call them.  If any of them return
+		// true, then cancel the expansion.
 		else if (isUserTriggered && window._tejs?.listeners?.tejs?.onExpansion)
 		{
+			let replacementInput: string = null;
 			for (const key in window._tejs.listeners.tejs.onExpansion)
 			{
 				const listener: any = window._tejs.listeners.tejs.onExpansion[key];
@@ -107,7 +109,15 @@ abstract class ShortcutExpander
 					UserNotifier.run({ message: "Non-function listener:\n" + listener });
 					continue;
 				}
-				listener(expansionScript);
+				const result = listener(shortcutString, expansionResult);
+				if (typeof result === "string")
+				{
+					replacementInput = result;
+				}
+			}
+			if (typeof replacementInput === "string")
+			{
+				return this.expand_internal(replacementInput, false);
 			}
 		}
 
