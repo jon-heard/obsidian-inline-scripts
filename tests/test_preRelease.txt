@@ -647,27 +647,30 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 15. Close plugin settings
 16. Delete the "tejs" folder (and the files within)
 17. Open plugin settings
-18. Add a shortcut-file entry "support/tejs/tejs_state" (it's ok that it's red)
+18. Add 3 shortcut-file entries: "first", "support/tejs_lists", "third" (it's ok that they are red)
 19. Click the "Import full library" button
 20. Click the "Confirm" button on the confirmation popup
 21. Click the "Confirm" button on the second confirmation popup
 22. Confirm that a bunch of new entries have been added to Shortcut-files
-23. Confirm that the entry count matches the count from step 9
-24. Confirm that all entries start with "support/tejs/"
-25. Close plugin settings
-26. Confirm that there is a folder "support" with a subfolder "tejs"
-27. Confirm that within the subfolder "tejs" there are files with a count equal to that from step 9
-28. Open plugin settings
-29. Click the "Import full library" button
-30. Click the "Confirm" button on the confirmation popup
-31. Click the "Cancel" button on the second confirmation popup
-32. Confirm that there are twice as many shortcut-file entries as the count from step 9
-33. Confirm that the first entries start with "support/tejs/"
-34. Confirm that the last entries start with "tejs/"
-35. Close plugin settings
-36. Confirm that the old "support/tejs/*" still exist
-37. Confirm that a new "tejs" folder exists with the same files
-38. Open plugin settings
-39. Delete all shortcut-file entries (can use "enter" key to accept confirmation popup)
-40. Close plugin settings
-41. Delete the "support" and "tejs" folders (and the folders and files within)
+23. Confirm that the first two entries are "first" and "third"
+24. Confirm that "support/tejs_lists" shows up in the list after the first 3 items
+25. Remove the first two entries: "first" and "third"
+26. Confirm that the entry count matches the count from step 9
+27. Confirm that all entries start with "support/"
+28. Close plugin settings
+29. Confirm that there is a folder "support"
+30. Confirm that the "support" folder contains files who's count matches that from step 9
+31. Open plugin settings
+32. Click the "Import full library" button
+33. Click the "Confirm" button on the confirmation popup
+34. Click the "Cancel" button on the second confirmation popup
+35. Confirm that there are twice as many shortcut-file entries as the count from step 9
+36. Confirm that the first entries start with "support/"
+37. Confirm that the last entries start with "tejs/"
+38. Close plugin settings
+39. Confirm that the "support" folder still exist, along with its files
+40. Confirm that a new "tejs" folder exists with the same files
+41. Open plugin settings
+42. Delete all shortcut-file entries (can use "enter" key to accept confirmation popup)
+43. Close plugin settings
+44. Delete the "support" and "tejs" folders (and the folders and files within)

@@ -109,7 +109,7 @@ namespace LibraryImporter
 			).open();
 		});
 
-		// Put the input blocker back (if it was disabled for confirm dialog)
+		// Put the input blocker back (if it was disabled for the confirm dialog)
 		InputBlocker.setEnabled(true);
 
 		// Create the choosen library destination folder, if necessary
@@ -144,17 +144,35 @@ namespace LibraryImporter
 		_settingsUi.plugin.settings.shortcutFiles =
 			SettingUi_ShortcutFiles.getContents().shortcutFiles;
 
-		// Add shortcut-file references, for new shortcut-files, to the settings
+		// We don't want to duplicate shortcut-files, and it's important to keep the library
+		// shortcut-files in-order.  Remove any shortcut-files from the list that are part of the
+		// library before appending the shortcut-files from the library to the end of the list.
+		let nothingToRemove: boolean;
+		do
+		{
+			nothingToRemove = true;
+			for (const shortcutFile of shortcutFiles)
+			{
+				let filename: string = libraryDestination + "/" + shortcutFile + ".md";
+				const index: number = _settingsUi.plugin.settings.shortcutFiles.indexOf(filename);
+				if (index >= 0)
+				{
+					_settingsUi.plugin.settings.shortcutFiles.splice(index, 1);
+					nothingToRemove = false;
+					break;
+				}
+			}
+		}
+		while (!nothingToRemove);
+
+		// Add all library shortcut-files to the settings
 		for (const shortcutFile of shortcutFiles)
 		{
 			let filename: string = libraryDestination + "/" + shortcutFile + ".md";
-			if (!_settingsUi.plugin.settings.shortcutFiles.includes(filename))
-			{
-				_settingsUi.plugin.settings.shortcutFiles.push(filename);
-			}
+			_settingsUi.plugin.settings.shortcutFiles.push(filename);
 		}
 
-		// Refresh settings ui with the new shortcut-file references
+		// Refresh settings ui to display the updated list of shortcut-files
 		InputBlocker.setEnabled(false);
 		_settingsUi.display();
 	}
