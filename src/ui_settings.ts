@@ -107,7 +107,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		this.plugin.shortcutDfc.updateFileList(
 			this.plugin.settings.shortcutFiles, forceRefreshShortcuts);
 
-		// keep track of the suffix's final character
+		// Update variable for the suffix's final character
 		this.plugin.suffixEndCharacter =
 			this.plugin.settings.suffix.charAt(this.plugin.settings.suffix.length - 1);
 

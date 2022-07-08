@@ -6,24 +6,24 @@
 
 const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp = /### tejs_[_a-zA-Z0-9]+\n/g;
 
-abstract class LibraryImporter
+namespace LibraryImporter
 {
-	public static initialize(settingsUi: any)
+	export function initialize(settingsUi: any)
 	{
-		this.settingsUi = settingsUi;
+		_settingsUi = settingsUi;
 	}
 
 	// Pull the official TEJS library from github & add it to the current vault
-	public static run(): void
+	export function run(): void
 	{
-		this.run_internal();
+		run_internal();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static settingsUi: any;
+	let _settingsUi: any;
 
-	public static async run_internal(): Promise<void>
+	async function run_internal(): Promise<void>
 	{
 		const ADDRESS_REMOTE: string =
 			"https://raw.githubusercontent.com/jon-heard/" +
@@ -90,7 +90,7 @@ abstract class LibraryImporter
 			InputBlocker.setEnabled(false);
 
 			new ConfirmDialogBox(
-				this.settingsUi.plugin.app,
+				_settingsUi.plugin.app,
 				"All library references are currently in the folder \"" + commonPath +
 				"\".\nWould you like to import the library into \"" + commonPath +
 				"\"?\nIf not, the library will be imported into the folder \"" + ADDRESS_LOCAL +
@@ -113,9 +113,9 @@ abstract class LibraryImporter
 		InputBlocker.setEnabled(true);
 
 		// Create the choosen library destination folder, if necessary
-		if (!this.settingsUi.plugin.app.vault.fileMap.hasOwnProperty(libraryDestination))
+		if (!_settingsUi.plugin.app.vault.fileMap.hasOwnProperty(libraryDestination))
 		{
-			this.settingsUi.plugin.app.vault.createFolder(libraryDestination);
+			_settingsUi.plugin.app.vault.createFolder(libraryDestination);
 		}
 
 		// Download and create library files
@@ -128,34 +128,34 @@ abstract class LibraryImporter
 			});
 
 			let filename: string = libraryDestination + "/" + shortcutFile + ".md";
-			let file: any = this.settingsUi.plugin.app.vault.fileMap[filename];
+			let file: any = _settingsUi.plugin.app.vault.fileMap[filename];
 			if (file)
 			{
-				await this.settingsUi.plugin.app.vault.modify(file, content);
+				await _settingsUi.plugin.app.vault.modify(file, content);
 			}
 			else
 			{
-				await this.settingsUi.plugin.app.vault.create(filename, content);
+				await _settingsUi.plugin.app.vault.create(filename, content);
 			}
 		}
 
 		// Before adding the library shortcut-files to the plugin settings, we should
 		// update the plugin settings with the latest changes made in the settings ui.
-		this.settingsUi.plugin.settings.shortcutFiles =
+		_settingsUi.plugin.settings.shortcutFiles =
 			SettingUi_ShortcutFiles.getContents().shortcutFiles;
 
 		// Add shortcut-file references, for new shortcut-files, to the settings
 		for (const shortcutFile of shortcutFiles)
 		{
 			let filename: string = libraryDestination + "/" + shortcutFile + ".md";
-			if (!this.settingsUi.plugin.settings.shortcutFiles.includes(filename))
+			if (!_settingsUi.plugin.settings.shortcutFiles.includes(filename))
 			{
-				this.settingsUi.plugin.settings.shortcutFiles.push(filename);
+				_settingsUi.plugin.settings.shortcutFiles.push(filename);
 			}
 		}
 
 		// Refresh settings ui with the new shortcut-file references
 		InputBlocker.setEnabled(false);
-		this.settingsUi.display();
+		_settingsUi.display();
 	}
 }

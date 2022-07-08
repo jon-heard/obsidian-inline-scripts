@@ -9,13 +9,13 @@ class ConfirmDialogBox extends obsidian.Modal
 	public constructor(app: any, message: string, callback: Function)
 	{
 		super(app);
-		this.message = message;
-		this.callback = callback;
+		this._message = message;
+		this._callback = callback;
 	}
 
 	public onOpen()
 	{
-		const messageLines = this.message.split("\n");
+		const messageLines = this._message.split("\n");
 		for (const line of messageLines)
 		{
 			this.titleEl.createEl("div", { text: line });
@@ -28,7 +28,7 @@ class ConfirmDialogBox extends obsidian.Modal
 					.setButtonText("Confirm")
 					.onClick(() =>
 					{
-						this.callback(true);
+						this._callback(true);
 						this.close();
 					})
 			})
@@ -39,7 +39,7 @@ class ConfirmDialogBox extends obsidian.Modal
 					.setCta()
 					.onClick(() =>
 					{
-						this.callback(false);
+						this._callback(false);
 						this.close();
 					})
 			})
@@ -53,6 +53,6 @@ class ConfirmDialogBox extends obsidian.Modal
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private message: string;
-	private callback: Function;
+	private _message: string;
+	private _callback: Function;
 }

@@ -8,14 +8,14 @@ abstract class ShortcutExpander
 {
 	public static initialize(plugin: any)
 	{
-		this.plugin = plugin;
+		this._plugin = plugin;
 		
 		//Setup bound versons of these function for persistant use
 		this._expand_internal = this.expand_internal.bind(this);
 		this._handleExpansionError = this.handleExpansionError.bind(this);
 		
 		// This keeps track of multiple expansion error handlers for nested expansions
-		this.expansionErrorHandlerStack = [];
+		this._expansionErrorHandlerStack = [];
 	}
 
 	// Take a shortcut string and expand it based on shortcuts active in the plugin
@@ -32,10 +32,10 @@ abstract class ShortcutExpander
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static plugin: any;
+	private static _plugin: any;
 	private static _expand_internal: any;
 	private static _handleExpansionError: any;
-	private static expansionErrorHandlerStack: Array<any>;
+	private static _expansionErrorHandlerStack: Array<any>;
 
 	// Take a shortcut string and return the proper Expansion script.
 	// WARNING: user-facing function
@@ -46,7 +46,7 @@ abstract class ShortcutExpander
 
 		// Build an expansion script from the list of active shortcuts in the plugin
 		let expansionScript: string = "";
-		for (const shortcut of this.plugin.shortcuts)
+		for (const shortcut of this._plugin.shortcuts)
 		{
 			// Helper-blocker (an empty shortcut) just erases any helper scripts before it
 			if ((!shortcut.test || shortcut.test.source == "(?:)") && !shortcut.expansion)
@@ -116,24 +116,24 @@ abstract class ShortcutExpander
 		(expansionScript: string, isUserTriggered?: boolean): any
 	{
 		// Prepare for possible Expansion script error
-		if (isUserTriggered || !this.expansionErrorHandlerStack.length)
+		if (isUserTriggered || !this._expansionErrorHandlerStack.length)
 		{
 			// ASSERT - This should never be true, and signifies a potential issue.  It's not
 			// intrinsically a problem, though.
-			if (this.expansionErrorHandlerStack.length > 0 || !isUserTriggered)
+			if (this._expansionErrorHandlerStack.length > 0 || !isUserTriggered)
 			{
 				UserNotifier.run(
 				{
 					consoleMessage:
-						"Stack was off by " + this.expansionErrorHandlerStack.length + ".\n" +
-						this.expansionErrorHandlerStack.join("\n-------\n"),
+						"Stack was off by " + this._expansionErrorHandlerStack.length + ".\n" +
+						this._expansionErrorHandlerStack.join("\n-------\n"),
 					messageType: "EXPANSION-ERROR-HANDLER-ERROR"
 				});
-				this.expansionErrorHandlerStack = [];
+				this._expansionErrorHandlerStack = [];
 			}
 			window.addEventListener("error", this._handleExpansionError);
 		}
-		this.expansionErrorHandlerStack.push(expansionScript);
+		this._expansionErrorHandlerStack.push(expansionScript);
 
 		// Run the Expansion script
 		// Pass expand function and isUserTriggered flag for use in Expansion script
@@ -144,21 +144,21 @@ abstract class ShortcutExpander
 			UserNotifier.getFunction_print() );
 
 		// Clean up script error preparations (it wouldn't have got here if we'd hit one)
-		this.expansionErrorHandlerStack.pop();
-		if (isUserTriggered || !this.expansionErrorHandlerStack.length)
+		this._expansionErrorHandlerStack.pop();
+		if (isUserTriggered || !this._expansionErrorHandlerStack.length)
 		{
 			// ASSERT - This should never be true, and signifies a potential issue.  It's not
 			// intrinsically a problem, though.
-			if (this.expansionErrorHandlerStack.length > 0 || !isUserTriggered)
+			if (this._expansionErrorHandlerStack.length > 0 || !isUserTriggered)
 			{
 				UserNotifier.run(
 				{
 					consoleMessage:
-						"Stack was off by " + this.expansionErrorHandlerStack.length + ".\n" +
-						this.expansionErrorHandlerStack.join("\n-------\n"),
+						"Stack was off by " + this._expansionErrorHandlerStack.length + ".\n" +
+						this._expansionErrorHandlerStack.join("\n-------\n"),
 					messageType: "EXPANSION-ERROR-HANDLER-ERROR"
 				});
-				this.expansionErrorHandlerStack = [];
+				this._expansionErrorHandlerStack = [];
 			}
 			window.removeEventListener("error", this._handleExpansionError);
 		}
@@ -176,7 +176,7 @@ abstract class ShortcutExpander
 
 		// Get the expansion script, modified by line numbers and an arrow pointing to the error
 		let expansionText: string =
-			this.expansionErrorHandlerStack[this.expansionErrorHandlerStack.length-1];
+			this._expansionErrorHandlerStack[this._expansionErrorHandlerStack.length-1];
 		let expansionLines = expansionText.split("\n");
 		// Add line numbers
 		for (let i: number = 0; i < expansionText.length; i++)
@@ -201,7 +201,7 @@ abstract class ShortcutExpander
 		});
 
 		// Clean up script error preparations (now that the error is handled)
-		this.expansionErrorHandlerStack = []; // Error causes nesting to unwind.  Clear the stack.
+		this._expansionErrorHandlerStack = []; // Error causes nesting to unwind.  Clear the stack.
 		window.removeEventListener("error", this._handleExpansionError);
 	}
 }

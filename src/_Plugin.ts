@@ -19,7 +19,33 @@ const childProcess = require("child_process");
 
 class TextExpanderJsPlugin extends obsidian.Plugin
 {
-	public async onload(): Promise<void>
+	// Store the plugin's settings
+	public settings: any;
+	// Keep track of the suffix's final character
+	public suffixEndCharacter: string;
+
+	public onload(): void
+	{
+		onload_internal();
+	}
+
+	public onunload(): void
+	{
+		onunload_internal();
+	}
+
+	public saveSettings(): void
+	{
+		this.saveData(this.settings);
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+	private _cm5_handleExpansionTrigger: any;
+	private _shortcutDfc: Dfc;
+	private _shortcutFileShutdownScripts: any;
+
+	private async onload_internal(): Promise<void>
 	{
 		// Load settings
 		const currentDefaultSettings: object =
@@ -28,7 +54,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			DEFAULT_SETTINGS;
 		this.settings = Object.assign({}, currentDefaultSettings, await this.loadData());
 
-		// Now that settings are loaded, keep track of the suffix's final character
+		// Now that settings are loaded, update variable for the suffix's final character
 		this.suffixEndCharacter = this.settings.suffix.charAt(this.settings.suffix.length - 1);
 
 		// Attach settings UI
@@ -39,10 +65,10 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		ShortcutExpander.initialize(this);
 		UserNotifier.initialize(this);
 		ExternalRunner.initialize(this);
-		this.shortcutDfc = new Dfc(
+		this._shortcutDfc = new Dfc(
 			this, this.settings.shortcutFiles, ShortcutLoader.getFunction_setupShortcuts(),
 			this.onShortcutFileDisabled.bind(this), true);
-		this.shortcutDfc.setMonitorType(
+		this._shortcutDfc.setMonitorType(
 			this.settings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.OnModify);
 
 		//Setup bound verson of this function for persistant use
@@ -58,7 +84,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		]);
 
 		// Track shutdown scripts in loaded shortcut-files to call when shortcut-file is unloaded.
-		this.shortcutFileShutdownScripts = {};
+		this._shortcutFileShutdownScripts = {};
 
 		// Log that the plugin has loaded
 		UserNotifier.run(
@@ -68,13 +94,13 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		});
 	}
 
-	public onunload(): void
+	public onunload_internal(): void
 	{
 		// Shutdown the shortcutDfc
-		this.shortcutDfc.destructor();
+		this._shortcutDfc.destructor();
 
 		// Call all shutdown scripts of shortcut-files
-		for (const filename in this.shortcutFileShutdownScripts)
+		for (const filename in this._shortcutFileShutdownScripts)
 		{
 			this.onShortcutFileDisabled(filename);
 		}
@@ -91,26 +117,13 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		});
 	}
 
-	public saveSettings(): void
-	{
-		this.saveData(this.settings);
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private settings: any;
-	private suffixEndCharacter: string;
-	private _cm5_handleExpansionTrigger: any;
-	private shortcutDfc: Dfc;
-	private shortcutFileShutdownScripts: any;
-
 	// Call the given shortcut-file's shutdown script.
 	// Note: This is called when shortcut-file is being disabled
 	private onShortcutFileDisabled(filename: string): void
 	{
-		if (!this.shortcutFileShutdownScripts[filename]) { return; }
-		ShortcutExpander.runExpansionScript(this.shortcutFileShutdownScripts[filename]);
-		delete this.shortcutFileShutdownScripts[filename];
+		if (!this._shortcutFileShutdownScripts[filename]) { return; }
+		ShortcutExpander.runExpansionScript(this._shortcutFileShutdownScripts[filename]);
+		delete this._shortcutFileShutdownScripts[filename];
 	}
 
 	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt.

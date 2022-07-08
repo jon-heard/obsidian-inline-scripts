@@ -13,7 +13,7 @@ abstract class SettingUi_ShortcutFormat
 	// Get the contents of the setting ui
 	public static getContents(): any
 	{
-		return this.settings;
+		return this._settings;
 	}
 
 	// Called before recording settings changes
@@ -24,23 +24,23 @@ abstract class SettingUi_ShortcutFormat
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static settings: any;
-	private static originalSettings: any;
-	private static formatErrMsgContainerUi: any;
-	private static formatErrMsgContentUi: any;
-	private static shortcutExampleUi: any;
+	private static _settings: any;
+	private static _originalSettings: any;
+	private static _formatErrMsgContainerUi: any;
+	private static _formatErrMsgContentUi: any;
+	private static _shortcutExampleUi: any;
 
 	private static create_internal(parent: any, settings: any): void
 	{
-		this.settings = { prefix: settings.prefix, suffix: settings.suffix };
-		this.originalSettings = { prefix: settings.prefix, suffix: settings.suffix };
+		this._settings = { prefix: settings.prefix, suffix: settings.suffix };
+		this._originalSettings = { prefix: settings.prefix, suffix: settings.suffix };
 
 		parent.createEl("h2", { text: "Shortcut format" });
 
 		// A ui for showing errors in shortcut format settings
-		this.formatErrMsgContainerUi = parent.createEl("div", { cls: "tejs_errMsgContainer" });
-		this.formatErrMsgContainerUi.createEl("span", { text: "ERROR", cls: "tejs_errMsgTitle" });
-		this.formatErrMsgContentUi = this.formatErrMsgContainerUi.createEl("span");
+		this._formatErrMsgContainerUi = parent.createEl("div", { cls: "tejs_errMsgContainer" });
+		this._formatErrMsgContainerUi.createEl("span", { text: "ERROR", cls: "tejs_errMsgTitle" });
+		this._formatErrMsgContentUi = this._formatErrMsgContainerUi.createEl("span");
 
 		// Prefix
 		new obsidian.Setting(parent)
@@ -53,7 +53,7 @@ abstract class SettingUi_ShortcutFormat
 					.setValue(settings.prefix)
 					.onChange((value: string) =>
 					{
-						this.settings.prefix = value;
+						this._settings.prefix = value;
 						this.refreshShortcutExample();
 						this.isFormatValid();
 					});
@@ -71,7 +71,7 @@ abstract class SettingUi_ShortcutFormat
 					.setValue(settings.suffix)
 					.onChange((value: string) =>
 					{
-						this.settings.suffix = value;
+						this._settings.suffix = value;
 						this.refreshShortcutExample();
 						this.isFormatValid();
 					});
@@ -90,7 +90,7 @@ abstract class SettingUi_ShortcutFormat
 		});
 		const exampleItemControl: any =
 			exampleOuter.createEl("div", { cls: "setting-item-control" });
-		this.shortcutExampleUi = exampleItemControl.createEl("div", { cls: "tejs_labelControl" });
+		this._shortcutExampleUi = exampleItemControl.createEl("div", { cls: "tejs_labelControl" });
 
 		// Finish by filling example
 		this.refreshShortcutExample();
@@ -100,8 +100,8 @@ abstract class SettingUi_ShortcutFormat
 	{
 		if (!this.isFormatValid())
 		{
-			this.settings.prefix = this.originalSettings.prefix;
-			this.settings.suffix = this.originalSettings.suffix;
+			this._settings.prefix = this._originalSettings.prefix;
+			this._settings.suffix = this._originalSettings.suffix;
 		}
 	}
 
@@ -111,36 +111,36 @@ abstract class SettingUi_ShortcutFormat
 	private static isFormatValid(): boolean
 	{
 		let err: string = "";
-		if (!this.settings.prefix)
+		if (!this._settings.prefix)
 		{
 			err = "Prefix cannot be blank";
 		}
-		else if (!this.settings.suffix)
+		else if (!this._settings.suffix)
 		{
 			err = "Suffix cannot be blank";
 		}
-		else if (this.settings.suffix.includes(this.settings.prefix))
+		else if (this._settings.suffix.includes(this._settings.prefix))
 		{
 			err = "Suffix cannot contain prefix";
 		}
 
 		if (!err)
 		{
-			this.formatErrMsgContainerUi.toggleClass(
+			this._formatErrMsgContainerUi.toggleClass(
 				"tejs_errMsgContainerShown", false);
 			return true;
 		}
 		else
 		{
-			this.formatErrMsgContainerUi.toggleClass(
+			this._formatErrMsgContainerUi.toggleClass(
 				"tejs_errMsgContainerShown", true);
-			this.formatErrMsgContentUi.innerText = err;
+			this._formatErrMsgContentUi.innerText = err;
 			return false;
 		}
 	}
 
 	private static refreshShortcutExample(): void
 	{
-		this.shortcutExampleUi.innerText = this.settings.prefix + "D100" + this.settings.suffix;
+		this._shortcutExampleUi.innerText = this._settings.prefix + "D100" + this._settings.suffix;
 	};
 }

@@ -4,10 +4,10 @@
 
 "use strict";
 
-abstract class InputBlocker
+namespace InputBlocker
 {
 	// Adds/removes a tinted full-screen div to prevent user-input
-	public static setEnabled(value: boolean): void
+	export function setEnabled(value: boolean): void
 	{
 		if (value)
 		{

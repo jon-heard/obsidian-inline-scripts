@@ -18,7 +18,7 @@ abstract class SettingUi_Shortcuts
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static shortcutUis: any;
+	private static _shortcutUis: any;
 
 	private static create_internal(parent: any, settings: any, app: any): void
 	{
@@ -53,7 +53,7 @@ abstract class SettingUi_Shortcuts
 						}
 					} ).bind(this));
 			});
-		this.shortcutUis = parent.createEl("div", { cls: "tejs_shortcuts" });
+		this._shortcutUis = parent.createEl("div", { cls: "tejs_shortcuts" });
 
 		// Add a shortcut ui item for each shortcut in settings
 		const shortcuts: Array<any> = ShortcutLoader.parseShortcutFile(
@@ -67,7 +67,7 @@ abstract class SettingUi_Shortcuts
 	private static getContents_internal(): any
 	{
 		let result: string = "";
-		for (const shortcutUi of this.shortcutUis.childNodes)
+		for (const shortcutUi of this._shortcutUis.childNodes)
 		{
 			// Only accept shortcuts with a non-empty Expansion string
 			if (!shortcutUi.childNodes[4].value) { continue; }
@@ -83,7 +83,7 @@ abstract class SettingUi_Shortcuts
 
 	private static addShortcutUi(app: any, shortcut?: any): void
 	{
-		let g: any = this.shortcutUis.createEl("div", { cls: "tejs_shortcut" });
+		let g: any = this._shortcutUis.createEl("div", { cls: "tejs_shortcut" });
 		let e: any = g.createEl("input", { cls: "tejs_shortcutTest" });
 			e.setAttr("type", "text");
 			e.setAttr("placeholder", "Test (regex)");
@@ -128,7 +128,7 @@ abstract class SettingUi_Shortcuts
 	private static removeShortcutsFromUi(shortcuts: any): void
 	{
 		let toRemove: Array<any> = [];
-		for (const shortcutUi of this.shortcutUis.childNodes)
+		for (const shortcutUi of this._shortcutUis.childNodes)
 		{
 			const test: string = shortcutUi.childNodes[0].value;
 			const expansion: string = shortcutUi.childNodes[4].value;

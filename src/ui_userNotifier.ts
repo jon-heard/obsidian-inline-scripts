@@ -22,39 +22,39 @@
 const LONG_NOTE_TIME: number = 8 * 1000;
 const INDENT: string = " ".repeat(4);
 
-abstract class UserNotifier
+namespace UserNotifier
 {
-	public static initialize(plugin: any): void
+	export function initialize(plugin: any): void
 	{
-		this.pluginName = plugin.manifest.name;
+		_pluginName = plugin.manifest.name;
 	}
 
 	// Creates a message to the user in a popup notification and/or a console log.
 	// Takes an object of optional parameters.  See this file's header for a parameter reference.
-	public static run(parameters: any): void
+	export function run(parameters: any): void
 	{
-		this.run_internal(parameters);
+		run_internal(parameters);
 	}
 
 	// Offer "print" function for use by user-written shortcuts.
 	// Function gives a message to the user in a popup notification and a console log.
-	public static getFunction_print(): Function
+	export function getFunction_print(): Function
 	{
-		return this.print;
+		return print;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static pluginName: string = "Plugin";
+	let _pluginName: string = "Plugin";
 
-	private static print(message: string): void
+	function print(message: string): void
 	{
 		// Send the message to user as a popup notification and a console log.
 		new obsidian.Notice("TEJS Shortcut:\n" + message, LONG_NOTE_TIME);
 		console.info("TEJS Shortcut:\n\t" + message);
 	};
 
-	private static run_internal(parameters: any): void
+	function run_internal(parameters: any): void
 	{
 		// Make sure parameters is an object, so the logic for reading it isn't broken.
 		if (typeof parameters !== "object")
@@ -91,7 +91,7 @@ abstract class UserNotifier
 		if (consoleMessage)
 		{
 			const message =
-				this.pluginName + "\n" +
+				_pluginName + "\n" +
 				(messageType ? (INDENT + messageType + "\n") : "") +
 				INDENT + consoleMessage;
 			switch (messageLevel)

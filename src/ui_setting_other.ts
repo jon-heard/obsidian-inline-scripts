@@ -13,16 +13,16 @@ abstract class SettingUi_Other
 	// Get the contents of the setting ui
 	public static getContents(): any
 	{
-		return this.settings;
+		return this._settings;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static settings: any;
+	private static _settings: any;
 
 	private static create_internal(parent: any, settings: any): void
 	{
-		this.settings = { devMode: settings.devMode, allowExternal: settings.allowExternal };
+		this._settings = { devMode: settings.devMode, allowExternal: settings.allowExternal };
 
 		parent.createEl("h2", { text: "Other Settings" });
 
@@ -34,7 +34,7 @@ abstract class SettingUi_Other
 			{
 				return toggle
 					.setValue(settings.devMode)
-					.onChange((value: string) => this.settings.devMode = value );
+					.onChange((value: string) => this._settings.devMode = value );
 			});
 
 		// Allow external (not available on mobile)
@@ -47,7 +47,7 @@ abstract class SettingUi_Other
 				{
 					return toggle
 						.setValue(settings.allowExternal)
-						.onChange((value: string) => this.settings.allowExternal = value );
+						.onChange((value: string) => this._settings.allowExternal = value );
 				})
 				.descEl.createEl("div", {
 					cls: "tejs_warning",

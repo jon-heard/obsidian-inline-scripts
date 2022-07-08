@@ -8,7 +8,7 @@ abstract class ExternalRunner
 {
 	public static initialize(plugin: any): void
 	{
-		this.plugin = plugin;
+		this._plugin = plugin;
 	}
 
 	// Offer "runExternal" function for use by user-written shortcuts.
@@ -24,7 +24,7 @@ abstract class ExternalRunner
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static plugin: any = null;
+	private static _plugin: any = null;
 	private static _runExternal: Function = null;
 
 	private static runExternal(command: string, silentFail?: boolean, dontFixSlashes?: boolean)
@@ -45,7 +45,7 @@ abstract class ExternalRunner
 
 		// Error-out if runExternal is not explicitly allowed by the user.
 		// note - User allows runExternal by turning on the toggle "Allow external" in the settings.
-		if (!(this.plugin?.settings.allowExternal))
+		if (!(this._plugin?.settings.allowExternal))
 		{
 			UserNotifier.run(
 			{
@@ -69,7 +69,7 @@ abstract class ExternalRunner
 		}
 
 		// Run the shell command
-		let vaultDir: string = this.plugin.app.fileManager.vault.adapter.basePath;
+		let vaultDir: string = this._plugin.app.fileManager.vault.adapter.basePath;
 		try
 		{
 			let result: string = childProcess.execSync(command, { cwd: vaultDir});

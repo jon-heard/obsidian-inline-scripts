@@ -18,7 +18,7 @@ abstract class SettingUi_ShortcutFiles
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static shortcutFileUis: any;
+	private static _shortcutFileUis: any;
 
 	private static create_internal(parent: any, settings: any, app: any): void
 	{
@@ -53,8 +53,8 @@ abstract class SettingUi_ShortcutFiles
 						).open();
 					});
 			});
-		this.shortcutFileUis = parent.createEl("div", { cls: "tejs_shortcutFiles" });
-		this.shortcutFileUis.createEl("div", {
+		this._shortcutFileUis = parent.createEl("div", { cls: "tejs_shortcutFiles" });
+		this._shortcutFileUis.createEl("div", {
 			text: "Red means the file does not exist.",
 			cls: "setting-item-description tejs_extraMessage tejs_onSiblings"
 		});
@@ -69,7 +69,7 @@ abstract class SettingUi_ShortcutFiles
 	private static getContents_internal(): any
 	{
 		let result: Array<string> = [];
-		for (const shortcutFileUi of this.shortcutFileUis.childNodes)
+		for (const shortcutFileUi of this._shortcutFileUis.childNodes)
 		{
 			if (shortcutFileUi.childNodes[0].value)
 			{
@@ -81,7 +81,7 @@ abstract class SettingUi_ShortcutFiles
 
 	private static addShortcutFileUi(app: any, filename?: string): void
 	{
-		let g: any = this.shortcutFileUis.createEl("div", { cls: "tejs_shortcutFile" });
+		let g: any = this._shortcutFileUis.createEl("div", { cls: "tejs_shortcutFile" });
 		let e: any = g.createEl("input", { cls: "tejs_shortcutFileAddress" });
 			e.setAttr("type", "text");
 			e.setAttr("placeholder", "Filename");

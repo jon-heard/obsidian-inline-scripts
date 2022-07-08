@@ -11,7 +11,7 @@ abstract class ShortcutLoader
 {
 	public static initialize(plugin: any)
 	{
-		this.plugin = plugin;
+		this._plugin = plugin;
 	}
 
 	// Parses a shortcut-file's contents into a useful data format and returns it
@@ -32,7 +32,7 @@ abstract class ShortcutLoader
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static plugin: any;
+	private static _plugin: any;
 
 	private static parseShortcutFile_internal(
 		filename: string, content: string, maintainCodeFence?: boolean,
@@ -164,7 +164,7 @@ abstract class ShortcutLoader
 
 		// Add shortcuts defined directly in the settings
 		let parseResult: any =
-			this.parseShortcutFile_internal("settings", this.plugin.settings.shortcuts);
+			this.parseShortcutFile_internal("settings", this._plugin.settings.shortcuts);
 		result.shortcuts = parseResult.shortcuts;
 		abouts.push({ filename: "", shortcutAbouts: parseResult.shortcutAbouts });
 
@@ -172,9 +172,9 @@ abstract class ShortcutLoader
 		result.shortcuts.push({});
 
 		// Go over all shortcut-files
-		for (const filename of this.plugin.settings.shortcutFiles)
+		for (const filename of this._plugin.settings.shortcutFiles)
 		{
-			const file: any = this.plugin.app.vault.fileMap[filename];
+			const file: any = this._plugin.app.vault.fileMap[filename];
 			if (!file)
 			{
 				UserNotifier.run(
@@ -186,7 +186,7 @@ abstract class ShortcutLoader
 				continue;
 			}
 
-			const content: string = await this.plugin.app.vault.cachedRead(file);
+			const content: string = await this._plugin.app.vault.cachedRead(file);
 
 			// Parse shortcut-file contents
 			parseResult = this.parseShortcutFile(filename, content)
@@ -238,9 +238,9 @@ abstract class ShortcutLoader
 		result.shortcuts = this.generateHelpShortcuts(abouts).concat(result.shortcuts);
 
 		// Assign new shortcuts to the plugin.  Also, add any shutdown scripts that were found.
-		this.plugin.shortcuts = result.shortcuts;
-		this.plugin.shortcutFileShutdownScripts =
-			Object.assign(this.plugin.shortcutFileShutdownScripts, result.shutdownScripts);
+		this._plugin.shortcuts = result.shortcuts;
+		this._plugin.shortcutFileShutdownScripts =
+			Object.assign(this._plugin.shortcutFileShutdownScripts, result.shutdownScripts);
 	}
 
 	// Creates help shortcuts based on "about" info from shortcuts and shortcut-files
