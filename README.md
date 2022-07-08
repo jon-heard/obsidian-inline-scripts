@@ -510,7 +510,12 @@ delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
 
 ## Release notes
 
-## 0.17.0
+### 0.17.1
+- polish - only run require("child_process") if on non-mobile platform.
+- polish - "==" and "!=" to "===" and "!=="
+- bug fix - Renaming the active note makes "_currentFilesName" inaccurate.  If the active note is a shortcut-file, this causes a minor bug until the active note is changed.
+
+### 0.17.0
 - feature - Each shortcut now has an "About" string, to store a short documentation on the shortcut.
 - feature - A robust help system is now available, built around the shortcut "About" string.
 - feature - shortcut-files are now parsed properly when they have a metadata frontmatter section.
@@ -522,13 +527,13 @@ delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
 - feature - "Import Library" now always maintains the order of library shortcut-files when imported into the shortcut-files list.
 - refactor - the "getExpansion()" function, runnable from shortcuts, is now "expand()".
 
-## 0.16.14
+### 0.16.14
 - polish - added pre-release test: a text file with steps to test ALL features of TEJS.
 
-## 0.16.13
+### 0.16.13
 - bug fix - if expansion returns something other than string or string array, it's not handled right.
 
-## 0.16.12
+### 0.16.12
 - Polish - Wrote DEFAULT_SETTING.shortcuts with backtick string for readability
 - Polish - fixed typo
 - Polish - changed "greet" shortcut to "hi"
