@@ -51,7 +51,8 @@ class Dfc
 	private _currentFileWasModified: boolean;
 	private _onAnyFileModified: any;
 	private _onActiveLeafChange: any;
-	private _onAnyFileAddedOrRemoved: any;
+	private _onAnyFileAdded: any;
+	private _onAnyFileRemoved: any;
 
 	private constructor_internal(
 		plugin: any, filenames: Array<string>, refreshFnc: Function, onFileRemoved: Function,
@@ -85,7 +86,8 @@ class Dfc
 		// Setup bound versions of these functions for persistent use
 		this._onAnyFileModified = this.onAnyFileModified.bind(this);
 		this._onActiveLeafChange = this.onActiveLeafChange.bind(this);
-		this._onAnyFileAddedOrRemoved = this.onAnyFileAddedOrRemoved.bind(this);
+		this._onAnyFileAdded = this.onAnyFileAdded.bind(this);
+		this._onAnyFileRemoved = this.onAnyFileRemoved.bind(this);
 
 		// Delay setting up the monitored files list, since it WILL trigger a refreshFnc
 		// call, and refreshFnc might expect this Dfc to already be assigned to a variable,
@@ -110,8 +112,8 @@ class Dfc
 			{
 				this._plugin.app.vault.off("modify", this._onAnyFileModified);
 				this._plugin.app.workspace.off("active-leaf-change", this._onActiveLeafChange);
-				this._plugin.app.vault.off("create", this._onAnyFileAddedOrRemoved);
-				this._plugin.app.vault.off("delete", this._onAnyFileAddedOrRemoved);
+				this._plugin.app.vault.off("create", this._onAnyFileAdded);
+				this._plugin.app.vault.off("delete", this._onAnyFileRemoved);
 			}
 
 			this._monitorType = monitorType;
@@ -121,8 +123,8 @@ class Dfc
 			{
 				this._plugin.app.vault.on("modify", this._onAnyFileModified);
 				this._plugin.app.workspace.on("active-leaf-change", this._onActiveLeafChange);
-				this._plugin.app.vault.on("create", this._onAnyFileAddedOrRemoved);
-				this._plugin.app.vault.on("delete", this._onAnyFileAddedOrRemoved);
+				this._plugin.app.vault.on("create", this._onAnyFileAdded);
+				this._plugin.app.vault.on("delete", this._onAnyFileRemoved);
 			}
 
 			// Update Dfc state to monitor the active file
@@ -170,16 +172,27 @@ class Dfc
 		this._currentFilesName = this._plugin.app.workspace.getActiveFile()?.path ?? "";
 	}
 
-	// Monitor when files are added to or removed from the vault. If the file is one of the
-	// ones being monitored, refreshFnc is called.
-	private onAnyFileAddedOrRemoved(file: any): void
+	// Monitor when files are added to the vault. If the file is one of the ones being monitored,
+	// refreshFnc is called.
+	private onAnyFileAdded(file: any): void
 	{
-		// Ignore unmonitored files
+		// Refresh if file is being monitored
 		if (!this._fileData[file.path]) { return; }
+		this.refresh(true);
+	}
 
-		if (this._fileData.hasOwnProperty(file.path))
+	// Monitor when files are removed from the vault. If the file is one of the ones being
+	// monitored, refreshFnc is called.
+	private onAnyFileRemoved(file: any): void
+	{
+		// Refresh if file is being monitored
+		if (!this._fileData[file.path]) { return; }
+		this.refresh(true);
+
+		// Call the onFileRemoved callback
+		if (this._onFileRemoved)
 		{
-			this.refresh(true);
+			this._onFileRemoved(file.path);
 		}
 	}
 
