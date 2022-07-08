@@ -48,7 +48,7 @@ abstract class LibraryImporter
 		// However, if all shortcut-file references in the settings that match files in
 		// the library are in a single folder, ask user if they want to use that folder
 		// instead of the default library destination.
-		let shortcutReferences: Array<string> = this.settingsUi.getShortcutFilesFromUi();
+		let shortcutReferences: Array<string> = SettingUi_ShortcutFiles.getContents().shortcutFiles;
 		// The filenames of referenced shortcut-files
 		let shortcutReferenceFilenames: Array<string> =
 			shortcutReferences.map(s => s.substring(s.lastIndexOf("/")+1, s.length-3));
@@ -141,7 +141,8 @@ abstract class LibraryImporter
 
 		// Before adding the library shortcut-files to the plugin settings, we should
 		// update the plugin settings with the latest changes made in the settings ui.
-		this.settingsUi.plugin.settings.shortcutFiles = this.settingsUi.getShortcutFilesFromUi();
+		this.settingsUi.plugin.settings.shortcutFiles =
+			SettingUi_ShortcutFiles.getContents().shortcutFiles;
 
 		// Add shortcut-file references, for new shortcut-files, to the settings
 		for (const shortcutFile of shortcutFiles)

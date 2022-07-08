@@ -28,7 +28,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			DEFAULT_SETTINGS;
 		this.settings = Object.assign({}, currentDefaultSettings, await this.loadData());
 
-		// Now that settings are loaded, keep track of the suffix's finishing character
+		// Now that settings are loaded, keep track of the suffix's final character
 		this.suffixEndCharacter = this.settings.suffix.charAt(this.settings.suffix.length - 1);
 
 		// Attach settings UI
@@ -57,10 +57,10 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 				this.cm6_handleExpansionTrigger.bind(this))
 		]);
 
-		// Track shutdown scripts in loaded shortcut-files to be called when unloaded.
+		// Track shutdown scripts in loaded shortcut-files to call when shortcut-file is unloaded.
 		this.shortcutFileShutdownScripts = {};
 
-		// Log starting the plugin
+		// Log that the plugin has loaded
 		UserNotifier.run(
 		{
 			consoleMessage: "Loaded (" + this.manifest.version + ")",
@@ -73,7 +73,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		// Shutdown the shortcutDfc
 		this.shortcutDfc.destructor();
 
-		// Call shutdown script on shortcut files
+		// Call all shutdown scripts of shortcut-files
 		for (const filename in this.shortcutFileShutdownScripts)
 		{
 			this.onShortcutFileDisabled(filename);
@@ -83,7 +83,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		this.app.workspace.iterateCodeMirrors(
 			(cm: any) => cm.off("keydown", this._cm5_handleExpansionTrigger));
 
-		// Log ending the plugin
+		// Log that the plugin has unloaded
 		UserNotifier.run(
 		{
 			consoleMessage: "Unloaded (" + this.manifest.version + ")",
@@ -113,7 +113,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		delete this.shortcutFileShutdownScripts[filename];
 	}
 
-	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt
+	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt.
 	private cm5_handleExpansionTrigger(cm: any, keydown: KeyboardEvent): void
 	{
 		if ((event as any)?.key == this.suffixEndCharacter)
@@ -122,7 +122,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		}
 	}
 
-	// CM6 callback for editor events.  Used to kick off shortcut expansion attempt
+	// CM6 callback for editor events.  Used to kick off shortcut expansion attempt.
 	private cm6_handleExpansionTrigger(tr: any): any
 	{
 		// Only bother with key inputs that have changed the document
@@ -151,7 +151,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 
 	// Tries to get shortcut beneath caret and expand it.  setTimeout pauses for a frame to
 	// give the calling event the opportunity to finish processing.  This is especially
-	// important for CM5, as the typed key isn't in the editor at the time this is called.
+	// important for CM5, as the typed key isn't in the editor until the calling event finishes.
 	private tryShortcutExpansion(): void { setTimeout(() =>
 	{
 		const editor: any  = this.app.workspace.getActiveViewOfType(obsidian.MarkdownView)?.editor;
@@ -164,7 +164,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		const suffixIndex: number = lineText.indexOf(
 			this.settings.suffix, prefixIndex + this.settings.prefix.length);
 
-		// If the caret is not at a shortcut, early out
+		// If the caret is not at a shortcut, early-out
 		if (prefixIndex == -1 || suffixIndex == -1 ||
 		    (suffixIndex + this.settings.suffix.length) < cursor.ch)
 		{
