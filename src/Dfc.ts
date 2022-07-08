@@ -50,9 +50,10 @@ class Dfc
 	private _currentFilesName: string;
 	private _currentFileWasModified: boolean;
 	private _onAnyFileModified: any;
-	private _onActiveLeafChange: any;
+	private _onActiveLeafChanged: any;
 	private _onAnyFileAdded: any;
 	private _onAnyFileRemoved: any;
+	private _onAnyFileRenamed: any;
 
 	private constructor_internal(
 		plugin: any, filenames: Array<string>, refreshFnc: Function, onFileRemoved: Function,
@@ -85,9 +86,10 @@ class Dfc
 
 		// Setup bound versions of these functions for persistent use
 		this._onAnyFileModified = this.onAnyFileModified.bind(this);
-		this._onActiveLeafChange = this.onActiveLeafChange.bind(this);
+		this._onActiveLeafChanged = this.onActiveLeafChanged.bind(this);
 		this._onAnyFileAdded = this.onAnyFileAdded.bind(this);
 		this._onAnyFileRemoved = this.onAnyFileRemoved.bind(this);
+		this._onAnyFileRenamed = this.onAnyFileRenamed.bind(this);
 
 		// Delay setting up the monitored files list, since it WILL trigger a refreshFnc
 		// call, and refreshFnc might expect this Dfc to already be assigned to a variable,
@@ -111,9 +113,10 @@ class Dfc
 			if (this._monitorType !== DfcMonitorType.None)
 			{
 				this._plugin.app.vault.off("modify", this._onAnyFileModified);
-				this._plugin.app.workspace.off("active-leaf-change", this._onActiveLeafChange);
+				this._plugin.app.workspace.off("active-leaf-change", this._onActiveLeafChanged);
 				this._plugin.app.vault.off("create", this._onAnyFileAdded);
 				this._plugin.app.vault.off("delete", this._onAnyFileRemoved);
+				this._plugin.app.vault.off("rename", this._onAnyFileRenamed);
 			}
 
 			this._monitorType = monitorType;
@@ -122,9 +125,10 @@ class Dfc
 			if (this._monitorType !== DfcMonitorType.None)
 			{
 				this._plugin.app.vault.on("modify", this._onAnyFileModified);
-				this._plugin.app.workspace.on("active-leaf-change", this._onActiveLeafChange);
+				this._plugin.app.workspace.on("active-leaf-change", this._onActiveLeafChanged);
 				this._plugin.app.vault.on("create", this._onAnyFileAdded);
 				this._plugin.app.vault.on("delete", this._onAnyFileRemoved);
+				this._plugin.app.vault.on("rename", this._onAnyFileRenamed);
 			}
 
 			// Update Dfc state to monitor the active file
@@ -155,7 +159,7 @@ class Dfc
 
 	// Monitor when a different file becomes the active one. If the prior active file is one
 	// of the files being monitored then this can trigger a refreshFnc call.
-	private onActiveLeafChange(): void
+	private onActiveLeafChanged(): void
 	{
 		// Ignore unmonitored files
 		if (this._fileData[this._currentFilesName])
@@ -193,6 +197,16 @@ class Dfc
 		if (this._onFileRemoved)
 		{
 			this._onFileRemoved(file.path);
+		}
+	}
+
+	// Monitor when files are renamed.
+	// If the renamed file is the current file, update _currentFilesName.
+	private onAnyFileRenamed(file: any): void
+	{
+		if (file === this._plugin.app.workspace.getActiveFile())
+		{
+			this._currentFilesName = this._plugin.app.workspace.getActiveFile()?.path ?? "";
 		}
 	}
 
