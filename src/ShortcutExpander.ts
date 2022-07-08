@@ -49,7 +49,7 @@ abstract class ShortcutExpander
 		for (const shortcut of this._plugin.shortcuts)
 		{
 			// Helper-blocker (an empty shortcut) just erases any helper scripts before it
-			if ((!shortcut.test || shortcut.test.source == "(?:)") && !shortcut.expansion)
+			if ((!shortcut.test || shortcut.test.source === "(?:)") && !shortcut.expansion)
 			{
 				expansionScript = "";
 				continue;
@@ -70,7 +70,7 @@ abstract class ShortcutExpander
 			expansionScript += shortcut.expansion;
 
 			// If this shortcut is not a helper script, stop checking for shortcut matches
-			if (shortcut.test.source != "(?:)")
+			if (shortcut.test.source !== "(?:)")
 			{
 				foundMatch = true;
 				break;

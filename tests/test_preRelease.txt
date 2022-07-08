@@ -173,7 +173,7 @@ BASIC SHORTCUT ERRORS
 6. Check invalid shortcut "test 2" (common action)
 7. Check help for invalid shortcut "test 2" in "settings" (common action)
 8. Open plugin settings
-9. Modify new Test and Expansion strings for shortcut "[^test 2$":
+9. Modify Test and Expansion strings for shortcut "[^test 2$":
 	- Test:
 		^test 2$
 	- Expansion:
@@ -204,21 +204,21 @@ SHORTCUT ORDER
 		- Test:
 			^test 3$
 		- Expansion:
-			return "Test 3A successful";
+			return "First test 3 successful";
 	- shortcut 2
 		- Test:
 			^test 3$
 		- Expansion:
-			return "Test 3B successful";
+			return "Second test 3 successful";
 
 3. Close plugin settings
 4. Check shortcut "test 3" (common action)
-5. Confirm that the expansion is "Test 3A successful"
+5. Confirm that the expansion is "First test 3 successful"
 6. Open plugin settings
 7. Use the shortcut's arrow buttons to swap the order of the 2 "^test 3$" shortcuts
 8. Close plugin settings
 9. Check shortcut "test 3" (common action)
-10. Confirm that the expansion is "Test 3B successful"
+10. Confirm that the expansion is "Second test 3 successful"
 11. Open plugin settings
 12. Remove the 2 new shortcuts
 13. Close plugin settings
@@ -228,13 +228,13 @@ SHORTCUTS - ADD DEFAULTS
 2. Remove ALL shortcuts (can use "enter" key to accept confirmation popup)
 3. Hit the "Add defaults" button
 4. Confirm that a bunch of shortcuts are added
-5. Remove all shortcuts except for "^date$" (the 2nd shortcut)
+5. Remove all shortcuts except for "^date$"
 6. Add two shortcuts with Tests of "first" and "second" (blank otherwise)
 7. Hit the down arrow on the shortcut "^date$".
 8. Confirm that the shortcuts are (in order): "first", "^date$", "second"
 9. Hit the "Add defaults" button
 10. Confirm that the "first" and "second" shortcuts are at the top
-11. Confirm that the "^date$" shortcut has been moved below the "^hi$" shortcut
+11. Confirm that the "^date$" shortcut comes after the first 3 shortcuts
 12. Remove the "first" and "second" shortcuts
 13. Close plugin settings
 
@@ -421,10 +421,10 @@ BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
 9. Confirm that a popup about shortcut-file issues appears
 10. Confirm that MISNUMBERED-SECTION-COUNT-ERROR is added to the console
 11. Check help for shortcut-file "testfile" (common action)
-12. Check shortcut "test 11" (common action)
-13. Check invalid shortcut "test 12" (common action)
-14. Check help for shortcut "test 11" in "testfile" (common action)
-15. Check help for invalid shortcut "test 11" in "testfile" (common action)
+12. Check help for shortcut "^test 11$" in "testfile" (common action)
+13. Check help for invalid shortcut "^test 12$" in "testfile" (common action)
+14. Check shortcut "test 11" (common action)
+15. Check invalid shortcut "test 12" (common action)
 16. Go to note "testing/tejs_testfile"
 17. Go to the note "testResults"
 18. Confirm that no popup or console entry appears
@@ -478,7 +478,6 @@ DEVELOPER MODE
 27. Confirm that no popup or console entry appears
 28. Open plugin settings
 29. Remove the shortcut-file entry for "testing/tejs_testfile"
-30. Turn off "Developer mode"
 30. Close plugin settings
 31. Remove the note "testing/tejs_testfile"
 
@@ -488,7 +487,7 @@ SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 	~~
 	^test 14$
 	~~
-	return "Test 14a successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
+	return "First test 14 successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
 	~~
 
 	~~
@@ -507,7 +506,7 @@ SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 	~~
 	^test 14$
 	~~
-	return "Test 14b successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
+	return "Second test 14 successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
 	~~
 
 	~~
@@ -544,7 +543,7 @@ SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 	- testing/tejs_testfile2
 8. Close plugin settings
 9. Check shortcut "test 14" (common action)
-10. Confirm that the expansion is "Test 14a successful: no tstFnc1"
+10. Confirm that the expansion is "First test 14 successful: no tstFnc1"
 11. Check shortcut "test 15" (common action)
 12. Confirm that the expansion is "Test 15 successful: has tstFnc1"
 13. Check shortcut "test 16" (common action)
@@ -557,7 +556,7 @@ SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 20. In the shortcut-files setting, use the arrow keys to swap the two shortcut-file entries
 21. Close plugin settings
 22. Check shortcut "test 14" (common action)
-23. Confirm that the expansion is "Test 14b successful: no tstFnc1"
+23. Confirm that the expansion is "Second test 14 successful: no tstFnc1"
 24. Open plugin settings
 25. Remove both shortcut-file entries in the "Shortcut-files" setting
 26. Close plugin settings
@@ -647,33 +646,46 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 15. Close plugin settings
 16. Delete the "tejs" folder (and the files within)
 17. Open plugin settings
-18. Add 3 shortcut-file entries: "first", "support/tejs_lists", "third" (it's ok that they are red)
+18. Add 3 shortcut-file entries: "first", "support/tejs_lists", "third" (they will be red, that's ok)
 19. Click the "Import full library" button
 20. Click the "Confirm" button on the confirmation popup
 21. Click the "Confirm" button on the second confirmation popup
 22. Confirm that a bunch of new entries have been added to Shortcut-files
 23. Confirm that the first two entries are "first" and "third"
-24. Confirm that "support/tejs_lists" shows up in the list after the first 3 items
+24. Confirm that "support/tejs_lists" comes after the first 3 entries
 25. Remove the first two entries: "first" and "third"
 26. Confirm that the entry count matches the count from step 9
 27. Confirm that all entries start with "support/"
 28. Close plugin settings
 29. Confirm that there is a folder "support"
 30. Confirm that the "support" folder contains files who's count matches that from step 9
-31. Open plugin settings
-32. Click the "Import full library" button
-33. Click the "Confirm" button on the confirmation popup
-34. Click the "Cancel" button on the second confirmation popup
-35. Confirm that there are twice as many shortcut-file entries as the count from step 9
-36. Confirm that the first entries start with "support/"
-37. Confirm that the last entries start with "tejs/"
-38. Close plugin settings
-39. Confirm that the "support" folder still exist, along with its files
-40. Confirm that a new "tejs" folder exists with the same files
-41. Open plugin settings
-42. Delete all shortcut-file entries (can use "enter" key to accept confirmation popup)
-43. Close plugin settings
-44. Delete the "support" and "tejs" folders (and the folders and files within)
+31. Go to the note "support/tejs_state"
+32. Erase all contents of the note
+33. Go to the note "testResults"
+34. Open plugin settings
+35. Click the "Import full library" button
+36. Click the "Confirm" button on the confirmation popup
+37. Click the "Confirm" button on the second confirmation popup
+38. Confirm that the entry count matches the count from step 9
+39. Close plugin settings
+40. Confirm that the "support" folder contains files who's count matches that from step 9
+41. Go to the note "support/tejs_state"
+42. Confirm that it is not empty
+43. Go to the note "testResults"
+44. Open plugin settings
+45. Click the "Import full library" button
+46. Click the "Confirm" button on the confirmation popup
+47. Click the "Cancel" button on the second confirmation popup
+48. Confirm that there are twice as many shortcut-file entries as the count from step 9
+49. Confirm that the first entries start with "support/"
+50. Confirm that the last entries start with "tejs/"
+51. Close plugin settings
+52. Confirm that the "support" folder still exist, along with its files
+53. Confirm that a new "tejs" folder exists with the same files
+54. Open plugin settings
+55. Delete all shortcut-file entries (can use "enter" key to accept confirmation popup)
+56. Close plugin settings
+57. Delete the "support" and "tejs" folders (and the folders and files within)
 
 SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 1. Make a note with address of "testing/tejs_testfile"
@@ -721,5 +733,7 @@ SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 17. Remove the shortcut-file entry "testing/tejs_testfile"
 18. Close plugin settings
 19. Check shortcut "hi" (common action)
-20. Confirm that no popup or expansion text shows up.
-21. Delete note "testing/tejs_testfile"
+20. Confirm that no popup or expansion text shows up
+21. Check shortcut "date" (common action)
+22. Confirm that the expansion is the current date
+23. Delete note "testing/tejs_testfile"

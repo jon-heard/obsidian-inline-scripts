@@ -100,7 +100,7 @@ class Dfc
 
 	private setMonitorType_internal(monitorType: DfcMonitorType): void
 	{
-		if (monitorType == this._monitorType) { return; }
+		if (monitorType === this._monitorType) { return; }
 
 		// At Obsidian start, some Obsidian events trigger haphazardly.  We use
 		// onLayoutReady to wait to connect to the events until AFTER the random triggering
@@ -108,7 +108,7 @@ class Dfc
 		this._plugin.app.workspace.onLayoutReady(() =>
 		{
 			// React to old monitor type
-			if (this._monitorType != DfcMonitorType.None)
+			if (this._monitorType !== DfcMonitorType.None)
 			{
 				this._plugin.app.vault.off("modify", this._onAnyFileModified);
 				this._plugin.app.workspace.off("active-leaf-change", this._onActiveLeafChange);
@@ -119,7 +119,7 @@ class Dfc
 			this._monitorType = monitorType;
 
 			// React to new monitor type
-			if (this._monitorType != DfcMonitorType.None)
+			if (this._monitorType !== DfcMonitorType.None)
 			{
 				this._plugin.app.vault.on("modify", this._onAnyFileModified);
 				this._plugin.app.workspace.on("active-leaf-change", this._onActiveLeafChange);
@@ -141,7 +141,7 @@ class Dfc
 
 		// If current file was modified, remember to call refreshFnc when leaving the file
 		// the file
-		if (file.path == this._currentFilesName)
+		if (file.path === this._currentFilesName)
 		{
 			this._currentFileWasModified = true;
 		}
@@ -160,8 +160,8 @@ class Dfc
 		// Ignore unmonitored files
 		if (this._fileData[this._currentFilesName])
 		{
-			// If leaving a file and it was changed, or monitorType == OnTouch, refresh
-			if (this._currentFileWasModified || this._monitorType == DfcMonitorType.OnTouch)
+			// If leaving a file and it was changed, or monitorType === OnTouch, refresh
+			if (this._currentFileWasModified || this._monitorType === DfcMonitorType.OnTouch)
 			{
 				this.refresh(true);
 			}
@@ -231,7 +231,7 @@ class Dfc
 		{
 			for (let i: number = 0; i < newFileList.length; i++)
 			{
-				if (this._fileData[newFileList[i]].ordering != i)
+				if (this._fileData[newFileList[i]].ordering !== i)
 				{
 					this._fileData[newFileList[i]].ordering = i;
 					hasChanged = true;
@@ -271,7 +271,7 @@ class Dfc
 
 				// If file doesn't exist, but a valid mod-date is recorded for it,
 				// invalidate mod-date and record that refreshFnc should be called
-				else if (this._fileData[filename].modDate != Number.MIN_SAFE_INTEGER)
+				else if (this._fileData[filename].modDate !== Number.MIN_SAFE_INTEGER)
 				{
 					this._fileData[filename].modDate = Number.MIN_SAFE_INTEGER;
 					hasChanged = true;

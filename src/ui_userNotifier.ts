@@ -71,8 +71,8 @@ namespace UserNotifier
 		// Message type and level parameters
 		const messageType: string = parameters.messageType || "";
 		const messageLevel: number =
-			(parameters.messageLevel == "info") ? 0 :
-			(parameters.messageLevel == "warn") ? 1 :
+			(parameters.messageLevel === "info") ? 0 :
+			(parameters.messageLevel === "warn") ? 1 :
 			2;
 
 		// Console detail parameter
@@ -82,7 +82,7 @@ namespace UserNotifier
 		if (popupMessage)
 		{
 			new obsidian.Notice(
-				(messageLevel == 2 ? "ERROR: " : "") +
+				(messageLevel === 2 ? "ERROR: " : "") +
 				popupMessage +
 				(consoleHasDetails ? "\n\n(see console for details)" : ""),
 				LONG_NOTE_TIME);

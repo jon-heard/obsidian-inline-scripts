@@ -126,13 +126,13 @@ abstract class ShortcutLoader
 			// About string handling
 			// Skip if it's a helper script, helper blocker or setup script, or if the About
 			// string's syntax string is the string "hidden"
-			if (testRegex.source != "(?:)" && testRegex.source != "^tejs setup$" &&
-			    testRegex.source != "^tejs shutdown$" && !sections[i+2].startsWith("hidden - "))
+			if (testRegex.source !== "(?:)" && testRegex.source !== "^tejs setup$" &&
+			    testRegex.source !== "^tejs shutdown$" && !sections[i+2].startsWith("hidden - "))
 			{
 				let aboutParts: Array<string> =
 					sections[i+2].split(REGEX_SPLIT_FIRST_DASH).map((v: string) => v.trim());
 				// If no syntax string is included, use the Regex string instead
-				if (aboutParts.length == 1)
+				if (aboutParts.length === 1)
 				{
 					aboutParts = [testRegex.source, aboutParts[0]];
 				}
@@ -194,7 +194,7 @@ abstract class ShortcutLoader
 			// Look for a "setup" script in this shortcut-file.  Run if found.
 			for (const newShortcut of parseResult.shortcuts)
 			{
-				if (newShortcut.test.source == "^tejs setup$")
+				if (newShortcut.test.source === "^tejs setup$")
 				{
 					// If setup script returns TRUE, don't use shortcuts
 					if (ShortcutExpander.runExpansionScript(newShortcut.expansion))
@@ -211,7 +211,7 @@ abstract class ShortcutLoader
 			// Look for "shutdown" script in this shortcut-file.  Store if found.
 			for (const newShortcut of parseResult.shortcuts)
 			{
-				if (newShortcut.test.source == "^tejs shutdown$")
+				if (newShortcut.test.source === "^tejs shutdown$")
 				{
 					result.shutdownScripts[filename] = newShortcut.expansion;
 					break;
@@ -300,7 +300,7 @@ abstract class ShortcutLoader
 			if (about.filename)
 			{
 				// Add help only for shortcut-files that contain non-hidden shortcuts
-				if (about.shortcutAbouts.length == 0) { continue; }
+				if (about.shortcutAbouts.length === 0) { continue; }
 				// Make "about" shortcut for this shortcut-file
 				makeAboutShortcut(about.filename, about.fileAbout);
 				// Make "ref" shortcut for this shortcut-file

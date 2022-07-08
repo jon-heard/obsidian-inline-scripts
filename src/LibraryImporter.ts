@@ -69,7 +69,7 @@ namespace LibraryImporter
 				}
 				else
 				{
-					if (shortcutReferencePaths[i] != commonPath)
+					if (shortcutReferencePaths[i] !== commonPath)
 					{
 						commonPath = undefined;
 						break;
@@ -77,10 +77,10 @@ namespace LibraryImporter
 				}
 			}
 		}
-		if (commonPath == ADDRESS_LOCAL) { commonPath = undefined; }
+		if (commonPath === ADDRESS_LOCAL) { commonPath = undefined; }
 		let libraryDestination: string = await new Promise((resolve, reject) =>
 		{
-			if (commonPath == undefined)
+			if (commonPath === undefined)
 			{
 				resolve(ADDRESS_LOCAL);
 				return;

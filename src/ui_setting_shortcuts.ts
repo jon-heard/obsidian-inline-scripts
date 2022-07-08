@@ -92,7 +92,7 @@ abstract class SettingUi_Shortcuts
 				e.value = shortcut.test.source;
 
 				// Translate regex compiled "blank" test
-				if (e.value == "(?:)")
+				if (e.value === "(?:)")
 				{
 					e.value = "";
 				}
@@ -134,9 +134,9 @@ abstract class SettingUi_Shortcuts
 			const expansion: string = shortcutUi.childNodes[4].value;
 			for (let k: number = 0; k < shortcuts.length; k++)
 			{
-				if (shortcuts[k].expansion != expansion) { continue; }
-				if (shortcuts[k].test.source != test &&
-				    (shortcuts[k].test.source != "(?:)" || test != ""))
+				if (shortcuts[k].expansion !== expansion) { continue; }
+				if (shortcuts[k].test.source !== test &&
+				    (shortcuts[k].test.source !== "(?:)" || test !== ""))
 				{
 					continue;
 				}

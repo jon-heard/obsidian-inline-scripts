@@ -79,16 +79,16 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		const newShortcuts: any = ShortcutLoader.parseShortcutFile(
 			"", newSettings.shortcuts, true, true).shortcuts;
 		// Start by comparing list counts
-		let forceRefreshShortcuts: boolean = (newShortcuts.length != oldShortcuts.length);
+		let forceRefreshShortcuts: boolean = (newShortcuts.length !== oldShortcuts.length);
 		// If old & new shortcut settings have the same list count, check each individual shortcut
 		// for a change between old and new
 		if (!forceRefreshShortcuts)
 		{
 			for (let i: number = 0; i < newShortcuts.length; i++)
 			{
-				if (newShortcuts[i].test.source != oldShortcuts[i].test.source ||
-				    newShortcuts[i].expansion != oldShortcuts[i].expansion ||
-				    newShortcuts[i].about != oldShortcuts[i].about)
+				if (newShortcuts[i].test.source !== oldShortcuts[i].test.source ||
+				    newShortcuts[i].expansion !== oldShortcuts[i].expansion ||
+				    newShortcuts[i].about !== oldShortcuts[i].about)
 				{
 					forceRefreshShortcuts = true;
 					break;

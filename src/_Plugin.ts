@@ -127,7 +127,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt.
 	private cm5_handleExpansionTrigger(cm: any, keydown: KeyboardEvent): void
 	{
-		if ((event as any)?.key == this.suffixEndCharacter)
+		if ((event as any)?.key === this.suffixEndCharacter)
 		{
 			this.tryShortcutExpansion();
 		}
@@ -146,7 +146,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		(fromA: number, toA: number, fromB: number, toB: number, inserted: any) =>
 		{
 			// Only try expansion if the shortcut suffix's end character was hit
-			if (inserted.text[0] == this.suffixEndCharacter)
+			if (inserted.text[0] === this.suffixEndCharacter)
 			{
 				shouldTryExpansion = true;
 			}
@@ -176,7 +176,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			this.settings.suffix, prefixIndex + this.settings.prefix.length);
 
 		// If the caret is not at a shortcut, early-out
-		if (prefixIndex == -1 || suffixIndex == -1 ||
+		if (prefixIndex === -1 || suffixIndex === -1 ||
 		    (suffixIndex + this.settings.suffix.length) < cursor.ch)
 		{
 			return;
