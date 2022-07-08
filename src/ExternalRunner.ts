@@ -4,11 +4,13 @@
 
 "use strict";
 
+let childProcess: any;
+
 abstract class ExternalRunner
 {
 	public static initialize(plugin: any): void
 	{
-		this._plugin = plugin;
+		this.initialize_internal(plugin);
 	}
 
 	// Offer "runExternal" function for use by user-written shortcuts.
@@ -26,6 +28,20 @@ abstract class ExternalRunner
 
 	private static _plugin: any = null;
 	private static _runExternal: Function = null;
+
+	public static initialize_internal(plugin: any): void
+	{
+		this._plugin = plugin;
+
+		// Setup the childProcess for use in running shell commands
+		// - If we are NOT on a mobile platform, then we can safely use the node.js library.
+		// - If we ARE on a mobile platform, we can NOT use the node.js library.  This is checked
+		//   during "runExternal()", so childProcess is never referenced.
+		if (!obsidian.Platform.isMobile)
+		{
+			childProcess = require("child_process");
+		}
+	}
 
 	private static runExternal(command: string, silentFail?: boolean, dontFixSlashes?: boolean)
 	{
@@ -75,6 +91,7 @@ abstract class ExternalRunner
 			let result: string = childProcess.execSync(command, { cwd: vaultDir});
 			return (result + "").replaceAll("\r", "");
 		}
+
 		// Handle errors from running the shell command
 		catch (e: any)
 		{

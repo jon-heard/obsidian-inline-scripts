@@ -13,10 +13,6 @@
 // and here:
 // https://github.com/jon-heard/obsidian-text-expander-js#development-aid-fenced-code-blocks
 
-// child_process is a node.js library, so is not available for mobile.  However, the code that uses
-// it is blocked for mobile, so the plugin is still viable for mobile, just slightly more limited.
-const childProcess = require("child_process");
-
 class TextExpanderJsPlugin extends obsidian.Plugin
 {
 	// Store the plugin's settings
