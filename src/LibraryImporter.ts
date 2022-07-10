@@ -35,11 +35,11 @@ namespace LibraryImporter
 		// (due to asynchronous downloads not otherwise blocking user-input)
 		InputBlocker.setEnabled(true);
 
-		// Get list of shortcut-files from the projects github readme
-		const readmeContent: string = await window.request({
+		// Get list of shortcut-files from the project's github readme.  Sanitize the newlines.
+		const readmeContent: string = (await window.request({
 			url: ADDRESS_REMOTE + "/" + FILE_README,
 			method: "GET", cache: "no-cache"
-		});
+		})).replaceAll("\r", "");
 		const shortcutFiles: Array<string> =
 			readmeContent.match(REGEX_LIBRARY_README_SHORTCUT_FILE).
 			map((s: string) => s.substring(4, s.length-1));

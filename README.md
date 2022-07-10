@@ -510,6 +510,9 @@ delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
 
 ## Release notes
 
+### 0.17.2
+- bug fix - shortcut-files with non-standard newlines (\r chars) cause bugs in the help system.
+
 ### 0.17.1
 - polish - only run require("child_process") if on non-mobile platform.
 - polish - "==" and "!=" to "===" and "!=="

@@ -38,6 +38,9 @@ abstract class ShortcutLoader
 		filename: string, content: string, maintainCodeFence?: boolean,
 		maintainAboutString?: boolean) : any
 	{
+		// Sanitize newlines.  "\r" disrupts calculations, including the regex replace.
+		content = content.replaceAll("\r", "");
+
 		// Remove any note metadata
 		content = content.replace(REGEX_NOTE_METADATA, "");
 
