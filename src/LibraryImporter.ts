@@ -36,11 +36,26 @@ namespace LibraryImporter
 		InputBlocker.setEnabled(true);
 
 		// Get list of shortcut-files from the project's github readme.  Sanitize the newlines.
-		const readmeContent: string = (await window.request({
-			url: ADDRESS_REMOTE + "/" + FILE_README,
-			method: "GET", cache: "no-cache"
-		})).replaceAll("\r", "");
-		const shortcutFiles: Array<string> =
+		let readmeContent: string;
+		try
+		{
+			readmeContent = await window.request({
+				url: ADDRESS_REMOTE + "/" + FILE_README,
+				method: "GET", cache: "no-cache"
+			});
+		}
+		catch(e)
+		{
+			UserNotifier.run({
+				popupMessage: "Library importing failed.\nUnable to connect.",
+				consoleMessage: "Library importing failed.",
+				messageType: e.message
+			});
+			InputBlocker.setEnabled(false);
+			return;
+		}
+		readmeContent = readmeContent.replaceAll("\r", "");
+		const libShortcutFiles: Array<string> =
 			readmeContent.match(REGEX_LIBRARY_README_SHORTCUT_FILE).
 			map((s: string) => s.substring(4, s.length-1));
 
@@ -48,28 +63,29 @@ namespace LibraryImporter
 		// However, if all shortcut-file references in the settings that match files in
 		// the library are in a single folder, ask user if they want to use that folder
 		// instead of the default library destination.
-		let shortcutReferences: Array<string> = SettingUi_ShortcutFiles.getContents().shortcutFiles;
+		let sfNoteAddresses: Array<string> =
+			SettingUi_ShortcutFiles.getContents().shortcutFiles.map((f: any) => f.address);
 		// The filenames of referenced shortcut-files
-		let shortcutReferenceFilenames: Array<string> =
-			shortcutReferences.map(s => s.substring(s.lastIndexOf("/")+1, s.length-3));
+		let sfNoteNames: Array<string> =
+			sfNoteAddresses.map(s => s.substring(s.lastIndexOf("/")+1, s.length-3));
 		// The paths of referenced shortcut-files
-		let shortcutReferencePaths: Array<string> = shortcutReferences.map((s,i) =>
+		let sfNotePaths: Array<string> = sfNoteAddresses.map((s: any, i: number) =>
 		{
-			return s.substring(0, s.length-shortcutReferenceFilenames[i].length-4)
+			return s.substring(0, s.length-sfNoteNames[i].length-4)
 		});
 		// Find a common path, or lack thereof, to shortcut-files belonging to the library
 		let commonPath: string = undefined;
-		for (let i: number = 0; i < shortcutReferences.length; i++)
+		for (let i: number = 0; i < sfNoteAddresses.length; i++)
 		{
-			if(shortcutFiles.includes(shortcutReferenceFilenames[i]))
+			if(libShortcutFiles.includes(sfNoteNames[i]))
 			{
 				if (commonPath === undefined)
 				{
-					commonPath = shortcutReferencePaths[i];
+					commonPath = sfNotePaths[i];
 				}
 				else
 				{
-					if (shortcutReferencePaths[i] !== commonPath)
+					if (sfNotePaths[i] !== commonPath)
 					{
 						commonPath = undefined;
 						break;
@@ -119,15 +135,15 @@ namespace LibraryImporter
 		}
 
 		// Download and create library files
-		for (const shortcutFile of shortcutFiles)
+		for (const libShortcutFile of libShortcutFiles)
 		{
 			// Download the file
 			let content: string = await window.request({
-				url: ADDRESS_REMOTE + "/" + shortcutFile + ".md",
+				url: ADDRESS_REMOTE + "/" + libShortcutFile + ".md",
 				method: "GET", cache: "no-cache"
 			});
 
-			let filename: string = libraryDestination + "/" + shortcutFile + ".md";
+			let filename: string = libraryDestination + "/" + libShortcutFile + ".md";
 			let file: any = _settingsUi.plugin.app.vault.fileMap[filename];
 			if (file)
 			{
@@ -150,11 +166,13 @@ namespace LibraryImporter
 		let nothingToRemove: boolean;
 		do
 		{
+			const shortcutFileAddresses =
+				_settingsUi.plugin.settings.shortcutFiles.map((f: any) => f.address);
 			nothingToRemove = true;
-			for (const shortcutFile of shortcutFiles)
+			for (const libShortcutFile of libShortcutFiles)
 			{
-				let filename: string = libraryDestination + "/" + shortcutFile + ".md";
-				const index: number = _settingsUi.plugin.settings.shortcutFiles.indexOf(filename);
+				let libAddress: string = libraryDestination + "/" + libShortcutFile + ".md";
+				const index: number = shortcutFileAddresses.indexOf(libAddress);
 				if (index >= 0)
 				{
 					_settingsUi.plugin.settings.shortcutFiles.splice(index, 1);
@@ -166,10 +184,10 @@ namespace LibraryImporter
 		while (!nothingToRemove);
 
 		// Add all library shortcut-files to the settings
-		for (const shortcutFile of shortcutFiles)
+		for (const libShortcutFile of libShortcutFiles)
 		{
-			let filename: string = libraryDestination + "/" + shortcutFile + ".md";
-			_settingsUi.plugin.settings.shortcutFiles.push(filename);
+			let libAddress: string = libraryDestination + "/" + libShortcutFile + ".md";
+			_settingsUi.plugin.settings.shortcutFiles.push({ enabled: true, address: libAddress });
 		}
 
 		// Refresh settings ui to display the updated list of shortcut-files

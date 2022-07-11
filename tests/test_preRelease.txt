@@ -371,16 +371,18 @@ BASIC SHORTCUT-FILES
 23. Check invalid shortcut "test 9" (common action)
 24. Check invalid shortcut "test 10" (common action)
 25. Check help for invalid shortcut-file "testfile" (common action)
-26. Rename the note "testing/tejs_testfile" to "testing/testfile"
-27. Go to the note "testResults"
-28. Open plugin settings
-29. Add a new shortcut-file entry "testing/testfile"
-30. Close plugin settings
-31. Check help for shortcut-file "testfile" (common action)
-32. Open plugin settings
-33. Remove the shortcut-file entry "testing/testfile"
-34. Close plugin settings
-35. Remove the note "testing/testfile"
+26. Type ";;help;" ("!!help! on console).
+27. Confirm that the expansion doesn't include "about testfile" and "ref testfile"
+28. Rename the note "testing/tejs_testfile" to "testing/testfile"
+29. Go to the note "testResults"
+30. Open plugin settings
+31. Add a new shortcut-file entry "testing/testfile"
+32. Close plugin settings
+33. Check help for shortcut-file "testfile" (common action)
+34. Open plugin settings
+35. Remove the shortcut-file entry "testing/testfile"
+36. Close plugin settings
+37. Remove the note "testing/testfile"
 
 BASIC SHORTCUT-FILE ERRORS - MISSING-SHORTCUT-FILE-ERROR
 1. Open plugin settings
@@ -686,6 +688,13 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 55. Delete all shortcut-file entries (can use "enter" key to accept confirmation popup)
 56. Close plugin settings
 57. Delete the "support" and "tejs" folders (and the folders and files within)
+58. Disconnect internet
+59. Open plugin settings
+60. Click the "Import full library" button
+61. Confirm that popup and console errors appear with "ERR_INTERNET-DISCONNECTED" type
+62. Confirm that you can still use the Obsidian UI
+63. Close plugin settings
+64. Connect internet
 
 SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 1. Make a note with address of "testing/tejs_testfile"
@@ -737,3 +746,55 @@ SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 21. Check shortcut "date" (common action)
 22. Confirm that the expansion is the current date
 23. Delete note "testing/tejs_testfile"
+
+SHORTCUT-FILE - ENABLE/DISABLE
+1. Make a note with address of "testing/tejs_testfile1"
+2. Add the following content and remove tabs (select all and hit shift-tab):
+	~~
+	test 20
+	~~
+	return "First test 20 successful.";
+	~~
+
+	~~
+	test 21
+	~~
+	return "Test 21 successful.";
+	~~
+
+3. Make a note with address of "testing/tejs_testfile2"
+4. Add the following content and remove tabs (select all and hit shift-tab):
+	~~
+	test 20
+	~~
+	return "Second test 20 successful.";
+	~~
+
+	~~
+	test 22
+	~~
+	return "Test 22 successful.";
+	~~
+
+5. Go to the note "testResults"
+6. Open plugin settings
+7. Add 2 shortcut-file references in "Shortcut-files" setting
+	- testing/tejs_testfile1
+	- testing/tejs_testfile2
+8. Close plugin settings
+9. Check shortcut "test 20" (common action)
+10. Confirm that the expansion is "First test 20 successful."
+11. Check shortcut "test 21" (common action)
+12. Check shortcut "test 22" (common action)
+13. Disable tejs_testfile1 (through data.json for now, followed by rebooting plugin)
+14. Check shortcut "test 20" (common action)
+15. Confirm that the expansion is "Second test 20 successful."
+16. Check invalid shortcut "test 21" (common action)
+17. Check help for invalid shortcut-file "testfile1" (common action)
+18. Check help for shortcut-file "testfile2" (common action)
+19. Open plugin settings
+20. Remove both shortcut-file entries in the "Shortcut-files" setting
+21. Close plugin settings
+27. Remove the two files:
+	- testing/tejs_testfile1
+	- testing/tejs_testfile2

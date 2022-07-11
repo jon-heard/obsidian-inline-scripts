@@ -68,18 +68,22 @@ abstract class SettingUi_ShortcutFiles
 
 	private static getContents_internal(): any
 	{
-		let result: Array<string> = [];
+		let result: Array<any> = [];
 		for (const shortcutFileUi of this._shortcutFileUis.childNodes)
 		{
 			if (shortcutFileUi.childNodes[0].value)
 			{
-				result.push(obsidian.normalizePath( shortcutFileUi.childNodes[0].value + ".md" ));
+				result.push(
+				{
+					enabled: true,
+					address: obsidian.normalizePath( shortcutFileUi.childNodes[0].value + ".md" )
+				});
 			}
 		}
 		return { shortcutFiles: result };
 	}
 
-	private static addShortcutFileUi(app: any, filename?: string): void
+	private static addShortcutFileUi(app: any, shortcutFile?: any): void
 	{
 		let g: any = this._shortcutFileUis.createEl("div", { cls: "tejs_shortcutFile" });
 		let e: any = g.createEl("input", { cls: "tejs_shortcutFileAddress" });
@@ -94,11 +98,10 @@ abstract class SettingUi_ShortcutFiles
 				this.toggleClass("tejs_badInput", isBadInput);
 			});
 			// Assign given text argument to the textfield
-			if (filename)
+			if (shortcutFile)
 			{
 				// Remove ".md" extension from filename
-				filename = filename.substr(0, filename.length - 3);
-				e.setAttr("value", filename);
+				e.setAttr("value", shortcutFile.address.substr(0, shortcutFile.address.length - 3));
 			}
 			e.dispatchEvent(new Event("input"));
 		e = g.createEl("button", { cls: "tejs_upButton tejs_button" });

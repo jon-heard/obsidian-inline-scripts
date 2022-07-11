@@ -39,6 +39,13 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		this.saveData(this.settings);
 	}
 
+	// Returns an array of the addresses for all shortcut-files that are registered and enabled
+	public getActiveShortcutFileAddresses(): Array<string>
+	{
+		return this.settings.shortcutFiles.filter((f: any) => f.enabled).map((f: any) => f.address);
+	}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private _cm5_handleExpansionTrigger: any;
@@ -64,8 +71,9 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		UserNotifier.initialize(this);
 		ExternalRunner.initialize(this);
 		this.shortcutDfc = new Dfc(
-			this, this.settings.shortcutFiles, ShortcutLoader.getFunction_setupShortcuts(),
-			this.onShortcutFileDisabled.bind(this), true);
+			this, this.getActiveShortcutFileAddresses(),
+			ShortcutLoader.getFunction_setupShortcuts(), this.onShortcutFileDisabled.bind(this),
+			true);
 		this.shortcutDfc.setMonitorType(
 			this.settings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.OnModify);
 
@@ -92,7 +100,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		});
 	}
 
-	public onunload_internal(): void
+	private onunload_internal(): void
 	{
 		// Shutdown the shortcutDfc
 		this.shortcutDfc.destructor();

@@ -510,6 +510,10 @@ delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
 
 ## Release notes
 
+### 0.18.0
+- bug fix - Import Library feature doesn't fail gracefully on unable to connect to repo.
+- feature - Shortcut-files can be disabled, without removing them.  Feature implemented, but not yet exposed through UI.
+
 ### 0.17.2
 - bug fix - shortcut-files with non-standard newlines (\r chars) cause bugs in the help system.
 

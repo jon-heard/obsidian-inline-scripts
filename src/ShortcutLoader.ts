@@ -160,30 +160,29 @@ abstract class ShortcutLoader
 
 	private static async setupShortcuts_internal(): Promise<void>
 	{
-		let result: any = { shortcuts: [], shutdownScripts: {} };
-
 		// To fill with data for the generation of help shortcuts
 		let abouts: Array<any> = [];
 
 		// Add shortcuts defined directly in the settings
 		let parseResult: any =
 			this.parseShortcutFile_internal("settings", this._plugin.settings.shortcuts);
-		result.shortcuts = parseResult.shortcuts;
+		this._plugin.shortcuts = parseResult.shortcuts;
 		abouts.push({ filename: "", shortcutAbouts: parseResult.shortcutAbouts });
 
 		// Add a helper-blocker to segment helper scripts within their shortcut-files
-		result.shortcuts.push({});
+		this._plugin.shortcuts.push({});
 
 		// Go over all shortcut-files
-		for (const filename of this._plugin.settings.shortcutFiles)
+		for (const shortcutFile of this._plugin.settings.shortcutFiles)
 		{
-			const file: any = this._plugin.app.vault.fileMap[filename];
+			if (!shortcutFile.enabled) { continue; }
+			const file: any = this._plugin.app.vault.fileMap[shortcutFile.address];
 			if (!file)
 			{
 				UserNotifier.run(
 				{
-					popupMessage: "Missing shortcut-file\n" + filename,
-					consoleMessage: filename,
+					popupMessage: "Missing shortcut-file\n" + shortcutFile.address,
+					consoleMessage: shortcutFile.address,
 					messageType: "MISSING-SHORTCUT-FILE-ERROR"
 				});
 				continue;
@@ -192,7 +191,7 @@ abstract class ShortcutLoader
 			const content: string = await this._plugin.app.vault.cachedRead(file);
 
 			// Parse shortcut-file contents
-			parseResult = this.parseShortcutFile(filename, content)
+			parseResult = this.parseShortcutFile(shortcutFile.address, content)
 
 			// Look for a "setup" script in this shortcut-file.  Run if found.
 			for (const newShortcut of parseResult.shortcuts)
@@ -216,18 +215,19 @@ abstract class ShortcutLoader
 			{
 				if (newShortcut.test.source === "^tejs shutdown$")
 				{
-					result.shutdownScripts[filename] = newShortcut.expansion;
+					this._plugin.shutdownScripts[shortcutFile.address] = newShortcut.expansion;
 					break;
 				}
 			}
 
 			// Add new shortcuts to master list, followed by helper-blocker
-			result.shortcuts = result.shortcuts.concat(parseResult.shortcuts);
-			result.shortcuts.push({});
+			this._plugin.shortcuts = this._plugin.shortcuts.concat(parseResult.shortcuts);
+			this._plugin.shortcuts.push({});
 
 			// Get the file About string and shortcut About strings
-			let baseName: string =
-				filename.substring(filename.lastIndexOf("/")+1, filename.length-3);
+			let baseName: string = shortcutFile.address.substring(
+				shortcutFile.address.lastIndexOf("/")+1,
+				shortcutFile.address.length-3);
 			baseName = baseName.startsWith("tejs_") ? baseName.substr(5) : baseName;
 			abouts.push(
 			{
@@ -238,12 +238,7 @@ abstract class ShortcutLoader
 		}
 
 		// Generate and add help shortcuts
-		result.shortcuts = this.generateHelpShortcuts(abouts).concat(result.shortcuts);
-
-		// Assign new shortcuts to the plugin.  Also, add any shutdown scripts that were found.
-		this._plugin.shortcuts = result.shortcuts;
-		this._plugin.shutdownScripts =
-			Object.assign(this._plugin.shutdownScripts, result.shutdownScripts);
+		this._plugin.shortcuts = this.generateHelpShortcuts(abouts).concat(this._plugin.shortcuts);
 	}
 
 	// Creates help shortcuts based on "about" info from shortcuts and shortcut-files

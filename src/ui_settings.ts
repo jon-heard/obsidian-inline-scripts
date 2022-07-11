@@ -105,7 +105,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 
 		// Update the Dfc file-list based on list of shortcut files.
 		this.plugin.shortcutDfc.updateFileList(
-			this.plugin.settings.shortcutFiles, forceRefreshShortcuts);
+			this.plugin.getActiveShortcutFileAddresses(), forceRefreshShortcuts);
 
 		// Update variable for the suffix's final character
 		this.plugin.suffixEndCharacter =
