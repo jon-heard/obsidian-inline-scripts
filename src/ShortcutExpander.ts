@@ -171,10 +171,11 @@ abstract class ShortcutExpander
 		if (!failSilently)
 		{
 			result = ( new Function(
-				"expand", "isUserTriggered", "runExternal", "print",
+				"expand", "isUserTriggered", "runExternal", "print", "tejsInfo",
 				expansionScript) )
 				( this._expand_internal, isUserTriggered,
-				  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print() );
+				  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print(),
+				  { shortcutFiles: this._plugin.shortcutFiles } );
 			// if shortcut doesn't return anything, best to return ""
 			result ??= "";
 		}
@@ -183,10 +184,11 @@ abstract class ShortcutExpander
 			try
 			{
 				result = ( new Function(
-					"expand", "isUserTriggered", "runExternal", "print",
+					"expand", "isUserTriggered", "runExternal", "print", "tejsInfo",
 					expansionScript) )
 					( this._expand_internal, isUserTriggered,
-					  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print() );
+					  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print(),
+					  { shortcutFiles: this._plugin.shortcutFiles } );
 				// if shortcut doesn't return anything, best to return ""
 				result ??= "";
 			}

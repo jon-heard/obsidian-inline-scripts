@@ -26,13 +26,14 @@ This plugin is currently in __open beta__.
         - [The console](#development-aid-the-console)
         - [Fenced code blocks](#development-aid-fenced-code-blocks)
     - Advanced shortcuts
-        - [print() function](#advanced-shortcuts-print-function)
+        - [The print() function](#advanced-shortcuts-the-print-function)
         - [Running external applications and scripts](#advanced-shortcuts-running-external-applications-and-scripts)
+        - [Calling shortcuts from shortcuts](#advanced-shortcuts-calling-shortcuts-from-shortcuts)
         - [Helper scripts](#advanced-shortcuts-helper-scripts)
         - [Setup and shutdown scripts](#advanced-shortcuts-setup-and-shutdown-scripts)
-        - [Nesting shortcuts](#advanced-shortcuts-nesting-shortcuts)
-        - [Hidden shortcuts](#advanced-shortcuts-hidden-shortcuts)
-        - [Expansion listeners](#advanced-shortcuts-expansion-listeners)
+        - [Hiding shortcuts](#advanced-shortcuts-hiding-shortcuts)
+        - [Reacting to shortcut expansions](#advanced-shortcuts-reacting-to-shortcut-expansions)
+        - [Checking for loaded shortcut-files](#advanced-shortcuts-checking-for-loaded-shortcut-files)
 - Technical
     - [Known Issues](#known-issues)
     - [Credits](#credits)
@@ -349,7 +350,7 @@ The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` 
 
 ***
 
-## ADVANCED SHORTCUTS: print() function
+## ADVANCED SHORTCUTS: The print() function
 Within a shortcut, print(message) can be called.  This will take the given message and add both a console entry and a popup notification with it.
 
 ## ADVANCED SHORTCUTS: Running external applications and scripts
@@ -393,6 +394,34 @@ By default, on Windows, any forward-slashes in the shell command are automatical
 
 ***
 
+## ADVANCED SHORTCUTS: Calling shortcuts from shortcuts.
+There are two features that work in tandem to allow you to nest shortcuts (i.e. use shortcut results as part of other shortcuts).  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then get and use the result.
+
+### Returning string arrays
+Firstly: an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when replacing a user-typed shortcut.
+
+### Calling one shortcut from another
+Secondly: within an Expansion script you can call the function `expand(text)`.  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like a shortcut text that you type directly into a note, except that `expand(text)` returns the result (a string or string array), _instead_ of writing the result to the note.
+
+### Nesting shortcuts
+Given these features, here's how you can nest a shortcut within another.  The first shortcut's Expansion script calls expand(), passing in the second shortcut.  What it gets back is the second shortcut's Expansion result: a string or array of strings.  It can then use that result, or a piece of that result, as needed.
+
+### Example
+| id | Test string | Expansion string |
+| -- | ----------- | ---------------- |
+|  1 | firstname   | return ["FirstName: ", "Maggie"]; |
+|  2 | lastname    | return ["LastName: ", "Smith"]; |
+|  3 | fullname    | return [ "FullName: ", expand("firstname")[1], " ", expand("lastname")[1] ]; |
+
+Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (`!!firstname!` on mobile), then the expansion is "FirstName: Maggie", since the array gets joined into a single string.  This is true for shortcut #2 as well (expanding into "LastName: Smith").
+
+If you type `;;fullname;` (`!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to expand get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
+
+### The "isUserTriggered" variable
+Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the expand function).
+
+***
+
 ## ADVANCED SHORTCUTS: Helper scripts
 If you add a shortcut with an empty Test string, then that shortcut is a "helper script".  A helper script provides common code that any shortcuts listed after it can use.
 
@@ -425,41 +454,13 @@ A shortcut-file can contain a "shutdown script".  A shutdown script will run whe
 
 ***
 
-## ADVANCED SHORTCUTS: Nesting shortcuts
-There are two features that work in tandem to allow you to nest shortcuts (i.e. use shortcut results as part of other shortcuts).  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then get and use the result.
-
-### Returning string arrays
-Firstly: an Expansion script typically returns a string.  This string is what replaces the user-typed shortcut.  An Expansion script can, instead, return an array of strings.  This collection of strings gets joined into a single string when replacing a user-typed shortcut.
-
-### Calling one shortcut from another
-Secondly: within an Expansion script you can call the function `expand(text)`.  This function takes some text and tries to (a) find a matching shortcut (b) create an expansion result for it and (c) return that expansion result.  This works just like a shortcut text that you type directly into a note, except that `expand(text)` returns the result (a string or string array), _instead_ of writing the result to the note.
-
-### Nesting shortcuts
-Given these features, here's how you can nest a shortcut within another.  The first shortcut's Expansion script calls expand(), passing in the second shortcut.  What it gets back is the second shortcut's Expansion result: a string or array of strings.  It can then use that result, or a piece of that result, as needed.
-
-### Example
-| id | Test string | Expansion string |
-| -- | ----------- | ---------------- |
-|  1 | firstname   | return ["FirstName: ", "Maggie"]; |
-|  2 | lastname    | return ["LastName: ", "Smith"]; |
-|  3 | fullname    | return [ "FullName: ", expand("firstname")[1], " ", expand("lastname")[1] ]; |
-
-Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (`!!firstname!` on mobile), then the expansion is "FirstName: Maggie", since the array gets joined into a single string.  This is true for shortcut #2 as well (expanding into "LastName: Smith").
-
-If you type `;;fullname;` (`!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to expand get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
-
-### The "isUserTriggered" variable
-Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the expand function).
-
-***
-
-## ADVANCED SHORTCUTS: Hidden shortcuts
+## ADVANCED SHORTCUTS: Hiding shortcuts
 If the syntax string that starts a shortcut's About string is "hidden", then that shortcut will not show up in the help system (the "ref" shortcuts), though it can still be used.  This is helpful to prevent cluttering the help system with shortcuts that are not useful to the user, only to other shortcuts.
 
 ***
 
-## ADVANCED SHORTCUTS: Expansion listeners
-If a shortcut-file needs to react to user-triggered shortcut expansions, it can now register a callback function to be called on such an event.  The callback should take two parameters: the input text and the expansion text.  Registration is done by assigning the function to a unique key in `window._tejs.listeners.tejs.onExpansion`.  Note that this object heirarchy isn't created automatically.
+## ADVANCED SHORTCUTS: Reacting to shortcut expansions
+If a shortcut-file needs to react to user-triggered shortcut expansions, it can now setup a callback function to be called on such an event.  The callback should take two parameters: the input text and the expansion text.  Registration is done by assigning the function to a unique key in `window._tejs.listeners.tejs.onExpansion`.  Note that this object heirarchy isn't created automatically.
 
 In addition, if the callback function returns a string, then _that_ string is expanded as a shortcut and the result replaces the old expansion.
 
@@ -493,6 +494,10 @@ delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
 ~~
 ```
 
+***
+
+## ADVANCED SHORTCUTS: Checking for loaded shortcut-files
+There is an read-only array, "tejsInfo.shortcutFiles", that lists all shortcut-files who's shortcuts are currently loaded in the master shortcut list.  This can be useful in a number of ways.  Perhaps we want to disable a shortcut-file if an incompatible one is loaded.  Perhaps we want to modify shortcut-logic based on what other shortcuts are available.
 
 ***
 

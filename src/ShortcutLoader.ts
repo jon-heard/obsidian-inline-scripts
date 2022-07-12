@@ -163,6 +163,8 @@ abstract class ShortcutLoader
 		// To fill with data for the generation of help shortcuts
 		let abouts: Array<any> = [];
 
+		this._plugin.shortcutFiles = [];
+
 		// Add shortcuts defined directly in the settings
 		let parseResult: any =
 			this.parseShortcutFile_internal("settings", this._plugin.settings.shortcuts);
@@ -235,10 +237,16 @@ abstract class ShortcutLoader
 				fileAbout: parseResult.fileAbout,
 				shortcutAbouts: parseResult.shortcutAbouts
 			});
+
+			// Add shortcut-file to list
+			this._plugin.shortcutFiles.push(baseName);
 		}
 
 		// Generate and add help shortcuts
 		this._plugin.shortcuts = this.generateHelpShortcuts(abouts).concat(this._plugin.shortcuts);
+
+		// Finalize shortcut-files list
+		Object.freeze(this._plugin.shortcutFiles);
 	}
 
 	// Creates help shortcuts based on "about" info from shortcuts and shortcut-files

@@ -25,6 +25,8 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	public shortcutDfc: Dfc;
 	// The complete list of registered shortcuts.  Referenced during expansion.
 	public shortcuts: Array<any>;
+	// A list of loaded shortcut-file names
+	public shortcutFiles: Array<string>;
 
 	public onload(): void
 	{
