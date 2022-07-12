@@ -6,22 +6,16 @@
 
 abstract class ShortcutExpander
 {
-	public static initialize(plugin: any)
+	public static initialize(plugin: any): void
 	{
-		this._plugin = plugin;
-		
-		//Setup bound versons of these function for persistant use
-		this._expand_internal = this.expand_internal.bind(this);
-		this._handleExpansionError = this.handleExpansionError.bind(this);
-		
-		// This keeps track of multiple expansion error handlers for nested expansions
-		this._expansionErrorHandlerStack = [];
+		this.initialize_internal(plugin);
 	}
 
 	// Take a shortcut string and expand it based on shortcuts active in the plugin
-	public static expand(shortcutString: string,  isUserTriggered?: boolean): any
+	public static expand(
+		shortcutString: string, failSilently?: boolean, isUserTriggered?: boolean): any
 	{
-		return this.expand_internal(shortcutString, isUserTriggered);
+		return this.expand_internal(shortcutString, failSilently, isUserTriggered);
 	}
 
 	// Execute an expansion script (a string of javascript defined in a shortcut's Expansion string)
@@ -37,11 +31,25 @@ abstract class ShortcutExpander
 	private static _handleExpansionError: any;
 	private static _expansionErrorHandlerStack: Array<any>;
 
+	private static initialize_internal(plugin: any)
+	{
+		this._plugin = plugin;
+
+		//Setup bound versons of these function for persistant use
+		this._expand_internal = this.expand_internal.bind(this);
+		this._handleExpansionError = this.handleExpansionError.bind(this);
+
+		// This keeps track of multiple expansion error handlers for nested expansions
+		this._expansionErrorHandlerStack = [];
+	}
+
 	// Take a shortcut string and return the proper Expansion script.
 	// WARNING: user-facing function
-	private static expand_internal(shortcutString: string, isUserTriggered?: boolean): any
+	private static expand_internal(
+		shortcutString: string, failSilently?: boolean, isUserTriggered?: boolean): any
 	{
 		if (!shortcutString) { return; }
+
 		let foundMatch: boolean = false;
 
 		// Build an expansion script from the list of active shortcuts in the plugin
@@ -83,17 +91,20 @@ abstract class ShortcutExpander
 
 		let expansionResult =
 			foundMatch ?
-			this.runExpansionScript_internal(expansionScript, isUserTriggered) :
+			this.runExpansionScript_internal(expansionScript, failSilently, isUserTriggered) :
 			undefined;
 
 		// If shortcut parsing amounted to nothing.  Notify user of bad shortcut entry.
 		if (expansionResult === undefined)
 		{
-			UserNotifier.run(
+			if (!failSilently)
 			{
-				message: "Shortcut unidentified:\n" + shortcutString,
-				messageLevel: "warn"
-			});
+				UserNotifier.run(
+				{
+					message: "Shortcut unidentified:\n" + shortcutString,
+					messageLevel: "warn"
+				});
+			}
 		}
 
 		// If there are any listeners for the expansion event, call them.  If any of them return
@@ -104,7 +115,7 @@ abstract class ShortcutExpander
 			for (const key in window._tejs.listeners.tejs.onExpansion)
 			{
 				const listener: any = window._tejs.listeners.tejs.onExpansion[key];
-				if (typeof listener !== "function")
+				if (typeof listener !== "function" && !failSilently)
 				{
 					UserNotifier.run({ message: "Non-function listener:\n" + listener });
 					continue;
@@ -129,7 +140,7 @@ abstract class ShortcutExpander
 	// exceptions.  This is because exceptions don't provide error line numbers whereas error
 	// events do.  Line numbers are important to create the useful "expansion failed" message.
 	private static runExpansionScript_internal
-		(expansionScript: string, isUserTriggered?: boolean): any
+		(expansionScript: string, failSilently?: boolean, isUserTriggered?: boolean): any
 	{
 		// Prepare for possible Expansion script error
 		if (isUserTriggered || !this._expansionErrorHandlerStack.length)
@@ -138,28 +149,51 @@ abstract class ShortcutExpander
 			// intrinsically a problem, though.
 			if (this._expansionErrorHandlerStack.length > 0)
 			{
-				UserNotifier.run(
-				{
-					consoleMessage:
-						"Stack was off by " + this._expansionErrorHandlerStack.length + ".\n" +
-						this._expansionErrorHandlerStack.join("\n-------\n"),
-					messageType: "EXPANSION-ERROR-HANDLER-ERROR"
-				});
 				this._expansionErrorHandlerStack = [];
+				if (!failSilently)
+				{
+					UserNotifier.run(
+					{
+						consoleMessage:
+							"Stack was off by " + this._expansionErrorHandlerStack.length + ".\n" +
+							this._expansionErrorHandlerStack.join("\n-------\n"),
+						messageType: "EXPANSION-ERROR-HANDLER-ERROR"
+					});
+				}
 			}
 			window.addEventListener("error", this._handleExpansionError);
 		}
-		this._expansionErrorHandlerStack.push(expansionScript);
+		this._expansionErrorHandlerStack.push({ expansionScript: expansionScript });
 
 		// Run the Expansion script
 		// Pass expand function and isUserTriggered flag for use in Expansion script
-		const result: any = ( new Function(
-			"expand", "isUserTriggered", "runExternal", "print",
-			expansionScript) )
-			( this._expand_internal, isUserTriggered, ExternalRunner.getFunction_runExternal(),
-			UserNotifier.getFunction_print() );
+		let result: any;
+		if (!failSilently)
+		{
+			result = ( new Function(
+				"expand", "isUserTriggered", "runExternal", "print",
+				expansionScript) )
+				( this._expand_internal, isUserTriggered,
+				  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print() );
+			// if shortcut doesn't return anything, best to return ""
+			result ??= "";
+		}
+		else
+		{
+			try
+			{
+				result = ( new Function(
+					"expand", "isUserTriggered", "runExternal", "print",
+					expansionScript) )
+					( this._expand_internal, isUserTriggered,
+					  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print() );
+				// if shortcut doesn't return anything, best to return ""
+				result ??= "";
+			}
+			catch (e) {}
+		}
 
-		// Clean up script error preparations (it wouldn't have got here if we'd hit one)
+		// Clean up script error preparations
 		this._expansionErrorHandlerStack.pop();
 		if (isUserTriggered || !this._expansionErrorHandlerStack.length)
 		{
@@ -167,20 +201,22 @@ abstract class ShortcutExpander
 			// intrinsically a problem, though.
 			if (this._expansionErrorHandlerStack.length > 0)
 			{
-				UserNotifier.run(
-				{
-					consoleMessage:
-						"Stack was off by " + this._expansionErrorHandlerStack.length + ".\n" +
-						this._expansionErrorHandlerStack.join("\n-------\n"),
-					messageType: "EXPANSION-ERROR-HANDLER-ERROR"
-				});
 				this._expansionErrorHandlerStack = [];
+				if (!failSilently)
+				{
+					UserNotifier.run(
+					{
+						consoleMessage:
+							"Stack was off by " + this._expansionErrorHandlerStack.length + ".\n" +
+							this._expansionErrorHandlerStack.join("\n-------\n"),
+						messageType: "EXPANSION-ERROR-HANDLER-ERROR"
+					});
+				}
 			}
 			window.removeEventListener("error", this._handleExpansionError);
 		}
 
-		// if shortcut doesn't return anything, best to return ""
-		return result ?? "";
+		return result;
 	}
 
 	// Callback for when something goes wrong during shortcut expansion.  Generates a useful error
@@ -191,9 +227,9 @@ abstract class ShortcutExpander
 		e.preventDefault();
 
 		// Get the expansion script, modified by line numbers and an arrow pointing to the error
-		let expansionText: string =
-			this._expansionErrorHandlerStack[this._expansionErrorHandlerStack.length-1];
-		let expansionLines = expansionText.split("\n");
+		let expansionLines =
+			this._expansionErrorHandlerStack[this._expansionErrorHandlerStack.length - 1].
+			expansionScript.split("\n");
 		// Add line numbers
 		for (let i: number = 0; i < expansionLines.length; i++)
 		{
@@ -202,7 +238,7 @@ abstract class ShortcutExpander
 		// Add arrows (pointing to error)
 		expansionLines.splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
 		expansionLines.splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
-		expansionText = expansionLines.join("\n");
+		const expansionText = expansionLines.join("\n");
 
 		// Create a user message with the line and column of the error and the expansion script
 		// showing where the error occurred.

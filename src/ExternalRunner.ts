@@ -43,7 +43,7 @@ abstract class ExternalRunner
 		}
 	}
 
-	private static runExternal(command: string, silentFail?: boolean, dontFixSlashes?: boolean)
+	private static runExternal(command: string, failSilently?: boolean, dontFixSlashes?: boolean)
 	{
 		// Error-out if on mobile platform
 		if (obsidian.Platform.isMobile)
@@ -95,7 +95,7 @@ abstract class ExternalRunner
 		// Handle errors from running the shell command
 		catch (e: any)
 		{
-			if (!silentFail)
+			if (!failSilently)
 			{
 				UserNotifier.run(
 				{
