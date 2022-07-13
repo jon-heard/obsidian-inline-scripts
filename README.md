@@ -514,6 +514,11 @@ There is a read-only array, "tejsInfo.shortcutFiles", that lists all shortcut-fi
 
 ## Release notes
 
+### 0.19.0
+- feature - Added a ui to disable shortcut-files without removing them from the shortcut-file settings list
+- feature - help system updated.  General "help" is available to setup scripts and can be checked for loaded sfiles.
+- feature - added a "failSilently" parameter to the expand() function
+
 ### 0.18.0
 - bug fix - Import Library feature doesn't fail gracefully on unable to connect to repo.
 - feature - Shortcut-files can be disabled, without removing them.  Feature implemented, but not yet exposed through UI.
