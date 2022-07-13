@@ -209,6 +209,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
     - You can click outside of the settings panel to close it.
 7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;event;` or `;;une;` (`!!event!` or `!!une!` on mobile).
 8. You can type `;;help;` (`!!help!` on mobile) to start learning about all of the shortcuts provided by the library.
+9. If you find that you need to _not_ use some shortcut-files from the library, you can always disable them by turning off the toggle button to the left of their address text-box.
 
 ### Step-by-step: Adding a SINGLE shortcut-file to the vault
 1. Make sure that the __Text Expander JS__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
@@ -226,6 +227,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
     2. In the "Shortcut-files" setting, click the "Add file reference" button on the right side.  This adds an empty textbox to the bottom of the "Shortcut-files" setting.  The new textbox should show the word "Filename" in grey text. _(see picture below)_
     3. Click on the new textbox and type in the shortcut-file note's address, determined in step 3.  The textbox will be red until a valid note address is entered. _(see picture below)_
         - Example: `support/tejs/TEJS_state`.
+    4. (optional) Turning off the toggle button to the left of the textbox will disable this shortcut-file, as if it was removed from this list.  This is is useful to temporarily turn off shortcut-files, without needing to retype them later.
         
         ![Shortcut-files setting](readmeMedia/shortcutFiles.png)
 
@@ -497,7 +499,7 @@ delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
 ***
 
 ## ADVANCED SHORTCUTS: Checking for loaded shortcut-files
-There is an read-only array, "tejsInfo.shortcutFiles", that lists all shortcut-files who's shortcuts are currently loaded in the master shortcut list.  This can be useful in a number of ways.  Perhaps we want to disable a shortcut-file if an incompatible one is loaded.  Perhaps we want to modify shortcut-logic based on what other shortcuts are available.
+There is a read-only array, "tejsInfo.shortcutFiles", that lists all shortcut-files who's shortcuts are currently loaded in the master shortcut list.  This can be useful in a number of ways.  Perhaps we want to disable a shortcut-file if an incompatible one is loaded.  Perhaps we want to modify shortcut-logic based on what other shortcuts are available.
 
 ***
 

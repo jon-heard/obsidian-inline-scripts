@@ -31,7 +31,7 @@
 }
 .tejs_shortcutFileAddress
 {
-	width: calc(90% - 5.9em);
+	width: calc(90% - 9em);
 	display: inline !important;
 }
 .is-mobile .tejs_shortcutFileAddress
@@ -155,4 +155,9 @@
 .tejs_button
 {
 	margin-left: .25em !important;
+}
+.tejs_checkbox
+{
+	margin-right: 0.5em;
+	margin-bottom: -0.3em;
 }

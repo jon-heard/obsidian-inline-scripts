@@ -71,12 +71,12 @@ abstract class SettingUi_ShortcutFiles
 		let result: Array<any> = [];
 		for (const shortcutFileUi of this._shortcutFileUis.childNodes)
 		{
-			if (shortcutFileUi.childNodes[0].value)
+			if (shortcutFileUi.classList.contains("tejs_shortcutFile"))
 			{
 				result.push(
 				{
-					enabled: true,
-					address: obsidian.normalizePath( shortcutFileUi.childNodes[0].value + ".md" )
+					enabled: shortcutFileUi.childNodes[0].classList.contains("is-enabled"),
+					address: obsidian.normalizePath( shortcutFileUi.childNodes[1].value + ".md" )
 				});
 			}
 		}
@@ -86,7 +86,13 @@ abstract class SettingUi_ShortcutFiles
 	private static addShortcutFileUi(app: any, shortcutFile?: any): void
 	{
 		let g: any = this._shortcutFileUis.createEl("div", { cls: "tejs_shortcutFile" });
-		let e: any = g.createEl("input", { cls: "tejs_shortcutFileAddress" });
+		let e: any = g.createEl("div", { cls: "checkbox-container tejs_checkbox" });
+			e.toggleClass("is-enabled", shortcutFile ? shortcutFile.enabled : true);
+			e.addEventListener("click", function()
+			{
+				this.toggleClass("is-enabled", !this.classList.contains("is-enabled"));
+			});
+		e = g.createEl("input", { cls: "tejs_shortcutFileAddress" });
 			e.setAttr("type", "text");
 			e.setAttr("placeholder", "Filename");
 			e.app = app;

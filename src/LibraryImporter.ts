@@ -163,6 +163,9 @@ namespace LibraryImporter
 		// We don't want to duplicate shortcut-files, and it's important to keep the library
 		// shortcut-files in-order.  Remove any shortcut-files from the list that are part of the
 		// library before appending the shortcut-files from the library to the end of the list.
+		// NOTE - we are replacing some shortcuts from the library, but we do want to keep their
+		// enable state so the user doesn't have to re-disable unwanted shortcut-files.
+		let disabledShortcutFiles: Array<string> = [];
 		let nothingToRemove: boolean;
 		do
 		{
@@ -175,6 +178,10 @@ namespace LibraryImporter
 				const index: number = shortcutFileAddresses.indexOf(libAddress);
 				if (index >= 0)
 				{
+					if (!_settingsUi.plugin.settings.shortcutFiles[index].enabled)
+					{
+						disabledShortcutFiles.push(libAddress);
+					}
 					_settingsUi.plugin.settings.shortcutFiles.splice(index, 1);
 					nothingToRemove = false;
 					break;
@@ -187,7 +194,11 @@ namespace LibraryImporter
 		for (const libShortcutFile of libShortcutFiles)
 		{
 			let libAddress: string = libraryDestination + "/" + libShortcutFile + ".md";
-			_settingsUi.plugin.settings.shortcutFiles.push({ enabled: true, address: libAddress });
+			_settingsUi.plugin.settings.shortcutFiles.push(
+			{
+				enabled: (disabledShortcutFiles.indexOf(libAddress) < 0),
+				address: libAddress
+			});
 		}
 
 		// Refresh settings ui to display the updated list of shortcut-files
