@@ -23,10 +23,8 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	public shutdownScripts: any;
 	// Keep a Dfc for shortcut-files.  This lets us monitor changes to them.
 	public shortcutDfc: Dfc;
-	// The complete list of registered shortcuts.  Referenced during expansion.
+	// The master list of shortcuts: all registered shortcuts.  Referenced during expansion.
 	public shortcuts: Array<any>;
-	// A list of loaded shortcut-file names
-	public shortcutFiles: Array<string>;
 
 	public onload(): void
 	{

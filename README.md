@@ -61,6 +61,7 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
 - __Shortcut-files__ - A list of addresses (folder-paths and filenames) of notes containing shortcut-files.
     - The "Add file reference" button adds a new entry for a shortcut-file address.
     - The "Import full library" button downloads and sets up the entire __Text Expander JS__ shortcut-file library into your vault.  Any existing library files are updated to the latest version.
+    - To the left of each shortcut-file entry is a toggle button.  Turning this off causes the shortcut-file entry to be ignored by _Text Expander JS__.  It has the same effect as removing this shortcut-file entry from the list.
     - To the right of each shortcut-file entry are a set of buttons.
         - The up and down button let you shift the shortcut-file entry up and down in the list.
         - The trashcan button lets you delete the shortcut-file entry.
@@ -135,6 +136,9 @@ __Text Expander JS__ comes with the following sample shortcuts defined by defaul
 - fd{max} - Same as d{max}, but with fancier formatting.
 - {count}d{max}{add} - Same as d{max}, but with optional {count} and {add}.
     - Examples - d100, 3d20, d10+5, 3d6+6
+
+### Help shortcuts
+__Text Expander JS__ has a collection of shortcuts that describe all of the shortcuts that are currently loaded.  The `help` shortcut shows a summary of this collection.
 
 ***
 ***
@@ -235,14 +239,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
 7. The shortcuts defined in the shortcut-file should now work.  Try typing one of the shortcuts to confirm this.
-
-### Help shortcuts
-There are a series of help shortcuts that are always available:
-- `help` shows a summary of all help shortcuts available.
-- `about name` shortcut is created for each shortcut-file, providing a description of the shortcut-file's purpose.
-    - Example - `about state` shows a description of the "tejs_state" shortcut-file.
-- `ref name` is created for each shortcut-file, providing a list of shortcuts with a summary for each.
-    - Example - `ref state` shows a list and summary all shortcuts provided by the "tejs_state" shortcut-file.
+8. You can type `;;help;` (`!!help!` on mobile) to start learning about all of the shortcuts provided by the new shortcut-file.
 
 ***
 ***

@@ -52,7 +52,7 @@ abstract class ShortcutExpander
 
 		let foundMatch: boolean = false;
 
-		// Build an expansion script from the list of active shortcuts in the plugin
+		// Build an expansion script from the master list of shortcuts
 		let expansionScript: string = "";
 		for (const shortcut of this._plugin.shortcuts)
 		{
@@ -171,11 +171,10 @@ abstract class ShortcutExpander
 		if (!failSilently)
 		{
 			result = ( new Function(
-				"expand", "isUserTriggered", "runExternal", "print", "tejsInfo",
+				"expand", "isUserTriggered", "runExternal", "print",
 				expansionScript) )
 				( this._expand_internal, isUserTriggered,
-				  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print(),
-				  { shortcutFiles: this._plugin.shortcutFiles } );
+				  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print() );
 			// if shortcut doesn't return anything, best to return ""
 			result ??= "";
 		}
@@ -184,11 +183,10 @@ abstract class ShortcutExpander
 			try
 			{
 				result = ( new Function(
-					"expand", "isUserTriggered", "runExternal", "print", "tejsInfo",
+					"expand", "isUserTriggered", "runExternal", "print",
 					expansionScript) )
 					( this._expand_internal, isUserTriggered,
-					  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print(),
-					  { shortcutFiles: this._plugin.shortcutFiles } );
+					  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print() );
 				// if shortcut doesn't return anything, best to return ""
 				result ??= "";
 			}

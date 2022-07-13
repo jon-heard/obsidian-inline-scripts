@@ -6,5 +6,6 @@ declare global
 	{
 		_tejs: any;
 		request: Function;
+		plugin: any;
 	}
 }

@@ -6,6 +6,20 @@
 
 const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
 const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
+const GENERAL_HELP_PREAMBLE = `return [ "#### Help - General
+Here are shortcuts for help with __Text Expander JS__.
+- __help__ - Shows this text.
+- __ref settings__ - Describes shortcuts defined in the Settings.
+- __ref all__ - Describes _all_ shortcuts (except for the ones in this list).`;
+const GENERAL_HELP_PREAMBLE_SHORTCUT_FILES = `
+- For help on specific shortcut-files, __help__ and __ref__ can be followed by:`;
+const SFILE_HELP_PREAMBLE = `return "#### Help - $1
+_Use shortcut __ref $2__ for a list of shortcuts._
+
+`;
+const SFILE_REF_PREAMBLE = `let result = "#### Reference - $1
+_Use shortcut __help $2__ for general help._
+";`;
 
 abstract class ShortcutLoader
 {
@@ -163,12 +177,15 @@ abstract class ShortcutLoader
 		// To fill with data for the generation of help shortcuts
 		let abouts: Array<any> = [];
 
-		this._plugin.shortcutFiles = [];
+		// Restart the master list of shortcuts
+		this._plugin.shortcuts = [ { test: /^help$/, expansion: "" } ];
+		let shortcutFiles: Array<string> = [];
+		this.updateGeneralHelpShortcut(shortcutFiles);
 
 		// Add shortcuts defined directly in the settings
 		let parseResult: any =
 			this.parseShortcutFile_internal("settings", this._plugin.settings.shortcuts);
-		this._plugin.shortcuts = parseResult.shortcuts;
+		this._plugin.shortcuts = this._plugin.shortcuts.concat(parseResult.shortcuts);
 		abouts.push({ filename: "", shortcutAbouts: parseResult.shortcutAbouts });
 
 		// Add a helper-blocker to segment helper scripts within their shortcut-files
@@ -231,22 +248,30 @@ abstract class ShortcutLoader
 				shortcutFile.address.lastIndexOf("/")+1,
 				shortcutFile.address.length-3);
 			baseName = baseName.startsWith("tejs_") ? baseName.substr(5) : baseName;
+			shortcutFiles.push(baseName);
+			this.updateGeneralHelpShortcut(shortcutFiles);
 			abouts.push(
 			{
 				filename: baseName,
 				fileAbout: parseResult.fileAbout,
 				shortcutAbouts: parseResult.shortcutAbouts
 			});
-
-			// Add shortcut-file to list
-			this._plugin.shortcutFiles.push(baseName);
 		}
 
 		// Generate and add help shortcuts
 		this._plugin.shortcuts = this.generateHelpShortcuts(abouts).concat(this._plugin.shortcuts);
+	}
 
-		// Finalize shortcut-files list
-		Object.freeze(this._plugin.shortcutFiles);
+	private static updateGeneralHelpShortcut(shortcutFiles: Array<string>): void
+	{
+		let expansion = GENERAL_HELP_PREAMBLE.replaceAll("\n", "\\n");
+		if (shortcutFiles.length > 0)
+		{
+			expansion +=
+				GENERAL_HELP_PREAMBLE_SHORTCUT_FILES.replaceAll("\n", "\\n") + "\", " +
+				"\"\\n    - " + shortcutFiles.join("\",\"\\n    - ");
+		}
+		this._plugin.shortcuts[0].expansion = expansion += "\", \"\\n\\n\" ];";
 	}
 
 	// Creates help shortcuts based on "about" info from shortcuts and shortcut-files
@@ -255,7 +280,7 @@ abstract class ShortcutLoader
 		// The final list of help shortcuts
 		let result: Array<any> = [];
 
-		// Support functions
+		// Helper functions
 		function capitalize(s: string)
 		{
 			return s.charAt(0).toUpperCase() + s.slice(1);
@@ -264,19 +289,23 @@ abstract class ShortcutLoader
 		{
 			return s.replaceAll("\"", "\\\"").replaceAll("\n", "\\n");
 		}
-		function makeAboutShortcut(name: string, about: string)
+		function makeHelpShortcut(name: string, about: string)
 		{
 			about ||= "No information available.";
 			const expansion: string =
-				"return \"### About - " + capitalize(name) + "\\n" + stringifyString(about) +
+				SFILE_HELP_PREAMBLE.replaceAll("\n", "\\n").replaceAll("$1", capitalize(name)).
+					replaceAll("$2", name) +
+				stringifyString(about) +
 				"\\n\\n\";";
-			const test: RegExp = new RegExp("^about " + name + "$");
+			const test: RegExp = new RegExp("^help " + name + "$");
 			result.push({ test: test, expansion: expansion });
 		}
 		function makeRefShortcut(groupName: string, abouts: any, displayName?: string)
 		{
 			displayName = displayName || capitalize(groupName);
-			let expansion: string = "let result = \"### Reference - " + displayName + "\\n\";\n";
+			let expansion: string =
+			SFILE_REF_PREAMBLE.replaceAll("\n", "\\n").replaceAll("$1", displayName).
+				replaceAll("$2", groupName) + "\n";
 			for (const about of abouts)
 			{
 				let description: string = "";
@@ -299,7 +328,6 @@ abstract class ShortcutLoader
 		// Gather info
 		let settingsAbouts: Array<any> = [];
 		let shortcutFileAbouts: Array<any> = [];
-		let shortcutFileList: string = "";
 		for (const about of abouts)
 		{
 			// If not the "settings" shortcut-file (the only about with a blank filename)
@@ -307,13 +335,10 @@ abstract class ShortcutLoader
 			{
 				// Add help only for shortcut-files that contain non-hidden shortcuts
 				if (about.shortcutAbouts.length === 0) { continue; }
-				// Make "about" shortcut for this shortcut-file
-				makeAboutShortcut(about.filename, about.fileAbout);
+				// Make "help" shortcut for this shortcut-file
+				makeHelpShortcut(about.filename, about.fileAbout);
 				// Make "ref" shortcut for this shortcut-file
 				makeRefShortcut(about.filename, about.shortcutAbouts);
-				// Add to the general "help" shortcut's expansion
-				shortcutFileList +=
-					"- __about " + about.filename + "__, __ref " + about.filename + "__\\n";
 				// Add to "ref all" list: reference of ALL shortcuts
 				shortcutFileAbouts = shortcutFileAbouts.concat(about.shortcutAbouts);
 			}
@@ -329,18 +354,6 @@ abstract class ShortcutLoader
 
 		// Create "ref settings" shortcut: expands to a reference for shortcuts defined in settings
 		makeRefShortcut("settings", settingsAbouts);
-
-		// Create "help" shortcut: expands to a general help text which lists all help shortcuts
-		const expansion: string =
-			"return \"The following shortcuts provide help for all shortcuts and " +
-			"shortcut-files currently setup with __Text Expander JS__:\\n" +
-			"- __help__ - Shows this text.\\n" +
-			"- __ref settings__ - Summarizes shortcuts defined in the Settings.\\n" +
-			"- __ref all__ - Summarizes all shortcuts (except the ones in " +
-			"this list).\\n" +
-			shortcutFileList + "\\n\";";
-		const test: RegExp = /^help$/;
-		result.push({ test: test, expansion: expansion });
 
 		// Reversing ensures that "ref all" and "ref settings" aren't superseded by a poorly named
 		// shortcut-file

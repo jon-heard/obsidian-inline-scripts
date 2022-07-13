@@ -71,7 +71,8 @@ abstract class SettingUi_ShortcutFiles
 		let result: Array<any> = [];
 		for (const shortcutFileUi of this._shortcutFileUis.childNodes)
 		{
-			if (shortcutFileUi.classList.contains("tejs_shortcutFile"))
+			if (shortcutFileUi.classList.contains("tejs_shortcutFile") &&
+			    shortcutFileUi.childNodes[1].value)
 			{
 				result.push(
 				{

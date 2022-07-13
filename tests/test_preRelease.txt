@@ -31,10 +31,10 @@ CHECK HELP FOR INVALID SHORTCUT X IN FILE Y
 2. Confirm that the shortcut X entry is NOT there
 
 CHECK HELP FOR SHORTCUT-FILE X
-1. Enter the shortcut "about X", where x is the shortcut-file
-2. Confirm that it expanded into a valid about text
+1. Enter the shortcut "help X", where X is the shortcut-file
+2. Confirm that it expanded into a valid text
 3. Confirm that no new console entries were added
-2. Enter the shortcut "ref X", where x is the shortcut-file
+2. Enter the shortcut "ref X", where X is the shortcut-file
 2. Confirm that it expanded into a valid ref text
 3. Confirm that no new console entries were added
 
@@ -143,19 +143,22 @@ BASIC SHORTCUTS
 16. Check shortcut "test 1" (common action)
 17. Confirm that expansion is "test 1 successful"
 18. Open plugin settings
-19. Modify the Expansion string of shortcut "^test 1$":
+19. Click "Add shortcut" button in Shortcuts setting
+20. Modify the Expansion string of shortcut "^test 1$":
 	return print("test 1 successful");
-20. Close plugin settings
-21. Check shortcut "test 1" (common action)
-22. Confirm that popup and console entry both appear with "TEJS Shortcut: test 1 successful"
-23. Confirm that expansion is "test 1 successful"
-24. Open plugin settings
-25. Delete the shortcut "^test 1$"
-26. Close plugin settings
-27. Check invalid shortcut "test 1" (common action)
-28. Check shortcut "hi" (common action)
-29. Check help for invalid shortcut "test 1" in "settings" (common action)
-30. Check help for shortcut "hi" in "settings" (common action)
+21. Confirm that there is a blank shortcut
+22. Close plugin settings
+23. Check shortcut "test 1" (common action)
+24. Confirm that popup and console entry both appear with "TEJS Shortcut: test 1 successful"
+25. Confirm that expansion is "test 1 successful"
+26. Open plugin settings
+27. Delete the shortcut "^test 1$"
+28. Confirm that there are no blank shortcuts
+29. Close plugin settings
+30. Check invalid shortcut "test 1" (common action)
+31. Check shortcut "hi" (common action)
+32. Check help for invalid shortcut "test 1" in "settings" (common action)
+33. Check help for shortcut "hi" in "settings" (common action)
 
 BASIC SHORTCUT ERRORS
 1. Open plugin settings
@@ -377,10 +380,12 @@ BASIC SHORTCUT-FILES
 29. Go to the note "testResults"
 30. Open plugin settings
 31. Add a new shortcut-file entry "testing/testfile"
-32. Close plugin settings
-33. Check help for shortcut-file "testfile" (common action)
-34. Open plugin settings
-35. Remove the shortcut-file entry "testing/testfile"
+32. Add a new shortcut-file entry and leave it blank
+33. Close plugin settings
+34. Check help for shortcut-file "testfile" (common action)
+35. Open plugin settings
+36. Confirm that there is only one shortcut-file entry: "testing/testfile"
+36. Remove the shortcut-file entry "testing/testfile"
 36. Close plugin settings
 37. Remove the note "testing/testfile"
 
@@ -648,12 +653,12 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 15. Close plugin settings
 16. Delete the "tejs" folder (and the files within)
 17. Open plugin settings
-18. Add 3 shortcut-file entries: "first", "support/tejs_lists", "third" (they will be red, that's ok)
+18. Add 3 shortcut-file entries: "first", "support/tejs_lists", "second" (they will be red, that's ok)
 19. Click the "Import full library" button
 20. Click the "Confirm" button on the confirmation popup
 21. Click the "Confirm" button on the second confirmation popup
 22. Confirm that a bunch of new entries have been added to Shortcut-files
-23. Confirm that the first two entries are "first" and "third"
+23. Confirm that the first two entries are "first" and "second"
 24. Confirm that "support/tejs_lists" comes after the first 3 entries
 25. Remove the first two entries: "first" and "third"
 26. Confirm that the entry count matches the count from step 9
@@ -691,10 +696,11 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 58. Disconnect internet
 59. Open plugin settings
 60. Click the "Import full library" button
-61. Confirm that popup and console errors appear with "ERR_INTERNET-DISCONNECTED" type
-62. Confirm that you can still use the Obsidian UI
-63. Close plugin settings
-64. Connect internet
+61. Click the "Confirm" button on the confirmation popup
+62. Confirm that popup and console errors appear with "ERR_INTERNET-DISCONNECTED" type
+63. Confirm that you can still use the Obsidian UI
+64. Close plugin settings
+65. Reconnect internet
 
 SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 1. Make a note with address of "testing/tejs_testfile"
@@ -786,15 +792,55 @@ SHORTCUT-FILE - ENABLE/DISABLE
 10. Confirm that the expansion is "First test 20 successful."
 11. Check shortcut "test 21" (common action)
 12. Check shortcut "test 22" (common action)
-13. Disable tejs_testfile1 (through data.json for now, followed by rebooting plugin)
-14. Check shortcut "test 20" (common action)
-15. Confirm that the expansion is "Second test 20 successful."
-16. Check invalid shortcut "test 21" (common action)
-17. Check help for invalid shortcut-file "testfile1" (common action)
-18. Check help for shortcut-file "testfile2" (common action)
-19. Open plugin settings
-20. Remove both shortcut-file entries in the "Shortcut-files" setting
-21. Close plugin settings
-27. Remove the two files:
+13. Open plugin settings
+14. Turn off the toggle to the left of the entry "testing/tejs_testfile1"
+15. Close plugin settings
+16. Check shortcut "test 20" (common action)
+17. Confirm that the expansion is "Second test 20 successful."
+18. Check invalid shortcut "test 21" (common action)
+19. Check help for invalid shortcut-file "testfile1" (common action)
+20. Check help for shortcut-file "testfile2" (common action)
+21. Open plugin settings
+22. Remove both shortcut-file entries in the "Shortcut-files" setting
+23. Close plugin settings
+24. Remove the two files:
 	- testing/tejs_testfile1
 	- testing/tejs_testfile2
+
+SHORTCUT-FILE - FAIL SILENTLY
+1. Make a note with address of "testing/tejs_testfile"
+2. Add the following content and remove tabs (select all and hit shift-tab):
+	~~
+	test 23
+	~~
+	return ]"Test 23 successful";
+	~~
+
+	~~
+	test 24
+	~~
+	return "Test 24: " + (expand("test 23") ?? "test 23 failed");
+	~~
+
+3. Go to the note "testResults"
+4. Open plugin settings
+5. Add "testing/tejs_testfile" to "Shortcut-files" setting
+6. Close plugin settings
+7. Check shortcut "test 24" (common action)
+8. Confirm that console error "SHORTCUT-EXPANSION-ERROR" is added
+9. Go to the note "testing/tejs_testfile"
+10. Modify the "test 24" expansion
+	return "Test 24: " + (expand("test 23", true) ?? "test 23 failed");
+11. Go to the note "testResults"
+12. Check shortcut "test 24" (common action)
+13. Confirm that expansion is "Test 24: test 23 failed"
+14. Go to the note "testing/tejs_testfile"
+15. Modify the "test 23" expansion to be blank
+16. Go to the note "testResults"
+17. Check shortcut "test 24" (common action)
+18. Confirm that expansion is "Test 24: "
+19. Open plugin settings
+20. Remove the shortcut-files entry "testing/tejs_testfile"
+21. Close plugin settings
+22. Confirm that a console entry is NOT added
+23. Delete note "testing/tejs_testfile"
