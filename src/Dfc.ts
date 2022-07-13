@@ -9,8 +9,8 @@ enum DfcMonitorType { None, OnModify, OnTouch };
 class Dfc
 {
 	public constructor(
-		plugin: any, filenames: Array<string>, refreshFnc: Function, onFileRemoved: Function,
-		fileOrderImportant: boolean)
+		plugin: TextExpanderJsPlugin, filenames: Array<string>, refreshFnc: Function,
+		onFileRemoved: Function, fileOrderImportant: boolean)
 	{
 		this.constructor_internal(plugin, filenames, refreshFnc, onFileRemoved, fileOrderImportant);
 	}
@@ -41,7 +41,7 @@ class Dfc
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private _plugin: any;
+	private _plugin: TextExpanderJsPlugin;
 	private _refreshFnc: Function;
 	private _fileOrderImportant: boolean;
 	private _onFileRemoved: Function;
@@ -56,8 +56,8 @@ class Dfc
 	private _onAnyFileRenamed: any;
 
 	private constructor_internal(
-		plugin: any, filenames: Array<string>, refreshFnc: Function, onFileRemoved: Function,
-		fileOrderImportant: boolean): void
+		plugin: TextExpanderJsPlugin, filenames: Array<string>, refreshFnc: Function,
+		onFileRemoved: Function, fileOrderImportant: boolean): void
 	{
 		this._plugin = plugin;
 

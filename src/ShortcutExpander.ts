@@ -6,7 +6,7 @@
 
 abstract class ShortcutExpander
 {
-	public static initialize(plugin: any): void
+	public static initialize(plugin: TextExpanderJsPlugin): void
 	{
 		this.initialize_internal(plugin);
 	}
@@ -26,12 +26,12 @@ abstract class ShortcutExpander
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static _plugin: any;
+	private static _plugin: TextExpanderJsPlugin;
 	private static _expand_internal: any;
 	private static _handleExpansionError: any;
 	private static _expansionErrorHandlerStack: Array<any>;
 
-	private static initialize_internal(plugin: any)
+	private static initialize_internal(plugin: TextExpanderJsPlugin)
 	{
 		this._plugin = plugin;
 

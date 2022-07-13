@@ -8,7 +8,7 @@ let childProcess: any;
 
 abstract class ExternalRunner
 {
-	public static initialize(plugin: any): void
+	public static initialize(plugin: TextExpanderJsPlugin): void
 	{
 		this.initialize_internal(plugin);
 	}
@@ -26,10 +26,10 @@ abstract class ExternalRunner
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static _plugin: any = null;
-	private static _runExternal: Function = null;
+	private static _plugin: TextExpanderJsPlugin;
+	private static _runExternal: Function;
 
-	public static initialize_internal(plugin: any): void
+	public static initialize_internal(plugin: TextExpanderJsPlugin): void
 	{
 		this._plugin = plugin;
 

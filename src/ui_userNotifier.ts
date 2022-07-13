@@ -24,7 +24,7 @@ const INDENT: string = " ".repeat(4);
 
 namespace UserNotifier
 {
-	export function initialize(plugin: any): void
+	export function initialize(plugin: TextExpanderJsPlugin): void
 	{
 		_pluginName = plugin.manifest.name;
 	}

@@ -8,7 +8,7 @@ const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp = /### tejs_[_a-zA-Z0-9]+\n/g;
 
 namespace LibraryImporter
 {
-	export function initialize(settingsUi: any)
+	export function initialize(settingsUi: TextExpanderJsPluginSettings)
 	{
 		_settingsUi = settingsUi;
 	}
@@ -21,7 +21,7 @@ namespace LibraryImporter
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	let _settingsUi: any;
+	let _settingsUi: TextExpanderJsPluginSettings;
 
 	async function run_internal(): Promise<void>
 	{

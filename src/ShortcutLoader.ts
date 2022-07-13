@@ -9,7 +9,7 @@ const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
 
 abstract class ShortcutLoader
 {
-	public static initialize(plugin: any)
+	public static initialize(plugin: TextExpanderJsPlugin)
 	{
 		this._plugin = plugin;
 	}
@@ -32,7 +32,7 @@ abstract class ShortcutLoader
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static _plugin: any;
+	private static _plugin: TextExpanderJsPlugin;
 
 	private static parseShortcutFile_internal(
 		filename: string, content: string, maintainCodeFence?: boolean,
