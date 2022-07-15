@@ -4,7 +4,13 @@
 
 "use strict";
 
-const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp = /### tejs_[_a-zA-Z0-9]+\n/g;
+const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp =
+	/### (tejs_[_a-zA-Z0-9]+)\n(_\(disabled by default)?/g;
+const ADDRESS_REMOTE: string =
+	"https://raw.githubusercontent.com/jon-heard/" +
+	"obsidian-text-expander-js_shortcutFileLibrary/main";
+const ADDRESS_LOCAL: string = "tejs";
+const FILE_README: string = "README.md";
 
 namespace LibraryImporter
 {
@@ -25,12 +31,6 @@ namespace LibraryImporter
 
 	async function run_internal(): Promise<void>
 	{
-		const ADDRESS_REMOTE: string =
-			"https://raw.githubusercontent.com/jon-heard/" +
-			"obsidian-text-expander-js_shortcutFileLibrary/main";
-		const ADDRESS_LOCAL: string = "tejs";
-		const FILE_README: string = "README.md";
-
 		// Need to manually disable user-input until this process is finished
 		// (due to asynchronous downloads not otherwise blocking user-input)
 		InputBlocker.setEnabled(true);
@@ -55,9 +55,16 @@ namespace LibraryImporter
 			return;
 		}
 		readmeContent = readmeContent.replaceAll("\r", "");
-		const libShortcutFiles: Array<string> =
-			readmeContent.match(REGEX_LIBRARY_README_SHORTCUT_FILE).
-			map((s: string) => s.substring(4, s.length-1));
+		let libShortcutFiles: Array<string> = [];
+		let disabledShortcutFiles: Array<string> = [];
+		for (const match of readmeContent.matchAll(REGEX_LIBRARY_README_SHORTCUT_FILE))
+		{
+			libShortcutFiles.push(match[1]);
+			if (match[2])
+			{
+				disabledShortcutFiles.push(match[1]);
+			}
+		}
 
 		// Figure out library destination.  By default this is ADDRESSS_LOCAL.
 		// However, if all shortcut-file references in the settings that match files in
@@ -128,6 +135,10 @@ namespace LibraryImporter
 		// Put the input blocker back (if it was disabled for the confirm dialog)
 		InputBlocker.setEnabled(true);
 
+		// Adjust the disabledShortcutFiles to match the libraryDestination
+		disabledShortcutFiles =
+			disabledShortcutFiles.map(v => libraryDestination + "/" + v + ".md");
+
 		// Create the choosen library destination folder, if necessary
 		if (!_settingsUi.plugin.app.vault.fileMap.hasOwnProperty(libraryDestination))
 		{
@@ -165,7 +176,6 @@ namespace LibraryImporter
 		// library before appending the shortcut-files from the library to the end of the list.
 		// NOTE - we are replacing some shortcuts from the library, but we do want to keep their
 		// enable state so the user doesn't have to re-disable unwanted shortcut-files.
-		let disabledShortcutFiles: Array<string> = [];
 		let nothingToRemove: boolean;
 		do
 		{
@@ -193,11 +203,11 @@ namespace LibraryImporter
 		// Add all library shortcut-files to the settings
 		for (const libShortcutFile of libShortcutFiles)
 		{
-			let libAddress: string = libraryDestination + "/" + libShortcutFile + ".md";
+			const address = libraryDestination + "/" + libShortcutFile + ".md";
 			_settingsUi.plugin.settings.shortcutFiles.push(
 			{
-				enabled: (disabledShortcutFiles.indexOf(libAddress) < 0),
-				address: libAddress
+				enabled: (disabledShortcutFiles.indexOf(address) < 0),
+				address: address
 			});
 		}
 
