@@ -3,7 +3,7 @@
 
 ***
 
-This Obsidian plugin lets the user to type text shortcuts that are replaced by (or "expanded into") javascript generated text.
+This Obsidian plugin lets the user type text shortcuts that are replaced by (or "expanded into") Javascript generated text.
 
 This plugin works on all platforms, including mobile.
 
