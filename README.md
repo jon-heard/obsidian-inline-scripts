@@ -99,25 +99,20 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 
 ## TUTORIAL: Setup the plugin and try it out
 ### Setup the plugin
-NOTE: This will be _much_ easier once the plugin has been reviewed and added to the community plugins list.
-
 1. Open the vault to install __Text Expander JS__ into.  If you don't yet have a vault ready, create one now.
-2. Get the "BRAT" plugin _(Beta Reviewers Auto-update Tester)_
-    1. Go to Settings > "Community Plugins".  Turn safe mode off, if it is on.
-    2. Click the "Browse" button beside the "Community Plugins" setting
-    3. Search for, install and enable the "BRAT" plugin
-3. Add the __Text Expander JS__ plugin to "BRAT"
-    1. Go to Settings > "Obsidian42 - Brat" (it's near the bottom of the Settings menu)
-    2. Click on the button "Add Beta plugin" (in the "Beta Plugin List" section)
-    3. Enter the text `https://github.com/jon-heard/obsidian-text-expander-js`
-    4. Click "Add Plugin"
-4. Enable the __Text Expander JS__ plugin
-    1. Go to Settings > "Community Plugins".
-    2. Find the __Text Expander JS__ plugin entry (it's near the bottom of the settings)
-    3. Turn on the toggle to the right of the entry.
-5. _(optional, but recommended)_ Enable auto-update for the __Text Expander JS__ plugin
-    1. Go to Settings > "Obsidian42 - Brat" (it's near the bottom of the Settings menu)
-    2. Turn on the setting "Auto-update plugins at startup" (it's the first setting).
+2. Open the Community plugins settings
+    1. Click the settings button at the lower-left of the Obsidian window (It looks like a gear)
+    2. Click `Community plugins` in the left-hand menu (at the bottom of the `Options` section)
+    3. If necessary, turn on community plugins.
+3. Browse community plugins, find __Text Expander JS__ and select it
+    1. Click the `Browse` button to the right of `Community plugins`.
+    2. In the panel that pops up, click on the search textbox at the upper-left and type "text expander js"
+    3. Click "Text Expander JS" in the list below the search textbox
+4. Install and enable __Text Expander JS__
+    1. To the right of the menu is information about __Text Expander JS__.  This includes a group of buttons near the top
+    2. If one of the buttons is "Install", then click that and wait for it to go away.
+    3. If one of the buttons is "Enable", then click that and wait for it to go away.
+    4. Close the popup panels, by clicking on the dark area outside of them.  Repeat until you are back to viewing your notes.
 
 ### Try out the plugin
 1. Open a note to try out the plugin.
