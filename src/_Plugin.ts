@@ -193,10 +193,20 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		}
 
 		// Run the Expansion script on the shortcut under the caret
-		const sourceText: string =
+		const shortcutText: string =
 			lineText.substring(prefixIndex + this.settings.prefix.length, suffixIndex);
-		let expansionText: string = ShortcutExpander.expand(sourceText, false, true);
-		if (expansionText === undefined) { return; }
+		const expansionInfo: any =
+		{
+			isUserTriggered: true,
+			line: lineText,
+			inputStart: prefixIndex,
+			inputEnd: suffixIndex + this.settings.suffix.length,
+			shortcutText: shortcutText,
+			prefix: this.settings.prefix,
+			suffix: this.settings.suffix
+		};
+		let expansionText: string = ShortcutExpander.expand(shortcutText, false, expansionInfo);
+		if (expansionText === null) { return; }
 
 		// Handle a string array from the Expansion result
 		if (Array.isArray(expansionText))

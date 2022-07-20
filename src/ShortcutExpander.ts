@@ -13,15 +13,16 @@ abstract class ShortcutExpander
 
 	// Take a shortcut string and expand it based on shortcuts active in the plugin
 	public static expand(
-		shortcutString: string, failSilently?: boolean, isUserTriggered?: boolean): any
+		shortcutText: string, failSilently?: boolean, expansionInfo?: any): any
 	{
-		return this.expand_internal(shortcutString, failSilently, isUserTriggered);
+		return this.expand_internal(shortcutText, failSilently, expansionInfo);
 	}
 
 	// Execute an expansion script (a string of javascript defined in a shortcut's Expansion string)
-	public static runExpansionScript(expansionScript: string, isUserTriggered?: boolean): any
+	public static runExpansionScript(
+		expansionScript: string, failSilently?: boolean, expansionInfo?: any): any
 	{
-		return this.runExpansionScript_internal(expansionScript, isUserTriggered);
+		return this.runExpansionScript_internal(expansionScript, failSilently, expansionInfo);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,9 +47,20 @@ abstract class ShortcutExpander
 	// Take a shortcut string and return the proper Expansion script.
 	// WARNING: user-facing function
 	private static expand_internal(
-		shortcutString: string, failSilently?: boolean, isUserTriggered?: boolean): any
+		shortcutText: string, failSilently?: boolean, expansionInfo?: any): any
 	{
-		if (!shortcutString) { return; }
+		if (!shortcutText) { return; }
+
+		expansionInfo = expansionInfo ||
+			{
+				isUserTriggered: false,
+				line: shortcutText,
+				inputStart: 0,
+				inputEnd: shortcutText.length,
+				shortcutText: shortcutText,
+				prefix: "",
+				suffix: ""
+			};
 
 		let foundMatch: boolean = false;
 
@@ -64,7 +76,7 @@ abstract class ShortcutExpander
 			}
 
 			// Does the shortcut fit the input text? (a helper script ALWAYS fits, since it's blank)
-			const matchInfo: any = shortcutString.match(shortcut.test);
+			const matchInfo: any = shortcutText.match(shortcut.test);
 			if (!matchInfo) { continue; }
 
 			// Translate any regex group results into variables/values for the expansion script
@@ -89,19 +101,22 @@ abstract class ShortcutExpander
 			}
 		}
 
-		let expansionResult =
-			foundMatch ?
-			this.runExpansionScript_internal(expansionScript, failSilently, isUserTriggered) :
-			undefined;
+		let expansionText = null;
+		if (foundMatch)
+		{
+			expansionText =
+				this.runExpansionScript_internal(expansionScript, failSilently, expansionInfo);
+		}
+		expansionInfo.expansionText = expansionText;
 
 		// If shortcut parsing amounted to nothing.  Notify user of bad shortcut entry.
-		if (expansionResult === undefined)
+		if (expansionText === null)
 		{
 			if (!failSilently)
 			{
 				UserNotifier.run(
 				{
-					message: "Shortcut unidentified:\n" + shortcutString,
+					message: "Shortcut unidentified:\n" + shortcutText,
 					messageLevel: "warn"
 				});
 			}
@@ -109,7 +124,8 @@ abstract class ShortcutExpander
 
 		// If there are any listeners for the expansion event, call them.  If any of them return
 		// true, then cancel the expansion.
-		else if (isUserTriggered && window._tejs?.listeners?.tejs?.onExpansion)
+		else if (expansionInfo.isUserTriggered && !expansionInfo.cancel &&
+		         window._tejs?.listeners?.tejs?.onExpansion)
 		{
 			let replacementInput: string = null;
 			for (const key in window._tejs.listeners.tejs.onExpansion)
@@ -120,7 +136,7 @@ abstract class ShortcutExpander
 					UserNotifier.run({ message: "Non-function listener:\n" + listener });
 					continue;
 				}
-				const result = listener(shortcutString, expansionResult);
+				const result = listener(expansionInfo);
 				if (typeof result === "string")
 				{
 					replacementInput = result;
@@ -132,7 +148,12 @@ abstract class ShortcutExpander
 			}
 		}
 
-		return expansionResult;
+		if (expansionInfo.cancel)
+		{
+			expansionText = null;
+		}
+
+		return expansionText;
 	}
 
 	// Runs an expansion script, including error handling.
@@ -140,10 +161,13 @@ abstract class ShortcutExpander
 	// exceptions.  This is because exceptions don't provide error line numbers whereas error
 	// events do.  Line numbers are important to create the useful "expansion failed" message.
 	private static runExpansionScript_internal
-		(expansionScript: string, failSilently?: boolean, isUserTriggered?: boolean): any
+		(expansionScript: string, failSilently?: boolean, expansionInfo?: any): any
 	{
+		expansionInfo = expansionInfo || { isUserTriggered: false };
+		expansionInfo.cancel = false;
+
 		// Prepare for possible Expansion script error
-		if (isUserTriggered || !this._expansionErrorHandlerStack.length)
+		if (expansionInfo.isUserTriggered || !this._expansionErrorHandlerStack.length)
 		{
 			// ASSERT - This should never be true, and signifies a potential issue.  It's not
 			// intrinsically a problem, though.
@@ -166,15 +190,15 @@ abstract class ShortcutExpander
 		this._expansionErrorHandlerStack.push({ expansionScript: expansionScript });
 
 		// Run the Expansion script
-		// Pass expand function and isUserTriggered flag for use in Expansion script
 		let result: any;
 		if (!failSilently)
 		{
 			result = ( new Function(
-				"expand", "isUserTriggered", "runExternal", "print",
+				"expand", "runExternal", "print", "expansionInfo",
 				expansionScript) )
-				( this._expand_internal, isUserTriggered,
-				  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print() );
+				( this._expand_internal,
+				  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print(),
+				  expansionInfo );
 			// if shortcut doesn't return anything, best to return ""
 			result ??= "";
 		}
@@ -183,10 +207,10 @@ abstract class ShortcutExpander
 			try
 			{
 				result = ( new Function(
-					"expand", "isUserTriggered", "runExternal", "print",
+					"expand", "runExternal", "print", "expansionInfo",
 					expansionScript) )
-					( this._expand_internal, isUserTriggered,
-					  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print() );
+					( this._expand_internal, ExternalRunner.getFunction_runExternal(),
+					  UserNotifier.getFunction_print(), expansionInfo );
 				// if shortcut doesn't return anything, best to return ""
 				result ??= "";
 			}
@@ -195,7 +219,7 @@ abstract class ShortcutExpander
 
 		// Clean up script error preparations
 		this._expansionErrorHandlerStack.pop();
-		if (isUserTriggered || !this._expansionErrorHandlerStack.length)
+		if (expansionInfo.isUserTriggered || !this._expansionErrorHandlerStack.length)
 		{
 			// ASSERT - This should never be true, and signifies a potential issue.  It's not
 			// intrinsically a problem, though.

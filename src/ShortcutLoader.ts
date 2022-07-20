@@ -85,7 +85,7 @@ abstract class ShortcutLoader
 		for (let i: number = 1; i+2 < sections.length; i += 3)
 		{
 			// Test string handling
-			let testRegex: any = undefined;
+			let testRegex: any = null;
 			if (maintainCodeFence)
 			{
 				// "maintainCodeFence" is not possible with a real RegExp object.
@@ -220,7 +220,7 @@ abstract class ShortcutLoader
 					// If setup script returns TRUE, don't use shortcuts
 					if (ShortcutExpander.runExpansionScript(newShortcut.expansion))
 					{
-						parseResult.shortcuts = undefined;
+						parseResult.shortcuts = null;
 					}
 					break;
 				}

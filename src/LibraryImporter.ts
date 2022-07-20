@@ -81,12 +81,12 @@ namespace LibraryImporter
 			return s.substring(0, s.length-sfNoteNames[i].length-4)
 		});
 		// Find a common path, or lack thereof, to shortcut-files belonging to the library
-		let commonPath: string = undefined;
+		let commonPath: string = null;
 		for (let i: number = 0; i < sfNoteAddresses.length; i++)
 		{
 			if(libShortcutFiles.includes(sfNoteNames[i]))
 			{
-				if (commonPath === undefined)
+				if (commonPath === null)
 				{
 					commonPath = sfNotePaths[i];
 				}
@@ -94,16 +94,16 @@ namespace LibraryImporter
 				{
 					if (sfNotePaths[i] !== commonPath)
 					{
-						commonPath = undefined;
+						commonPath = null;
 						break;
 					}
 				}
 			}
 		}
-		if (commonPath === ADDRESS_LOCAL) { commonPath = undefined; }
+		if (commonPath === ADDRESS_LOCAL) { commonPath = null; }
 		let libraryDestination: string = await new Promise((resolve, reject) =>
 		{
-			if (commonPath === undefined)
+			if (commonPath === null)
 			{
 				resolve(ADDRESS_LOCAL);
 				return;

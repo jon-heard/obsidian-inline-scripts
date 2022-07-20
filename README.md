@@ -31,6 +31,7 @@ This plugin is currently in __open beta__.
         - [Calling shortcuts from shortcuts](#advanced-shortcuts-calling-shortcuts-from-shortcuts)
         - [Helper scripts](#advanced-shortcuts-helper-scripts)
         - [Setup and shutdown scripts](#advanced-shortcuts-setup-and-shutdown-scripts)
+        - [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion)
         - [Hiding shortcuts](#advanced-shortcuts-hiding-shortcuts)
         - [Reacting to shortcut expansions](#advanced-shortcuts-reacting-to-shortcut-expansions)
         - [Checking for loaded shortcut-files](#advanced-shortcuts-checking-for-loaded-shortcut-files)
@@ -411,9 +412,6 @@ Notice that shortcut #1 returns an array of strings, but if you type `;;firstnam
 
 If you type `;;fullname;` (`!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to expand get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
 
-### The "isUserTriggered" variable
-Note: There is a variable "isUserTriggered" that is accessible from any Expansion script.  It is set to true if the Expansion script was triggered directly by a user-typed shortcut, and false if the Expansion script was triggered by another Expansion script (using the expand function).
-
 ***
 
 ## ADVANCED SHORTCUTS: Helper scripts
@@ -448,13 +446,25 @@ A shortcut-file can contain a "shutdown script".  A shutdown script will run whe
 
 ***
 
+## ADVANCED SHORTCUTS: Getting info about the current expansion
+Expansion scripts have access to a varible `expansionInfo` which contains information about the current expansion.  expansionInfo includes:
+- __expansionInfo.isUserTriggered__ - True if this expansion was caused by typing a shortcut into a note.  False if this expansion was triggered as a special script, or by calling `expand(x)`.
+- __expansionInfo.line__ - The full line of text the shortcut was typed into.
+- __expansionInfo.inputStart__ - Where in "line" the shortcut text entry begins.
+- __expansionInfo.inputEnd__ - Where in "line" the shortcut text entry ends.
+- __expansionInfo.shortcutText__ - The shortcut text that was entered (minus the prefix and postfix texts).
+- __expansionInfo.prefix__ - The prefix text used to start this shortcut.
+- __expansionInfo.suffix__ - The suffix text used to end this shortcut.
+
+***
+
 ## ADVANCED SHORTCUTS: Hiding shortcuts
 If the syntax string that starts a shortcut's About string is "hidden", then that shortcut will not show up in the help system (the "ref" shortcuts), though it can still be used.  This is helpful to prevent cluttering the help system with shortcuts that are not useful to the user, only to other shortcuts.
 
 ***
 
 ## ADVANCED SHORTCUTS: Reacting to shortcut expansions
-If a shortcut-file needs to react to user-triggered shortcut expansions, it can now setup a callback function to be called on such an event.  The callback should take two parameters: the input text and the expansion text.  Registration is done by assigning the function to a unique key in `window._tejs.listeners.tejs.onExpansion`.  Note that this object heirarchy isn't created automatically.
+If a shortcut-file needs to react to shortcut expansions, it can now setup a callback function to be called on such an event.  The callback should have one parameter: `expansionInfo`.  See [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion) for details on `expansionInfo`.  A callback is registered by assigning the function to a unique key in `window._tejs.listeners.tejs.onExpansion`.  Note that this object heirarchy isn't created automatically, and must be manually created if it doesn't already exist.
 
 In addition, if the callback function returns a string, then _that_ string is expanded as a shortcut and the result replaces the old expansion.
 
@@ -467,16 +477,16 @@ window._tejs ||= {};
 window._tejs.listeners ||= {};
 window._tejs.listeners.tejs ||= {};
 window._tejs.listeners.tejs.onExpansion ||= {};
-window._tejs.listeners.tejs.onExpansion.testCallback ||= (input, expansion) =>
+window._tejs.listeners.tejs.onExpansion.testCallback ||= (expansionInfo) =>
 {
-	if (input.contains("d"))
+	if (expansionInfo.shortcutText.contains("d"))
 	{
 		// Force expansion to be result of the "hi" shortcut
 		return "hi";
 	}
 	else
 	{
-		print("Shortcut input '" + input + "' expanded to '" + expansion + "'.");
+		print("Shortcut input '" + expansionInfo.shortcutText + "' expanded to '" + expansionInfo.expansionText + "'.");
 	}
 };
 ~~
@@ -487,11 +497,6 @@ window._tejs.listeners.tejs.onExpansion.testCallback ||= (input, expansion) =>
 delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
 ~~
 ```
-
-***
-
-## ADVANCED SHORTCUTS: Checking for loaded shortcut-files
-There is a read-only array, "tejsInfo.shortcutFiles", that lists all shortcut-files who's shortcuts are currently loaded in the master shortcut list.  This can be useful in a number of ways.  Perhaps we want to disable a shortcut-file if an incompatible one is loaded.  Perhaps we want to modify shortcut-logic based on what other shortcuts are available.
 
 ***
 

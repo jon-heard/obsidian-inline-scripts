@@ -56,7 +56,7 @@ abstract class ExternalRunner
 				messageType: "RUNEXTERNAL-ERROR",
 				consoleHasDetails: true
 			});
-			return undefined;
+			return null;
 		}
 
 		// Error-out if runExternal is not explicitly allowed by the user.
@@ -72,11 +72,11 @@ abstract class ExternalRunner
 				messageType: "RUNEXTERNAL-ERROR",
 				consoleHasDetails: true
 			});
-			return undefined;
+			return null;
 		}
 
 		// Fail if command is empty
-		if (!command) { return undefined; }
+		if (!command) { return null; }
 
 		// Slashes on a Windows platform need reversing (to blackslash).
 		if (navigator.appVersion.includes("Windows") && !dontFixSlashes)
@@ -106,7 +106,7 @@ abstract class ExternalRunner
 					consoleHasDetails: true
 				});
 			}
-			return undefined;
+			return null;
 		}
 	}
 }
