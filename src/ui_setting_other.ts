@@ -53,5 +53,31 @@ abstract class SettingUi_Other
 					cls: "tejs_warning",
 					text: "WARNING: enabling this increases the danger from malicious shortcuts" });
 		}
+
+		new obsidian.Setting(parent)
+			.setName("Reset to defaults")
+			.setDesc("Reset all settings to their default values.")
+			.addButton((button: any) =>
+			{
+				return button
+					.setButtonText("Reset to defaults")
+					.setClass("tejs_button")
+					.onClick(() =>
+					{
+						const plugin = TextExpanderJsPlugin.getInstance();
+						new ConfirmDialogBox(
+							plugin.app,
+							"Confirm resetting ALL settings to their default values.",
+							(confirmation: boolean) =>
+							{
+								if (confirmation)
+								{
+									plugin.settings = TextExpanderJsPlugin.getDefaultSettings();
+									plugin.settingsUi.display();
+								}
+							}
+						).open();
+					});
+			});
 	}
 }
