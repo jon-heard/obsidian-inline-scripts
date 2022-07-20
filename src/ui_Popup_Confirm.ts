@@ -1,16 +1,18 @@
-//////////////////////////////////////////////////////////////////////////
-// ConfirmDialogBox - Display a modal popup message to "ok" or "cancel" //
-//////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// Popup_Confirm - Display a modal popup message to "ok" or "cancel" //
+///////////////////////////////////////////////////////////////////////
 
 "use strict";
 
-class ConfirmDialogBox extends obsidian.Modal
+class Popup_Confirm extends obsidian.Modal
 {
 	public constructor(app: any, message: string, callback: Function)
 	{
 		super(app);
 		this._message = message;
 		this._callback = callback;
+		this._value = null;
+		this.modalEl.classList.add("tejs_popup");
 	}
 
 	public onOpen()
@@ -28,7 +30,7 @@ class ConfirmDialogBox extends obsidian.Modal
 					.setButtonText("Confirm")
 					.onClick(() =>
 					{
-						this._callback(true);
+						this._value = true;
 						this.close();
 					})
 			})
@@ -36,10 +38,9 @@ class ConfirmDialogBox extends obsidian.Modal
 			{
 				button
 					.setButtonText("Cancel")
-					.setCta()
 					.onClick(() =>
 					{
-						this._callback(false);
+						this._value = false;
 						this.close();
 					})
 			})
@@ -49,10 +50,12 @@ class ConfirmDialogBox extends obsidian.Modal
 	public onClose()
 	{
 		this.contentEl.empty();
+		this._callback(this._value);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private _message: string;
 	private _callback: Function;
+	private _value: boolean;
 }

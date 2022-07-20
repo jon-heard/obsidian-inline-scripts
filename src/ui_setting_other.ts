@@ -65,7 +65,7 @@ abstract class SettingUi_Other
 					.onClick(() =>
 					{
 						const plugin = TextExpanderJsPlugin.getInstance();
-						new ConfirmDialogBox(
+						new Popup_Confirm(
 							plugin.app,
 							"Confirm resetting ALL settings to their default values.",
 							(confirmation: boolean) =>

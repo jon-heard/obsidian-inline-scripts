@@ -6,7 +6,7 @@ namespace SettingUi_Common
 {
 	export function deleteButtonClicked(): void
 	{
-		new ConfirmDialogBox( this.app, "Confirm removing a " + this.typeTitle + ".",
+		new Popup_Confirm( this.app, "Confirm removing a " + this.typeTitle + ".",
 			(confirmation: boolean) =>
 			{
 				if (confirmation)

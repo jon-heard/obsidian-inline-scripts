@@ -62,10 +62,8 @@ namespace LibraryImporter
 			}
 		}
 
-		// Figure out library destination.  By default this is ADDRESSS_LOCAL.
-		// However, if all shortcut-file references in the settings that match files in
-		// the library are in a single folder, ask user if they want to use that folder
-		// instead of the default library destination.
+		// Pick default library path.  This is normally ADDRESSS_LOCAL.  But, if all shortcut-file
+		// entries that match library files are in a single folder, use that instead.
 		let sfNoteAddresses: Array<string> =
 			SettingUi_ShortcutFiles.getContents().shortcutFiles.map((f: any) => f.address);
 		// The filenames of referenced shortcut-files
@@ -97,38 +95,28 @@ namespace LibraryImporter
 			}
 		}
 		if (commonPath === ADDRESS_LOCAL) { commonPath = null; }
+
+		// We need to remove the input blocker to let the user choose a path
+		InputBlocker.setEnabled(false);
+
+		// Have user pick the library path, using the default determined above.  Cancel ends import.
 		let libraryDestination: string = await new Promise((resolve, reject) =>
 		{
-			if (commonPath === null)
-			{
-				resolve(ADDRESS_LOCAL);
-				return;
-			}
-
-			// We need to remove the input blocker to let the user choose
-			InputBlocker.setEnabled(false);
-
-			new ConfirmDialogBox(
-				app,
-				"All library references are currently in the folder \"" + commonPath +
-				"\".\nWould you like to import the library into \"" + commonPath +
-				"\"?\nIf not, the library will be imported into the folder \"" + ADDRESS_LOCAL +
-				"\".",
-				(confirmation: boolean) =>
+			new Popup_Input(
+				app, "What path should the library be placed in?",
+				commonPath || ADDRESS_LOCAL,
+				(path: string) =>
 				{
-					if (confirmation)
-					{
-						resolve(commonPath);
-					}
-					else
-					{
-						resolve(ADDRESS_LOCAL);
-					}
+					resolve(path);
 				}
 			).open();
 		});
+		if (libraryDestination == null)
+		{
+			return;
+		}
 
-		// Put the input blocker back (if it was disabled for the confirm dialog)
+		// Put the input blocker back
 		InputBlocker.setEnabled(true);
 
 		// Adjust the disabledShortcutFiles to match the libraryDestination
