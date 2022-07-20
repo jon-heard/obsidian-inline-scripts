@@ -14,11 +14,6 @@ const FILE_README: string = "README.md";
 
 namespace LibraryImporter
 {
-	export function initialize(settingsUi: TextExpanderJsPluginSettings)
-	{
-		_settingsUi = settingsUi;
-	}
-
 	// Pull the official TEJS library from github & add it to the current vault
 	export function run(): void
 	{
@@ -27,10 +22,11 @@ namespace LibraryImporter
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	let _settingsUi: TextExpanderJsPluginSettings;
-
 	async function run_internal(): Promise<void>
 	{
+		const app = TextExpanderJsPlugin.getInstance().app;
+		const settings = TextExpanderJsPlugin.getInstance().settings;
+
 		// Need to manually disable user-input until this process is finished
 		// (due to asynchronous downloads not otherwise blocking user-input)
 		InputBlocker.setEnabled(true);
@@ -113,7 +109,7 @@ namespace LibraryImporter
 			InputBlocker.setEnabled(false);
 
 			new ConfirmDialogBox(
-				_settingsUi.plugin.app,
+				app,
 				"All library references are currently in the folder \"" + commonPath +
 				"\".\nWould you like to import the library into \"" + commonPath +
 				"\"?\nIf not, the library will be imported into the folder \"" + ADDRESS_LOCAL +
@@ -140,9 +136,9 @@ namespace LibraryImporter
 			disabledShortcutFiles.map(v => libraryDestination + "/" + v + ".md");
 
 		// Create the choosen library destination folder, if necessary
-		if (!_settingsUi.plugin.app.vault.fileMap.hasOwnProperty(libraryDestination))
+		if (!app.vault.fileMap.hasOwnProperty(libraryDestination))
 		{
-			_settingsUi.plugin.app.vault.createFolder(libraryDestination);
+			app.vault.createFolder(libraryDestination);
 		}
 
 		// Download and create library files
@@ -155,21 +151,20 @@ namespace LibraryImporter
 			});
 
 			let filename: string = libraryDestination + "/" + libShortcutFile + ".md";
-			let file: any = _settingsUi.plugin.app.vault.fileMap[filename];
+			let file: any = app.vault.fileMap[filename];
 			if (file)
 			{
-				await _settingsUi.plugin.app.vault.modify(file, content);
+				await app.vault.modify(file, content);
 			}
 			else
 			{
-				await _settingsUi.plugin.app.vault.create(filename, content);
+				await app.vault.create(filename, content);
 			}
 		}
 
 		// Before adding the library shortcut-files to the plugin settings, we should
 		// update the plugin settings with the latest changes made in the settings ui.
-		_settingsUi.plugin.settings.shortcutFiles =
-			SettingUi_ShortcutFiles.getContents().shortcutFiles;
+		settings.shortcutFiles = SettingUi_ShortcutFiles.getContents().shortcutFiles;
 
 		// We don't want to duplicate shortcut-files, and it's important to keep the library
 		// shortcut-files in-order.  Remove any shortcut-files from the list that are part of the
@@ -179,8 +174,7 @@ namespace LibraryImporter
 		let nothingToRemove: boolean;
 		do
 		{
-			const shortcutFileAddresses =
-				_settingsUi.plugin.settings.shortcutFiles.map((f: any) => f.address);
+			const shortcutFileAddresses = settings.shortcutFiles.map((f: any) => f.address);
 			nothingToRemove = true;
 			for (const libShortcutFile of libShortcutFiles)
 			{
@@ -188,11 +182,11 @@ namespace LibraryImporter
 				const index: number = shortcutFileAddresses.indexOf(libAddress);
 				if (index >= 0)
 				{
-					if (!_settingsUi.plugin.settings.shortcutFiles[index].enabled)
+					if (!settings.shortcutFiles[index].enabled)
 					{
 						disabledShortcutFiles.push(libAddress);
 					}
-					_settingsUi.plugin.settings.shortcutFiles.splice(index, 1);
+					settings.shortcutFiles.splice(index, 1);
 					nothingToRemove = false;
 					break;
 				}
@@ -204,7 +198,7 @@ namespace LibraryImporter
 		for (const libShortcutFile of libShortcutFiles)
 		{
 			const address = libraryDestination + "/" + libShortcutFile + ".md";
-			_settingsUi.plugin.settings.shortcutFiles.push(
+			settings.shortcutFiles.push(
 			{
 				enabled: (disabledShortcutFiles.indexOf(address) < 0),
 				address: address
@@ -213,6 +207,6 @@ namespace LibraryImporter
 
 		// Refresh settings ui to display the updated list of shortcut-files
 		InputBlocker.setEnabled(false);
-		_settingsUi.display();
+		TextExpanderJsPlugin.getInstance().settingsUi.display();
 	}
 }

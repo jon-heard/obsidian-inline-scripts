@@ -9,10 +9,10 @@ enum DfcMonitorType { None, OnModify, OnTouch };
 class Dfc
 {
 	public constructor(
-		plugin: TextExpanderJsPlugin, filenames: Array<string>, refreshFnc: Function,
-		onFileRemoved: Function, fileOrderImportant: boolean)
+		filenames: Array<string>, refreshFnc: Function, onFileRemoved: Function,
+		fileOrderImportant: boolean)
 	{
-		this.constructor_internal(plugin, filenames, refreshFnc, onFileRemoved, fileOrderImportant);
+		this.constructor_internal(filenames, refreshFnc, onFileRemoved, fileOrderImportant);
 	}
 
 	// Called when this Dfc is no longer needed.
@@ -41,7 +41,6 @@ class Dfc
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private _plugin: TextExpanderJsPlugin;
 	private _refreshFnc: Function;
 	private _fileOrderImportant: boolean;
 	private _onFileRemoved: Function;
@@ -56,11 +55,9 @@ class Dfc
 	private _onAnyFileRenamed: any;
 
 	private constructor_internal(
-		plugin: TextExpanderJsPlugin, filenames: Array<string>, refreshFnc: Function,
-		onFileRemoved: Function, fileOrderImportant: boolean): void
+		filenames: Array<string>, refreshFnc: Function, onFileRemoved: Function,
+		fileOrderImportant: boolean): void
 	{
-		this._plugin = plugin;
-
 		// The callback for when monitored files have triggered a refresh
 		this._refreshFnc = refreshFnc;
 
@@ -79,7 +76,7 @@ class Dfc
 
 		// Maintain the current active-file, so that when "active-leaf-change" hits (i.e. the 
 		// active-file is set to a different file) you still have access to the prior active-file.
-		this._currentFilesName = this._plugin.app.workspace.getActiveFile()?.path ?? "";
+		this._currentFilesName = this.getApp().workspace.getActiveFile()?.path ?? "";
 
 		// Flag set when the current file is modified.
 		this._currentFileWasModified = false;
@@ -100,23 +97,30 @@ class Dfc
 		}, 0);
 	}
 
+	private getApp(): any
+	{
+		return TextExpanderJsPlugin.getInstance().app;
+	}
+
 	private setMonitorType_internal(monitorType: DfcMonitorType): void
 	{
 		if (monitorType === this._monitorType) { return; }
 
+		const app: any = this.getApp();
+
 		// At Obsidian start, some Obsidian events trigger haphazardly.  We use
 		// onLayoutReady to wait to connect to the events until AFTER the random triggering
 		// has passed.
-		this._plugin.app.workspace.onLayoutReady(() =>
+		app.workspace.onLayoutReady(() =>
 		{
 			// React to old monitor type
 			if (this._monitorType !== DfcMonitorType.None)
 			{
-				this._plugin.app.vault.off("modify", this._onAnyFileModified);
-				this._plugin.app.workspace.off("active-leaf-change", this._onActiveLeafChanged);
-				this._plugin.app.vault.off("create", this._onAnyFileAdded);
-				this._plugin.app.vault.off("delete", this._onAnyFileRemoved);
-				this._plugin.app.vault.off("rename", this._onAnyFileRenamed);
+				app.vault.off("modify", this._onAnyFileModified);
+				app.workspace.off("active-leaf-change", this._onActiveLeafChanged);
+				app.vault.off("create", this._onAnyFileAdded);
+				app.vault.off("delete", this._onAnyFileRemoved);
+				app.vault.off("rename", this._onAnyFileRenamed);
 			}
 
 			this._monitorType = monitorType;
@@ -124,15 +128,15 @@ class Dfc
 			// React to new monitor type
 			if (this._monitorType !== DfcMonitorType.None)
 			{
-				this._plugin.app.vault.on("modify", this._onAnyFileModified);
-				this._plugin.app.workspace.on("active-leaf-change", this._onActiveLeafChanged);
-				this._plugin.app.vault.on("create", this._onAnyFileAdded);
-				this._plugin.app.vault.on("delete", this._onAnyFileRemoved);
-				this._plugin.app.vault.on("rename", this._onAnyFileRenamed);
+				app.vault.on("modify", this._onAnyFileModified);
+				app.workspace.on("active-leaf-change", this._onActiveLeafChanged);
+				app.vault.on("create", this._onAnyFileAdded);
+				app.vault.on("delete", this._onAnyFileRemoved);
+				app.vault.on("rename", this._onAnyFileRenamed);
 			}
 
 			// Update Dfc state to monitor the active file
-			this._currentFilesName = this._plugin.app.workspace.getActiveFile()?.path ?? "";
+			this._currentFilesName = app.workspace.getActiveFile()?.path ?? "";
 		});
 	}
 
@@ -173,7 +177,7 @@ class Dfc
 
 		// Update Dfc state to monitor the active file
 		this._currentFileWasModified = false;
-		this._currentFilesName = this._plugin.app.workspace.getActiveFile()?.path ?? "";
+		this._currentFilesName = this.getApp().workspace.getActiveFile()?.path ?? "";
 	}
 
 	// Monitor when files are added to the vault. If the file is one of the ones being monitored,
@@ -204,9 +208,10 @@ class Dfc
 	// If the renamed file is the current file, update _currentFilesName.
 	private onAnyFileRenamed(file: any): void
 	{
-		if (file === this._plugin.app.workspace.getActiveFile())
+		const app: any = this.getApp();
+		if (file === app.workspace.getActiveFile())
 		{
-			this._currentFilesName = this._plugin.app.workspace.getActiveFile()?.path ?? "";
+			this._currentFilesName = app.workspace.getActiveFile()?.path ?? "";
 		}
 	}
 
@@ -261,7 +266,8 @@ class Dfc
 	// more of the monitored files have changed (i.e. their modified date has changed).
 	private refresh(forceRefresh?: boolean): void
 	{
-		this._plugin.app.workspace.onLayoutReady(async () =>
+		const app: any = this.getApp();
+		app.workspace.onLayoutReady(async () =>
 		{
 			let hasChanged: boolean = false;
 
@@ -269,7 +275,7 @@ class Dfc
 			// still need check modified dates to keep our records up to date.
 			for (const filename in this._fileData)
 			{
-				const file: any = this._plugin.app.vault.fileMap[filename];
+				const file: any = app.vault.fileMap[filename];
 
 				// If file exists...
 				if (file)

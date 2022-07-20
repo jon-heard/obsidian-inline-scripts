@@ -24,11 +24,6 @@ const INDENT: string = " ".repeat(4);
 
 namespace UserNotifier
 {
-	export function initialize(plugin: TextExpanderJsPlugin): void
-	{
-		_pluginName = plugin.manifest.name;
-	}
-
 	// Creates a message to the user in a popup notification and/or a console log.
 	// Takes an object of optional parameters.  See this file's header for a parameter reference.
 	export function run(parameters: any): void
@@ -44,8 +39,6 @@ namespace UserNotifier
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-	let _pluginName: string = "Plugin";
 
 	function print(message: any): any
 	{
@@ -92,7 +85,7 @@ namespace UserNotifier
 		if (consoleMessage)
 		{
 			const message =
-				_pluginName + "\n" +
+				TextExpanderJsPlugin.getInstance().manifest.name + "\n" +
 				(messageType ? (INDENT + messageType + "\n") : "") +
 				INDENT + consoleMessage;
 			switch (messageLevel)

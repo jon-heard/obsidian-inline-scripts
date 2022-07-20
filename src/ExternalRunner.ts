@@ -4,46 +4,11 @@
 
 "use strict";
 
-let childProcess: any;
+let childProcess: any = null;
 
-abstract class ExternalRunner
+namespace ExternalRunner
 {
-	public static initialize(plugin: TextExpanderJsPlugin): void
-	{
-		this.initialize_internal(plugin);
-	}
-
-	// Offer "runExternal" function for use by user-written shortcuts.
-	// Function calls a shell command.
-	public static getFunction_runExternal(): Function
-	{
-		if (!this._runExternal)
-		{
-			this._runExternal = this.runExternal.bind(this);
-		}
-		return this._runExternal;
-	}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private static _plugin: TextExpanderJsPlugin;
-	private static _runExternal: Function;
-
-	public static initialize_internal(plugin: TextExpanderJsPlugin): void
-	{
-		this._plugin = plugin;
-
-		// Setup the childProcess for use in running shell commands
-		// - If we are NOT on a mobile platform, then we can safely use the node.js library.
-		// - If we ARE on a mobile platform, we can NOT use the node.js library.  This is checked
-		//   during "runExternal()", so childProcess is never referenced.
-		if (!obsidian.Platform.isMobile)
-		{
-			childProcess = require("child_process");
-		}
-	}
-
-	private static runExternal(command: string, failSilently?: boolean, dontFixSlashes?: boolean)
+	export function run(command: string, failSilently?: boolean, dontFixSlashes?: boolean)
 	{
 		// Error-out if on mobile platform
 		if (obsidian.Platform.isMobile)
@@ -58,10 +23,16 @@ abstract class ExternalRunner
 			});
 			return null;
 		}
+		else if (!childProcess)
+		{
+			childProcess = require("child_process");
+		}
+
+		const plugin = TextExpanderJsPlugin.getInstance();
 
 		// Error-out if runExternal is not explicitly allowed by the user.
 		// note - User allows runExternal by turning on the toggle "Allow external" in the settings.
-		if (!(this._plugin?.settings.allowExternal))
+		if (!plugin.settings.allowExternal)
 		{
 			UserNotifier.run(
 			{
@@ -85,7 +56,7 @@ abstract class ExternalRunner
 		}
 
 		// Run the shell command
-		let vaultDir: string = this._plugin.app.fileManager.vault.adapter.basePath;
+		const vaultDir: string = plugin.app.fileManager.vault.adapter.basePath;
 		try
 		{
 			let result: string = childProcess.execSync(command, { cwd: vaultDir});

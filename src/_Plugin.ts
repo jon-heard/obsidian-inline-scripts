@@ -25,6 +25,8 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	public shortcutDfc: Dfc;
 	// The master list of shortcuts: all registered shortcuts.  Referenced during expansion.
 	public shortcuts: Array<any>;
+	// The instance of the settings panel UI
+	public settingsUi: TextExpanderJsPluginSettings;
 
 	public onload(): void
 	{
@@ -47,35 +49,42 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		return this.settings.shortcutFiles.filter((f: any) => f.enabled).map((f: any) => f.address);
 	}
 
+	public static getInstance(): TextExpanderJsPlugin
+	{
+		return this._instance;
+	}
+
+	public static getDefaultSettings(): any
+	{
+		return this.getDefaultSettings_internal();
+	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private _cm5_handleExpansionTrigger: any;
+	private static _instance: TextExpanderJsPlugin;
 
 	private async onload_internal(): Promise<void>
 	{
+		// Set this as THE instance
+		TextExpanderJsPlugin._instance = this;
+
 		// Load settings
-		const currentDefaultSettings: object =
-			obsidian.Platform.isMobile ?
-			Object.assign({}, DEFAULT_SETTINGS, DEFAULT_SUB_SETTINGS_MOBILE) :
-			DEFAULT_SETTINGS;
-		this.settings = Object.assign({}, currentDefaultSettings, await this.loadData());
+		this.settings =
+			Object.assign( {}, TextExpanderJsPlugin.getDefaultSettings(), await this.loadData() );
 
 		// Now that settings are loaded, update variable for the suffix's final character
 		this.suffixEndCharacter = this.settings.suffix.charAt(this.settings.suffix.length - 1);
 
 		// Attach settings UI
-		this.addSettingTab(new TextExpanderJsPluginSettings(this.app, this));
+		this.settingsUi = new TextExpanderJsPluginSettings(this);
+		this.addSettingTab(this.settingsUi);
 
 		// Initialize support objects
-		ShortcutLoader.initialize(this);
-		ShortcutExpander.initialize(this);
-		UserNotifier.initialize(this);
-		ExternalRunner.initialize(this);
+		ShortcutExpander.initialize();
 		this.shortcutDfc = new Dfc(
-			this, this.getActiveShortcutFileAddresses(),
-			ShortcutLoader.getFunction_setupShortcuts(), this.onShortcutFileDisabled.bind(this),
-			true);
+			this.getActiveShortcutFileAddresses(), ShortcutLoader.getFunction_setupShortcuts(),
+			this.onShortcutFileDisabled.bind(this), true);
 		this.shortcutDfc.setMonitorType(
 			this.settings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.OnModify);
 
@@ -223,6 +232,15 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			{ line: cursor.line, ch: prefixIndex },
 			{ line: cursor.line, ch: suffixIndex + this.settings.suffix.length } );
 	}, 0); }
+
+	private static getDefaultSettings_internal(): any
+	{
+		const result =
+			obsidian.Platform.isMobile ?
+			Object.assign({}, DEFAULT_SETTINGS, DEFAULT_SUB_SETTINGS_MOBILE) :
+			DEFAULT_SETTINGS;
+		return result;
+	}
 }
 
 module.exports = TextExpanderJsPlugin;

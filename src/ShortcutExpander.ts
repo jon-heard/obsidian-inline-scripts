@@ -6,9 +6,9 @@
 
 abstract class ShortcutExpander
 {
-	public static initialize(plugin: TextExpanderJsPlugin): void
+	public static initialize(): void
 	{
-		this.initialize_internal(plugin);
+		this.initialize_internal();
 	}
 
 	// Take a shortcut string and expand it based on shortcuts active in the plugin
@@ -27,15 +27,12 @@ abstract class ShortcutExpander
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static _plugin: TextExpanderJsPlugin;
 	private static _expand_internal: any;
 	private static _handleExpansionError: any;
 	private static _expansionErrorHandlerStack: Array<any>;
 
-	private static initialize_internal(plugin: TextExpanderJsPlugin)
+	private static initialize_internal()
 	{
-		this._plugin = plugin;
-
 		//Setup bound versons of these function for persistant use
 		this._expand_internal = this.expand_internal.bind(this);
 		this._handleExpansionError = this.handleExpansionError.bind(this);
@@ -66,7 +63,7 @@ abstract class ShortcutExpander
 
 		// Build an expansion script from the master list of shortcuts
 		let expansionScript: string = "";
-		for (const shortcut of this._plugin.shortcuts)
+		for (const shortcut of TextExpanderJsPlugin.getInstance().shortcuts)
 		{
 			// Helper-blocker (an empty shortcut) just erases any helper scripts before it
 			if ((!shortcut.test || shortcut.test.source === "(?:)") && !shortcut.expansion)
@@ -196,8 +193,7 @@ abstract class ShortcutExpander
 			result = ( new Function(
 				"expand", "runExternal", "print", "expansionInfo",
 				expansionScript) )
-				( this._expand_internal,
-				  ExternalRunner.getFunction_runExternal(), UserNotifier.getFunction_print(),
+				( this._expand_internal, ExternalRunner.run, UserNotifier.getFunction_print(),
 				  expansionInfo );
 			// if shortcut doesn't return anything, best to return ""
 			result ??= "";
@@ -209,8 +205,8 @@ abstract class ShortcutExpander
 				result = ( new Function(
 					"expand", "runExternal", "print", "expansionInfo",
 					expansionScript) )
-					( this._expand_internal, ExternalRunner.getFunction_runExternal(),
-					  UserNotifier.getFunction_print(), expansionInfo );
+					( this._expand_internal, ExternalRunner.run, UserNotifier.getFunction_print(),
+					  expansionInfo );
 				// if shortcut doesn't return anything, best to return ""
 				result ??= "";
 			}

@@ -23,11 +23,6 @@ _Use shortcut __help $2__ for general help._
 
 abstract class ShortcutLoader
 {
-	public static initialize(plugin: TextExpanderJsPlugin)
-	{
-		this._plugin = plugin;
-	}
-
 	// Parses a shortcut-file's contents into a useful data format and returns it
 	public static parseShortcutFile(
 		filename: string, content: string, maintainCodeFence?: boolean,
@@ -45,8 +40,6 @@ abstract class ShortcutLoader
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private static _plugin: TextExpanderJsPlugin;
 
 	private static parseShortcutFile_internal(
 		filename: string, content: string, maintainCodeFence?: boolean,
@@ -174,28 +167,30 @@ abstract class ShortcutLoader
 
 	private static async setupShortcuts_internal(): Promise<void>
 	{
+		const plugin = TextExpanderJsPlugin.getInstance();
+
 		// To fill with data for the generation of help shortcuts
 		let abouts: Array<any> = [];
 
 		// Restart the master list of shortcuts
-		this._plugin.shortcuts = [ { test: /^help$/, expansion: "" } ];
+		plugin.shortcuts = [ { test: /^help$/, expansion: "" } ];
 		let shortcutFiles: Array<string> = [];
 		this.updateGeneralHelpShortcut(shortcutFiles);
 
 		// Add shortcuts defined directly in the settings
 		let parseResult: any =
-			this.parseShortcutFile_internal("settings", this._plugin.settings.shortcuts);
-		this._plugin.shortcuts = this._plugin.shortcuts.concat(parseResult.shortcuts);
+			this.parseShortcutFile_internal("settings", plugin.settings.shortcuts);
+		plugin.shortcuts = plugin.shortcuts.concat(parseResult.shortcuts);
 		abouts.push({ filename: "", shortcutAbouts: parseResult.shortcutAbouts });
 
 		// Add a helper-blocker to segment helper scripts within their shortcut-files
-		this._plugin.shortcuts.push({});
+		plugin.shortcuts.push({});
 
 		// Go over all shortcut-files
-		for (const shortcutFile of this._plugin.settings.shortcutFiles)
+		for (const shortcutFile of plugin.settings.shortcutFiles)
 		{
 			if (!shortcutFile.enabled) { continue; }
-			const file: any = this._plugin.app.vault.fileMap[shortcutFile.address];
+			const file: any = plugin.app.vault.fileMap[shortcutFile.address];
 			if (!file)
 			{
 				UserNotifier.run(
@@ -207,7 +202,7 @@ abstract class ShortcutLoader
 				continue;
 			}
 
-			const content: string = await this._plugin.app.vault.cachedRead(file);
+			const content: string = await plugin.app.vault.cachedRead(file);
 
 			// Parse shortcut-file contents
 			parseResult = this.parseShortcutFile(shortcutFile.address, content)
@@ -234,14 +229,14 @@ abstract class ShortcutLoader
 			{
 				if (newShortcut.test.source === "^tejs shutdown$")
 				{
-					this._plugin.shutdownScripts[shortcutFile.address] = newShortcut.expansion;
+					plugin.shutdownScripts[shortcutFile.address] = newShortcut.expansion;
 					break;
 				}
 			}
 
 			// Add new shortcuts to master list, followed by helper-blocker
-			this._plugin.shortcuts = this._plugin.shortcuts.concat(parseResult.shortcuts);
-			this._plugin.shortcuts.push({});
+			plugin.shortcuts = plugin.shortcuts.concat(parseResult.shortcuts);
+			plugin.shortcuts.push({});
 
 			// Get the file About string and shortcut About strings
 			let baseName: string = shortcutFile.address.substring(
@@ -259,7 +254,7 @@ abstract class ShortcutLoader
 		}
 
 		// Generate and add help shortcuts
-		this._plugin.shortcuts = this.generateHelpShortcuts(abouts).concat(this._plugin.shortcuts);
+		plugin.shortcuts = this.generateHelpShortcuts(abouts).concat(plugin.shortcuts);
 	}
 
 	private static updateGeneralHelpShortcut(shortcutFiles: Array<string>): void
@@ -271,7 +266,8 @@ abstract class ShortcutLoader
 				GENERAL_HELP_PREAMBLE_SHORTCUT_FILES.replaceAll("\n", "\\n") + "\", " +
 				"\"\\n    - " + shortcutFiles.join("\",\"\\n    - ");
 		}
-		this._plugin.shortcuts[0].expansion = expansion += "\", \"\\n\\n\" ];";
+		expansion += "\", \"\\n\\n\" ];"
+		TextExpanderJsPlugin.getInstance().shortcuts[0].expansion = expansion;
 	}
 
 	// Creates help shortcuts based on "about" info from shortcuts and shortcut-files

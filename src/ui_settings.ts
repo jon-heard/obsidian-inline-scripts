@@ -6,12 +6,9 @@
 
 class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 {
-	public constructor(app: any, plugin: TextExpanderJsPlugin)
+	public constructor(plugin: TextExpanderJsPlugin)
 	{
-		super(app, plugin);
-
-		// Initialize the library importer static class
-		LibraryImporter.initialize(this);
+		super(plugin.app, plugin);
 	}
 
 	public display(): void
