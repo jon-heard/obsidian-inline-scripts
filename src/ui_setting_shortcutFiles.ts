@@ -28,7 +28,7 @@ abstract class SettingUi_ShortcutFiles
 			.addButton((button: any) =>
 			{
 				return button
-					.setButtonText("Add file reference")
+					.setButtonText("Add shortcut-file")
 					.setClass("tejs_button")
 					.onClick( () => this.addShortcutFileUi(app) );
 			})

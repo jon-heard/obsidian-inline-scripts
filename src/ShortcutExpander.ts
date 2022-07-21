@@ -80,7 +80,8 @@ abstract class ShortcutExpander
 			for (let k: number = 1; k < matchInfo.length; k++)
 			{
 				expansionScript +=
-					"let $" + k + " = \"" + matchInfo[k].replaceAll("\"", "\\\"") + "\";\n";
+					"let $" + k + " = \"" +
+					matchInfo[k].replaceAll("\\", "\\\\").replaceAll("\"", "\\\"") + "\";\n";
 			}
 
 			// Add the shortcut's Expansion string to the Expanson script

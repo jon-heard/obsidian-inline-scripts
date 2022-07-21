@@ -37,7 +37,7 @@ namespace LibraryImporter
 		{
 			readmeContent = await window.request({
 				url: ADDRESS_REMOTE + "/" + FILE_README,
-				method: "GET", cache: "no-cache"
+				method: "GET", headers: { "Cache-Control": "no-cache" }
 			});
 		}
 		catch(e)
@@ -135,7 +135,7 @@ namespace LibraryImporter
 			// Download the file
 			let content: string = await window.request({
 				url: ADDRESS_REMOTE + "/" + libShortcutFile + ".md",
-				method: "GET", cache: "no-cache"
+				method: "GET", headers: { "Cache-Control": "no-cache" }
 			});
 
 			let filename: string = libraryDestination + "/" + libShortcutFile + ".md";
