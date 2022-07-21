@@ -314,7 +314,7 @@ abstract class ShortcutLoader
 			}
 			if (!abouts.length)
 			{
-				expansion += "result += \"No shortcuts\\n\";\n";
+				expansion += "result += \"\\nNo shortcuts\\n\";\n";
 			}
 			expansion += "return result + \"\\n\";";
 			const test: RegExp = new RegExp("^ref(?:erence)? " + groupName + "$");

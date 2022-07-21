@@ -235,10 +235,11 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 
 	private static getDefaultSettings_internal(): any
 	{
-		const result =
-			obsidian.Platform.isMobile ?
-			Object.assign({}, DEFAULT_SETTINGS, DEFAULT_SUB_SETTINGS_MOBILE) :
-			DEFAULT_SETTINGS;
+		let result = Object.assign({}, DEFAULT_SETTINGS);
+		if (obsidian.Platform.isMobile)
+		{
+			result = Object.assign(result, DEFAULT_SUB_SETTINGS_MOBILE);
+		}
 		return result;
 	}
 }

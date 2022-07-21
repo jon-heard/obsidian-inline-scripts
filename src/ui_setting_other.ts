@@ -74,6 +74,7 @@ abstract class SettingUi_Other
 								{
 									plugin.settings = TextExpanderJsPlugin.getDefaultSettings();
 									plugin.settingsUi.display();
+									plugin.settings.shortcuts = "";
 								}
 							}
 						).open();

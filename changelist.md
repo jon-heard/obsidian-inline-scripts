@@ -1,4 +1,11 @@
 
+### 0.20.0
+- feature - "expansionInfo" expansion parameter added, along with "cancel" settable member to cancel the expansion.
+- feature - settings now have a "Reset to defaults" button.
+- feature - library importer - now lets user pick the vault path for the imported library.
+- bug fix - backslashes in the shortcut-text are removed when expanded.
+- bug fix - library files are cached during library import.  If they are changed, during execution, repimport won't include changes.  If internet is lost, reimport won't fail.
+
 ### 0.19.1
 - feature - Allow library to determine the disabled flags for importing shortcut-files.
 

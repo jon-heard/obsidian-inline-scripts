@@ -124,7 +124,6 @@ abstract class SettingUi_Shortcuts
 	};
 
 	// Takes a list of shortcuts, and removes them from the ui, if they are there.
-	// @ts-ignore
 	private static removeShortcutsFromUi(shortcuts: any): void
 	{
 		let toRemove: Array<any> = [];
