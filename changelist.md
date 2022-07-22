@@ -1,3 +1,5 @@
+### 0.20.1
+- bug fix - format settings - added block against prefix & suffix containing characters with auto-complete
 
 ### 0.20.0
 - feature - "expansionInfo" expansion parameter added, along with "cancel" settable member to cancel the expansion.

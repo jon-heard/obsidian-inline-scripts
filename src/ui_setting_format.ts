@@ -123,6 +123,11 @@ abstract class SettingUi_ShortcutFormat
 		{
 			err = "Suffix cannot contain prefix";
 		}
+		else if (this._settings.prefix.match(/\*|\(|\_|\{|\[|\'|\"|\`/) ||
+		         this._settings.suffix.match(/\*|\(|\_|\{|\[|\'|\"|\`/))
+		{
+			err = "Prefix and suffix cannot contain characters with auto-complete: * ( _ { [ ' \" `";
+		}
 
 		if (!err)
 		{
