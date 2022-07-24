@@ -56,7 +56,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 
 	public static getDefaultSettings(): any
 	{
-		return this.getDefaultSettings_internal();
+		return Object.assign({}, DEFAULT_SETTINGS);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -232,16 +232,6 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 			{ line: cursor.line, ch: prefixIndex },
 			{ line: cursor.line, ch: suffixIndex + this.settings.suffix.length } );
 	}, 0); }
-
-	private static getDefaultSettings_internal(): any
-	{
-		let result = Object.assign({}, DEFAULT_SETTINGS);
-		if (obsidian.Platform.isMobile)
-		{
-			result = Object.assign(result, DEFAULT_SUB_SETTINGS_MOBILE);
-		}
-		return result;
-	}
 }
 
 module.exports = TextExpanderJsPlugin;

@@ -47,8 +47,8 @@ This plugin is currently in __open beta__.
 ## Overview
 
 __Text Expander JS__ expands typed shortucts into predefined results, for example:
-- Typing `;;date;` can cause the text to be replaced with (or "expanded into") `6/7/2022`
-- Typing `;;name male european;` can cause the text to be replaced with (or "expanded into") -> `Bill Harrington`
+- Typing `;;date::` can cause the text to be replaced with (or "expanded into") `6/7/2022`
+- Typing `;;name male european::` can cause the text to be replaced with (or "expanded into") -> `Bill Harrington`
 
 The second example shows how shortcuts can include parameter text (`male european`) that can affect the resulting expansion.
 
@@ -72,7 +72,7 @@ Shortcuts can also be defined in shortcut-files, to be added to the vault as not
     - To the right of each shortcut entry are a set of buttons.
         - The up and down button let you shift the shortcut entry up and down in the list.
         - The trashcan button lets you delete the shortcut entry.
-- __Prefix & Suffix__ - These settings let you define what a typed shortcut starts and ends with to signify that it is a shortcut.  They default to `;;` and `;` on desktop platforms and `!!` and `!` on mobile platforms.
+- __Prefix & Suffix__ - These settings let you define what a typed shortcut starts and ends with to signify that it is a shortcut.  They default to `;;` and `::`.
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Text Expander JS__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`;;`).  If it does then these settings will revert when you leave the __Text Expander JS__ plugin options.
     - If there are any errors with the prefix & suffix entries, a an error message in a red box will appear above the prefix & suffix textboxes.
@@ -117,8 +117,8 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 
 ### Try out the plugin
 1. Open a note to try out the plugin.
-2. In the note, type `;;hi;` (`!!hi!` on mobile).  Notice that the shortcut expands to "Hello! How are you?" as soon as you've finished typing it.
-3. In the note, type `;;d100;` (`!!d100!` on mobile).  Notice that the shortcut expands to a roll-result as soon as you've finished typing it.
+2. In the note, type `;;hi::`.  Notice that the shortcut expands to "Hello! How are you?" as soon as you've finished typing it.
+3. In the note, type `;;d100::`.  Notice that the shortcut expands to a roll-result as soon as you've finished typing it.
 4. Repeat step 3.  Note that the roll result is (most likely) different.  If it is _not_ different, then you just got lucky so try step 3 again.
 
 ### Default shortcut samples
@@ -153,17 +153,17 @@ Each shortcut is defined by three strings.
 |  3 | ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; | age {how old} - Expands into "I am {how old} years old".  {how old} is a required parameter that can be any positive integer.  This is a demo shortcut written for this documentation. |
 
 #### Shortcut #1 - hi (basic)
-At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;hi;` (`!!hi!` on mobile).  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;hi;` or `!!hi!`) will be replaced with `Hello! How are you?`.
+At its most basic, a Test string can just be the shortcut itself.  This example shortcut will be triggered when the user types `;;hi::`.  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;hi::`) will be replaced with `Hello! How are you?`.
 
 Note the format of the About string.  It contains the syntax ("hi"), a dash, then the description: the shortcut's expansion and purpose.
 
 #### Shortcut #2 - date (intermediate)
-This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in all of your test strings, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date;` (`!!date!` on mobile) it will be replaced with the current date.
+This shortcut's Test string is a bit more involved.  The symbols `^` and `$` are regex tokens to ensure that shortcuts like "mydate" and "datetomorrow" are not accepted, only "date".  I suggest using `^` and `$` in all of your test strings, unless there is a good reason not to.  The Expansion string is also less obvious, but is just a javascript way to get the current date.  The result of this example shortcut is: if the user types `;;date::` it will be replaced with the current date.
 
 This About string contains no syntax or purpose, only the expansion.  The purpose is obvious, so is left out.  The syntax, if ommitted, always defaults to the Test string.  For this shortcut, the About syntax is `^date$`.
 
 #### Shortcut #3 - age (advanced)
-This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis are put into variable `$1`, a second parenthesis would be put into variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3;` (`!!age 3!` on mobile) the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21;` (`!!age 21!` on mobile), it will be replaced with `I am 21 years old`.
+This shortcut's Test string has some advanced regex.  There are plenty of references and tutorials for regex online if it's not clear.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis are put into variable `$1`, a second parenthesis would be put into variable `$2`, and so on.  These variables are available to the Expansion string.  In this example, the Expansion string _does_ reference variable `$1`.  The result of this example shortcut is: if the user types `;;age 3::` the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21::`, it will be replaced with `I am 21 years old`.
 
 The About string starts with the syntax, including a named descriptor `{how old}` representing the single parameter text.  After the syntax (and dash) is the expansion.  Then `{how old}` is described, including whether the parameter is __required__ or __optional__ and what format it accepts.
 
@@ -207,8 +207,8 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
 6. Once the import is finished, you should see a bunch of file names added beneath the "Shortcut-files" setting (unless they were already there from a previous import).  Close the settings panel.
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
-7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;event;` or `;;une;` (`!!event!` or `!!une!` on mobile).
-8. You can type `;;help;` (`!!help!` on mobile) to start learning about all of the shortcuts provided by the library.
+7. All the shortcuts defined in the shortcut-file library should now work.  Try typing one of the shortcuts to confirm this, such as `;;event::` or `;;une::`.
+8. You can type `;;help::` to start learning about all of the shortcuts provided by the library.
 9. If you find that you need to _not_ use some shortcut-files from the library, you can always disable them by turning off the toggle button to the left of their address text-box.
 
 ### Step-by-step: Adding a SINGLE shortcut-file to the vault
@@ -235,7 +235,7 @@ There is a library of shortcut-files for __Text Expander JS__ [here](https://git
     - You can hit the X button on the top right of the settings panel to close it.
     - You can click outside of the settings panel to close it.
 7. The shortcuts defined in the shortcut-file should now work.  Try typing one of the shortcuts to confirm this.
-8. You can type `;;help;` (`!!help!` on mobile) to start learning about all of the shortcuts provided by the new shortcut-file.
+8. You can type `;;help::` to start learning about all of the shortcuts provided by the new shortcut-file.
 
 ***
 ***
@@ -363,9 +363,9 @@ Be aware that the runExternal function will _always_ fail with an authorization 
 ### Examples
 | Test string | Expansion string | Overview |
 | ----------- | ---------------- | -------- |
-| ^test&nbsp;shell$ | return&nbsp;runExternal("echo&nbsp;Hello&nbsp;from&nbsp;the&nbsp;shell"); | When the user types `;;test shell;`, the shell command `echo Hello from the shell` is run, which prints "Hello from the shell" to the console.  Once the echo command is finished, its console output is returned from runExternal, then that is returned from the Expansion script and, finally, expanded into the note. |
-| ^runMyScript$ | return&nbsp;runExternal("python&nbsp;myscript.py"); | When the user types `;;runMyScript;`, the command will execute python on "myscript.py", which may print something to the console.  Once the command is finished, runExternal will return any console output (or an empty string if there was none), which is then returned from the Expansion script and, thus, expanded into the note.<br/><br/>If Python is setup properly, the Expansion script could have simply been `return runExternal("myscript.py");`.<br/><br/>If python is not installed, or myscript.py is not in the vault's root folder, or even if myscript.py has a python error, then the shell command will fail.  This will cause runExternal to return null, and an error notification and console log to show up. |
-| ^exec&nbsp;(.*)$ | let&nbsp;result&nbsp;=&nbsp;runExternal($1);<br/>if&nbsp;(result === null)&nbsp;{&nbsp;result&nbsp;=&nbsp;"FAILED";&nbsp;}<br/>return&nbsp;"Shell&nbsp;command&nbsp;result&nbsp;=&nbsp;\""&nbsp;+&nbsp;result&nbsp;+&nbsp;"\"."; | This shortcut allows the user to run _any_ shell command.  For example, typing `;;exec dir;` will get the vault root-folder's contents and expand them into the note. |
+| ^test&nbsp;shell$ | return&nbsp;runExternal("echo&nbsp;Hello&nbsp;from&nbsp;the&nbsp;shell"); | When the user types `;;test shell::`, the shell command `echo Hello from the shell` is run, which prints "Hello from the shell" to the console.  Once the echo command is finished, its console output is returned from runExternal, then that is returned from the Expansion script and, finally, expanded into the note. |
+| ^runMyScript$ | return&nbsp;runExternal("python&nbsp;myscript.py"); | When the user types `;;runMyScript::`, the command will execute python on "myscript.py", which may print something to the console.  Once the command is finished, runExternal will return any console output (or an empty string if there was none), which is then returned from the Expansion script and, thus, expanded into the note.<br/><br/>If Python is setup properly, the Expansion script could have simply been `return runExternal("myscript.py");`.<br/><br/>If python is not installed, or myscript.py is not in the vault's root folder, or even if myscript.py has a python error, then the shell command will fail.  This will cause runExternal to return null, and an error notification and console log to show up. |
+| ^exec&nbsp;(.*)$ | let&nbsp;result&nbsp;=&nbsp;runExternal($1);<br/>if&nbsp;(result === null)&nbsp;{&nbsp;result&nbsp;=&nbsp;"FAILED";&nbsp;}<br/>return&nbsp;"Shell&nbsp;command&nbsp;result&nbsp;=&nbsp;\""&nbsp;+&nbsp;result&nbsp;+&nbsp;"\"."; | This shortcut allows the user to run _any_ shell command.  For example, typing `;;exec dir::` will get the vault root-folder's contents and expand them into the note. |
 
 ### Command errors
 When a command produces an error:
@@ -408,9 +408,9 @@ Given these features, here's how you can nest a shortcut within another.  The fi
 |  2 | lastname    | return ["LastName: ", "Smith"]; |
 |  3 | fullname    | return [ "FullName: ", expand("firstname")[1], " ", expand("lastname")[1] ]; |
 
-Notice that shortcut #1 returns an array of strings, but if you type `;;firstname;` (`!!firstname!` on mobile), then the expansion is "FirstName: Maggie", since the array gets joined into a single string.  This is true for shortcut #2 as well (expanding into "LastName: Smith").
+Notice that shortcut #1 returns an array of strings, but if you type `;;firstname::`, then the expansion is "FirstName: Maggie", since the array gets joined into a single string.  This is true for shortcut #2 as well (expanding into "LastName: Smith").
 
-If you type `;;fullname;` (`!!fullname!` on mobile), the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to expand get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
+If you type `;;fullname::`, the expansion is "FullName: Maggie Smith".  This is because the array it returns is ["FullName: ", "Maggie", " ", "Smith"].  THIS is because the two calls to expand get the result from shortcuts #1 and #2, which are arrays, then the following `[1]` gets the second string of the array.
 
 ***
 
