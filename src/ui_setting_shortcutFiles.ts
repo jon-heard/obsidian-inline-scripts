@@ -90,7 +90,8 @@ abstract class SettingUi_ShortcutFiles
 			e.addEventListener("input", function()
 			{
 				const isBadInput: boolean =
-					(this.value && !this.app.vault.fileMap[this.value+".md"]);
+					(this.value &&
+					 !this.app.vault.fileMap[obsidian.normalizePath(this.value+".md")]);
 				this.toggleClass("tejs_badInput", isBadInput);
 			});
 			// Assign given text argument to the textfield

@@ -1,20 +1,20 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Library Importer - Pulls the official TEJS library from github & adds it to the current vault //
-///////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Library Importer - Pulls the official library from github & adds it to the current vault //
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 "use strict";
 
 const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp =
-	/### (tejs_[_a-zA-Z0-9]+)\n(_\(disabled by default)?/g;
+	/### ([_a-zA-Z0-9]+.sfile)\n(_\(disabled by default)?/g;
 const ADDRESS_REMOTE: string =
 	"https://raw.githubusercontent.com/jon-heard/" +
 	"obsidian-inline-scripts-library/main";
-const ADDRESS_LOCAL: string = "tejs";
+const DEFAULT_LOCAL_ADDRESS: string = "support/inlineScripts";
 const FILE_README: string = "README.md";
 
 namespace LibraryImporter
 {
-	// Pull the official TEJS library from github & add it to the current vault
+	// Pull the official library from github & add it to the current vault
 	export function run(): void
 	{
 		run_internal();
@@ -94,39 +94,41 @@ namespace LibraryImporter
 				}
 			}
 		}
-		if (commonPath === ADDRESS_LOCAL) { commonPath = null; }
 
 		// We need to remove the input blocker to let the user choose a path
 		InputBlocker.setEnabled(false);
 
 		// Have user pick the library path, using the default determined above.  Cancel ends import.
-		let libraryDestination: string = await new Promise((resolve, reject) =>
+		let libraryDestinationPath: string = await new Promise((resolve, reject) =>
 		{
 			new Popup_Input(
 				app, "What path should the library be placed in?",
-				commonPath || ADDRESS_LOCAL,
+				commonPath || DEFAULT_LOCAL_ADDRESS,
 				(path: string) =>
 				{
 					resolve(path);
 				}
 			).open();
 		});
-		if (libraryDestination == null)
+		if (libraryDestinationPath == null)
 		{
 			return;
 		}
 
+		// Normalize the inputted library destination path
+		libraryDestinationPath = obsidian.normalizePath(libraryDestinationPath);
+
 		// Put the input blocker back
 		InputBlocker.setEnabled(true);
 
-		// Adjust the disabledShortcutFiles to match the libraryDestination
+		// Adjust the disabledShortcutFiles to match the libraryDestinationPath
 		disabledShortcutFiles =
-			disabledShortcutFiles.map(v => libraryDestination + "/" + v + ".md");
+			disabledShortcutFiles.map(v => libraryDestinationPath + "/" + v + ".md");
 
 		// Create the choosen library destination folder, if necessary
-		if (!app.vault.fileMap.hasOwnProperty(libraryDestination))
+		if (!app.vault.fileMap.hasOwnProperty(libraryDestinationPath))
 		{
-			app.vault.createFolder(libraryDestination);
+			app.vault.createFolder(libraryDestinationPath);
 		}
 
 		// Download and create library files
@@ -138,7 +140,7 @@ namespace LibraryImporter
 				method: "GET", headers: { "Cache-Control": "no-cache" }
 			});
 
-			let filename: string = libraryDestination + "/" + libShortcutFile + ".md";
+			let filename: string = libraryDestinationPath + "/" + libShortcutFile + ".md";
 			let file: any = app.vault.fileMap[filename];
 			if (file)
 			{
@@ -166,7 +168,7 @@ namespace LibraryImporter
 			nothingToRemove = true;
 			for (const libShortcutFile of libShortcutFiles)
 			{
-				let libAddress: string = libraryDestination + "/" + libShortcutFile + ".md";
+				let libAddress: string = libraryDestinationPath + "/" + libShortcutFile + ".md";
 				const index: number = shortcutFileAddresses.indexOf(libAddress);
 				if (index >= 0)
 				{
@@ -185,7 +187,7 @@ namespace LibraryImporter
 		// Add all library shortcut-files to the settings
 		for (const libShortcutFile of libShortcutFiles)
 		{
-			const address = libraryDestination + "/" + libShortcutFile + ".md";
+			const address = libraryDestinationPath + "/" + libShortcutFile + ".md";
 			settings.shortcutFiles.push(
 			{
 				enabled: (disabledShortcutFiles.indexOf(address) < 0),

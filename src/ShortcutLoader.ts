@@ -245,7 +245,10 @@ abstract class ShortcutLoader
 			let baseName: string = shortcutFile.address.substring(
 				shortcutFile.address.lastIndexOf("/")+1,
 				shortcutFile.address.length-3);
-			baseName = baseName.startsWith("tejs_") ? baseName.substr(5) : baseName;
+			baseName =
+				baseName.endsWith(".sfile") ?
+				baseName.substring(0, baseName.length - 6) :
+				baseName;
 			shortcutFiles.push(baseName);
 			this.updateGeneralHelpShortcut(shortcutFiles);
 			abouts.push(
