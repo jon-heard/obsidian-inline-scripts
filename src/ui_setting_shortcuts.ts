@@ -73,9 +73,9 @@ abstract class SettingUi_Shortcuts
 			if (!shortcutUi.childNodes[4].value) { continue; }
 
 			result +=
-				"~~\n" + shortcutUi.childNodes[0].value + "\n" +
-				"~~\n" + shortcutUi.childNodes[4].value + "\n" +
-				"~~\n" + shortcutUi.childNodes[5].value + "\n\n";
+				"\n__\n" + shortcutUi.childNodes[0].value +
+				"\n__\n" + shortcutUi.childNodes[4].value +
+				"\n__\n" + shortcutUi.childNodes[5].value + "\n";
 		}
 
 		return { shortcuts: result };

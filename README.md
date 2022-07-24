@@ -250,34 +250,34 @@ A shortcut-file contains multiple shortcuts.  Each shortcut contains a Test stri
 
 ### Examples
 Here is a minimal example of a shortcut-file's contents:
-> ~~<br/>
+> __<br/>
 > test<br/>
-> ~~<br/>
+> __<br/>
 > return "The test worked.";<br/>
-> ~~
+> __
 
-This shortcut-file contains a single shortcut.  Notice that `~~` separate each section.
+This shortcut-file contains a single shortcut.  Notice that `__` separate each section.
 
 Here is another, more meaty, example:
 > This is a test shortcut-file.<br/>
 > It was written as an example for the plugin's HOW-TO documentation.<br/>
 > <br/>
-> ~~<br/>
+> __<br/>
 > ^name$<br/>
-> ~~<br/>
+> __<br/>
 > return "Maggie Smith";<br/>
-> ~~<br/>
+> __<br/>
 > name - Expands to "Maggie smith".<br/>
 > <br/>
-> ~~<br/>
+> __<br/>
 > ^repeat ([a-zA-Z])$<br/>
-> ~~<br/>
+> __<br/>
 > return $1.repeat(5);<br/>
-> ~~<br/>
+> __<br/>
 > repeat {to repeat} - Expands to 5 repetitions of {to repeat}: "aaaaa".  {to repeat} is a required parameter that contains a single alpha character.<br/>
 >
 
-This shortcut-file begins with an About string (a description of itself), then it contains two shortcuts.  Notice that the first `~~` is placed after the shorcut-file's About string.  Every shortcut-file starts with an About string, including the minimal example, though in that case the About string is empty.  Also notice that there are empty lines between each section of this shortcut-file.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
+This shortcut-file begins with an About string (a description of itself), then it contains two shortcuts.  Notice that the first `__` is placed after the shorcut-file's About string.  Every shortcut-file starts with an About string, including the minimal example, though in that case the About string is empty.  Also notice that there are empty lines between each section of this shortcut-file.  Empty lines are ignored by __Text Expander JS__, so use them to help organize your shortcut-files.
 
 ### Developer mode
 Developer mode is an on/off setting available at the bottom of the __Text Expander JS__ plugin options _(see picture below)_.  When "Developer mode" is on, all shortcuts will be reloaded whenever you leave a shortcut-file note (by selecting a different note, or closing the shortcut-file note).  This lets you edit a shortcut-file note, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
@@ -470,9 +470,9 @@ In addition, if the callback function returns a string, then _that_ string is ex
 
 ### Example shortcut-file
 ```
-~~
+__
 ^tejs setup$
-~~
+__
 window._tejs ||= {};
 window._tejs.listeners ||= {};
 window._tejs.listeners.tejs ||= {};
@@ -489,13 +489,13 @@ window._tejs.listeners.tejs.onExpansion.testCallback ||= (expansionInfo) =>
 		print("Shortcut input '" + expansionInfo.shortcutText + "' expanded to '" + expansionInfo.expansionText + "'.");
 	}
 };
-~~
+__
 
-~~
+__
 ^tejs shutdown$
-~~
+__
 delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
-~~
+__
 ```
 
 ***

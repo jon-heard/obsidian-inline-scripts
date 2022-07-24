@@ -11,12 +11,12 @@
 ////////////////////
 
 CHECK SHORTCUT X
-1. Type ";;X;" ("!!X!" on mobile), where X is the shortcut to check
+1. Type ";;X::", where X is the shortcut to check
 2. Confirm that the typed text is replaced with something.
 3. Confirm that there are no new console messages
 
 CHECK INVALID SHORTCUT X
-1. Type ";;X;" ("!!X!" on mobile), where X is the shortcut to check
+1. Type ";;X::", where X is the shortcut to check
 2. Confirm that a popup shows the shortcut as unidentified
 3. Confirm that a console log show the shortcut as unidentified
 4. Confirm that the text that you entered for the shortcut is not removed.
@@ -135,7 +135,7 @@ BASIC SETTINGS - RESET TO DEFAULTS
 19. Confirm that all settings have reverted to defaults:
   1. Shortcut-files list is empty
   2. Shortcuts list has a bunch of sample shortcuts
-  3. Prefix and Suffix are ";;" and ";" respectively
+  3. Prefix and Suffix are ";;" and "::" respectively
   4. "Developer mode" and "Allow external" are turned off
 20. Close plugin settings
 21. Check shortcut "hi" (common action)
@@ -156,9 +156,9 @@ BASIC SETTINGS
 13. Change prefix & suffix settings (near the bottom) to "<<" and ">>"
 14. Close plugin settings
 15. Use prefix & suffix of "<<" & ">>" to check shortcut "hi" (common action)
-16. Type ";;hi;" ("!!hi!" on mobile) and confirm that nothing happens
+16. Type ";;hi::" and confirm that nothing happens
 17. Open plugin settings
-18. Change prefix & suffix to ";;" and ";" ("!!" and "!" on mobile)
+18. Change prefix & suffix to ";;" and "::"
 19. Close plugin settings
 20. Check shortcut "hi" (common action)
 21. Type "<<hi>>" and confirm that nothing happens
@@ -335,12 +335,12 @@ SHORTCUTS - EXPANSION INFO
 9. Confirm tht the output is:
 	first line
 	second line start 
-	Line - 	second line start ;;test info a; end
+	Line - 	second line start ;;test info a:: end
 	start - 19
 	end - 33
 	shortcutText - test info a
 	prefix - ;;
-	suffix - ;
+	suffix - ::
 	 end
 	third line
 10. Reset settings (common action)
@@ -409,7 +409,7 @@ SHORTCUTS - RUNEXTERNAL FUNCTION !! NON-MOBILE ONLY !!
 5. Open plugin settings
 6. Make sure that the "Allow external" setting is off (it's at the bottom)
 7. Close plugin settings
-8. Type ";;test 6;"
+8. Type ";;test 6::"
 9. Confirm that "Unauthorized runExternal call" popup appears
 10. Confirm that RUNEXTERNAL-ERROR is added to the console
 11. Open plugin settings
@@ -419,7 +419,7 @@ SHORTCUTS - RUNEXTERNAL FUNCTION !! NON-MOBILE ONLY !!
 13. Confirm that the expansion is a file directory
 14. Check shortcut "test 7" (common action)
 15. Confirm that obsidian is frozen for 5 seconds, then unfrozen with an expansion of a file directory
-16. Type ";;test 8;"
+16. Type ";;test 8::"
 17. Confirm that popup appears with "failed runExternal call"
 18. Confirm that RUNEXTERNAL-ERROR is added to the console
 19. Reset settings (common action)
@@ -431,24 +431,24 @@ BASIC SHORTCUT-FILES
 4. Add note "testing/tejs_testfile" (common action)
 	Test file
 
-	~~
+	__
 	^test 9$
 
-	~~
+	__
 	```js
 	return "Test 9 successful";
 	```
-	~~
+	__
 	test 9 - Ninth test shortcut
-	~~
+	__
 	```
 	^test 10$
 	```
-	~~
+	__
 
 	return "Test 10 successful";
 
-	~~
+	__
 	test 10 - Tenth test shortcut
 
 5. Register shortcut-file "testing/tejs_testfile" (common action)
@@ -459,7 +459,7 @@ BASIC SHORTCUT-FILES
 10. Check help "testfile" (common action)
 11. Check help "testfile" for shortcut "test 9" (common action)
 12. Check help "testfile" for shortcut "test 10" (common action)
-13. Type ";;help;" ("!!help! on console).
+13. Type ";;help::".
 14. Confirm that the expansion includes "testfile"
 15. Open plugin settings
 16. Remove shortcut-file entry for "testing/tejs_testfile"
@@ -467,7 +467,7 @@ BASIC SHORTCUT-FILES
 18. Check invalid shortcut "test 9" (common action)
 19. Check invalid shortcut "test 10" (common action)
 20. Check invalid help "testfile" (common action)
-21. Type ";;help;" ("!!help! on console).
+21. Type ";;help::".
 22. Confirm that the expansion doesn't include "testfile"
 23. Rename the note "testing/tejs_testfile" to "testing/testfile"
 24. Go to the note "testResults"
@@ -496,14 +496,14 @@ BASIC SHORTCUT-FILE ERRORS - MISSING-SHORTCUT-FILE-ERROR
 
 BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
 1. Add note "testing/tejs_testfile" (common action)
-	~~
+	__
 	^test 11$
-	~~
+	__
 	return "Test 11 successful";
-	~~
-	~~
+	__
+	__
 	^test 12$
-	~~
+	__
 	return "Test 12 successful";
 
 2. Register shortcut-file "testing/tejs_testfile" (common action)
@@ -520,7 +520,7 @@ BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
 13. Check shortcut "test 11" (common action)
 14. Check invalid shortcut "test 12" (common action)
 15. Go to note "testing/tejs_testfile"
-16. Append a line to the end of the file with "~~"
+16. Append a line to the end of the file with "__"
 17. Go to the note "testResults"
 18. Confirm that no no popup or console entry appears
 19. Check shortcut "test 11" (common action)
@@ -531,9 +531,9 @@ BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
 
 DEVELOPER MODE
 1. Add note "testing/tejs_testfile" (common action)
-	~~
+	__
 	^test 13$
-	~~
+	__
 	return "Test 13 successful";
 
 2. Register shortcut-file "testing/tejs_testfile"
@@ -560,56 +560,56 @@ DEVELOPER MODE
 
 SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 1. Add note "testing/tejs_testfile1" (common action)
-	~~
+	__
 	^test 14$
-	~~
+	__
 	return "First test 14 successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
-	~~
+	__
 
-	~~
-	~~
+	__
+	__
 	function tstFnc1() {};
-	~~
+	__
 
-	~~
+	__
 	^test 15$
-	~~
+	__
 	return "Test 15 successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
-	~~
+	__
 
 3. Add note "testing/tejs_testfile2" (common action)
-	~~
+	__
 	^test 14$
-	~~
+	__
 	return "Second test 14 successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
-	~~
+	__
 
-	~~
+	__
 	^test 16$
-	~~
+	__
 	return "Test 16 successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
-	~~
+	__
 
-	~~
-	~~
+	__
+	__
 	function tstFnc2() {};
-	~~
+	__
 
-	~~
+	__
 	^test 17$
-	~~
+	__
 	return "Test 17 successful: " + (typeof tstFnc2 === "function" ? "has tstFnc2" : "no tstFnc2");
-	~~
+	__
 
-	~~
-	~~
-	~~
+	__
+	__
+	__
 
-	~~
+	__
 	^test 18$
-	~~
+	__
 	return "Test 18 successful: " + (typeof tstFnc2 === "function" ? "has tstFnc2" : "no tstFnc2");
-	~~
+	__
 
 6. Register shortcut-file "testing/tejs_testfile1"
 7. Register shortcut-file "testing/tejs_testfile2"
@@ -632,17 +632,17 @@ SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 
 SHORTCUT-FILE - SETUP AND SHUTDOWN SCRIPTS
 1. Add note "testing/tejs_testfile" (common action)
-	~~
+	__
 	^tejs setup$
-	~~
+	__
 	console.log("Setting up testfile");
-	~~
+	__
 
-	~~
+	__
 	^tejs shutdown$
-	~~
+	__
 	console.log("Shutting down testfile");
-	~~
+	__
 
 2. Register shortcut-file entry "testing/tejs_testfile"
 3. Confirm that a console entry is added: "Setting up testfile"
@@ -659,24 +659,24 @@ SHORTCUT-FILE - SETUP AND SHUTDOWN SCRIPTS
 14. Close plugin settings
 15. Confirm that a console entry is added: "Shutting down testfile"
 16. Add note "testing/tejs_testfile"
-	~~
+	__
 	^tejs setup$
-	~~
+	__
 	console.log("Setting up testfile");
 	return true;
-	~~
+	__
 
-	~~
+	__
 	^test 19$
-	~~
+	__
 	return "Test 19 successful";
-	~~
+	__
 
-	~~
+	__
 	^tejs shutdown$
-	~~
+	__
 	console.log("Shutting down testfile");
-	~~
+	__
 
 17. Register shortcut-file "testing/tejs_testfile" (common action)
 18. Confirm that a console entry is added "Setting up testfile"
@@ -752,9 +752,9 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 
 SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 1. Add note "testing/tejs_testfile" (common action)
-	~~
+	__
 	^tejs setup$
-	~~
+	__
 	window._tejs ||= {};
 	window._tejs.listeners ||= {};
 	window._tejs.listeners.tejs ||= {};
@@ -770,13 +770,13 @@ SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 			print("Shortcut input '" + expansionInfo.shortcutText + "' expanded to '" + expansionInfo.expansionText + "'.");
 		}
 	};
-	~~
+	__
 
-	~~
+	__
 	^tejs shutdown$
-	~~
+	__
 	delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
-	~~
+	__
 
 2. Register shortcut-file "testing/tejs_testfile" (common action)
 3. Check shortcut "hi" (common action)
@@ -798,30 +798,30 @@ SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 
 SHORTCUT-FILE - ENABLE/DISABLE
 1. Add note "testing/tejs_testfile1"
-	~~
+	__
 	test 20
-	~~
+	__
 	return "First test 20 successful.";
-	~~
+	__
 
-	~~
+	__
 	test 21
-	~~
+	__
 	return "Test 21 successful.";
-	~~
+	__
 
 2. Add note "testing/tejs_testfile2"
-	~~
+	__
 	test 20
-	~~
+	__
 	return "Second test 20 successful.";
-	~~
+	__
 
-	~~
+	__
 	test 22
-	~~
+	__
 	return "Test 22 successful.";
-	~~
+	__
 
 3. Register shortcut-file "testing/tejs_testfile1"
 4. Register shortcut-file "testing/tejs_testfile2"
@@ -841,17 +841,17 @@ SHORTCUT-FILE - ENABLE/DISABLE
 
 SHORTCUT-FILE - FAIL SILENTLY
 1. Add note "testing/tejs_testfile" (common action)
-	~~
+	__
 	test 23
-	~~
+	__
 	return ]"Test 23 successful";
-	~~
+	__
 
-	~~
+	__
 	test 24
-	~~
+	__
 	return "Test 24: " + (expand("test 23") ?? "test 23 failed");
-	~~
+	__
 
 2. Register shortcut-file "testing/tejs_testfile" (common action)
 3. Check shortcut "test 24" (common action)

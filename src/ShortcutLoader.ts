@@ -6,6 +6,7 @@
 
 const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
 const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
+const REGEX_SFILE_SECTION_SPLIT: RegExp = /^__$/gm;
 const GENERAL_HELP_PREAMBLE = `return [ "#### Help - General
 Here are shortcuts for help with __Text Expander JS__.
 - __help__ - Shows this text.
@@ -59,11 +60,13 @@ abstract class ShortcutLoader
 		// Flag set when an error occurs.  Used for single popup for ALL file errors.
 		let fileHasErrors: boolean = false;
 
-		const sections: Array<string> = content.split("~~").map((v: string) => v.trim());
+		// Get sections from file contents
+		const sections: Array<string> =
+			content.split(REGEX_SFILE_SECTION_SPLIT).map((v: string) => v.trim());
 		fileAbout = sections[0];
 
-		// Check for the obvious error of misnumbered sections (bounded by "~~")
-		if (!!((sections.length-1) % 3))
+		// Check for the obvious error of misnumbered sections (bounded by "__")
+		if ((sections.length-1) % 3)
 		{
 			UserNotifier.run(
 			{
