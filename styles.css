@@ -174,3 +174,13 @@
 {
 	border-top: none;
 }
+.tejs_suggestionDescription
+{
+	background-color: black;
+	position: absolute;
+	width: 25em;
+	margin-top: 0.75em;
+	padding: 0.75em;
+	border-radius: 4px;
+	border: 1px solid var(--background-modifier-border);
+}

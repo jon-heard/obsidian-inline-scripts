@@ -36,11 +36,25 @@ class AutoComplete extends obsidian.EditorSuggest
 
 	private _plugin: TextExpanderJsPlugin;
 	private _resortSyntaxes: any;
+	private _suggestionDescriptionUi: any;
+	private _forceSetSelectedItem: Function;
+	private _descriptions: Array<string>;
 
 	private constructor_internal(plugin: TextExpanderJsPlugin)
 	{
 		this._plugin = plugin;
 		this._resortSyntaxes = this.resortSyntaxes.bind(this);
+		this._forceSetSelectedItem = this.suggestions.forceSetSelectedItem.bind(this.suggestions);
+		this.suggestions.forceSetSelectedItem = (e: any,t: any) =>
+		{
+			this._forceSetSelectedItem(e,t);
+			this._suggestionDescriptionUi.setText("");
+			obsidian.MarkdownRenderer.renderMarkdown(
+				this._descriptions[this.suggestions.selectedItem],
+				this._suggestionDescriptionUi, '', this);
+		};
+		this._suggestionDescriptionUi = this.suggestEl.createDiv();
+		this._suggestionDescriptionUi.classList.add("tejs_suggestionDescription");
 	}
 
 	private onTrigger_internal(cursor: any, editor: any): any
@@ -70,25 +84,25 @@ class AutoComplete extends obsidian.EditorSuggest
 
 	private getSuggestions_internal(context: any): any
 	{
-		return this._plugin.syntaxes.
+		const result = this._plugin.syntaxes.
 			filter((p: any) =>
 			{
 				return context.query.match(p.regex);
 			}).
 			sort(this._resortSyntaxes);
+		this._descriptions = result.map((v: any) => v.description);
+		return result;
 	};
 
 	private renderSuggestion_internal(suggestion: any, el: any): void
 	{
-		let ui = el.createDiv();
-		ui.setText(suggestion.text);
-		ui.setAttr("title", suggestion.description);
+		el.classList.add("tejs_suggestion");
+		el.setText(suggestion.text);
 	};
 
 	private selectSuggestion_internal(suggestion: any): void
 	{
 		if (!this.context) { return; }
-
 		const suggestionEnd: number =
 			suggestion.text.match(/ ?\{/)?.index || suggestion.text.length;
 		const fill = suggestion.text.substr(0, suggestionEnd);
