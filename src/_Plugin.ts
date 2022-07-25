@@ -27,6 +27,8 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	public shortcuts: Array<any>;
 	// The instance of the settings panel UI
 	public settingsUi: TextExpanderJsPluginSettings;
+	// The master list of shortcut syntaxes (provided by the About strings of all shortcuts)
+	public syntaxes: Array<any>;
 
 	public onload(): void
 	{
@@ -79,6 +81,9 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		// Attach settings UI
 		this.settingsUi = new TextExpanderJsPluginSettings(this);
 		this.addSettingTab(this.settingsUi);
+
+		// Attach autocomplete feature
+		this.registerEditorSuggest(new AutoComplete(this));
 
 		// Initialize support objects
 		ShortcutExpander.initialize();

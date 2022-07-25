@@ -1,3 +1,9 @@
+### 0.21.0
+- feature - default prefix & suffix set to ";;" & "::" for all platforms
+- feature - sfile sections dividied by "__" instead of "~~"
+- feature - sfiles now use naming convention: "***.sfile.md"
+- feature - shortcut autocomplete with tooltip descriptions
+
 ### 0.20.1
 - bug fix - format settings - added block against prefix & suffix containing characters with auto-complete
 

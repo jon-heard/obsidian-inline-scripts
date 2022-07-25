@@ -23,7 +23,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public display_internal(): void
+	private display_internal(): void
 	{
 		const c: any = this.containerEl;
 		c.empty();
@@ -50,7 +50,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 	}
 
 	// THIS is where settings are saved!
-	public hide_internal(): void
+	private hide_internal(): void
 	{
 		let newSettings: any = {};
 

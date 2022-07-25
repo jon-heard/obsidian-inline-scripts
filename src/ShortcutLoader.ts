@@ -7,6 +7,11 @@
 const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
 const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
 const REGEX_SFILE_SECTION_SPLIT: RegExp = /^__$/gm;
+const REGEX_ESCAPED_CHARACTERS = new Set(
+[
+	".", "+", "*", "?", "[", "^", "]", "$", "(", ")", "{", "}", "=", "!", "<", ">", "|", ":", "-",
+	"\\", "\"", "'", "`"
+]);
 const GENERAL_HELP_PREAMBLE = `return [ "#### Help - General
 Here are shortcuts for help with __Text Expander JS__.
 - __help__ - Shows this text.
@@ -21,6 +26,15 @@ _Use shortcut __ref $2__ for a list of shortcuts._
 const SFILE_REF_PREAMBLE = `let result = "#### Reference - $1
 _Use shortcut __help $2__ for general help._
 ";`;
+const SORT_SYNTAXES = (a: any, b: any): number =>
+{
+	if (a.text === "help") { return -1; }
+	else if (b.text === "help") { return 1; }
+	else
+	{
+		return a.text.replaceAll("{", "0").localeCompare(b.text.replaceAll("{", "0"));
+	}
+}
 
 abstract class ShortcutLoader
 {
@@ -180,11 +194,21 @@ abstract class ShortcutLoader
 		let shortcutFiles: Array<string> = [];
 		this.updateGeneralHelpShortcut(shortcutFiles);
 
+		// Restart the master list of shortcut syntaxes
+		plugin.syntaxes = [];
+
 		// Add shortcuts defined directly in the settings
 		let parseResult: any =
 			this.parseShortcutFile_internal("settings", plugin.settings.shortcuts);
 		plugin.shortcuts = plugin.shortcuts.concat(parseResult.shortcuts);
 		abouts.push({ filename: "", shortcutAbouts: parseResult.shortcutAbouts });
+
+		// Add shortcut syntaxes to the master list
+		this.addShortcutFileSyntaxes(
+			parseResult.shortcutAbouts,
+			[ [ "help", "A list of helpful shortcuts" ],
+			  [ "ref settings", "A list of shortcuts defined in settings" ],
+			  [ "ref all", "A list of ALL shortcuts" ] ]);
 
 		// Add a helper-blocker to segment helper scripts within their shortcut-files
 		plugin.shortcuts.push({});
@@ -257,10 +281,21 @@ abstract class ShortcutLoader
 				fileAbout: parseResult.fileAbout,
 				shortcutAbouts: parseResult.shortcutAbouts
 			});
+
+			// Add shortcut syntaxes to the master list
+			this.addShortcutFileSyntaxes(
+				parseResult.shortcutAbouts,
+				[ [ "help " + baseName,
+				    "Description of the \"" + baseName + "\" shortcut-file." ],
+				  [ "ref " + baseName,
+				    "A list of shortcuts defined in the \"" + baseName + "\" shortcut-file." ] ]);
 		}
 
 		// Generate and add help shortcuts
 		plugin.shortcuts = this.generateHelpShortcuts(abouts).concat(plugin.shortcuts);
+
+		// Finalize the master syntaxes list - add generic help and sort
+		plugin.syntaxes.sort(SORT_SYNTAXES);
 	}
 
 	private static updateGeneralHelpShortcut(shortcutFiles: Array<string>): void
@@ -363,5 +398,58 @@ abstract class ShortcutLoader
 
 		// Return list of help shortcuts we just generated
 		return result;
+	}
+
+	private static addShortcutFileSyntaxes(abouts: Array<any>, syntaxes: Array<any>)
+	{
+		const plugin = TextExpanderJsPlugin.getInstance();
+
+		for (const syntax of syntaxes)
+		{
+			plugin.syntaxes.push(
+			{
+				text: syntax[0],
+				regex: this.generateSyntaxRegex(syntax[0]),
+				description: syntax[1]
+			});
+		}
+		for (const about of abouts)
+		{
+			plugin.syntaxes.push(
+			{
+				text: about.syntax,
+				regex: this.generateSyntaxRegex(about.syntax),
+				description: about.description.replaceAll("\n***", "")
+			});
+		}
+	}
+
+	private static generateSyntaxRegex(syntax: string): RegExp
+	{
+		let result: string = "^";
+		let isInParameter: boolean = false;
+		for (let i = 0; i < syntax.length; i++)
+		{
+			if (syntax[i] === "{")
+			{
+				result += "(?:([^ ]+)|$)";
+				isInParameter = true;
+			}
+			else if (syntax[i] === "}" && isInParameter)
+			{
+				isInParameter = false;
+			}
+			else if (!isInParameter)
+			{
+				result += "(?:" + this.escapeCharacterForRegex(syntax[i]) + "|$)";
+			}
+		}
+		result += "$";
+		return new RegExp(result);
+	}
+
+	private static escapeCharacterForRegex(src: string): string
+	{
+		return (!REGEX_ESCAPED_CHARACTERS.has(src)) ? src : ("\\" + src);
 	}
 }
