@@ -28,7 +28,7 @@ namespace ExternalRunner
 			childProcess = require("child_process");
 		}
 
-		const plugin = TextExpanderJsPlugin.getInstance();
+		const plugin = InlineScriptsPlugin.getInstance();
 
 		// Error-out if runExternal is not explicitly allowed by the user.
 		// note - User allows runExternal by turning on the toggle "Allow external" in the settings.

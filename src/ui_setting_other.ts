@@ -50,7 +50,7 @@ abstract class SettingUi_Other
 						.onChange((value: string) => this._settings.allowExternal = value );
 				})
 				.descEl.createEl("div", {
-					cls: "tejs_warning",
+					cls: "iscript_warning",
 					text: "WARNING: enabling this increases the danger from malicious shortcuts" });
 		}
 
@@ -61,10 +61,10 @@ abstract class SettingUi_Other
 			{
 				return button
 					.setButtonText("Reset to defaults")
-					.setClass("tejs_button")
+					.setClass("iscript_button")
 					.onClick(() =>
 					{
-						const plugin = TextExpanderJsPlugin.getInstance();
+						const plugin = InlineScriptsPlugin.getInstance();
 						new Popup_Confirm(
 							plugin.app,
 							"Confirm resetting ALL settings to their default values.",
@@ -72,7 +72,7 @@ abstract class SettingUi_Other
 							{
 								if (confirmation)
 								{
-									plugin.settings = TextExpanderJsPlugin.getDefaultSettings();
+									plugin.settings = InlineScriptsPlugin.getDefaultSettings();
 									plugin.settingsUi.display();
 									plugin.settings.shortcuts = "";
 								}

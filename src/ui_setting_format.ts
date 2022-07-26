@@ -38,8 +38,8 @@ abstract class SettingUi_ShortcutFormat
 		parent.createEl("h2", { text: "Shortcut format" });
 
 		// A ui for showing errors in shortcut format settings
-		this._formatErrMsgContainerUi = parent.createEl("div", { cls: "tejs_errMsgContainer" });
-		this._formatErrMsgContainerUi.createEl("span", { text: "ERROR", cls: "tejs_errMsgTitle" });
+		this._formatErrMsgContainerUi = parent.createEl("div", { cls: "iscript_errMsgContainer" });
+		this._formatErrMsgContainerUi.createEl("span", { text: "ERROR", cls: "iscript_errMsgTitle" });
 		this._formatErrMsgContentUi = this._formatErrMsgContainerUi.createEl("span");
 
 		// Prefix
@@ -58,7 +58,7 @@ abstract class SettingUi_ShortcutFormat
 						this.isFormatValid();
 					});
 			})
-			.settingEl.toggleClass("tejs_settingBundledTop", !obsidian.Platform.isMobile);
+			.settingEl.toggleClass("iscript_settingBundledTop", !obsidian.Platform.isMobile);
 
 		// Suffix
 		new obsidian.Setting(parent)
@@ -76,11 +76,11 @@ abstract class SettingUi_ShortcutFormat
 						this.isFormatValid();
 					});
 			})
-			.settingEl.toggleClass("tejs_settingBundled", !obsidian.Platform.isMobile);
+			.settingEl.toggleClass("iscript_settingBundled", !obsidian.Platform.isMobile);
 
 		// Example
 		const exampleOuter: any = parent.createEl("div", { cls: "setting-item" });
-		exampleOuter.toggleClass("tejs_settingBundled", !obsidian.Platform.isMobile);
+		exampleOuter.toggleClass("iscript_settingBundled", !obsidian.Platform.isMobile);
 		const exampleInfo: any = exampleOuter.createEl("div", { cls: "setting-item-info" });
 		exampleInfo.createEl("div", { text: "Example", cls: "setting-item-name" });
 		exampleInfo.createEl("div",
@@ -90,7 +90,7 @@ abstract class SettingUi_ShortcutFormat
 		});
 		const exampleItemControl: any =
 			exampleOuter.createEl("div", { cls: "setting-item-control" });
-		this._shortcutExampleUi = exampleItemControl.createEl("div", { cls: "tejs_labelControl" });
+		this._shortcutExampleUi = exampleItemControl.createEl("div", { cls: "iscript_labelControl" });
 
 		// Finish by filling example
 		this.refreshShortcutExample();
@@ -132,13 +132,13 @@ abstract class SettingUi_ShortcutFormat
 		if (!err)
 		{
 			this._formatErrMsgContainerUi.toggleClass(
-				"tejs_errMsgContainerShown", false);
+				"iscript_errMsgContainerShown", false);
 			return true;
 		}
 		else
 		{
 			this._formatErrMsgContainerUi.toggleClass(
-				"tejs_errMsgContainerShown", true);
+				"iscript_errMsgContainerShown", true);
 			this._formatErrMsgContentUi.innerText = err;
 			return false;
 		}

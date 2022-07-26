@@ -29,14 +29,14 @@ abstract class SettingUi_Shortcuts
 			{
 				return button
 					.setButtonText("Add shortcut")
-					.setClass("tejs_button")
+					.setClass("iscript_button")
 					.onClick( () => this.addShortcutUi(app) );
 			})
 			.addButton((button: any) =>
 			{
 				return button
 					.setButtonText("Add defaults")
-					.setClass("tejs_button")
+					.setClass("iscript_button")
 					.onClick(( () =>
 					{
 						let defaultShortcuts: Array<any> = ShortcutLoader.parseShortcutFile(
@@ -53,7 +53,7 @@ abstract class SettingUi_Shortcuts
 						}
 					} ).bind(this));
 			});
-		this._shortcutUis = parent.createEl("div", { cls: "tejs_shortcuts" });
+		this._shortcutUis = parent.createEl("div", { cls: "iscript_shortcuts" });
 
 		// Add a shortcut ui item for each shortcut in settings
 		const shortcuts: Array<any> = ShortcutLoader.parseShortcutFile(
@@ -83,8 +83,8 @@ abstract class SettingUi_Shortcuts
 
 	private static addShortcutUi(app: any, shortcut?: any): void
 	{
-		let g: any = this._shortcutUis.createEl("div", { cls: "tejs_shortcut" });
-		let e: any = g.createEl("input", { cls: "tejs_shortcutTest" });
+		let g: any = this._shortcutUis.createEl("div", { cls: "iscript_shortcut" });
+		let e: any = g.createEl("input", { cls: "iscript_shortcutTest" });
 			e.setAttr("type", "text");
 			e.setAttr("placeholder", "Test (regex)");
 			if (shortcut)
@@ -97,25 +97,25 @@ abstract class SettingUi_Shortcuts
 					e.value = "";
 				}
 			}
-		e = g.createEl("button", { cls: "tejs_upButton tejs_button" });
+		e = g.createEl("button", { cls: "iscript_upButton iscript_button" });
 			e.group = g;
 			e.onclick = SettingUi_Common.upButtonClicked;
 			e.listOffset = 0;
-		e = g.createEl("button", { cls: "tejs_downButton tejs_button" });
+		e = g.createEl("button", { cls: "iscript_downButton iscript_button" });
 			e.group = g;
 			e.onclick = SettingUi_Common.downButtonClicked;
-		e = g.createEl("button", { cls: "tejs_deleteButton tejs_button" });
+		e = g.createEl("button", { cls: "iscript_deleteButton iscript_button" });
 			e.group = g;
 			e.onclick = SettingUi_Common.deleteButtonClicked;
 			e.app = app;
 			e.typeTitle = "shortcut";
-		e = g.createEl("textarea", { cls: "tejs_shortcutExpansion" });
-			e.setAttr("placeholder", "Expansion (javascript)");
+		e = g.createEl("textarea", { cls: "iscript_shortcutExpansion" });
+			e.setAttr("placeholder", "Expansion (JavaScript)");
 			if (shortcut)
 			{
 				e.value = shortcut.expansion;
 			}
-		e = g.createEl("textarea", { cls: "tejs_shortcutAbout" });
+		e = g.createEl("textarea", { cls: "iscript_shortcutAbout" });
 			e.setAttr("placeholder", "About (text)");
 			if (shortcut)
 			{

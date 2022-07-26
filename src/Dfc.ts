@@ -99,7 +99,7 @@ class Dfc
 
 	private getApp(): any
 	{
-		return TextExpanderJsPlugin.getInstance().app;
+		return InlineScriptsPlugin.getInstance().app;
 	}
 
 	private setMonitorType_internal(monitorType: DfcMonitorType): void

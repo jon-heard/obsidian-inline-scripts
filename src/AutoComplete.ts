@@ -6,7 +6,7 @@
 
 class AutoComplete extends obsidian.EditorSuggest
 {
-	public constructor(plugin: TextExpanderJsPlugin)
+	public constructor(plugin: InlineScriptsPlugin)
 	{
 		super(plugin.app);
 		this.constructor_internal(plugin);
@@ -35,7 +35,7 @@ class AutoComplete extends obsidian.EditorSuggest
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Keep the plugin for a few different uses
-	private _plugin: TextExpanderJsPlugin;
+	private _plugin: InlineScriptsPlugin;
 	// Keep a bound version of this method to pass into a sort method
 	private _resortSyntaxes: any;
 	// The original version of a modification to an internal function
@@ -45,7 +45,7 @@ class AutoComplete extends obsidian.EditorSuggest
 	// A list of the descriptions for the currently suggested shortcuts
 	private _descriptions: Array<string>;
 
-	private constructor_internal(plugin: TextExpanderJsPlugin)
+	private constructor_internal(plugin: InlineScriptsPlugin)
 	{
 		// Plugin stored for a few different uses
 		this._plugin = plugin;
@@ -59,7 +59,7 @@ class AutoComplete extends obsidian.EditorSuggest
 
 		// Create a new UI panel to show the description of the currently suggested shortcut
 		this._suggestionDescriptionUi = this.suggestEl.createDiv();
-		this._suggestionDescriptionUi.classList.add("tejs_suggestionDescription");
+		this._suggestionDescriptionUi.classList.add("iscript_suggestionDescription");
 	}
 
 	// Called by the system to determine if auto-complete should pop up
@@ -167,7 +167,7 @@ class AutoComplete extends obsidian.EditorSuggest
 			if (partToHighlight > 0)
 			{
 				parts[partToHighlight] =
-					"<span class='tejs_suggestionHighlight'>" + parts[partToHighlight] + "</span>";
+					"<span class='iscript_suggestionHighlight'>" + parts[partToHighlight] + "</span>";
 			}
 
 			// Put the parts back together in the text

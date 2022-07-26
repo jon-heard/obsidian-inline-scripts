@@ -1,8 +1,9 @@
 ### 0.21.0
+- feature - shortcut autocomplete with shortcut descriptions
+- refactor - Plugin rename: "Text Expander JS" to "Inline Scripts"
 - feature - default prefix & suffix set to ";;" & "::" for all platforms
 - feature - sfile sections dividied by "__" instead of "~~"
 - feature - sfiles now use naming convention: "***.sfile.md"
-- feature - shortcut autocomplete with tooltip descriptions
 
 ### 0.20.1
 - bug fix - format settings - added block against prefix & suffix containing characters with auto-complete
@@ -146,7 +147,7 @@
 - Removed expansion trigger options (now only expands on final key hit)
 - shortcut tests are now stored as regexp objects, instead of strings
 - All CSS classes now prefixed with "tejs_" to avoid overlap with other plugins
-- Expansions strings can now be surrounded with a javascript fenced code block.  Test strings can be surrounded with a basic fenced code block.
+- Expansions strings can now be surrounded with a JavaScript fenced code block.  Test strings can be surrounded with a basic fenced code block.
 - Expansion scripts can now return an array of strings.  This allows segmentation of the data, though the string array is joined during expansion.
 - Expansion scripts now have access to "getExpansion(text)" to allow calling other shortcuts and using their results.
 

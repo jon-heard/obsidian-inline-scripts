@@ -13,7 +13,7 @@ const REGEX_ESCAPED_CHARACTERS = new Set(
 	"\\", "\"", "'", "`"
 ]);
 const GENERAL_HELP_PREAMBLE = `return [ "#### Help - General
-Here are shortcuts for help with __Text Expander JS__.
+Here are shortcuts for help with __Inline Scripts__.
 - __help__ - Shows this text.
 - __ref settings__ - Describes shortcuts defined in the Settings.
 - __ref all__ - Describes _all_ shortcuts (except for the ones in this list).`;
@@ -130,7 +130,7 @@ abstract class ShortcutLoader
 
 			// Expansion string handling
 			let exp: string = sections[i+1];
-			// Handle the Expansion being in a javascript fenced code-block
+			// Handle the Expansion being in a JavaScript fenced code-block
 			if (!maintainCodeFence)
 			{
 				if (exp.startsWith("```js") && exp.endsWith("```"))
@@ -153,8 +153,8 @@ abstract class ShortcutLoader
 			// About string handling
 			// Skip if it's a helper script, helper blocker or setup script, or if the About
 			// string's syntax string is the string "hidden"
-			if (testRegex.source !== "(?:)" && testRegex.source !== "^tejs setup$" &&
-			    testRegex.source !== "^tejs shutdown$" && !sections[i+2].startsWith("hidden - "))
+			if (testRegex.source !== "(?:)" && testRegex.source !== "^sfile setup$" &&
+			    testRegex.source !== "^sfile shutdown$" && !sections[i+2].startsWith("hidden - "))
 			{
 				let aboutParts: Array<string> =
 					sections[i+2].split(REGEX_SPLIT_FIRST_DASH).map((v: string) => v.trim());
@@ -184,7 +184,7 @@ abstract class ShortcutLoader
 
 	private static async setupShortcuts_internal(): Promise<void>
 	{
-		const plugin = TextExpanderJsPlugin.getInstance();
+		const plugin = InlineScriptsPlugin.getInstance();
 
 		// To fill with data for the generation of help shortcuts
 		let abouts: Array<any> = [];
@@ -237,7 +237,7 @@ abstract class ShortcutLoader
 			// Look for a "setup" script in this shortcut-file.  Run if found.
 			for (const newShortcut of parseResult.shortcuts)
 			{
-				if (newShortcut.test.source === "^tejs setup$")
+				if (newShortcut.test.source === "^sfile setup$")
 				{
 					// If setup script returns TRUE, don't use shortcuts
 					if (ShortcutExpander.runExpansionScript(newShortcut.expansion))
@@ -254,7 +254,7 @@ abstract class ShortcutLoader
 			// Look for "shutdown" script in this shortcut-file.  Store if found.
 			for (const newShortcut of parseResult.shortcuts)
 			{
-				if (newShortcut.test.source === "^tejs shutdown$")
+				if (newShortcut.test.source === "^sfile shutdown$")
 				{
 					plugin.shutdownScripts[shortcutFile.address] = newShortcut.expansion;
 					break;
@@ -308,7 +308,7 @@ abstract class ShortcutLoader
 				"\"\\n    - " + shortcutFiles.join("\",\"\\n    - ");
 		}
 		expansion += "\", \"\\n\\n\" ];"
-		TextExpanderJsPlugin.getInstance().shortcuts[0].expansion = expansion;
+		InlineScriptsPlugin.getInstance().shortcuts[0].expansion = expansion;
 	}
 
 	// Creates help shortcuts based on "about" info from shortcuts and shortcut-files
@@ -402,7 +402,7 @@ abstract class ShortcutLoader
 
 	private static addShortcutFileSyntaxes(abouts: Array<any>, syntaxes: Array<any>)
 	{
-		const plugin = TextExpanderJsPlugin.getInstance();
+		const plugin = InlineScriptsPlugin.getInstance();
 
 		for (const syntax of syntaxes)
 		{

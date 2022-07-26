@@ -29,23 +29,23 @@ abstract class SettingUi_ShortcutFiles
 			{
 				return button
 					.setButtonText("Add shortcut-file")
-					.setClass("tejs_button")
+					.setClass("iscript_button")
 					.onClick( () => this.addShortcutFileUi(app) );
 			})
 			.addButton((button: any) =>
 			{
 				return button
 					.setButtonText("Import full library")
-					.setClass("tejs_button")
+					.setClass("iscript_button")
 					.onClick(() =>
 					{
 						LibraryImporter.run();
 					});
 			});
-		this._shortcutFileUis = parent.createEl("div", { cls: "tejs_shortcutFiles" });
+		this._shortcutFileUis = parent.createEl("div", { cls: "iscript_shortcutFiles" });
 		this._shortcutFileUis.createEl("div", {
 			text: "Red means the file does not exist.",
-			cls: "setting-item-description tejs_extraMessage tejs_onSiblings"
+			cls: "setting-item-description iscript_extraMessage iscript_onSiblings"
 		});
 
 		// Add a filename ui item for each shortcut-file in settings
@@ -60,7 +60,7 @@ abstract class SettingUi_ShortcutFiles
 		let result: Array<any> = [];
 		for (const shortcutFileUi of this._shortcutFileUis.childNodes)
 		{
-			if (shortcutFileUi.classList.contains("tejs_shortcutFile") &&
+			if (shortcutFileUi.classList.contains("iscript_shortcutFile") &&
 			    shortcutFileUi.childNodes[1].value)
 			{
 				result.push(
@@ -75,14 +75,14 @@ abstract class SettingUi_ShortcutFiles
 
 	private static addShortcutFileUi(app: any, shortcutFile?: any): void
 	{
-		let g: any = this._shortcutFileUis.createEl("div", { cls: "tejs_shortcutFile" });
-		let e: any = g.createEl("div", { cls: "checkbox-container tejs_checkbox" });
+		let g: any = this._shortcutFileUis.createEl("div", { cls: "iscript_shortcutFile" });
+		let e: any = g.createEl("div", { cls: "checkbox-container iscript_checkbox" });
 			e.toggleClass("is-enabled", shortcutFile ? shortcutFile.enabled : true);
 			e.addEventListener("click", function()
 			{
 				this.toggleClass("is-enabled", !this.classList.contains("is-enabled"));
 			});
-		e = g.createEl("input", { cls: "tejs_shortcutFileAddress" });
+		e = g.createEl("input", { cls: "iscript_shortcutFileAddress" });
 			e.setAttr("type", "text");
 			e.setAttr("placeholder", "Filename");
 			e.app = app;
@@ -92,7 +92,7 @@ abstract class SettingUi_ShortcutFiles
 				const isBadInput: boolean =
 					(this.value &&
 					 !this.app.vault.fileMap[obsidian.normalizePath(this.value+".md")]);
-				this.toggleClass("tejs_badInput", isBadInput);
+				this.toggleClass("iscript_badInput", isBadInput);
 			});
 			// Assign given text argument to the textfield
 			if (shortcutFile)
@@ -101,14 +101,14 @@ abstract class SettingUi_ShortcutFiles
 				e.setAttr("value", shortcutFile.address.substr(0, shortcutFile.address.length - 3));
 			}
 			e.dispatchEvent(new Event("input"));
-		e = g.createEl("button", { cls: "tejs_upButton tejs_button" });
+		e = g.createEl("button", { cls: "iscript_upButton iscript_button" });
 			e.group = g;
 			e.onclick = SettingUi_Common.upButtonClicked;
 			e.listOffset = 1;
-		e = g.createEl("button", { cls: "tejs_downButton tejs_button" });
+		e = g.createEl("button", { cls: "iscript_downButton iscript_button" });
 			e.group = g;
 			e.onclick = SettingUi_Common.downButtonClicked;
-		e = g.createEl("button", { cls: "tejs_deleteButton tejs_button" });
+		e = g.createEl("button", { cls: "iscript_deleteButton iscript_button" });
 			e.group = g;
 			e.onclick = SettingUi_Common.deleteButtonClicked;
 			e.app = app;

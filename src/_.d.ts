@@ -4,7 +4,7 @@ declare global
 {
 	interface Window
 	{
-		_tejs: any;
+		_inlineScripts: any;
 		request: Function;
 		plugin: any;
 	}

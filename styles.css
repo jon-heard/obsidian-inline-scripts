@@ -1,4 +1,4 @@
-.tejs_extraMessage
+.iscript_extraMessage
 {
 	text-align: left;
 	width: 90%;
@@ -6,112 +6,112 @@
 	margin-bottom: 0.5em;
 	font-style: italic;
 }
-.is-mobile .tejs_extraMessage
+.is-mobile .iscript_extraMessage
 {
     margin-top: 1em;
 }
-.tejs_onSiblings:only-child
+.iscript_onSiblings:only-child
 {
 	display: none;
 }
-.tejs_shortcutFiles
+.iscript_shortcutFiles
 {
 	margin-bottom: 1em;
 	text-align: right;
 	margin-top: -1em;
 }
-.tejs_shortcuts
+.iscript_shortcuts
 {
 	margin-bottom: 1em;
 	text-align: right;
 }
-.tejs_shortcutFile
+.iscript_shortcutFile
 {
 	margin-bottom: 1em;
 }
-.tejs_shortcutFileAddress
+.iscript_shortcutFileAddress
 {
 	width: calc(90% - 9em);
 	display: inline !important;
 }
-.is-mobile .tejs_shortcutFileAddress
+.is-mobile .iscript_shortcutFileAddress
 {
 	width: calc(90% - 6.6em) !important;
 }
-.tejs_badInput
+.iscript_badInput
 {
 	background-color: darkred !important;
 }
-.tejs_shortcut
+.iscript_shortcut
 {
 	margin-bottom: 2em;
 }
-.tejs_shortcutTest
+.iscript_shortcutTest
 {
 	width: calc(90% - 5.9em);
 	display: inline !important;
 }
-.is-mobile .tejs_shortcutTest
+.is-mobile .iscript_shortcutTest
 {
 	width: calc(90% - 6.6em) !important;
 }
-.tejs_shortcutExpansion, .tejs_shortcutAbout
+.iscript_shortcutExpansion, .iscript_shortcutAbout
 {
 	width: 90%;
 	margin-top: 0.2em;
 	background: var(--background-modifier-form-field);
 	height: 6em;
 }
-.tejs_shortcutAbout
+.iscript_shortcutAbout
 {
 	height: 4.5em;
 }
-.tejs_deleteButton, .tejs_upButton, .tejs_downButton
+.iscript_deleteButton, .iscript_upButton, .iscript_downButton
 {
 	margin: 0;
 	margin-left: 0.2em;
 	padding: 0.5em;
 	width: auto !important;
 }
-.tejs_deleteButton:before
+.iscript_deleteButton:before
 {
 	content: "🗑";
 	display: inline;
 }
-.tejs_upButton:before
+.iscript_upButton:before
 {
 	content: "▲";
 	display: inline;
 }
-.tejs_downButton:before
+.iscript_downButton:before
 {
 	content: "▼";
 	display: inline;
 }
-.tejs_errMsgContainer
+.iscript_errMsgContainer
 {
 	background-color: Red;
 	display: none;
 }
-.tejs_errMsgContainerShown
+.iscript_errMsgContainerShown
 {
 	display: inherit;
 }
-.tejs_errMsgTitle
+.iscript_errMsgTitle
 {
 	font-weight: bold;
 	margin: 0 1em;
 }
-.tejs_settingBundled
+.iscript_settingBundled
 {
 	border: 0;
 	padding: 0;
 }
-.tejs_settingBundledTop
+.iscript_settingBundledTop
 {
 	padding-bottom: 0;
 }
-.tejs_labelControl
+.iscript_labelControl
 {
 	border: 1px solid var(--background-modifier-border);
 	color: var(--text-normal);
@@ -124,16 +124,16 @@
 	width: 252px;
 	text-align: left;
 }
-.is-mobile .tejs_labelControl
+.is-mobile .iscript_labelControl
 {
 	width: 100%;
 }
-.tejs_warning
+.iscript_warning
 {
 	background-color: red;
 	color: white;
 }
-#tejs_inputBlocker
+#iscript_inputBlocker
 {
 	position: absolute;
 	left: 0;
@@ -144,37 +144,37 @@
 	opacity: 0.5;
 	z-index: 999;
 }
-.tejs_version
+.iscript_version
 {
 	text-align: right;
 }
-.tejs_version + h2
+.iscript_version + h2
 {
 	margin-top: 0;
 }
-.tejs_button
+.iscript_button
 {
 	margin-left: .25em !important;
 }
-.tejs_checkbox
+.iscript_checkbox
 {
 	margin-right: 0.5em;
 	margin-bottom: -0.3em;
 }
-.tejs_soloControl
+.iscript_soloControl
 {
 	width: 100%;
 }
-.tejs_popup
+.iscript_popup
 {
 	padding: 1em;
 	padding-top: 2.5em;
 }
-.tejs_popup .setting-item
+.iscript_popup .setting-item
 {
 	border-top: none;
 }
-.tejs_suggestionDescription
+.iscript_suggestionDescription
 {
 	background-color: black;
 	position: absolute;
@@ -184,7 +184,7 @@
 	border-radius: 4px;
 	border: 1px solid var(--background-modifier-border);
 }
-.tejs_suggestionHighlight
+.iscript_suggestionHighlight
 {
 	font-weight: bold;
 	text-decoration: underline;

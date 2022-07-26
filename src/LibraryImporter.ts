@@ -24,8 +24,8 @@ namespace LibraryImporter
 
 	async function run_internal(): Promise<void>
 	{
-		const app = TextExpanderJsPlugin.getInstance().app;
-		const settings = TextExpanderJsPlugin.getInstance().settings;
+		const app = InlineScriptsPlugin.getInstance().app;
+		const settings = InlineScriptsPlugin.getInstance().settings;
 
 		// Need to manually disable user-input until this process is finished
 		// (due to asynchronous downloads not otherwise blocking user-input)
@@ -197,6 +197,6 @@ namespace LibraryImporter
 
 		// Refresh settings ui to display the updated list of shortcut-files
 		InputBlocker.setEnabled(false);
-		TextExpanderJsPlugin.getInstance().settingsUi.display();
+		InlineScriptsPlugin.getInstance().settingsUi.display();
 	}
 }

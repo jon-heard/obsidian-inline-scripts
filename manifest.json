@@ -1,9 +1,9 @@
 {
-	"id": "obsidian-text-expander-js",
-	"name": "Text Expander JS",
+	"id": "obsidian-inline-scripts",
+	"name": "Inline Scripts",
 	"version": "0.21.0",
 	"minAppVersion": "0.12.0",
-	"description": "Type text shortcuts that expand into javascript generated text.",
+	"description": "Type text shortcuts which are then replaced with JavaScript generated text.",
 	"author": "Jonathan Heard",
 	"authorUrl": "https://github.com/jon-heard",
 	"isDesktopOnly": false

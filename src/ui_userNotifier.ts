@@ -43,8 +43,8 @@ namespace UserNotifier
 	function print(message: any): any
 	{
 		// Send the message to user as a popup notification and a console log.
-		new obsidian.Notice("TEJS Shortcut:\n" + message, LONG_NOTE_TIME);
-		console.info("TEJS Shortcut:\n\t" + message);
+		new obsidian.Notice("Inline Script Shortcut:\n" + message, LONG_NOTE_TIME);
+		console.info("Inline Script Shortcut:\n\t" + message);
 		return message;
 	};
 
@@ -85,7 +85,7 @@ namespace UserNotifier
 		if (consoleMessage)
 		{
 			const message =
-				TextExpanderJsPlugin.getInstance().manifest.name + "\n" +
+				InlineScriptsPlugin.getInstance().manifest.name + "\n" +
 				(messageType ? (INDENT + messageType + "\n") : "") +
 				INDENT + consoleMessage;
 			switch (messageLevel)

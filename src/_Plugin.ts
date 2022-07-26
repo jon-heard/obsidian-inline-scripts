@@ -4,16 +4,16 @@
 
 "use strict";
 
-// NOTE: The "Text Expander JS" plugin uses a custom format for shortcut-files.  I tried using
-// existing formats (json, xml, etc), but they were cumbersome for developing javascript code in.
+// NOTE: The "Inline Scripts" plugin uses a custom format for shortcut-files.  I tried using
+// existing formats (json, xml, etc), but they were cumbersome for developing JavaScript code in.
 // The chosen format is simple, flexible, and allows for wrapping scripts in js-fenced-code-blocks.
 // This makes it easy to write Expansion scripts within Obsidian which is the intended use-case.
 // For a summary of the format, see here:
-// https://github.com/jon-heard/obsidian-text-expander-js#tutorial-create-a-new-shortcut-file
+// https://github.com/jon-heard/obsidian-inline-scripts#tutorial-create-a-new-shortcut-file
 // and here:
-// https://github.com/jon-heard/obsidian-text-expander-js#development-aid-fenced-code-blocks
+// https://github.com/jon-heard/obsidian-inline-scripts#development-aid-fenced-code-blocks
 
-class TextExpanderJsPlugin extends obsidian.Plugin
+class InlineScriptsPlugin extends obsidian.Plugin
 {
 	// Store the plugin's settings
 	public settings: any;
@@ -26,7 +26,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	// The master list of shortcuts: all registered shortcuts.  Referenced during expansion.
 	public shortcuts: Array<any>;
 	// The instance of the settings panel UI
-	public settingsUi: TextExpanderJsPluginSettings;
+	public settingsUi: InlineScriptsPluginSettings;
 	// The master list of shortcut syntaxes (provided by the About strings of all shortcuts)
 	public syntaxes: Array<any>;
 
@@ -51,7 +51,7 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 		return this.settings.shortcutFiles.filter((f: any) => f.enabled).map((f: any) => f.address);
 	}
 
-	public static getInstance(): TextExpanderJsPlugin
+	public static getInstance(): InlineScriptsPlugin
 	{
 		return this._instance;
 	}
@@ -64,22 +64,22 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private _cm5_handleExpansionTrigger: any;
-	private static _instance: TextExpanderJsPlugin;
+	private static _instance: InlineScriptsPlugin;
 
 	private async onload_internal(): Promise<void>
 	{
 		// Set this as THE instance
-		TextExpanderJsPlugin._instance = this;
+		InlineScriptsPlugin._instance = this;
 
 		// Load settings
 		this.settings =
-			Object.assign( {}, TextExpanderJsPlugin.getDefaultSettings(), await this.loadData() );
+			Object.assign( {}, InlineScriptsPlugin.getDefaultSettings(), await this.loadData() );
 
 		// Now that settings are loaded, update variable for the suffix's final character
 		this.suffixEndCharacter = this.settings.suffix.charAt(this.settings.suffix.length - 1);
 
 		// Attach settings UI
-		this.settingsUi = new TextExpanderJsPluginSettings(this);
+		this.settingsUi = new InlineScriptsPluginSettings(this);
 		this.addSettingTab(this.settingsUi);
 
 		// Attach autocomplete feature
@@ -239,4 +239,4 @@ class TextExpanderJsPlugin extends obsidian.Plugin
 	}, 0); }
 }
 
-module.exports = TextExpanderJsPlugin;
+module.exports = InlineScriptsPlugin;

@@ -17,7 +17,7 @@ __
 __
 return "Hello! How are you?";
 __
-hi - Expands into "Hello! How are you?".  A simple shortcut to see if Text Expander JS is running.
+hi - Expands into "Hello! How are you?".  A simple shortcut to see if Inline Scripts plugin is running.
 
 __
 ^date$
@@ -44,7 +44,7 @@ __
 __
 function roll(max) { return Math.trunc(Math.random() * max + 1); }
 __
-A random "roll" function for other shortcuts.
+A dice roller function used in other shortcuts.
 
 __
 ^[d|D]([0-9]+)$

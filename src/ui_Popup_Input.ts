@@ -12,7 +12,7 @@ class Popup_Input extends obsidian.Modal
 		this._message = message;
 		this._callback = callback;
 		this._value = defaultValue;
-		this.modalEl.classList.add("tejs_popup");
+		this.modalEl.classList.add("iscript_popup");
 	}
 
 	public onOpen()
@@ -28,7 +28,7 @@ class Popup_Input extends obsidian.Modal
 			{
 				text.setValue(this._value);
 				text.inputEl.parentElement.previousSibling.remove();
-				text.inputEl.classList.add("tejs_soloControl");
+				text.inputEl.classList.add("iscript_soloControl");
 				this._control = text;
 				this._value = null;
 			})

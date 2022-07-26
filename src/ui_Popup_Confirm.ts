@@ -12,7 +12,7 @@ class Popup_Confirm extends obsidian.Modal
 		this._message = message;
 		this._callback = callback;
 		this._value = null;
-		this.modalEl.classList.add("tejs_popup");
+		this.modalEl.classList.add("iscript_popup");
 	}
 
 	public onOpen()

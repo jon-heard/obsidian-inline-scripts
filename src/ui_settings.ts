@@ -4,9 +4,9 @@
 
 "use strict";
 
-class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
+class InlineScriptsPluginSettings extends obsidian.PluginSettingTab
 {
-	public constructor(plugin: TextExpanderJsPlugin)
+	public constructor(plugin: InlineScriptsPlugin)
 	{
 		super(plugin.app, plugin);
 	}
@@ -29,7 +29,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		c.empty();
 
 		// App version (in header)
-		c.createEl("div", { text: this.plugin.manifest.version, cls: "tejs_version" });
+		c.createEl("div", { text: this.plugin.manifest.version, cls: "iscript_version" });
 
 		c.createEl("h2", { text: "Shortcut Sources" });
 
@@ -46,7 +46,7 @@ class TextExpanderJsPluginSettings extends obsidian.PluginSettingTab
 		SettingUi_Other.create(c, this.plugin.settings);
 
 		// App version (in footer)
-		c.createEl("div", { text: this.plugin.manifest.version, cls: "tejs_version" });
+		c.createEl("div", { text: this.plugin.manifest.version, cls: "iscript_version" });
 	}
 
 	// THIS is where settings are saved!

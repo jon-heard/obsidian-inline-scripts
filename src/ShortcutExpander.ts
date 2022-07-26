@@ -18,7 +18,7 @@ abstract class ShortcutExpander
 		return this.expand_internal(shortcutText, failSilently, expansionInfo);
 	}
 
-	// Execute an expansion script (a string of javascript defined in a shortcut's Expansion string)
+	// Execute an expansion script (a string of JavaScript defined in a shortcut's Expansion string)
 	public static runExpansionScript(
 		expansionScript: string, failSilently?: boolean, expansionInfo?: any): any
 	{
@@ -63,7 +63,7 @@ abstract class ShortcutExpander
 
 		// Build an expansion script from the master list of shortcuts
 		let expansionScript: string = "";
-		for (const shortcut of TextExpanderJsPlugin.getInstance().shortcuts)
+		for (const shortcut of InlineScriptsPlugin.getInstance().shortcuts)
 		{
 			// Helper-blocker (an empty shortcut) just erases any helper scripts before it
 			if ((!shortcut.test || shortcut.test.source === "(?:)") && !shortcut.expansion)
@@ -123,12 +123,12 @@ abstract class ShortcutExpander
 		// If there are any listeners for the expansion event, call them.  If any of them return
 		// true, then cancel the expansion.
 		else if (expansionInfo.isUserTriggered && !expansionInfo.cancel &&
-		         window._tejs?.listeners?.tejs?.onExpansion)
+		         window._inlineScripts?.listeners?.inlineScripts?.onExpansion)
 		{
 			let replacementInput: string = null;
-			for (const key in window._tejs.listeners.tejs.onExpansion)
+			for (const key in window._inlineScripts.listeners.inlineScripts.onExpansion)
 			{
-				const listener: any = window._tejs.listeners.tejs.onExpansion[key];
+				const listener: any = window._inlineScripts.listeners.inlineScripts.onExpansion[key];
 				if (typeof listener !== "function" && !failSilently)
 				{
 					UserNotifier.run({ message: "Non-function listener:\n" + listener });

@@ -12,17 +12,17 @@ namespace InputBlocker
 		if (value)
 		{
 			// If Input blocker UI already exists, do nothing
-			if (document.getElementById("tejs_inputBlocker")) { return; }
+			if (document.getElementById("iscript_inputBlocker")) { return; }
 
 			// Create the input blocker UI
 			let blockerUi: any = document.createElement("div");
-			blockerUi.id = "tejs_inputBlocker";
+			blockerUi.id = "iscript_inputBlocker";
 			document.getElementsByTagName("body")[0].prepend(blockerUi);
 		}
 		else
 		{
 			// Remove the input blocker UI
-			let blockerUi: any = document.getElementById("tejs_inputBlocker");
+			let blockerUi: any = document.getElementById("iscript_inputBlocker");
 			if (blockerUi) { blockerUi.remove(); }
 		}
 	}
