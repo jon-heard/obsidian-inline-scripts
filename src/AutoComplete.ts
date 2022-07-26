@@ -1,6 +1,6 @@
-///////////////////////////////////////////////////////////////////
-// AutoComplete - Show an autocomplete ui when typing a shortcut //
-///////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+// AutoComplete - Show an autocomplete ui while typing a shortcut //
+////////////////////////////////////////////////////////////////////
 
 "use strict";
 
@@ -34,93 +34,181 @@ class AutoComplete extends obsidian.EditorSuggest
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+	// Keep the plugin for a few different uses
 	private _plugin: TextExpanderJsPlugin;
+	// Keep a bound version of this method to pass into a sort method
 	private _resortSyntaxes: any;
-	private _suggestionDescriptionUi: any;
+	// The original version of a modification to an internal function
 	private _forceSetSelectedItem: Function;
+	// A UI panel created to display the description of the currently suggested shortcut
+	private _suggestionDescriptionUi: any;
+	// A list of the descriptions for the currently suggested shortcuts
 	private _descriptions: Array<string>;
 
 	private constructor_internal(plugin: TextExpanderJsPlugin)
 	{
+		// Plugin stored for a few different uses
 		this._plugin = plugin;
+
+		// Keep a bound version of this method to pass into a sort method
 		this._resortSyntaxes = this.resortSyntaxes.bind(this);
+
+		// Modify the internal forceSelectedItem function
 		this._forceSetSelectedItem = this.suggestions.forceSetSelectedItem.bind(this.suggestions);
-		this.suggestions.forceSetSelectedItem = (e: any,t: any) =>
-		{
-			this._forceSetSelectedItem(e,t);
-			this._suggestionDescriptionUi.setText("");
-			obsidian.MarkdownRenderer.renderMarkdown(
-				this._descriptions[this.suggestions.selectedItem],
-				this._suggestionDescriptionUi, '', this);
-		};
+		this.suggestions.forceSetSelectedItem = this.forceSelectedItem_modified.bind(this);
+
+		// Create a new UI panel to show the description of the currently suggested shortcut
 		this._suggestionDescriptionUi = this.suggestEl.createDiv();
 		this._suggestionDescriptionUi.classList.add("tejs_suggestionDescription");
 	}
 
+	// Called by the system to determine if auto-complete should pop up
 	private onTrigger_internal(cursor: any, editor: any): any
 	{
+		// Keep track of the shortcut prefix and suffix
 		const prefix: string = this._plugin.settings.prefix;
 		const suffix: string = this._plugin.settings.suffix;
-		const lineToCursor: string = editor.getLine(cursor.line).substring(0, cursor.ch);
-		let a: any;
-		const match =
-			(a = lineToCursor.match(prefix + "[^" + suffix[0] + "]*$")) === null || a === void 0 ?
-			void 0 :
-			a.first();
+
+		// Get the current line of text up to the caret position
+		const lineUpToCursor: string = editor.getLine(cursor.line).substring(0, cursor.ch);
+
+		// Look for whether we are within a shortcut (after a prefix, and NOT after a suffix)
+		let match: any = lineUpToCursor.match(prefix + "[^" + suffix[0] + "]*$");
+		match = match?.first();
+
+		// If we ARE within a shortcut, auto-complete should pop up
 		if (match)
 		{
 			return {
 				end: cursor,
 				start:
 				{
-					ch: lineToCursor.lastIndexOf(match) + prefix.length,
+					ch: lineUpToCursor.lastIndexOf(match) + prefix.length,
 					line: cursor.line,
 				},
 				query: match.substr(prefix.length),
 			};
 		}
-		return null;
+		else
+		{
+			return null;
+		}
 	}
 
+	// Called by the system to get a list of suggestions to display in auto-complete
 	private getSuggestions_internal(context: any): any
 	{
-		const result = this._plugin.syntaxes.
-			filter((p: any) =>
+		// Get ALL shortcut syntaxes
+		const result = this._plugin.syntaxes
+		// Check each syntax against the query (i.e. the user's current shortcut-text)
+			.map((p: any) =>
 			{
-				return context.query.match(p.regex);
-			}).
-			sort(this._resortSyntaxes);
+				p.match = context.query.match(p.regex);
+				return p;
+			})
+		// Filter syntaxes down to those that match the query
+			.filter((p: any) =>
+			{
+				return p.match;
+			})
+		// Sort syntaxes by how much they match the query
+			.sort(this._resortSyntaxes);
+		// Fill the descriptions list with descriptions of the listed syntaxes
 		this._descriptions = result.map((v: any) => v.description);
 		return result;
 	};
 
+	// Called by the system to determine HOW to render a given suggestion
 	private renderSuggestion_internal(suggestion: any, el: any): void
 	{
-		el.classList.add("tejs_suggestion");
-		el.setText(suggestion.text);
+		// Get the normal suggestion text
+		let text = suggestion.text;
+
+		// If the suggestion contains parameters, try and modify the suggestion text to highlight
+		// the parameter the user is currently on.
+		if (suggestion.match.length > 1)
+		{
+			// Split the suggestion text into parts, including the parameter sections, the
+			// non-parameter sections and the spaces between the sections
+			const parts = text.split(/(?<=\})|(?=\{)/);
+
+			// Determine if the current shortcut-text is beyond the first part, and if it is just
+			// past its current part.  If so, we should highlight the NEXT part instead of the
+			// current part.
+			const isPassedAParameter =
+				this.context.query.startsWith(parts[0]) && this.context.query.endsWith(" ");
+
+			// Figure out the part to higlight
+			let partToHighlight = parts.length-1;
+			for (let i = suggestion.match.length-1; i >= 0; i--)
+			{
+				let part = parts[partToHighlight];
+				while (!part.startsWith("{") || !part.endsWith("}"))
+				{
+					partToHighlight--;
+					part = parts[partToHighlight];
+				}
+				if (suggestion.match[i])
+				{
+					break;
+				}
+				if (!isPassedAParameter || i < suggestion.match.length-1)
+				{
+					partToHighlight--;
+					if (partToHighlight <= 0)
+					{
+						break;
+					}
+				}
+			}
+
+			// If the part to highlight is beyond the first (i.e. past the non-parameter part), then
+			// highlight that part
+			if (partToHighlight > 0)
+			{
+				parts[partToHighlight] =
+					"<span class='tejs_suggestionHighlight'>" + parts[partToHighlight] + "</span>";
+			}
+
+			// Put the parts back together in the text
+			text = parts.join("");
+		}
+
+		// Fill the ui with the suggestion text
+		el.innerHTML = text;
 	};
 
+	// Called by the system when the user selects one of the suggestions
 	private selectSuggestion_internal(suggestion: any): void
 	{
+		// Do nothing if this is called without any context
 		if (!this.context) { return; }
-		const suggestionEnd: number =
+
+		// Get the suggestion's "fill": all text of the suggestion leading up to the first parameter
+		const suggestionEndIndex: number =
 			suggestion.text.match(/ ?\{/)?.index || suggestion.text.length;
-		const fill = suggestion.text.substr(0, suggestionEnd);
+		const fill = suggestion.text.substr(0, suggestionEndIndex);
+
+		// Do nothing if the query (i.e. the user's current shortcut-text) already has the "fill"
 		if (this.context.query.startsWith(fill))
 		{
 			return;
 		}
+
+		// Add the "fill" to the user's shortcut-text
 		this.context.editor.replaceRange(fill, this.context.start, this.context.end);
 		this.context.start.ch += fill.length;
 		this.context.editor.setCursor(this.context.start);
 	};
 
+	// Used to sort syntaxes by how far they match the query (i.e. the user's current shortcut-text)
 	private resortSyntaxes(a: any, b: any): number
 	{
 		return this.indexOfDifference(b.text, this.context.query) -
 		       this.indexOfDifference(a.text, this.context.query);
 	}
 
+	// Determine the index of the first non-matching character of two strings
 	private indexOfDifference(a: string, b: string): number
 	{
 		for (let i = 0; i < a.length; i++)
@@ -135,5 +223,16 @@ class AutoComplete extends obsidian.EditorSuggest
 			}
 		}
 		return a.length;
+	}
+
+	// The internal function "forceSelectedItem" is modified to do it's usual job AND to update the
+	// suggestion description UI
+	private forceSelectedItem_modified(e: any,t: any)
+	{
+		this._forceSetSelectedItem(e, t);
+		this._suggestionDescriptionUi.setText("");
+		obsidian.MarkdownRenderer.renderMarkdown(
+			this._descriptions[this.suggestions.selectedItem],
+			this._suggestionDescriptionUi, '', this);
 	}
 }
