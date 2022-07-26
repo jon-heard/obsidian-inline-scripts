@@ -119,7 +119,7 @@ BASIC SETTINGS - RESET TO DEFAULTS
 6. Add shortcut (common action)
 	- test:
 		testShortcut
-	- expnsion:
+	- expansion:
 		testShortcut
 8. Change prefix and suffix settings to "<<" and ">>" respectively
 9. Turn on "Developer mode" and "Allow external" settings
@@ -177,6 +177,10 @@ BASIC SETTINGS - ERRORS
 11. Confirm that a red error box appears above the prefix setting, warning about suffix containing prefix
 12. Close and open plugin settings
 13. Confirm that the prefix setting is back to what it was at the start
+14. Set the prefix setting to "{"
+15. Confirm that a red error box appears above the prefix setting, warning about characters with auto-complete
+16. Close and open plugin settings
+17. Confirm that the prefix setting is back to what it was at the start
 
 BASIC SHORTCUTS
 1. Check invalid shortcut "test 1" (common action)
@@ -256,12 +260,12 @@ BASIC SHORTCUT ERRORS
 25. Confirm that no new console entry appears
 
 SHORTCUT ORDER
-1. Add shortcut
+1. Add shortcut (common action):
 	- Test:
 		^test 3$
 	- Expansion:
 		return "First test 3 successful";
-2. Add shortcut
+2. Add shortcut (common action):
 	- Test:
 		^test 3$
 	- Expansion:
@@ -294,7 +298,7 @@ SHORTCUTS - BACKSLASHES ARE TRANSLATED FROM SHORTCUT-TEXT TO EXPANSION-SCRIPTS
 	- Test:
 		^echo (.+)$
 	- Expansion:
-		return $1 + ;
+		return $1;
 
 2. Check shortcut "echo \h\n"a\tb" (common action)
 3. Confirm that the expansion (when caret is on it) is "\h\n"a\tb"
@@ -326,17 +330,17 @@ SHORTCUTS - EXPANSION INFO
 4. Confirm that the expansion is "yes"
 5. Check shortcut "echo no" (common action)
 6. Confirm that the expansion doesn't happen
-7. Clear the note, then enter these lines of text into the note:
+7. Clear the note, then enter these lines of text into the note (without tabs):
 	first line
 	second line start test info a end
 	third line
 
 8. Wrap "test info a" (second line) in the shortcut prefix/suffix
-9. Confirm tht the output is:
+9. Confirm tht the resulting note content is:
 	first line
 	second line start 
 	Line - 	second line start ;;test info a:: end
-	start - 19
+	start - 18
 	end - 33
 	shortcutText - test info a
 	prefix - ;;
@@ -428,7 +432,7 @@ BASIC SHORTCUT-FILES
 1. Check invalid shortcut "test 9" (common action)
 2. Check invalid shortcut "test 10" (common action)
 3. Check invalid help "testfile" (common action)
-4. Add note "testing/tejs_testfile" (common action)
+4. Add note "testing/testfile.sfile" (common action)
 	Test file
 
 	__
@@ -451,7 +455,7 @@ BASIC SHORTCUT-FILES
 	__
 	test 10 - Tenth test shortcut
 
-5. Register shortcut-file "testing/tejs_testfile" (common action)
+5. Register shortcut-file "testing/testfile.sfile" (common action)
 6. Confirm that entry turns red when typing has started
 7. Confirm that entry turns dark grey when entry is finished
 8. Check shortcut "test 9" (common action)
@@ -462,14 +466,14 @@ BASIC SHORTCUT-FILES
 13. Type ";;help::".
 14. Confirm that the expansion includes "testfile"
 15. Open plugin settings
-16. Remove shortcut-file entry for "testing/tejs_testfile"
+16. Remove shortcut-file entry for "testing/testfile.sfile"
 17. Close plugin settings
 18. Check invalid shortcut "test 9" (common action)
 19. Check invalid shortcut "test 10" (common action)
 20. Check invalid help "testfile" (common action)
 21. Type ";;help::".
 22. Confirm that the expansion doesn't include "testfile"
-23. Rename the note "testing/tejs_testfile" to "testing/testfile"
+23. Rename the note "testing/testfile.sfile" to "testing/testfile"
 24. Go to the note "testResults"
 25. Register shortcut-file "testing/testfile" (common action)
 26. Register shortcut-file "" (blank) (common action)
@@ -477,7 +481,7 @@ BASIC SHORTCUT-FILES
 28. Open plugin settings
 29. Confirm that there is only one shortcut-file entry: "testing/testfile"
 30. Reset settings (common action)
-31. Rename the note "testing/testfile" to "testing/tejs_testfile"
+31. Rename the note "testing/testfile" to "testing/testfile.sfile"
 
 BASIC SHORTCUT-FILE ERRORS - MISSING-SHORTCUT-FILE-ERROR
 1. Register shortcut-file "invalidFile" (common action)
@@ -495,7 +499,7 @@ BASIC SHORTCUT-FILE ERRORS - MISSING-SHORTCUT-FILE-ERROR
 13. Confirm that no popup or console entry appears
 
 BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
-1. Add note "testing/tejs_testfile" (common action)
+1. Add note "testing/testfile.sfile" (common action)
 	__
 	^test 11$
 	__
@@ -506,7 +510,7 @@ BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
 	__
 	return "Test 12 successful";
 
-2. Register shortcut-file "testing/tejs_testfile" (common action)
+2. Register shortcut-file "testing/testfile.sfile" (common action)
 3. Confirm that a popup about shortcut-file issues appears
 4. Confirm that MISNUMBERED-SECTION-COUNT-ERROR is added to the console
 5. Check help "testfile" (common action)
@@ -514,15 +518,15 @@ BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
 7. Check help "testfile" for invalid shortcut "^test 12$" (common action)
 8. Check shortcut "test 11" (common action)
 9. Check invalid shortcut "test 12" (common action)
-10. Go to note "testing/tejs_testfile"
+10. Go to note "testing/testfile.sfile"
 11. Go to the note "testResults"
 12. Confirm that no popup or console entry appears
 13. Check shortcut "test 11" (common action)
 14. Check invalid shortcut "test 12" (common action)
-15. Go to note "testing/tejs_testfile"
+15. Go to note "testing/testfile.sfile"
 16. Append a line to the end of the file with "__"
 17. Go to the note "testResults"
-18. Confirm that no no popup or console entry appears
+18. Confirm that no popup or console entry appears
 19. Check shortcut "test 11" (common action)
 20. Check shortcut "test 12" (common action)
 21. Check help "testfile" for shortcut "^test 11$"  (common action)
@@ -530,36 +534,36 @@ BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
 23. Reset settings
 
 DEVELOPER MODE
-1. Add note "testing/tejs_testfile" (common action)
+1. Add note "testing/testfile.sfile" (common action)
 	__
 	^test 13$
 	__
 	return "Test 13 successful";
 
-2. Register shortcut-file "testing/tejs_testfile"
+2. Register shortcut-file "testing/testfile.sfile"
 3. Confirm that a new popup shows shortcut-file issues
 4. Confirm MISNUMBERED-SECTION-COUNT-ERROR is added to the console
-5. Go to the note "testing/tejs_testfile"
+5. Go to the note "testing/testfile.sfile"
 6. Go to the note "testResults"
 7. Confirm that no new popup or console entry appears
 8. Open plugin settings
 9. Turn on "Developer mode" (near bottom)
 10. Close plugin settings
 11. Confirm that no new popup or console entry appears
-12. Go to the note "testing/tejs_testfile"
+12. Go to the note "testing/testfile.sfile"
 13. Go to the note "testResults"
 14. Confirm that a new popup shows shortcut-file issues
 15. Confirm that MISNUMBERED-SECTION-COUNT-ERROR is added to the console
 16. Open plugin settings
 17. Turn off "Developer mode"
 18. Close plugin settings
-19. Go to the note "testing/tejs_testfile"
+19. Go to the note "testing/testfile.sfile"
 20. Go to the note "testResults"
 21. Confirm that no popup or console entry appears
 22. Reset settings
 
 SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
-1. Add note "testing/tejs_testfile1" (common action)
+1. Add note "testing/testfile_1.sfile" (common action)
 	__
 	^test 14$
 	__
@@ -577,7 +581,7 @@ SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 	return "Test 15 successful: " + (typeof tstFnc1 === "function" ? "has tstFnc1" : "no tstFnc1");
 	__
 
-3. Add note "testing/tejs_testfile2" (common action)
+3. Add note "testing/testfile_2.sfile" (common action)
 	__
 	^test 14$
 	__
@@ -611,8 +615,8 @@ SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 	return "Test 18 successful: " + (typeof tstFnc2 === "function" ? "has tstFnc2" : "no tstFnc2");
 	__
 
-6. Register shortcut-file "testing/tejs_testfile1"
-7. Register shortcut-file "testing/tejs_testfile2"
+6. Register shortcut-file "testing/testfile.sfile1"
+7. Register shortcut-file "testing/testfile.sfile2"
 9. Check shortcut "test 14" (common action)
 10. Confirm that the expansion is "First test 14 successful: no tstFnc1"
 11. Check shortcut "test 15" (common action)
@@ -631,22 +635,22 @@ SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 24. Reset settings
 
 SHORTCUT-FILE - SETUP AND SHUTDOWN SCRIPTS
-1. Add note "testing/tejs_testfile" (common action)
+1. Add note "testing/testfile.sfile" (common action)
 	__
-	^tejs setup$
+	^sfile setup$
 	__
 	console.log("Setting up testfile");
 	__
 
 	__
-	^tejs shutdown$
+	^sfile shutdown$
 	__
 	console.log("Shutting down testfile");
 	__
 
-2. Register shortcut-file entry "testing/tejs_testfile"
+2. Register shortcut-file entry "testing/testfile.sfile"
 3. Confirm that a console entry is added: "Setting up testfile"
-4. Go to the note "testing/tejs_testfile"
+4. Go to the note "testing/testfile.sfile"
 5. Add a newline to the end of the file
 6. Go to the note "testResults"
 7. Confirm that a console entry is added: "Setting up testfile"
@@ -655,12 +659,20 @@ SHORTCUT-FILE - SETUP AND SHUTDOWN SCRIPTS
 10. Enable the plugin
 11. Confirm that a console entry is added: "Setting up testfile"
 12. Open plugin settings
-13. Remove the shortcut-files entry "testing/tejs_testfile"
+13. Disable the shortcut-file
 14. Close plugin settings
 15. Confirm that a console entry is added: "Shutting down testfile"
-16. Add note "testing/tejs_testfile"
+16. Open plugin settings
+17. Enable the shortcut-file
+18. Close plugin settings
+19. Confirm that a console entry is added: "Setting up testfile"
+20. Open plugin settings
+21. Remove the shortcut-files entry "testing/testfile.sfile"
+22. Close plugin settings
+23. Confirm that a console entry is added: "Shutting down testfile"
+24. Add note "testing/testfile.sfile"
 	__
-	^tejs setup$
+	^sfile setup$
 	__
 	console.log("Setting up testfile");
 	return true;
@@ -673,16 +685,16 @@ SHORTCUT-FILE - SETUP AND SHUTDOWN SCRIPTS
 	__
 
 	__
-	^tejs shutdown$
+	^sfile shutdown$
 	__
 	console.log("Shutting down testfile");
 	__
 
-17. Register shortcut-file "testing/tejs_testfile" (common action)
+17. Register shortcut-file "testing/testfile.sfile" (common action)
 18. Confirm that a console entry is added "Setting up testfile"
 19. Check invalid shortcut "test 19" (common action)
 20. Open plugin settings
-21. Remove the shortcut-files entry "testing/tejs_testfile"
+21. Remove the shortcut-files entry "testing/testfile.sfile"
 22. Close plugin settings
 23. Confirm that a console entry is NOT added "Shutting down testfile"
 
@@ -697,37 +709,37 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 8. Confirm that a bunch of shortcut-file entries have been added
 9. Count (and remember) the number of shortcut-file entries
 10. Close plugin settings
-11. Confirm that there is a new "tejs" folder with files in it.
+11. Confirm that there is a new folder "support/inlineScripts" with files in it.
 12. Confirm that the number of files matches the count from step 9
 13. Reset settings
-14. Delete the "tejs" folder (and the files within)
+14. Delete the "support/inlineScripts" folder (and the files within)
 15. Open plugin settings
 16. Register shortcut-file "first" (common action)
-17. Register shortcut-file "support/tejs_lists" (common action)
+17. Register shortcut-file "lib/lists.sfile" (common action)
 18. Register shortcut-file "second" (common action)
 19. Click the "Import full library" button
-20. Confirm that the inputted path is "support"
+20. Confirm that the inputted path is "lib"
 21. Click the "Ok" button
 22. Confirm that a bunch of new entries have been added to Shortcut-files
 23. Confirm that the first two entries are "first" and "second"
-24. Confirm that "support/tejs_lists" comes after the first 3 entries
+24. Confirm that "lib/lists.sfile" comes after the first 3 entries
 25. Remove the first two entries: "first" and "second"
 26. Confirm that the entry count matches the count from step 9
-27. Confirm that all entries start with "support/"
+27. Confirm that all entries start with "lib/"
 28. Close plugin settings
-29. Confirm that there is a folder "support"
-30. Confirm that the "support" folder contains files who's count matches that from step 9
-31. Go to the note "support/tejs_state"
+29. Confirm that there is a folder "lib"
+30. Confirm that the "lib" folder contains files who's count matches that from step 9
+31. Go to the note "lib/state.sfile"
 32. Erase all contents of the note
 33. Go to the note "testResults"
 34. Open plugin settings
 35. Click the "Import full library" button
-36. Confirm that the inputted path is "support"
+36. Confirm that the inputted path is "lib"
 37. Click the "Ok" button
 38. Confirm that the entry count matches the count from step 9
 39. Close plugin settings
 40. Confirm that the "support" folder contains files who's count matches that from step 9
-41. Go to the note "support/tejs_state"
+41. Go to the note "lib/state.sfile"
 42. Confirm that it is not empty
 43. Go to the note "testResults"
 44. Open plugin settings
@@ -735,13 +747,13 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 46. Enter the path "testLib/depth2/depth3"
 47. Click the "Ok" button
 48. Confirm that there are twice as many shortcut-file entries as the count from step 9
-49. Confirm that the first entries start with "support/"
+49. Confirm that the first entries start with "lib/"
 50. Confirm that the last entries start with "testLib/depth2/depth3/"
 51. Close plugin settings
-52. Confirm that the "support" folder still exist, along with its files
+52. Confirm that the "lib" folder still exist, along with its files
 53. Confirm that a new set of folders "testLib/depth2/depth3" exists with the same files
 54. Reset settings
-57. Delete the "support" and "tesetLib" folders (and the folders and files within)
+57. Delete the "lib" and "testLib" folders (and the folders and files within)
 58. Disconnect internet
 59. Open plugin settings
 60. Click the "Import full library" button
@@ -751,15 +763,15 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 64. Reconnect internet
 
 SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
-1. Add note "testing/tejs_testfile" (common action)
+1. Add note "testing/testfile.sfile" (common action)
 	__
-	^tejs setup$
+	^sfile setup$
 	__
-	window._tejs ||= {};
-	window._tejs.listeners ||= {};
-	window._tejs.listeners.tejs ||= {};
-	window._tejs.listeners.tejs.onExpansion ||= {};
-	window._tejs.listeners.tejs.onExpansion.testCallback ||= (expansionInfo) =>
+	window._inlineScripts ||= {};
+	window._inlineScripts.listeners ||= {};
+	window._inlineScripts.listeners.inlineScripts ||= {};
+	window._inlineScripts.listeners.inlineScripts.onExpansion ||= {};
+	window._inlineScripts.listeners.inlineScripts.onExpansion.testCallback ||= (expansionInfo) =>
 	{
 		if (expansionInfo.shortcutText.contains("d"))
 		{
@@ -773,12 +785,12 @@ SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 	__
 
 	__
-	^tejs shutdown$
+	^sfile shutdown$
 	__
-	delete window._tejs.listeners?.tejs?.onExpansion?.testCallback;
+	delete window._inlineScripts.listeners?.inlineScripts?.onExpansion?.testCallback;
 	__
 
-2. Register shortcut-file "testing/tejs_testfile" (common action)
+2. Register shortcut-file "testing/testfile.sfile" (common action)
 3. Check shortcut "hi" (common action)
 4. Confirm that a popup and console log are added that show the input and expansion text.
 5. Check shortcut "date" (common action)
@@ -789,7 +801,7 @@ SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 10. Confirm that the expansion string is for the "time shortcut.
 11. Confirm that a popup and console message are added.
 12. Open plugin settings
-13. Remove the shortcut-file entry "testing/tejs_testfile"
+13. Remove the shortcut-file entry "testing/testfile.sfile"
 14. Close plugin settings
 15. Check shortcut "hi" (common action)
 16. Confirm that no popup or expansion text shows up
@@ -797,7 +809,7 @@ SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 18. Confirm that the expansion is the current date
 
 SHORTCUT-FILE - ENABLE/DISABLE
-1. Add note "testing/tejs_testfile1"
+1. Add note "testing/testfile_1.sfile"
 	__
 	test 20
 	__
@@ -810,7 +822,7 @@ SHORTCUT-FILE - ENABLE/DISABLE
 	return "Test 21 successful.";
 	__
 
-2. Add note "testing/tejs_testfile2"
+2. Add note "testing/testfile_2.sfile"
 	__
 	test 20
 	__
@@ -823,14 +835,14 @@ SHORTCUT-FILE - ENABLE/DISABLE
 	return "Test 22 successful.";
 	__
 
-3. Register shortcut-file "testing/tejs_testfile1"
-4. Register shortcut-file "testing/tejs_testfile2"
+3. Register shortcut-file "testing/testfile_1.sfile"
+4. Register shortcut-file "testing/testfile_2.sfile"
 5. Check shortcut "test 20" (common action)
 6. Confirm that the expansion is "First test 20 successful."
 7. Check shortcut "test 21" (common action)
 8. Check shortcut "test 22" (common action)
 9. Open plugin settings
-10. Turn off the toggle to the left of the entry "testing/tejs_testfile1"
+10. Turn off the toggle to the left of the entry "testing/testfile.sfile1"
 11. Close plugin settings
 12. Check shortcut "test 20" (common action)
 13. Confirm that the expansion is "Second test 20 successful."
@@ -840,7 +852,7 @@ SHORTCUT-FILE - ENABLE/DISABLE
 17. Reset settings
 
 SHORTCUT-FILE - FAIL SILENTLY
-1. Add note "testing/tejs_testfile" (common action)
+1. Add note "testing/testfile.sfile" (common action)
 	__
 	test 23
 	__
@@ -853,18 +865,18 @@ SHORTCUT-FILE - FAIL SILENTLY
 	return "Test 24: " + (expand("test 23") ?? "test 23 failed");
 	__
 
-2. Register shortcut-file "testing/tejs_testfile" (common action)
+2. Register shortcut-file "testing/testfile.sfile" (common action)
 3. Check shortcut "test 24" (common action)
 4. Confirm that console error "SHORTCUT-EXPANSION-ERROR" is added
-5. Modify test 24 in "testing/tejs_testfile"
+5. Modify test 24 in "testing/testfile.sfile"
 	- Expansion:
 		return "Test 24: " + (expand("test 23", true) ?? "test 23 failed");
 
 6. Go to the note "testResults"
 7. Check shortcut "test 24" (common action)
 8. Confirm that expansion is "Test 24: test 23 failed"
-9. Go to the note "testing/tejs_testfile"
-10. Modify the test 23 in "testing/tejs_testfile"
+9. Go to the note "testing/testfile.sfile"
+10. Modify the test 23 in "testing/testfile.sfile"
 	- Expansion:
 		<blank>
 
@@ -872,6 +884,6 @@ SHORTCUT-FILE - FAIL SILENTLY
 12. Check shortcut "test 24" (common action)
 13. Confirm that expansion is "Test 24: "
 14. Open plugin settings
-15. Remove the shortcut-files entry "testing/tejs_testfile"
+15. Remove the shortcut-files entry "testing/testfile.sfile"
 16. Close plugin settings
 17. Confirm that a console entry is NOT added
