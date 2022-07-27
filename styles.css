@@ -187,6 +187,7 @@
 	right: 2em;
 	bottom: 1em;
 	display: none;
+	z-index: 100;
 }
 .iscript_suggestionDescription_above
 {

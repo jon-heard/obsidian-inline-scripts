@@ -4,6 +4,10 @@
 
 "use strict";
 
+const SUGGESTION_LIMIT = 1000;
+
+const REGEX_SYNTAX_SPLITTER: RegExp = /(?<=\})|(?=\{)/;
+
 class AutoComplete extends obsidian.EditorSuggest
 {
 	public constructor(plugin: InlineScriptsPlugin)
@@ -54,6 +58,8 @@ class AutoComplete extends obsidian.EditorSuggest
 		// Plugin stored for a few different uses
 		this._plugin = plugin;
 
+		this.limit = SUGGESTION_LIMIT;
+
 		// Keep a bound version of this method to pass into a sort method
 		this._resortSyntaxes = this.resortSyntaxes.bind(this);
 
@@ -69,11 +75,14 @@ class AutoComplete extends obsidian.EditorSuggest
 		this._suggestionDescriptionUi = document.getElementById("shortcutSuggestionDescription");
 		if (!this._suggestionDescriptionUi)
 		{
-			this._suggestionDescriptionUi = document.createElement("div");
-			this._suggestionDescriptionUi.id = "shortcutSuggestionDescription";
-			document.querySelector(".workspace-split.mod-root").
-				appendChild(this._suggestionDescriptionUi);
-			this._suggestionDescriptionUi.classList.add("iscript_suggestionDescription");
+			plugin.app.workspace.onLayoutReady(() =>
+			{
+				this._suggestionDescriptionUi = document.createElement("div");
+				this._suggestionDescriptionUi.id = "shortcutSuggestionDescription";
+				document.querySelector(".workspace-split.mod-root").
+					appendChild(this._suggestionDescriptionUi);
+				this._suggestionDescriptionUi.classList.add("iscript_suggestionDescription");
+			});
 		}
 	}
 
@@ -145,7 +154,7 @@ class AutoComplete extends obsidian.EditorSuggest
 		{
 			// Split the suggestion text into parts, including the parameter sections, the
 			// non-parameter sections and the spaces between the sections
-			const parts = text.split(/(?<=\})|(?=\{)/);
+			const parts = text.split(REGEX_SYNTAX_SPLITTER);
 
 			// Determine if the current shortcut-text is beyond the first part, and if it is just
 			// past its current part.  If so, we should highlight the NEXT part instead of the
@@ -179,10 +188,11 @@ class AutoComplete extends obsidian.EditorSuggest
 
 			// If the part to highlight is beyond the first (i.e. past the non-parameter part), then
 			// highlight that part
-			if (partToHighlight > 0)
+			if (partToHighlight > 0 || parts[partToHighlight]?.startsWith("{"))
 			{
 				parts[partToHighlight] =
-					"<span class='iscript_suggestionHighlight'>" + parts[partToHighlight] + "</span>";
+					"<span class='iscript_suggestionHighlight'>" + parts[partToHighlight] +
+					"</span>";
 			}
 
 			// Put the parts back together in the text
@@ -190,7 +200,7 @@ class AutoComplete extends obsidian.EditorSuggest
 		}
 
 		// Fill the ui with the suggestion text
-		el.innerHTML = text;
+		el.innerHTML = text.replace("<", "&lt;");
 	};
 
 	// Called by the system when the user selects one of the suggestions
@@ -199,8 +209,22 @@ class AutoComplete extends obsidian.EditorSuggest
 		// Do nothing if this is called without any context
 		if (!this.context) { return; }
 
-		// If suggestion is already fully selected, try expanding the shortcut text
-		if (this.context.query === suggestion.text)
+		// Get the suggestion's "fill": all of the suggestion text before the first parameter
+		const suggestionEndIndex: number =
+			suggestion.text.match(/ ?\{/)?.index ?? suggestion.text.length;
+		const fill = suggestion.text.substr(0, suggestionEndIndex);
+
+		// If the current shortcut-text doesn't yet have all the fill, set it to the fill
+		if (!this.context.query.startsWith(fill))
+		{
+			this.context.editor.replaceRange(fill, this.context.start, this.context.end);
+			this.context.start.ch += fill.length;
+			this.context.editor.setCursor(this.context.start);
+		}
+
+		// The current shortcut-text already has all the fill, and the fill is all there is (no
+		// parameters).  Try expanding the shortcut text.
+		else if (fill === suggestion.text)
 		{
 			const plugin: InlineScriptsPlugin = InlineScriptsPlugin.getInstance();
 			this.context.editor.replaceRange(
@@ -208,24 +232,38 @@ class AutoComplete extends obsidian.EditorSuggest
 			this.context.end.ch += plugin.settings.suffix.length;
 			this.context.editor.setCursor(this.context.end);
 			plugin.tryShortcutExpansion();
-			return;
 		}
 
-		// Get the suggestion's "fill": all text of the suggestion leading up to the first parameter
-		const suggestionEndIndex: number =
-			suggestion.text.match(/ ?\{/)?.index ?? suggestion.text.length;
-		const fill = suggestion.text.substr(0, suggestionEndIndex);
-
-		// Do nothing if the query (i.e. the user's current shortcut-text) already has the "fill"
-		if (this.context.query.startsWith(fill))
+		// The current shortcut-text already has all the fill, but there are parameters.  Are all
+		// parameters satisfied (filled or optional)?  If so, try expanding the shortcut text.
+		else
 		{
-			return;
+			const parts = suggestion.text.split(REGEX_SYNTAX_SPLITTER);
+			let parameterIndex = suggestion.match.length - 1;
+			for (let i = parts.length - 1; i >= 0; i--)
+			{
+				if (parts[i].startsWith("{"))
+				{
+					// If parameter isn't fulfilled and isn't optional, end now
+					if (!suggestion.match[parameterIndex] &&
+					    parts[i].indexOf("optional") == -1)
+					{
+						break;
+					}
+					parameterIndex--;
+				}
+				if (parameterIndex == 0)
+				{
+					const plugin: InlineScriptsPlugin = InlineScriptsPlugin.getInstance();
+					this.context.editor.replaceRange(
+						plugin.settings.suffix, this.context.end, this.context.end);
+					this.context.end.ch += plugin.settings.suffix.length;
+					this.context.editor.setCursor(this.context.end);
+					plugin.tryShortcutExpansion();
+					break;
+				}
+			}
 		}
-
-		// Add the "fill" to the user's shortcut-text
-		this.context.editor.replaceRange(fill, this.context.start, this.context.end);
-		this.context.start.ch += fill.length;
-		this.context.editor.setCursor(this.context.start);
 	};
 
 	// Used to sort syntaxes by how far they match the query (i.e. the user's current shortcut-text)

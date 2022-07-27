@@ -32,7 +32,9 @@ const SORT_SYNTAXES = (a: any, b: any): number =>
 	else if (b.text === "help") { return 1; }
 	else
 	{
-		return a.text.replaceAll("{", "0").localeCompare(b.text.replaceAll("{", "0"));
+		const lhs = a.text.replaceAll("{", "0").replaceAll(/(?<!\\)~/g, String.fromCharCode(9));
+		const rhs = b.text.replaceAll("{", "0").replaceAll(/(?<!\\)~/g, String.fromCharCode(9));
+		return lhs.localeCompare(rhs);
 	}
 }
 
@@ -158,7 +160,6 @@ abstract class ShortcutLoader
 			{
 				let aboutParts: Array<string> =
 					sections[i+2].split(REGEX_SPLIT_FIRST_DASH).map((v: string) => v.trim());
-				aboutParts[0] = aboutParts[0].replaceAll("\\-", "-");
 				// If no syntax string is included, use the Regex string instead
 				if (aboutParts.length === 1)
 				{
@@ -295,8 +296,8 @@ abstract class ShortcutLoader
 		// Generate and add help shortcuts
 		plugin.shortcuts = this.generateHelpShortcuts(abouts).concat(plugin.shortcuts);
 
-		// Finalize the master syntaxes list - add generic help and sort
-		plugin.syntaxes.sort(SORT_SYNTAXES);
+		// Finalize the master syntaxes list
+		this.finalizeShortcutSyntaxes();
 	}
 
 	private static updateGeneralHelpShortcut(shortcutFiles: Array<string>): void
@@ -352,7 +353,8 @@ abstract class ShortcutLoader
 					description = " - " + stringifyString(about.description);
 				}
 				expansion +=
-					"result += \"- __" + about.syntax + "__" + description + "\\n\";\n";
+					"result += \"- __" + stringifyString(about.syntax) + "__" +
+					description + "\\n\";\n";
 			}
 			if (!abouts.length)
 			{
@@ -405,24 +407,41 @@ abstract class ShortcutLoader
 	{
 		const plugin = InlineScriptsPlugin.getInstance();
 
-		for (const syntax of syntaxes)
-		{
-			plugin.syntaxes.push(
-			{
-				text: syntax[0],
-				regex: this.generateSyntaxRegex(syntax[0]),
-				description: syntax[1]
-			});
-		}
 		for (const about of abouts)
 		{
 			plugin.syntaxes.push(
 			{
 				text: about.syntax,
-				regex: this.generateSyntaxRegex(about.syntax),
 				description: about.description.replaceAll("\n***", "")
 			});
+			about.syntax = this.removeSyntaxSpecialCharacters(about.syntax);
 		}
+		for (const syntax of syntaxes)
+		{
+			plugin.syntaxes.push(
+			{
+				text: syntax[0],
+				description: syntax[1]
+			});
+		}
+	}
+
+	private static finalizeShortcutSyntaxes(): void
+	{
+		const plugin = InlineScriptsPlugin.getInstance();
+
+		plugin.syntaxes.sort(SORT_SYNTAXES);
+
+		for (let syntax of plugin.syntaxes)
+		{
+			syntax.text = this.removeSyntaxSpecialCharacters(syntax.text);
+			syntax.regex = this.generateSyntaxRegex(syntax.text);
+		}
+	}
+
+	private static removeSyntaxSpecialCharacters(src: string): string
+	{
+		return src.replaceAll(/(?<!\\)~/g, "").replaceAll(/\\(?=-|~)/g, "");
 	}
 
 	private static generateSyntaxRegex(syntax: string): RegExp

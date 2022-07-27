@@ -8,5 +8,6 @@ declare global
 		request: Function;
 		plugin: any;
 		dbg: boolean;
+		brk: Function;
 	}
 }
