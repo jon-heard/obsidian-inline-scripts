@@ -61,6 +61,11 @@ class InlineScriptsPlugin extends obsidian.Plugin
 		return Object.assign({}, DEFAULT_SETTINGS);
 	}
 
+	public tryShortcutExpansion(): void
+	{
+		this.tryShortcutExpansion_internal();
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private _cm5_handleExpansionTrigger: any;
@@ -187,7 +192,7 @@ class InlineScriptsPlugin extends obsidian.Plugin
 	// Tries to get shortcut beneath caret and expand it.  setTimeout pauses for a frame to
 	// give the calling event the opportunity to finish processing.  This is especially
 	// important for CM5, as the typed key isn't in the editor until the calling event finishes.
-	private tryShortcutExpansion(): void { setTimeout(() =>
+	private tryShortcutExpansion_internal(): void { setTimeout(() =>
 	{
 		const editor: any  = this.app.workspace.getActiveViewOfType(obsidian.MarkdownView)?.editor;
 		if (!editor) { return; }

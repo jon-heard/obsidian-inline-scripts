@@ -38,8 +38,12 @@ class AutoComplete extends obsidian.EditorSuggest
 	private _plugin: InlineScriptsPlugin;
 	// Keep a bound version of this method to pass into a sort method
 	private _resortSyntaxes: any;
-	// The original version of a modification to an internal function
+	// The original function called on a modification to an internal function
 	private _forceSetSelectedItem: Function;
+	// The original function called on showing the suggestion list ui
+	private _open: Function;
+	// The original function called on hiding the suggestion list ui
+	private _close: Function;
 	// A UI panel created to display the description of the currently suggested shortcut
 	private _suggestionDescriptionUi: any;
 	// A list of the descriptions for the currently suggested shortcuts
@@ -53,13 +57,24 @@ class AutoComplete extends obsidian.EditorSuggest
 		// Keep a bound version of this method to pass into a sort method
 		this._resortSyntaxes = this.resortSyntaxes.bind(this);
 
-		// Modify the internal forceSelectedItem function
+		// Modify original functions - forceSelectedItem, open, close
 		this._forceSetSelectedItem = this.suggestions.forceSetSelectedItem.bind(this.suggestions);
 		this.suggestions.forceSetSelectedItem = this.forceSelectedItem_modified.bind(this);
+		this._open = this.open;
+		this.open = this.open_modified;
+		this._close = this.close;
+		this.close = this.close_modified;
 
-		// Create a new UI panel to show the description of the currently suggested shortcut
-		this._suggestionDescriptionUi = this.suggestEl.createDiv();
-		this._suggestionDescriptionUi.classList.add("iscript_suggestionDescription");
+		// Get or create a new UI panel to show the description of the currently suggested shortcut
+		this._suggestionDescriptionUi = document.getElementById("shortcutSuggestionDescription");
+		if (!this._suggestionDescriptionUi)
+		{
+			this._suggestionDescriptionUi = document.createElement("div");
+			this._suggestionDescriptionUi.id = "shortcutSuggestionDescription";
+			document.querySelector(".workspace-split.mod-root").
+				appendChild(this._suggestionDescriptionUi);
+			this._suggestionDescriptionUi.classList.add("iscript_suggestionDescription");
+		}
 	}
 
 	// Called by the system to determine if auto-complete should pop up
@@ -184,6 +199,18 @@ class AutoComplete extends obsidian.EditorSuggest
 		// Do nothing if this is called without any context
 		if (!this.context) { return; }
 
+		// If suggestion is already fully selected, try expanding the shortcut text
+		if (this.context.query === suggestion.text)
+		{
+			const plugin: InlineScriptsPlugin = InlineScriptsPlugin.getInstance();
+			this.context.editor.replaceRange(
+				plugin.settings.suffix, this.context.end, this.context.end);
+			this.context.end.ch += plugin.settings.suffix.length;
+			this.context.editor.setCursor(this.context.end);
+			plugin.tryShortcutExpansion();
+			return;
+		}
+
 		// Get the suggestion's "fill": all text of the suggestion leading up to the first parameter
 		const suggestionEndIndex: number =
 			suggestion.text.match(/ ?\{/)?.index || suggestion.text.length;
@@ -234,5 +261,32 @@ class AutoComplete extends obsidian.EditorSuggest
 		obsidian.MarkdownRenderer.renderMarkdown(
 			this._descriptions[this.suggestions.selectedItem],
 			this._suggestionDescriptionUi, '', this);
+	}
+
+	private open_modified()
+	{
+		this._open();
+		this._suggestionDescriptionUi.style.display = "unset";
+		// Put descriptionUi at top or bottom of suggestions?
+		setTimeout(() =>
+		{
+			const suggestListRect: any = this.suggestEl.getBoundingClientRect();
+			const bottom = suggestListRect.y + suggestListRect.height;
+			if (bottom > window.innerHeight * 0.7)
+			{
+				this._suggestionDescriptionUi.classList.add("iscript_suggestionDescription_above");
+			}
+			else
+			{
+				this._suggestionDescriptionUi.classList.
+					remove("iscript_suggestionDescription_above");
+			}
+		}, 0);
+	}
+
+	private close_modified()
+	{
+		this._close();
+		this._suggestionDescriptionUi.style.display = "none";
 	}
 }

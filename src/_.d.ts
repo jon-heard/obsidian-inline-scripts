@@ -7,5 +7,6 @@ declare global
 		_inlineScripts: any;
 		request: Function;
 		plugin: any;
+		dbg: boolean;
 	}
 }
