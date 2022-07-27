@@ -146,7 +146,7 @@ class AutoComplete extends obsidian.EditorSuggest
 	private renderSuggestion_internal(suggestion: any, el: any): void
 	{
 		// Get the normal suggestion text
-		let text = suggestion.text;
+		let text = suggestion.text.replace("<", "&lt;");
 
 		// If the suggestion contains parameters, try and modify the suggestion text to highlight
 		// the parameter the user is currently on.
@@ -200,7 +200,7 @@ class AutoComplete extends obsidian.EditorSuggest
 		}
 
 		// Fill the ui with the suggestion text
-		el.innerHTML = text.replace("<", "&lt;");
+		el.innerHTML = text;
 	};
 
 	// Called by the system when the user selects one of the suggestions
