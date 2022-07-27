@@ -80,6 +80,9 @@ class InlineScriptsPlugin extends obsidian.Plugin
 		this.settings =
 			Object.assign( {}, InlineScriptsPlugin.getDefaultSettings(), await this.loadData() );
 
+		// Auto-convert old-style settings (because fixing this manually is a pain to the user)
+		this.settings.shortcuts = this.settings.shortcuts.replaceAll("~~", "__");
+
 		// Now that settings are loaded, update variable for the suffix's final character
 		this.suffixEndCharacter = this.settings.suffix.charAt(this.settings.suffix.length - 1);
 
