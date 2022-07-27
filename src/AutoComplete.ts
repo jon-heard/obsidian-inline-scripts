@@ -213,7 +213,7 @@ class AutoComplete extends obsidian.EditorSuggest
 
 		// Get the suggestion's "fill": all text of the suggestion leading up to the first parameter
 		const suggestionEndIndex: number =
-			suggestion.text.match(/ ?\{/)?.index || suggestion.text.length;
+			suggestion.text.match(/ ?\{/)?.index ?? suggestion.text.length;
 		const fill = suggestion.text.substr(0, suggestionEndIndex);
 
 		// Do nothing if the query (i.e. the user's current shortcut-text) already has the "fill"

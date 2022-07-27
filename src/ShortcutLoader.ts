@@ -158,6 +158,7 @@ abstract class ShortcutLoader
 			{
 				let aboutParts: Array<string> =
 					sections[i+2].split(REGEX_SPLIT_FIRST_DASH).map((v: string) => v.trim());
+				aboutParts[0] = aboutParts[0].replaceAll("\\-", "-");
 				// If no syntax string is included, use the Regex string instead
 				if (aboutParts.length === 1)
 				{
