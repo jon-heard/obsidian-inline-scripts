@@ -1,3 +1,6 @@
+### 0.20.2
+- internal - final release before the major refactoring (including github and plugin names)
+
 ### 0.20.1
 - bug fix - format settings - added block against prefix & suffix containing characters with auto-complete
 

@@ -8,7 +8,7 @@ const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp =
 	/### (tejs_[_a-zA-Z0-9]+)\n(_\(disabled by default)?/g;
 const ADDRESS_REMOTE: string =
 	"https://raw.githubusercontent.com/jon-heard/" +
-	"obsidian-text-expander-js_shortcutFileLibrary/main";
+	"obsidian-inline-scripts-library/PreRefactor";
 const ADDRESS_LOCAL: string = "tejs";
 const FILE_README: string = "README.md";
 
