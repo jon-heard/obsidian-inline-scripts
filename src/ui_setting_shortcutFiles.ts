@@ -19,9 +19,20 @@ abstract class SettingUi_ShortcutFiles
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private static _shortcutFileUis: any;
+	private static _vaultFiles: Array<string>;
 
 	private static create_internal(parent: any, settings: any, app: any): void
 	{
+		// Refresh the file list (it may have changed since last time)
+		this._vaultFiles = [];
+		for (const key in app.vault.fileMap)
+		{
+			if (key.endsWith(".md"))
+			{
+				this._vaultFiles.push(key.slice(0, -3));
+			}
+		}
+
 		new obsidian.Setting(parent)
 			.setName("Shortcut-files")
 			.setDesc("Addresses of notes containing shortcut-file content.")
@@ -75,6 +86,7 @@ abstract class SettingUi_ShortcutFiles
 
 	private static addShortcutFileUi(app: any, shortcutFile?: any): void
 	{
+		let fileListUiId = "fileList" + this._shortcutFileUis.childNodes.length;
 		let g: any = this._shortcutFileUis.createEl("div", { cls: "iscript_shortcutFile" });
 		let e: any = g.createEl("div", { cls: "checkbox-container iscript_checkbox" });
 			e.toggleClass("is-enabled", shortcutFile ? shortcutFile.enabled : true);
@@ -85,13 +97,13 @@ abstract class SettingUi_ShortcutFiles
 		e = g.createEl("input", { cls: "iscript_shortcutFileAddress" });
 			e.setAttr("type", "text");
 			e.setAttr("placeholder", "Filename");
-			e.app = app;
+			e.setAttr("list", fileListUiId);
+			e.settings = this;
 			// Handle toggling red on this textfield
 			e.addEventListener("input", function()
 			{
 				const isBadInput: boolean =
-					(this.value &&
-					 !this.app.vault.fileMap[obsidian.normalizePath(this.value+".md")]);
+					this.value && !this.settings._vaultFiles.contains(this.value);
 				this.toggleClass("iscript_badInput", isBadInput);
 			});
 			// Assign given text argument to the textfield
@@ -101,6 +113,12 @@ abstract class SettingUi_ShortcutFiles
 				e.setAttr("value", shortcutFile.address.substr(0, shortcutFile.address.length - 3));
 			}
 			e.dispatchEvent(new Event("input"));
+		e = g.createEl("datalist");
+			e.id = fileListUiId;
+			for (const file of this._vaultFiles)
+			{
+				e.createEl("option").value = file;
+			}
 		e = g.createEl("button", { cls: "iscript_upButton iscript_button" });
 			e.group = g;
 			e.onclick = SettingUi_Common.upButtonClicked;
