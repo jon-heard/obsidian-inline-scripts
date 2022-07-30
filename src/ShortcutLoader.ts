@@ -245,9 +245,17 @@ export abstract class ShortcutLoader
 			{
 				if (newShortcut.test.source === "^sfile setup$")
 				{
-					// If setup script returns TRUE, don't use shortcuts
-					if (ShortcutExpander.runExpansionScript(newShortcut.expansion))
+					try
 					{
+						// If setup script returns TRUE, don't use shortcuts in this shortcut-file
+						if (await ShortcutExpander.runExpansionScript(newShortcut.expansion))
+						{
+							parseResult.shortcuts = null;
+						}
+					}
+					catch (e: any)
+					{
+						// If setup script failed, don't use shortcuts in this shortcut-file
 						parseResult.shortcuts = null;
 					}
 					break;

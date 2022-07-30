@@ -7,7 +7,11 @@
 import InlineScriptsPlugin from "./_Plugin";
 import { UserNotifier } from "./ui_userNotifier";
 import { ExternalRunner } from "./ExternalRunner";
+import { AutoAwaitWrapper } from "./AutoAwaitWrapper";
 import { Parser } from "./node_modules/acorn/dist/acorn";
+
+// Get the AsyncFunction constructor to setup and run Expansion scripts with
+const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 
 export abstract class ShortcutExpander
 {
@@ -17,17 +21,17 @@ export abstract class ShortcutExpander
 	}
 
 	// Take a shortcut string and expand it based on shortcuts active in the plugin
-	public static expand(
-		shortcutText: string, failSilently?: boolean, expansionInfo?: any): any
+	public static async expand(
+		shortcutText: string, failSilently?: boolean, expansionInfo?: any): Promise<any>
 	{
-		return this.expand_internal(shortcutText, failSilently, expansionInfo);
+		return await this.expand_internal(shortcutText, failSilently, expansionInfo);
 	}
 
 	// Execute an expansion script (a string of JavaScript defined in a shortcut's Expansion string)
-	public static runExpansionScript(
-		expansionScript: string, failSilently?: boolean, expansionInfo?: any): any
+	public static async runExpansionScript(
+		expansionScript: string, failSilently?: boolean, expansionInfo?: any): Promise<any>
 	{
-		return this.runExpansionScript_internal(expansionScript, failSilently, expansionInfo);
+		return await this.runExpansionScript_internal(expansionScript, failSilently, expansionInfo);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,14 +40,17 @@ export abstract class ShortcutExpander
 
 	private static initialize_internal()
 	{
+		// Initialize the AutoAwaitWrapper
+		AutoAwaitWrapper.initialize([ "expand" ]);
+
 		//Setup bound versons of these function for persistant use
 		this._expand_internal = this.expand_internal.bind(this);
 	}
 
 	// Take a shortcut string and return the proper Expansion script.
 	// WARNING: user-facing function
-	private static expand_internal(
-		shortcutText: string, failSilently?: boolean, expansionInfo?: any): any
+	private static async expand_internal(
+		shortcutText: string, failSilently?: boolean, expansionInfo?: any): Promise<any>
 	{
 		if (!shortcutText) { return; }
 
@@ -101,8 +108,8 @@ export abstract class ShortcutExpander
 		let expansionText = null;
 		if (foundMatch)
 		{
-			expansionText =
-				this.runExpansionScript_internal(expansionScript, failSilently, expansionInfo);
+			expansionText = await this.runExpansionScript_internal(
+				expansionScript, failSilently, expansionInfo);
 		}
 		expansionInfo.expansionText = expansionText;
 
@@ -157,11 +164,13 @@ export abstract class ShortcutExpander
 	// NOTE: Error handling is being done through window "error" event, rather than through
 	// exceptions.  This is because exceptions don't provide error line numbers whereas error
 	// events do.  Line numbers are important to create the useful "expansion failed" message.
-	private static runExpansionScript_internal
-		(expansionScript: string, failSilently?: boolean, expansionInfo?: any): any
+	private static async runExpansionScript_internal
+		(expansionScript: string, failSilently?: boolean, expansionInfo?: any):  Promise<any>
 	{
 		expansionInfo = expansionInfo || { isUserTriggered: false };
 		expansionInfo.cancel = false;
+
+		expansionScript = AutoAwaitWrapper.run(expansionScript);
 
 		// Run the Expansion script
 		let errorPosition = null;
@@ -186,7 +195,7 @@ export abstract class ShortcutExpander
 
 		try
 		{
-			return ( new Function(
+			return await ( new AsyncFunction(
 				"expand", "runExternal", "print", "expansionInfo",
 				expansionScript) )
 				( this._expand_internal, ExternalRunner.run, UserNotifier.getFunction_print(),
@@ -214,7 +223,8 @@ export abstract class ShortcutExpander
 		}
 	}
 
-	private static handleExpansionError(expansionScript: string, message: string, position: any)
+	private static handleExpansionError(
+		expansionScript: string, message: string, position: any): void
 	{
 		// Get the expansion script, modified by line numbers and an arrow pointing to the error
 		let expansionLines = expansionScript.split("\n");

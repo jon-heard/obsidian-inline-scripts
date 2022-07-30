@@ -165,7 +165,11 @@ export default class InlineScriptsPlugin extends Plugin
 	private onShortcutFileDisabled(filename: string): void
 	{
 		if (!this.shutdownScripts[filename]) { return; }
-		ShortcutExpander.runExpansionScript(this.shutdownScripts[filename]);
+		try
+		{
+			ShortcutExpander.runExpansionScript(this.shutdownScripts[filename]);
+		}
+		catch (e: any) {}
 		delete this.shutdownScripts[filename];
 	}
 
@@ -208,7 +212,7 @@ export default class InlineScriptsPlugin extends Plugin
 	// Tries to get shortcut beneath caret and expand it.  setTimeout pauses for a frame to
 	// give the calling event the opportunity to finish processing.  This is especially
 	// important for CM5, as the typed key isn't in the editor until the calling event finishes.
-	private tryShortcutExpansion_internal(): void { setTimeout(() =>
+	private tryShortcutExpansion_internal(): void { setTimeout(async () =>
 	{
 		const editor: any  = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
 		if (!editor) { return; }
@@ -243,7 +247,7 @@ export default class InlineScriptsPlugin extends Plugin
 		let expansionText: string = null;
 		try
 		{
-			expansionText = ShortcutExpander.expand(shortcutText, false, expansionInfo);
+			expansionText = await ShortcutExpander.expand(shortcutText, false, expansionInfo);
 		}
 		catch (e) {}
 		if (expansionText === null) { return; }
