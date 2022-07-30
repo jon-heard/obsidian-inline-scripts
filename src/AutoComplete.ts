@@ -4,11 +4,15 @@
 
 "use strict";
 
+import { EditorSuggest, MarkdownRenderer } from "obsidian";
+import InlineScriptsPlugin from "./_Plugin";
+
 const SUGGESTION_LIMIT = 1000;
 
 const REGEX_SYNTAX_SPLITTER: RegExp = /(?<=\})|(?=\{)/;
+const REGEX_FIRST_PARAMETER_START: RegExp = / ?\{/;
 
-class AutoComplete extends obsidian.EditorSuggest
+export class AutoComplete extends EditorSuggest<any>
 {
 	public constructor(plugin: InlineScriptsPlugin)
 	{
@@ -52,6 +56,10 @@ class AutoComplete extends obsidian.EditorSuggest
 	private _suggestionDescriptionUi: any;
 	// A list of the descriptions for the currently suggested shortcuts
 	private _descriptions: Array<string>;
+
+	// Members of EditorSuggest not included in it's type definition
+	private suggestions: any;
+	private suggestEl: any;
 
 	private constructor_internal(plugin: InlineScriptsPlugin)
 	{
@@ -211,7 +219,7 @@ class AutoComplete extends obsidian.EditorSuggest
 
 		// Get the suggestion's "fill": all of the suggestion text before the first parameter
 		const suggestionEndIndex: number =
-			suggestion.text.match(/ ?\{/)?.index ?? suggestion.text.length;
+			suggestion.text.match(REGEX_FIRST_PARAMETER_START)?.index ?? suggestion.text.length;
 		const fill = suggestion.text.substr(0, suggestionEndIndex);
 
 		// If the current shortcut-text doesn't yet have all the fill, set it to the fill
@@ -296,9 +304,9 @@ class AutoComplete extends obsidian.EditorSuggest
 	{
 		this._forceSetSelectedItem(e, t);
 		this._suggestionDescriptionUi.setText("");
-		obsidian.MarkdownRenderer.renderMarkdown(
+		MarkdownRenderer.renderMarkdown(
 			this._descriptions[this.suggestions.selectedItem],
-			this._suggestionDescriptionUi, '', this);
+			this._suggestionDescriptionUi, '', null);
 	}
 
 	private open_modified()

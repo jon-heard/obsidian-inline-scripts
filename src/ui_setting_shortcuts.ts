@@ -2,7 +2,14 @@
 // Setting ui shortcuts - Create and work with a setting of a list of shortcuts. //
 ///////////////////////////////////////////////////////////////////////////////////
 
-abstract class SettingUi_Shortcuts
+"use strict";
+
+import { Setting } from "obsidian";
+import { SettingUi_Common } from "./ui_setting_common";
+import { ShortcutLoader } from "./ShortcutLoader";
+import { DEFAULT_SETTINGS } from "./defaultSettings";
+
+export abstract class SettingUi_Shortcuts
 {
 	// Create the setting ui
 	public static create(parent: any, settings: any, app: any): void
@@ -22,7 +29,7 @@ abstract class SettingUi_Shortcuts
 
 	private static create_internal(parent: any, settings: any, app: any): void
 	{
-		new obsidian.Setting(parent)
+		new Setting(parent)
 			.setName("Shortcuts")
 			.setDesc("Define shortcuts here (in addition to shortcut-files)")
 			.addButton((button: any) =>

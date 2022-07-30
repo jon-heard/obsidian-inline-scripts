@@ -4,8 +4,10 @@
 		// Basic settings
 		"baseUrl": ".",
 		"outFile": "../main.js",
-		"target": "ES6",
+		"target": "ES2021",
 		"lib": [ "DOM", "ES2021" ],
+		"module": "system",
+		"moduleResolution": "node",
 
 		// Debug info
 		"inlineSourceMap": false,
@@ -16,6 +18,8 @@
 		"checkJs": true,
 		"noImplicitReturns": true,
 		"noUnusedLocals":true,
+		"strict": true,
+		"strictNullChecks": false,
 
 		// Minify output
 		"removeComments": true

@@ -2,9 +2,13 @@
 // Setting ui common - a collection of functions used by multiple SettingUi classes //
 //////////////////////////////////////////////////////////////////////////////////////
 
-namespace SettingUi_Common
+"use strict";
+
+import { Popup_Confirm } from "./ui_Popup_Confirm";
+
+export namespace SettingUi_Common
 {
-	export function deleteButtonClicked(): void
+	export function deleteButtonClicked(this: any): void
 	{
 		new Popup_Confirm( this.app, "Confirm removing a " + this.typeTitle + ".",
 			(confirmation: boolean) =>
@@ -16,7 +20,7 @@ namespace SettingUi_Common
 			} ).open();
 	}
 
-	export function upButtonClicked(): void
+	export function upButtonClicked(this: any): void
 	{
 		let p: any = this.group.parentElement;
 		let index: number = Array.from(p.childNodes).indexOf(this.group);
@@ -24,7 +28,7 @@ namespace SettingUi_Common
 		p.insertBefore(p.childNodes[index], p.childNodes[index - 1]);
 	}
 
-	export function downButtonClicked(): void
+	export function downButtonClicked(this: any): void
 	{
 		let p: any = this.group.parentElement;
 		let index: number = Array.from(p.childNodes).indexOf(this.group);

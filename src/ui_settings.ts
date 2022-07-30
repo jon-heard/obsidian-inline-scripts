@@ -4,7 +4,16 @@
 
 "use strict";
 
-class InlineScriptsPluginSettings extends obsidian.PluginSettingTab
+import { PluginSettingTab } from "obsidian";
+import InlineScriptsPlugin from "./_Plugin";
+import { SettingUi_ShortcutFiles } from "./ui_setting_shortcutFiles";
+import { SettingUi_Shortcuts } from "./ui_setting_shortcuts";
+import { SettingUi_ShortcutFormat } from "./ui_setting_format";
+import { SettingUi_Other } from "./ui_setting_other";
+import { ShortcutLoader } from "./ShortcutLoader";
+import { DfcMonitorType } from "./Dfc";
+
+export class InlineScriptsPluginSettings extends PluginSettingTab
 {
 	public constructor(plugin: InlineScriptsPlugin)
 	{
@@ -22,6 +31,9 @@ class InlineScriptsPluginSettings extends obsidian.PluginSettingTab
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// Members of PluginSettingTab not included in it's type definition
+	private plugin: InlineScriptsPlugin;
 
 	private display_internal(): void
 	{

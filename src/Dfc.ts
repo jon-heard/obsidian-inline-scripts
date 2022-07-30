@@ -4,9 +4,11 @@
 
 "use strict";
 
-enum DfcMonitorType { None, OnModify, OnTouch };
+import InlineScriptsPlugin from "./_Plugin";
 
-class Dfc
+export enum DfcMonitorType { None, OnModify, OnTouch };
+
+export class Dfc
 {
 	public constructor(
 		filenames: Array<string>, refreshFnc: Function, onFileRemoved: Function,

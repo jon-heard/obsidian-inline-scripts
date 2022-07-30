@@ -2,7 +2,13 @@
 // Setting ui other - Create and work with the miscelaneous settings not handled elsewhere. //
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-abstract class SettingUi_Other
+"use strict";
+
+import { Setting, Platform } from "obsidian";
+import InlineScriptsPlugin from "./_Plugin";
+import { Popup_Confirm } from "./ui_Popup_Confirm";
+
+export abstract class SettingUi_Other
 {
 	// Create the setting ui
 	public static create(parent: any, settings: any): void
@@ -27,7 +33,7 @@ abstract class SettingUi_Other
 		parent.createEl("h2", { text: "Other Settings" });
 
 		// Developer mode
-		new obsidian.Setting(parent)
+		new Setting(parent)
 			.setName("Developer mode")
 			.setDesc("Shortcut-files are monitored for updates if this is on.")
 			.addToggle((toggle: any) =>
@@ -38,9 +44,9 @@ abstract class SettingUi_Other
 			});
 
 		// Allow external (not available on mobile)
-		if (!obsidian.Platform.isMobile)
+		if (!Platform.isMobile)
 		{
-			new obsidian.Setting(parent)
+			new Setting(parent)
 				.setName("Allow external")
 				.setDesc("Shortcuts can run external commands if this is on.")
 				.addToggle((toggle: any) =>
@@ -54,7 +60,7 @@ abstract class SettingUi_Other
 					text: "WARNING: enabling this increases the danger from malicious shortcuts" });
 		}
 
-		new obsidian.Setting(parent)
+		new Setting(parent)
 			.setName("Reset to defaults")
 			.setDesc("Reset all settings to their default values.")
 			.addButton((button: any) =>

@@ -4,14 +4,18 @@
 
 "use strict";
 
+import { Platform } from "obsidian";
+import InlineScriptsPlugin from "./_Plugin";
+import { UserNotifier } from "./ui_userNotifier";
+
 let childProcess: any = null;
 
-namespace ExternalRunner
+export namespace ExternalRunner
 {
 	export function run(command: string, failSilently?: boolean, dontFixSlashes?: boolean)
 	{
 		// Error-out if on mobile platform
-		if (obsidian.Platform.isMobile)
+		if (Platform.isMobile)
 		{
 			UserNotifier.run(
 			{
@@ -25,7 +29,14 @@ namespace ExternalRunner
 		}
 		else if (!childProcess)
 		{
-			childProcess = require("child_process");
+			try
+			{
+				childProcess = require("child_process");
+			}
+			catch(e: any)
+			{
+				console.error("External runner failed to load \"child_process\": " + e);
+			}
 		}
 
 		const plugin = InlineScriptsPlugin.getInstance();
@@ -56,7 +67,7 @@ namespace ExternalRunner
 		}
 
 		// Run the shell command
-		const vaultDir: string = plugin.app.fileManager.vault.adapter.basePath;
+		const vaultDir: string = (plugin.app.fileManager as any).vault.adapter.basePath;
 		try
 		{
 			let result: string = childProcess.execSync(command, { cwd: vaultDir});

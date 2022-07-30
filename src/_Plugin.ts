@@ -4,6 +4,15 @@
 
 "use strict";
 
+import { Plugin, MarkdownView } from "obsidian";
+import { UserNotifier } from "./ui_userNotifier";
+import { InlineScriptsPluginSettings } from "./ui_settings";
+import { DEFAULT_SETTINGS } from "./defaultSettings";
+import { Dfc, DfcMonitorType } from "./Dfc";
+import { ShortcutExpander } from "./ShortcutExpander";
+import { ShortcutLoader } from "./ShortcutLoader";
+import { AutoComplete } from "./AutoComplete";
+
 // NOTE: The "Inline Scripts" plugin uses a custom format for shortcut-files.  I tried using
 // existing formats (json, xml, etc), but they were cumbersome for developing JavaScript code in.
 // The chosen format is simple, flexible, and allows for wrapping scripts in js-fenced-code-blocks.
@@ -13,7 +22,7 @@
 // and here:
 // https://github.com/jon-heard/obsidian-inline-scripts#development-aid-fenced-code-blocks
 
-class InlineScriptsPlugin extends obsidian.Plugin
+export default class InlineScriptsPlugin extends Plugin
 {
 	// Store the plugin's settings
 	public settings: any;
@@ -201,7 +210,7 @@ class InlineScriptsPlugin extends obsidian.Plugin
 	// important for CM5, as the typed key isn't in the editor until the calling event finishes.
 	private tryShortcutExpansion_internal(): void { setTimeout(() =>
 	{
-		const editor: any  = this.app.workspace.getActiveViewOfType(obsidian.MarkdownView)?.editor;
+		const editor: any  = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
 		if (!editor) { return; }
 
 		// Find bounds of the shortcut beneath the caret (if there is one)
@@ -250,5 +259,3 @@ class InlineScriptsPlugin extends obsidian.Plugin
 			{ line: cursor.line, ch: suffixIndex + this.settings.suffix.length } );
 	}, 0); }
 }
-
-module.exports = InlineScriptsPlugin;

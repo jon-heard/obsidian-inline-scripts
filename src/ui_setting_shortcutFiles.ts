@@ -2,7 +2,13 @@
 // Setting ui shortcut files - Create and work with a setting of a list of shortcut-files. //
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-abstract class SettingUi_ShortcutFiles
+"use strict";
+
+import { Setting, normalizePath } from "obsidian";
+import { SettingUi_Common } from "./ui_setting_common";
+import { LibraryImporter } from "./LibraryImporter";
+
+export abstract class SettingUi_ShortcutFiles
 {
 	// Create the setting ui
 	public static create(parent: any, settings: any, app: any): void
@@ -33,7 +39,7 @@ abstract class SettingUi_ShortcutFiles
 			}
 		}
 
-		new obsidian.Setting(parent)
+		new Setting(parent)
 			.setName("Shortcut-files")
 			.setDesc("Addresses of notes containing shortcut-file content.")
 			.addButton((button: any) =>
@@ -77,7 +83,7 @@ abstract class SettingUi_ShortcutFiles
 				result.push(
 				{
 					enabled: shortcutFileUi.childNodes[0].classList.contains("is-enabled"),
-					address: obsidian.normalizePath( shortcutFileUi.childNodes[1].value + ".md" )
+					address: normalizePath( shortcutFileUi.childNodes[1].value + ".md" )
 				});
 			}
 		}
@@ -90,7 +96,7 @@ abstract class SettingUi_ShortcutFiles
 		let g: any = this._shortcutFileUis.createEl("div", { cls: "iscript_shortcutFile" });
 		let e: any = g.createEl("div", { cls: "checkbox-container iscript_checkbox" });
 			e.toggleClass("is-enabled", shortcutFile ? shortcutFile.enabled : true);
-			e.addEventListener("click", function()
+			e.addEventListener("click", function(this: any)
 			{
 				this.toggleClass("is-enabled", !this.classList.contains("is-enabled"));
 			});
@@ -100,7 +106,7 @@ abstract class SettingUi_ShortcutFiles
 			e.setAttr("list", fileListUiId);
 			e.settings = this;
 			// Handle toggling red on this textfield
-			e.addEventListener("input", function()
+			e.addEventListener("input", function(this: any)
 			{
 				const isBadInput: boolean =
 					this.value && !this.settings._vaultFiles.contains(this.value);

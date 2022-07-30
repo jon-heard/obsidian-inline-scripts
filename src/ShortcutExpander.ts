@@ -4,7 +4,11 @@
 
 "use strict";
 
-abstract class ShortcutExpander
+import InlineScriptsPlugin from "./_Plugin";
+import { UserNotifier } from "./ui_userNotifier";
+import { ExternalRunner } from "./ExternalRunner";
+
+export abstract class ShortcutExpander
 {
 	public static initialize(): void
 	{

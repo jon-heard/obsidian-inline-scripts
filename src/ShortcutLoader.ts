@@ -4,6 +4,10 @@
 
 "use strict";
 
+import InlineScriptsPlugin from "./_Plugin";
+import { UserNotifier } from "./ui_userNotifier";
+import { ShortcutExpander } from "./ShortcutExpander";
+
 const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
 const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
 const REGEX_SFILE_SECTION_SPLIT: RegExp = /^__$/gm;
@@ -38,7 +42,7 @@ const SORT_SYNTAXES = (a: any, b: any): number =>
 	}
 }
 
-abstract class ShortcutLoader
+export abstract class ShortcutLoader
 {
 	// Parses a shortcut-file's contents into a useful data format and returns it
 	public static parseShortcutFile(
@@ -122,7 +126,7 @@ abstract class ShortcutLoader
 				{
 					UserNotifier.run(
 					{
-						consoleMessage: "In shortcut-file \"" + filename + "\":\n" + INDENT + c,
+						consoleMessage: "In shortcut-file \"" + filename + "\":\n" + c,
 						messageType: "BAD-TEST-STRING-ERROR"
 					});
 					fileHasErrors = true;
@@ -219,7 +223,7 @@ abstract class ShortcutLoader
 		for (const shortcutFile of plugin.settings.shortcutFiles)
 		{
 			if (!shortcutFile.enabled) { continue; }
-			const file: any = plugin.app.vault.fileMap[shortcutFile.address];
+			const file: any = (plugin.app.vault as any).fileMap[shortcutFile.address];
 			if (!file)
 			{
 				UserNotifier.run(

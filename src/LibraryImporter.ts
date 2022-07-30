@@ -4,6 +4,13 @@
 
 "use strict";
 
+import { normalizePath } from "obsidian";
+import InlineScriptsPlugin from "./_Plugin";
+import { UserNotifier } from "./ui_userNotifier";
+import { InputBlocker } from "./ui_InputBlocker";
+import { Popup_Input } from "./ui_Popup_Input";
+import { SettingUi_ShortcutFiles } from "./ui_setting_shortcutFiles";
+
 const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp =
 	/### ([_a-zA-Z0-9]+.sfile)\n(_\(disabled by default)?/g;
 const ADDRESS_REMOTE: string =
@@ -12,7 +19,7 @@ const ADDRESS_REMOTE: string =
 const DEFAULT_LOCAL_ADDRESS: string = "support/inlineScripts";
 const FILE_README: string = "README.md";
 
-namespace LibraryImporter
+export namespace LibraryImporter
 {
 	// Pull the official library from github & add it to the current vault
 	export function run(): void
@@ -40,7 +47,7 @@ namespace LibraryImporter
 				method: "GET", headers: { "Cache-Control": "no-cache" }
 			});
 		}
-		catch(e)
+		catch(e: any)
 		{
 			UserNotifier.run({
 				popupMessage: "Library importing failed.\nUnable to connect.",
@@ -116,7 +123,7 @@ namespace LibraryImporter
 		}
 
 		// Normalize the inputted library destination path
-		libraryDestinationPath = obsidian.normalizePath(libraryDestinationPath);
+		libraryDestinationPath = normalizePath(libraryDestinationPath);
 
 		// Put the input blocker back
 		InputBlocker.setEnabled(true);
@@ -126,7 +133,7 @@ namespace LibraryImporter
 			disabledShortcutFiles.map(v => libraryDestinationPath + "/" + v + ".md");
 
 		// Create the choosen library destination folder, if necessary
-		if (!app.vault.fileMap.hasOwnProperty(libraryDestinationPath))
+		if (!(app.vault as any).fileMap.hasOwnProperty(libraryDestinationPath))
 		{
 			app.vault.createFolder(libraryDestinationPath);
 		}
@@ -141,7 +148,7 @@ namespace LibraryImporter
 			});
 
 			let filename: string = libraryDestinationPath + "/" + libShortcutFile + ".md";
-			let file: any = app.vault.fileMap[filename];
+			let file: any = (app.vault as any).fileMap[filename];
 			if (file)
 			{
 				await app.vault.modify(file, content);

@@ -4,7 +4,7 @@
 
 "use strict";
 
-namespace InputBlocker
+export namespace InputBlocker
 {
 	// Adds/removes a tinted full-screen div to prevent user-input
 	export function setEnabled(value: boolean): void

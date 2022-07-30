@@ -4,7 +4,9 @@
 
 "use strict";
 
-class Popup_Input extends obsidian.Modal
+import { Modal, Setting } from "obsidian";
+
+export class Popup_Input extends Modal
 {
 	public constructor(app: any, message: string, defaultValue: string, callback: Function)
 	{
@@ -23,7 +25,7 @@ class Popup_Input extends obsidian.Modal
 			this.titleEl.createEl("div", { text: line });
 		}
 
-		new obsidian.Setting(this.contentEl)
+		new Setting(this.contentEl)
 			.addText((text: any) =>
 			{
 				text.setValue(this._value);
@@ -33,7 +35,7 @@ class Popup_Input extends obsidian.Modal
 				this._value = null;
 			})
 
-		new obsidian.Setting(this.contentEl)
+		new Setting(this.contentEl)
 			.addButton((button: any) =>
 			{
 				button

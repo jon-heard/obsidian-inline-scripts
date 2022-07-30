@@ -2,6 +2,11 @@
 // UserNotifier - wrapper around sending messages to user via console and popup notifications //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+"use strict";
+
+import { Notice } from "obsidian";
+import InlineScriptsPlugin from "./_Plugin";
+
 // parameters for "run" (all optional):
 // - popupMessage: string
 //     - Text displayed in popup notification.  Falls back to "message", then to no popup displayed.
@@ -17,12 +22,10 @@
 // - consoleHasDetails: boolean
 //     - If true, popup notification includes a suggestion to review console output for details.
 
-"use strict";
-
 const LONG_NOTE_TIME: number = 8 * 1000;
 const INDENT: string = " ".repeat(4);
 
-namespace UserNotifier
+export namespace UserNotifier
 {
 	// Creates a message to the user in a popup notification and/or a console log.
 	// Takes an object of optional parameters.  See this file's header for a parameter reference.
@@ -43,7 +46,7 @@ namespace UserNotifier
 	function print(message: any): any
 	{
 		// Send the message to user as a popup notification and a console log.
-		new obsidian.Notice("Inline Script Shortcut:\n" + message, LONG_NOTE_TIME);
+		new Notice("Inline Script Shortcut:\n" + message, LONG_NOTE_TIME);
 		console.info("Inline Script Shortcut:\n\t" + message);
 		return message;
 	};
@@ -74,7 +77,7 @@ namespace UserNotifier
 		// Add the popup notification
 		if (popupMessage)
 		{
-			new obsidian.Notice(
+			new Notice(
 				(messageLevel === 2 ? "ERROR: " : "") +
 				popupMessage +
 				(consoleHasDetails ? "\n\n(see console for details)" : ""),

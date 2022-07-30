@@ -4,7 +4,9 @@
   "description": "This Obsidian plugin allows the user to type text shortcuts which are then replaced with JavaScript generated text.",
   "main": "main.js",
   "scripts": {
-    "c": "clear & tsc"
+    "c": "clear & node esbuild.config.mjs",
+    "ts": "clear & tsc",
+    "release": "clear & node esbuild.config.mjs --minify"
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,9 @@
   "homepage": "https://github.com/jon-heard/obsidian-inline-scripts",
   "devDependencies": {
     "@types/node": "^18.0.1",
+    "acorn": "^8.8.0",
+    "esbuild": "^0.14.51",
+    "obsidian": "^0.15.4",
     "tslib": "^2.4.0",
     "typescript": "^4.7.4"
   }

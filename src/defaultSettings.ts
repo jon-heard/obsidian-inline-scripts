@@ -4,7 +4,7 @@
 
 "use strict";
 
-const DEFAULT_SETTINGS: any = Object.freeze(
+export const DEFAULT_SETTINGS: any = Object.freeze(
 {
 	prefix: ";;",
 	suffix: "::",
