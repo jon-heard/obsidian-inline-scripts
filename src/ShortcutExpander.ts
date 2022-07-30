@@ -7,6 +7,7 @@
 import InlineScriptsPlugin from "./_Plugin";
 import { UserNotifier } from "./ui_userNotifier";
 import { ExternalRunner } from "./ExternalRunner";
+import { Parser } from "./node_modules/acorn/dist/acorn";
 
 export abstract class ShortcutExpander
 {
@@ -32,17 +33,11 @@ export abstract class ShortcutExpander
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private static _expand_internal: any;
-	private static _handleExpansionError: any;
-	private static _expansionErrorHandlerStack: Array<any>;
 
 	private static initialize_internal()
 	{
 		//Setup bound versons of these function for persistant use
 		this._expand_internal = this.expand_internal.bind(this);
-		this._handleExpansionError = this.handleExpansionError.bind(this);
-
-		// This keeps track of multiple expansion error handlers for nested expansions
-		this._expansionErrorHandlerStack = [];
 	}
 
 	// Take a shortcut string and return the proper Expansion script.
@@ -168,101 +163,69 @@ export abstract class ShortcutExpander
 		expansionInfo = expansionInfo || { isUserTriggered: false };
 		expansionInfo.cancel = false;
 
-		// Prepare for possible Expansion script error
-		if (expansionInfo.isUserTriggered || !this._expansionErrorHandlerStack.length)
-		{
-			// ASSERT - This should never be true, and signifies a potential issue.  It's not
-			// intrinsically a problem, though.
-			if (this._expansionErrorHandlerStack.length > 0)
-			{
-				this._expansionErrorHandlerStack = [];
-				if (!failSilently)
-				{
-					UserNotifier.run(
-					{
-						consoleMessage:
-							"Stack was off by " + this._expansionErrorHandlerStack.length + ".\n" +
-							this._expansionErrorHandlerStack.join("\n-------\n"),
-						messageType: "EXPANSION-ERROR-HANDLER-ERROR"
-					});
-				}
-			}
-			window.addEventListener("error", this._handleExpansionError);
-		}
-		this._expansionErrorHandlerStack.push({ expansionScript: expansionScript });
-
 		// Run the Expansion script
-		let result: any;
-		if (!failSilently)
+		let errorPosition = null;
+		try
 		{
-			result = ( new Function(
+			Parser.parse(
+				"(async function(){\n" + expansionScript + "\n})", { ecmaVersion: 2021 });
+		}
+		catch (e: any)
+		{
+			errorPosition =
+			{
+				line:   e.loc.line - 1,
+				column: e.loc.column + 1
+			};
+		}
+
+		if (failSilently && errorPosition)
+		{
+			throw null;
+		}
+
+		try
+		{
+			return ( new Function(
 				"expand", "runExternal", "print", "expansionInfo",
 				expansionScript) )
 				( this._expand_internal, ExternalRunner.run, UserNotifier.getFunction_print(),
-				  expansionInfo );
-			// if shortcut doesn't return anything, best to return ""
-			result ??= "";
+				  expansionInfo ) ?? "";
 		}
-		else
+		catch (e: any)
 		{
-			try
+			if (failSilently)
 			{
-				result = ( new Function(
-					"expand", "runExternal", "print", "expansionInfo",
-					expansionScript) )
-					( this._expand_internal, ExternalRunner.run, UserNotifier.getFunction_print(),
-					  expansionInfo );
-				// if shortcut doesn't return anything, best to return ""
-				result ??= "";
+				throw null;
 			}
-			catch (e) {}
-		}
 
-		// Clean up script error preparations
-		this._expansionErrorHandlerStack.pop();
-		if (expansionInfo.isUserTriggered || !this._expansionErrorHandlerStack.length)
-		{
-			// ASSERT - This should never be true, and signifies a potential issue.  It's not
-			// intrinsically a problem, though.
-			if (this._expansionErrorHandlerStack.length > 0)
+			if (!errorPosition)
 			{
-				this._expansionErrorHandlerStack = [];
-				if (!failSilently)
+				let match = e.stack.split("\n")[1].match(/([0-9]+):([0-9]+)/);
+				errorPosition =
 				{
-					UserNotifier.run(
-					{
-						consoleMessage:
-							"Stack was off by " + this._expansionErrorHandlerStack.length + ".\n" +
-							this._expansionErrorHandlerStack.join("\n-------\n"),
-						messageType: "EXPANSION-ERROR-HANDLER-ERROR"
-					});
-				}
+					line:   Number(match[1])-2,
+					column: Number(match[2])
+				};
 			}
-			window.removeEventListener("error", this._handleExpansionError);
-		}
 
-		return result;
+			this.handleExpansionError(expansionScript, e.message, errorPosition);
+			throw null;
+		}
 	}
 
-	// Callback for when something goes wrong during shortcut expansion.  Generates a useful error
-	// message.
-	private static handleExpansionError(e: any): void
+	private static handleExpansionError(expansionScript: string, message: string, position: any)
 	{
-		// Block default error handling
-		e.preventDefault();
-
 		// Get the expansion script, modified by line numbers and an arrow pointing to the error
-		let expansionLines =
-			this._expansionErrorHandlerStack[this._expansionErrorHandlerStack.length - 1].
-			expansionScript.split("\n");
+		let expansionLines = expansionScript.split("\n");
 		// Add line numbers
 		for (let i: number = 0; i < expansionLines.length; i++)
 		{
 			expansionLines[i] = String(i+1).padStart(4, "0") + " " + expansionLines[i];
 		}
 		// Add arrows (pointing to error)
-		expansionLines.splice(e.lineno-2, 0, "-".repeat(e.colno + 4) + "^");
-		expansionLines.splice(e.lineno-3, 0, "-".repeat(e.colno + 4) + "v");
+		expansionLines.splice(position.line, 0, "-".repeat(position.column + 4) + "^");
+		expansionLines.splice(position.line-1, 0, "-".repeat(position.column + 4) + "v");
 		const expansionText = expansionLines.join("\n");
 
 		// Create a user message with the line and column of the error and the expansion script
@@ -271,14 +234,10 @@ export abstract class ShortcutExpander
 		{
 			popupMessage: "Shortcut expansion issues.",
 			consoleMessage:
-				e.message + "\nline: " + (e.lineno-2) + ", column: " + e.colno + "\n" +
+				message + "\nline: " + position.line + ", column: " + position.column + "\n" +
 				"─".repeat(20) + "\n" + expansionText,
 			messageType: "SHORTCUT-EXPANSION-ERROR",
 			consoleHasDetails: true
 		});
-
-		// Clean up script error preparations (now that the error is handled)
-		this._expansionErrorHandlerStack = []; // Error causes nesting to unwind.  Clear the stack.
-		window.removeEventListener("error", this._handleExpansionError);
 	}
 }

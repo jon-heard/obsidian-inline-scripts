@@ -240,7 +240,12 @@ export default class InlineScriptsPlugin extends Plugin
 			prefix: this.settings.prefix,
 			suffix: this.settings.suffix
 		};
-		let expansionText: string = ShortcutExpander.expand(shortcutText, false, expansionInfo);
+		let expansionText: string = null;
+		try
+		{
+			expansionText = ShortcutExpander.expand(shortcutText, false, expansionInfo);
+		}
+		catch (e) {}
 		if (expansionText === null) { return; }
 
 		// Handle a string array from the Expansion result
