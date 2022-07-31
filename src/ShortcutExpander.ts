@@ -224,13 +224,14 @@ export abstract class ShortcutExpander
 			}
 
 			// Display the error to the user, then quit
-			this.handleExpansionError(expansionScript, e.message, errorPosition);
+			this.handleExpansionError(
+				expansionScript, e.message, errorPosition, expansionInfo?.shortcutText);
 			throw null;
 		}
 	}
 
 	private static handleExpansionError(
-		expansionScript: string, message: string, position: any): void
+		expansionScript: string, message: string, position: any, shortcutText?: string): void
 	{
 		// Get the expansion script, modified by line numbers and an arrow pointing to the error
 		let expansionLines = expansionScript.split("\n");
@@ -251,6 +252,7 @@ export abstract class ShortcutExpander
 			popupMessage: "Shortcut expansion issues.",
 			consoleMessage:
 				message + "\nline: " + position.line + ", column: " + position.column + "\n" +
+				"shortcut-text: \"" + (shortcutText ?? "") + "\"\n" +
 				"─".repeat(20) + "\n" + expansionText,
 			messageType: "SHORTCUT-EXPANSION-ERROR",
 			consoleHasDetails: true

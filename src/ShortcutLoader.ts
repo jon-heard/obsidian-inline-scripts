@@ -253,7 +253,8 @@ export abstract class ShortcutLoader
 					try
 					{
 						// If setup script returns TRUE, don't use shortcuts in this shortcut-file
-						if (await ShortcutExpander.runExpansionScript(newShortcut.expansion))
+						if (await ShortcutExpander.runExpansionScript(
+							newShortcut.expansion, false, { shortcutText: "sfile setup" }))
 						{
 							parseResult.shortcuts = null;
 						}
