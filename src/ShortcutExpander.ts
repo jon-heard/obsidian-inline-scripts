@@ -7,7 +7,7 @@
 import InlineScriptsPlugin from "./_Plugin";
 import { UserNotifier } from "./ui_userNotifier";
 import { ExternalRunner } from "./ExternalRunner";
-import { AutoAwaitWrapper } from "./AutoAwaitWrapper";
+import { AutoAsyncWrapper } from "./AutoAsyncWrapper";
 import { Parser } from "./node_modules/acorn/dist/acorn";
 
 // Get the AsyncFunction constructor to setup and run Expansion scripts with
@@ -38,10 +38,10 @@ export abstract class ShortcutExpander
 
 	private static _expand_internal: any;
 
-	private static initialize_internal()
+	private static initialize_internal(): void
 	{
-		// Initialize the AutoAwaitWrapper
-		AutoAwaitWrapper.initialize([ "expand" ]);
+		// Initialize the AutoAsyncWrapper
+		AutoAsyncWrapper.initialize([ "expand" ]);
 
 		//Setup bound versons of these function for persistant use
 		this._expand_internal = this.expand_internal.bind(this);
@@ -170,9 +170,9 @@ export abstract class ShortcutExpander
 		expansionInfo = expansionInfo || { isUserTriggered: false };
 		expansionInfo.cancel = false;
 
-		expansionScript = AutoAwaitWrapper.run(expansionScript);
+		expansionScript = AutoAsyncWrapper.run(expansionScript);
 
-		// Run the Expansion script
+		// Run a pre-parser - finds the position of a parser error, if there is one
 		let errorPosition = null;
 		try
 		{
@@ -188,6 +188,7 @@ export abstract class ShortcutExpander
 			};
 		}
 
+		// If we should fail silently, and we found an error, just quit
 		if (failSilently && errorPosition)
 		{
 			throw null;
@@ -195,19 +196,23 @@ export abstract class ShortcutExpander
 
 		try
 		{
+			// Run the expansion script and return the result
 			return await ( new AsyncFunction(
 				"expand", "runExternal", "print", "expansionInfo",
 				expansionScript) )
 				( this._expand_internal, ExternalRunner.run, UserNotifier.getFunction_print(),
 				  expansionInfo ) ?? "";
 		}
+		// If there was an error...
 		catch (e: any)
 		{
+			// If we should fail silently, just quit
 			if (failSilently)
 			{
 				throw null;
 			}
 
+			// If needed, get the error's position from the error object
 			if (!errorPosition)
 			{
 				let match = e.stack.split("\n")[1].match(/([0-9]+):([0-9]+)/);
@@ -218,6 +223,7 @@ export abstract class ShortcutExpander
 				};
 			}
 
+			// Display the error to the user, then quit
 			this.handleExpansionError(expansionScript, e.message, errorPosition);
 			throw null;
 		}

@@ -7,6 +7,7 @@
 import InlineScriptsPlugin from "./_Plugin";
 import { UserNotifier } from "./ui_userNotifier";
 import { ShortcutExpander } from "./ShortcutExpander";
+import { InputBlocker } from "./ui_InputBlocker";
 
 const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
 const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
@@ -245,6 +246,10 @@ export abstract class ShortcutLoader
 			{
 				if (newShortcut.test.source === "^sfile setup$")
 				{
+					// Disable input while running the setup script (in case it takes a while)
+					InputBlocker.setEnabled(true);
+
+					// Run the setup script
 					try
 					{
 						// If setup script returns TRUE, don't use shortcuts in this shortcut-file
@@ -255,9 +260,14 @@ export abstract class ShortcutLoader
 					}
 					catch (e: any)
 					{
-						// If setup script failed, don't use shortcuts in this shortcut-file
+						// If setup script failed, don't use the shortcuts in this shortcut-file
 						parseResult.shortcuts = null;
 					}
+
+					// Enable input, now that the expansion is over
+					InputBlocker.setEnabled(false);
+
+					// We've found and handled the setup script.  Stop looking.
 					break;
 				}
 			}

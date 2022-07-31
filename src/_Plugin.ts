@@ -12,6 +12,7 @@ import { Dfc, DfcMonitorType } from "./Dfc";
 import { ShortcutExpander } from "./ShortcutExpander";
 import { ShortcutLoader } from "./ShortcutLoader";
 import { AutoComplete } from "./AutoComplete";
+import { InputBlocker } from "./ui_InputBlocker";
 
 // NOTE: The "Inline Scripts" plugin uses a custom format for shortcut-files.  I tried using
 // existing formats (json, xml, etc), but they were cumbersome for developing JavaScript code in.
@@ -38,6 +39,8 @@ export default class InlineScriptsPlugin extends Plugin
 	public settingsUi: InlineScriptsPluginSettings;
 	// The master list of shortcut syntaxes (provided by the About strings of all shortcuts)
 	public syntaxes: Array<any>;
+	// If set, all keyboard input is ignored
+	public inputDisabled: boolean;
 
 	public onload(): void
 	{
@@ -82,7 +85,7 @@ export default class InlineScriptsPlugin extends Plugin
 
 	private async onload_internal(): Promise<void>
 	{
-		// DEBUG Replace debugger with something togglable
+		// DEBUG aids
 		//window.brk = function() { if (window.dbg) { debugger; } }
 		//window.plugin = this;
 
@@ -176,6 +179,12 @@ export default class InlineScriptsPlugin extends Plugin
 	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt.
 	private cm5_handleExpansionTrigger(cm: any, keydown: KeyboardEvent): void
 	{
+		// Handle blocking key inputs when input is disabled
+		if (this.inputDisabled)
+		{
+			event.preventDefault();
+		}
+
 		if ((event as any)?.key === this.suffixEndCharacter)
 		{
 			this.tryShortcutExpansion();
@@ -185,6 +194,12 @@ export default class InlineScriptsPlugin extends Plugin
 	// CM6 callback for editor events.  Used to kick off shortcut expansion attempt.
 	private cm6_handleExpansionTrigger(tr: any): any
 	{
+		// Handle blocking key inputs when input is disabled
+		if (this.inputDisabled)
+		{
+			return null;
+		}
+
 		// Only bother with key inputs that have changed the document
 		if (!tr.isUserEvent("input.type") || !tr.docChanged) { return tr; }
 
@@ -231,7 +246,7 @@ export default class InlineScriptsPlugin extends Plugin
 			return;
 		}
 
-		// Run the Expansion script on the shortcut under the caret
+		// Get the shortcut text to expand, and the info on this expansion
 		const shortcutText: string =
 			lineText.substring(prefixIndex + this.settings.prefix.length, suffixIndex);
 		const expansionInfo: any =
@@ -244,12 +259,21 @@ export default class InlineScriptsPlugin extends Plugin
 			prefix: this.settings.prefix,
 			suffix: this.settings.suffix
 		};
+
+		// Disable input during the exansion (in case it takes a while)
+		InputBlocker.setEnabled(true);
+
+		// Run the expansion
 		let expansionText: string = null;
 		try
 		{
 			expansionText = await ShortcutExpander.expand(shortcutText, false, expansionInfo);
 		}
 		catch (e) {}
+
+		// Enable input, now that the expansion is over
+		InputBlocker.setEnabled(false);
+
 		if (expansionText === null) { return; }
 
 		// Handle a string array from the Expansion result

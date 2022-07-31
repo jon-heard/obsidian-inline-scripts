@@ -1,11 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// AutoAwaitWrapper - Takes a string of JS source and wraps certain functions in "await".         //
+// AutoAsyncWrapper - Takes a string of JS source and wraps certain functions in "await".         //
 // Simplifies scripts by letting them not explicitly require "await".                             //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 "use strict";
 
-const REGEX_BASE: string = "(?:~1~)[\s]*\\(";
+const REGEX_AWAIT_TEMPLATE: string = "(?:~1~)[\s]*\\(";
+const REGEX_ASYNC: RegExp = /function[\s]*\(/g;
 const UNNESTABLE_BLOCK_PAIRS: any = Object.freeze(
 {
 	"\"": "\"",
@@ -19,11 +20,11 @@ const NESTABLE_BLOCK_PAIRS: any = Object.freeze(
 	"{": "}",
 });
 
-export namespace AutoAwaitWrapper
+export namespace AutoAsyncWrapper
 {
-	export function initialize(functionsToWrap: Array<string>)
+	export function initialize(toAwaitWrap: Array<string>)
 	{
-		_regex_toWrap = new RegExp(REGEX_BASE.replace("~1~", functionsToWrap.join("|")), "g");
+		_regex_await = new RegExp(REGEX_AWAIT_TEMPLATE.replace("~1~", toAwaitWrap.join("|")), "g");
 	}
 
 	// Pull the official TEJS library from github & add it to the current vault
@@ -34,13 +35,43 @@ export namespace AutoAwaitWrapper
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	let _regex_toWrap: RegExp;
+	let _regex_await: RegExp;
 
 	function run_internal(source: string): string
 	{
+		source = addPrefixToAllInstances(source, "async ", REGEX_ASYNC);
+		source = wrapPrefixToAllInstances(source, "await ", _regex_await);
+		return source;
+	}
+
+	function addPrefixToAllInstances(
+		source: string, prefix: string, regex_searchToWrap: RegExp): string
+	{
 		let matchPositions: Array<any> = [];
 
-		for (const match of source.matchAll(_regex_toWrap))
+		for (const match of source.matchAll(regex_searchToWrap))
+		{
+			matchPositions.push({ start: match.index, end: match.index + match[0].length });
+		}
+
+		matchPositions.reverse();
+
+		for (const matchPosition of matchPositions)
+		{
+			source =
+				source.slice(0, matchPosition.start) + prefix +
+				source.slice(matchPosition.start);
+		}
+
+		return source;
+	}
+
+	function wrapPrefixToAllInstances(
+		source: string, prefix: string, regex_searchToWrap: RegExp): string
+	{
+		let matchPositions: Array<any> = [];
+
+		for (const match of source.matchAll(regex_searchToWrap))
 		{
 			matchPositions.push({ start: match.index, end: match.index + match[0].length });
 		}
@@ -83,12 +114,12 @@ export namespace AutoAwaitWrapper
 				}
 				index++;
 			}
-			
+
 			source =
-				source.slice(0, matchPosition.start) + "(await " +
+				source.slice(0, matchPosition.start) + "(" + prefix +
 				source.slice(matchPosition.start, index) + ")" + source.slice(index);
 		}
-		
+
 		return source;
 	}
 }

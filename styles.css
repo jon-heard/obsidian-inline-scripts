@@ -143,6 +143,7 @@
 	background-color: black;
 	opacity: 0.5;
 	z-index: 999;
+	transition: opacity 1s;
 }
 .iscript_version
 {
@@ -204,4 +205,8 @@
 	position: relative;
 	top: -.25em;
 	right: -.5em;
+}
+.iscript_preFadein
+{
+	opacity: 0.0 !important;
 }
