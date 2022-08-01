@@ -12,7 +12,8 @@ import { InputBlocker } from "./ui_InputBlocker";
 const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
 const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
 const REGEX_SFILE_SECTION_SPLIT: RegExp = /^__$/gm;
-const REGEX_ESCAPED_CHARACTERS = new Set(
+const REGEX_ALTERNATIVE_SYNTAX: RegExp = /\n\t- Alternative: __([^_]+)__/;
+const ESCAPED_CHARACTERS: Set<string> = new Set(
 [
 	".", "+", "*", "?", "[", "^", "]", "$", "(", ")", "{", "}", "=", "!", "<", ">", "|", ":", "-",
 	"\\", "\"", "'", "`"
@@ -430,22 +431,29 @@ export abstract class ShortcutLoader
 	{
 		const plugin = InlineScriptsPlugin.getInstance();
 
+		const addSyntax = (syntax: string, description: string, about?: any) =>
+		{
+			description = description.replaceAll("\n***", "");
+			plugin.syntaxes.push({ text: syntax, description: description });
+
+			if (about) { about.syntax = this.removeSyntaxSpecialCharacters(syntax); }
+
+			const altSyntax: string = description.match(REGEX_ALTERNATIVE_SYNTAX)?.[1];
+			if (altSyntax)
+			{
+				const altDescription = description.replace(
+					REGEX_ALTERNATIVE_SYNTAX, "\n\t- Alternative: __" + syntax + "__");
+				plugin.syntaxes.push({ text: altSyntax, description: altDescription });
+			}
+		}
+
 		for (const about of abouts)
 		{
-			plugin.syntaxes.push(
-			{
-				text: about.syntax,
-				description: about.description.replaceAll("\n***", "")
-			});
-			about.syntax = this.removeSyntaxSpecialCharacters(about.syntax);
+			addSyntax(about.syntax, about.description, about);
 		}
 		for (const syntax of syntaxes)
 		{
-			plugin.syntaxes.push(
-			{
-				text: syntax[0],
-				description: syntax[1]
-			});
+			addSyntax(syntax[0], syntax[1]);
 		}
 	}
 
@@ -493,6 +501,6 @@ export abstract class ShortcutLoader
 
 	private static escapeCharacterForRegex(src: string): string
 	{
-		return (!REGEX_ESCAPED_CHARACTERS.has(src)) ? src : ("\\" + src);
+		return (!ESCAPED_CHARACTERS.has(src)) ? src : ("\\" + src);
 	}
 }
