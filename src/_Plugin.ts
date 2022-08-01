@@ -165,12 +165,12 @@ export default class InlineScriptsPlugin extends Plugin
 
 	// Call the given shortcut-file's shutdown script.
 	// Note: This is called when shortcut-file is being disabled
-	private async onShortcutFileDisabled(filename: string): void
+	private onShortcutFileDisabled(filename: string): void
 	{
 		if (!this.shutdownScripts[filename]) { return; }
 		try
 		{
-			await ShortcutExpander.runExpansionScript(
+			ShortcutExpander.runExpansionScript(
 				this.shutdownScripts[filename], false, { shortcutText: "sfile shutdown" });
 		}
 		catch (e: any) {}

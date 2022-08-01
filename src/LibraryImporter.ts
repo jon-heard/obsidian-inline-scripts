@@ -8,7 +8,7 @@ import { normalizePath } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
 import { UserNotifier } from "./ui_userNotifier";
 import { InputBlocker } from "./ui_InputBlocker";
-import { Popup_Input } from "./ui_Popup_Input";
+import { Popups } from "./ui_Popups";
 import { SettingUi_ShortcutFiles } from "./ui_setting_shortcutFiles";
 
 const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp =
@@ -31,8 +31,7 @@ export namespace LibraryImporter
 
 	async function run_internal(): Promise<void>
 	{
-		const app = InlineScriptsPlugin.getInstance().app;
-		const settings = InlineScriptsPlugin.getInstance().settings;
+		const plugin = InlineScriptsPlugin.getInstance();
 
 		// Need to manually disable user-input until this process is finished
 		// (due to asynchronous downloads not otherwise blocking user-input)
@@ -102,40 +101,26 @@ export namespace LibraryImporter
 			}
 		}
 
-		// We need to remove the input blocker to let the user choose a path
-		InputBlocker.setEnabled(false);
-
 		// Have user pick the library path, using the default determined above.  Cancel ends import.
-		let libraryDestinationPath: string = await new Promise((resolve, reject) =>
-		{
-			new Popup_Input(
-				app, "What path should the library be placed in?",
-				commonPath || DEFAULT_LOCAL_ADDRESS,
-				(path: string) =>
-				{
-					resolve(path);
-				}
-			).open();
-		});
+		let libraryDestinationPath: string = await Popups.getInstance().input(
+			"What path should the library be placed in?", commonPath || DEFAULT_LOCAL_ADDRESS);
 		if (libraryDestinationPath == null)
 		{
+			InputBlocker.setEnabled(false);
 			return;
 		}
 
 		// Normalize the inputted library destination path
 		libraryDestinationPath = normalizePath(libraryDestinationPath);
 
-		// Put the input blocker back
-		InputBlocker.setEnabled(true);
-
 		// Adjust the disabledShortcutFiles to match the libraryDestinationPath
 		disabledShortcutFiles =
 			disabledShortcutFiles.map(v => libraryDestinationPath + "/" + v + ".md");
 
 		// Create the choosen library destination folder, if necessary
-		if (!(app.vault as any).fileMap.hasOwnProperty(libraryDestinationPath))
+		if (!(plugin.app.vault as any).fileMap.hasOwnProperty(libraryDestinationPath))
 		{
-			app.vault.createFolder(libraryDestinationPath);
+			plugin.app.vault.createFolder(libraryDestinationPath);
 		}
 
 		// Download and create library files
@@ -148,20 +133,20 @@ export namespace LibraryImporter
 			});
 
 			let filename: string = libraryDestinationPath + "/" + libShortcutFile + ".md";
-			let file: any = (app.vault as any).fileMap[filename];
+			let file: any = (plugin.app.vault as any).fileMap[filename];
 			if (file)
 			{
-				await app.vault.modify(file, content);
+				await plugin.app.vault.modify(file, content);
 			}
 			else
 			{
-				await app.vault.create(filename, content);
+				await plugin.app.vault.create(filename, content);
 			}
 		}
 
 		// Before adding the library shortcut-files to the plugin settings, we should
 		// update the plugin settings with the latest changes made in the settings ui.
-		settings.shortcutFiles = SettingUi_ShortcutFiles.getContents().shortcutFiles;
+		plugin.settings.shortcutFiles = SettingUi_ShortcutFiles.getContents().shortcutFiles;
 
 		// We don't want to duplicate shortcut-files, and it's important to keep the library
 		// shortcut-files in-order.  Remove any shortcut-files from the list that are part of the
@@ -171,7 +156,7 @@ export namespace LibraryImporter
 		let nothingToRemove: boolean;
 		do
 		{
-			const shortcutFileAddresses = settings.shortcutFiles.map((f: any) => f.address);
+			const shortcutFileAddresses = plugin.settings.shortcutFiles.map((f: any) => f.address);
 			nothingToRemove = true;
 			for (const libShortcutFile of libShortcutFiles)
 			{
@@ -179,11 +164,11 @@ export namespace LibraryImporter
 				const index: number = shortcutFileAddresses.indexOf(libAddress);
 				if (index >= 0)
 				{
-					if (!settings.shortcutFiles[index].enabled)
+					if (!plugin.settings.shortcutFiles[index].enabled)
 					{
 						disabledShortcutFiles.push(libAddress);
 					}
-					settings.shortcutFiles.splice(index, 1);
+					plugin.settings.shortcutFiles.splice(index, 1);
 					nothingToRemove = false;
 					break;
 				}
@@ -195,15 +180,15 @@ export namespace LibraryImporter
 		for (const libShortcutFile of libShortcutFiles)
 		{
 			const address = libraryDestinationPath + "/" + libShortcutFile + ".md";
-			settings.shortcutFiles.push(
+			plugin.settings.shortcutFiles.push(
 			{
 				enabled: (disabledShortcutFiles.indexOf(address) < 0),
 				address: address
 			});
 		}
-
 		// Refresh settings ui to display the updated list of shortcut-files
 		InputBlocker.setEnabled(false);
+		plugin.shortcutDfc.updateFileList(plugin.getActiveShortcutFileAddresses());
 		InlineScriptsPlugin.getInstance().settingsUi.display();
 	}
 }

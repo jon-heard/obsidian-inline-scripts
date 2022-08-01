@@ -6,7 +6,7 @@
 
 import { Setting, Platform } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
-import { Popup_Confirm } from "./ui_Popup_Confirm";
+import { Popups } from "./ui_Popups";
 
 export abstract class SettingUi_Other
 {
@@ -68,22 +68,16 @@ export abstract class SettingUi_Other
 				return button
 					.setButtonText("Reset to defaults")
 					.setClass("iscript_button")
-					.onClick(() =>
+					.onClick(async () =>
 					{
 						const plugin = InlineScriptsPlugin.getInstance();
-						new Popup_Confirm(
-							plugin.app,
-							"Confirm resetting ALL settings to their default values.",
-							(confirmation: boolean) =>
-							{
-								if (confirmation)
-								{
-									plugin.settings = InlineScriptsPlugin.getDefaultSettings();
-									plugin.settingsUi.display();
-									plugin.settings.shortcuts = "";
-								}
-							}
-						).open();
+						if (await Popups.getInstance().confirm(
+							"Confirm resetting ALL settings to their default values."))
+						{
+							plugin.settings = InlineScriptsPlugin.getDefaultSettings();
+							plugin.settingsUi.display();
+							plugin.settings.shortcuts = "";
+						}
 					});
 			});
 	}

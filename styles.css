@@ -141,7 +141,7 @@
 	top: 0;
 	bottom: 0;
 	background-color: black;
-	opacity: 0.5;
+	opacity: 0.75;
 	z-index: 999;
 	transition: opacity 1s;
 }
@@ -162,9 +162,10 @@
 	margin-right: 0.5em;
 	margin-bottom: -0.3em;
 }
-.iscript_soloControl
+.iscript_popup input, .iscript_popup select
 {
 	width: 100%;
+	max-width: unset !important;
 }
 .iscript_popup
 {

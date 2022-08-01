@@ -31,6 +31,8 @@ This plugin is currently in __open beta__.
         - [Calling shortcuts from shortcuts](#advanced-shortcuts-calling-shortcuts-from-shortcuts)
         - [Helper scripts](#advanced-shortcuts-helper-scripts)
         - [Setup and shutdown scripts](#advanced-shortcuts-setup-and-shutdown-scripts)
+        - [Popup boxes for user info](#advanced-shortcuts-popup-boxes-for-user-info)
+        - [Creating custom Popup boxes](#advanced-shortcuts-creating-custom-Popup-boxes)
         - [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion)
         - [Hiding shortcuts](#advanced-shortcuts-hiding-shortcuts)
         - [Reacting to shortcut expansions](#advanced-shortcuts-reacting-to-shortcut-expansions)
@@ -436,7 +438,7 @@ In this list of shortcuts, the shortcut #2 has an empty Test string.  That means
 
 ***
 
-## ADVANCED SHORTCUTS: "Setup" and "shutdown" scripts
+## ADVANCED SHORTCUTS: Setup and shutdown scripts
 A shortcut-file can contain a "setup script".  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with a specific Test string of `^sfile setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.  Also, if the setup script returns true (or something evaluating to true), this shortcut-file's shortcuts will _not_ be added.
 
 A shortcut-file can contain a "shutdown script".  A shutdown script will run when a shortcut-file is being disabled: when it is removed from the shortcut-file list, when it is "turned off" in the shortcut-file list, or when __Inline Scripts__ is being disabled or uninstalled.  A shutdown script is defined as a shortcut with a specific Test string of `^sfile shutdown$`.  This feature is useful if your shortcut-file needs to clean-up when being disabled.
@@ -445,6 +447,79 @@ A shortcut-file can contain a "shutdown script".  A shutdown script will run whe
 | Test string | Expansion string | Overview |
 | ----------- | ---------------- | -------- |
 | ^sfile&nbsp;setup$ | window._inlineScripts.state&nbsp;\|\|=&nbsp;{};<br/>window._inlineScripts.state.clips&nbsp;\|\|=&nbsp;{}; | This setup script creates some global variables that shortcuts in the shortcut-file presumably rely upon.<br/><br/>Notice that the setup script only creates the global variables if they don't yet exist (`\|\|=`).  This is important as a setup script _may_ be run many times during a session.  We don't want later runs to wipe out anything that was created earlier. |
+
+***
+
+## ADVANCED SHORTCUTS: Popup boxes for user info
+Sometimes an Expansion script needs information from the user that is not feasable using a shortcut's parameters.  This can include getting confirmation before a dangerous action, having the user select from a list of options or asking for too much information to reasonably type up in shortcut text.  Popup panels can help.  There are 4 kinds of popup panel:
+- __popups.alert(message)__ - A popup to convey a message to the user.
+- __popups.confirm(message)__ - A popup for the user to confirm or cancel an action.  Returns true if the Confirm button is clicked, false otherwise.
+- __popups.input(message, defaultValue)__ - A popup for the user to enter some text.  Returns the text the user entered, or null if the user canceled.
+- __popups.pick(message, options, defaultValue)__ - A popup for the user to select from a list.  Returns the index of the option the user selected, or null if the user canceled.
+
+Usage is simple: add one of the above statements into an Expansion text.  If the statement is not an alert, you should also use the return value of the statement in some way.
+
+### Examples
+- `popup.alert("Don't forget to save!")`
+- `if (popup.confirm("Are you sure?")) { doIt(); }`
+- `let userName = popup.input("What is your name?", "John Smith");`
+- `let color = popup.pick("What is your favorite?", [ "red", "orange", "yellow", "green", "blue", "indigo", "violet" ], 4);`
+
+***
+
+## ADVANCED SHORTCUTS: Creating custom Popup boxes
+With some effort, and html/js skill, you can create your own custom popup boxes.  This can be useful if you need something more complicated than an alert, confirm, input or pick popup box.  Here's the syntax:
+- __popups.custom(message, definition, data)__
+    - message - The message to provide the user.  It works the same as for all popup boxes.
+    - definition - An object that defines the custom popup box.
+    - data - An object to hold parameters for the custom popup box.
+
+The definition object for a custom popup box can include any of the following properties.  They are all optional:
+- buttons - An array of strings representing what buttons are shown in the popup box.  Defaults to `[ "Ok", "Cancel" ]`.
+- onOpen(data, parent, firstButton, SettingType) - A function that is called when the popup box is first opened.  It is useful for setting up a custom user interface.
+    - data - The data object that was passed in to `popups.custom()`.  This is also passed to `onClose()` so it can be used to transfer data from `onOpen()` to `onClose()`.
+    - parent - The html div in the popup box within which you can create the user interface.
+    - firstButton - The first button element (typically the "Ok" button).  It can be useful to trigger this when the user hits the enter key in the custom user interface.
+    - SettingType - obsidian.setting type: an obsidian-specific API for creating new user interface elements.
+- onClose(data, resolveFnc, buttonText) - A function that is called when the popup box is closed, typically after the user clicks a button.
+    - data - The data object that was passed in to `popups.custom()`.  This is also passed to `onOpen()` so it can be used to transfer data from `onOpen()` to `onClose()`.
+    - resolveFnc(x) - A function that, when called, ends the `popups.custom()` call.  Pass it the value you want `popups.custom()` to return.
+    - buttonText - The text of the button the user clicked to close the popup box.  This is null if the user closed the popup box without hitting a button.
+
+### Example
+```js
+const definition =
+{
+	buttons: [ "Ok" ],
+	onOpen: function(data, parent, firstButton, SettingType)
+	{
+		let s = document.createElement("select");
+		s.appendChild(new Option("Fighter", "strong"));
+		s.appendChild(new Option("Mage", "smart"));
+		s.appendChild(new Option("Rogue", "nimble"));
+		s.selectedIndex = data.defaultValue || 0;
+		s.classList.add("dropdown");
+		s.style["margin-bottom"] = "1.5em";
+		s.addEventListener("keypress", (e) =>
+		{
+			if (e.key === "Enter")
+			{
+				firstButton.click();
+			}
+		});
+		data.resultUi = s;
+		parent.appendChild(s);
+window.a = s;
+	},
+	onClose: function(data, resolveFnc, buttonText)
+	{
+		resolveFnc(data.resultUi.value);
+	}
+};
+result =
+	popups.custom("Pick a character", definition, { defaultValue: 1 });
+return result;
+```
 
 ***
 

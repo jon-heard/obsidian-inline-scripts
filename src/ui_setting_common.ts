@@ -4,20 +4,16 @@
 
 "use strict";
 
-import { Popup_Confirm } from "./ui_Popup_Confirm";
+import { Popups } from "./ui_Popups";
 
 export namespace SettingUi_Common
 {
-	export function deleteButtonClicked(this: any): void
+	export async function deleteButtonClicked(this: any): Promise<void>
 	{
-		new Popup_Confirm( this.app, "Confirm removing a " + this.typeTitle + ".",
-			(confirmation: boolean) =>
-			{
-				if (confirmation)
-				{
-					this.group.remove();
-				}
-			} ).open();
+		if (await Popups.getInstance().confirm("Confirm removing a " + this.typeTitle + "."))
+		{
+			this.group.remove();
+		}
 	}
 
 	export function upButtonClicked(this: any): void

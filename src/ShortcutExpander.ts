@@ -9,6 +9,7 @@ import { UserNotifier } from "./ui_userNotifier";
 import { ExternalRunner } from "./ExternalRunner";
 import { AutoAsyncWrapper } from "./AutoAsyncWrapper";
 import { Parser } from "./node_modules/acorn/dist/acorn";
+import { Popups } from "./ui_Popups";
 
 // Get the AsyncFunction constructor to setup and run Expansion scripts with
 const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
@@ -41,7 +42,9 @@ export abstract class ShortcutExpander
 	private static initialize_internal(): void
 	{
 		// Initialize the AutoAsyncWrapper
-		AutoAsyncWrapper.initialize([ "expand" ]);
+		AutoAsyncWrapper.initialize([
+			"expand", "popups\s*\.\s*alert", "popups\s*\.\s*confirm", "popups\s*\.\s*input",
+			"popups\s*\.\s*pick", "popups\s*\.\s*custom" ]);
 
 		//Setup bound versons of these function for persistant use
 		this._expand_internal = this.expand_internal.bind(this);
@@ -198,10 +201,10 @@ export abstract class ShortcutExpander
 		{
 			// Run the expansion script and return the result
 			return await ( new AsyncFunction(
-				"expand", "runExternal", "print", "expansionInfo",
+				"expand", "runExternal", "print", "expansionInfo", "popups",
 				expansionScript) )
 				( this._expand_internal, ExternalRunner.run, UserNotifier.getFunction_print(),
-				  expansionInfo ) ?? "";
+				  expansionInfo, Popups.getInstance() ) ?? "";
 		}
 		// If there was an error...
 		catch (e: any)
@@ -233,6 +236,7 @@ export abstract class ShortcutExpander
 	private static handleExpansionError(
 		expansionScript: string, message: string, position: any, shortcutText?: string): void
 	{
+		expansionScript = expansionScript.replaceAll("\t", "    ");
 		// Get the expansion script, modified by line numbers and an arrow pointing to the error
 		let expansionLines = expansionScript.split("\n");
 		// Add line numbers
