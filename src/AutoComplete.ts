@@ -102,7 +102,7 @@ export class AutoComplete extends EditorSuggest<any>
 		const suffix: string = this._plugin.settings.suffix;
 
 		// Get the current line of text up to the caret position
-		const lineUpToCursor: string = editor.getLine(cursor.line).substring(0, cursor.ch);
+		const lineUpToCursor: string = editor.getLine(cursor.line).slice(0, cursor.ch);
 
 		// Look for whether we are within a shortcut (after a prefix, and NOT after a suffix)
 		let match: any = lineUpToCursor.match(prefix + "[^" + suffix[0] + "]*$");
@@ -118,7 +118,7 @@ export class AutoComplete extends EditorSuggest<any>
 					ch: lineUpToCursor.lastIndexOf(match) + prefix.length,
 					line: cursor.line,
 				},
-				query: match.substr(prefix.length),
+				query: match.slice(prefix.length),
 			};
 		}
 		else
@@ -220,7 +220,7 @@ export class AutoComplete extends EditorSuggest<any>
 		// Get the suggestion's "fill": all of the suggestion text before the first parameter
 		const suggestionEndIndex: number =
 			suggestion.text.match(REGEX_FIRST_PARAMETER_START)?.index ?? suggestion.text.length;
-		const fill = suggestion.text.substr(0, suggestionEndIndex);
+		const fill = suggestion.text.slice(0, suggestionEndIndex);
 
 		// If the current shortcut-text doesn't yet have all the fill, set it to the fill
 		if (!this.context.query.startsWith(fill))

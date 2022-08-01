@@ -64,13 +64,13 @@ if ($1 > 1) { label += "x" + $1; }
 for (let i = 0; i < $1; i++) { result += roll($2); }
 if ($3) {
 	if ($3.startsWith("+")) {
-		result += Number($3.substr(1));
+		result += Number($3.slice(1));
 	} else {
-		result -= Number($3.substr(1));
+		result -= Number($3.slice(1));
 	}
 	label += $3;
 }
-if (isNaN(label.substr(1))) { label = "(" + label + ")"; }
+if (isNaN(label.slice(1))) { label = "(" + label + ")"; }
 return "🎲 " + result + " /" + label;
 __
 {count: optional, >0}d{max: required, >0}{add: optional, + or \\- followed by >0} - A dice roller shortcut, same as d{max}, but with optional {count} and {add} parameters.  {count} is the number of dice to roll and add together.  {add} is "+" or "-" followed by an amount to adjust the result by.

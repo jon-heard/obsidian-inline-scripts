@@ -249,7 +249,7 @@ export default class InlineScriptsPlugin extends Plugin
 
 		// Get the shortcut text to expand, and the info on this expansion
 		const shortcutText: string =
-			lineText.substring(prefixIndex + this.settings.prefix.length, suffixIndex);
+			lineText.slice(prefixIndex + this.settings.prefix.length, suffixIndex);
 		const expansionInfo: any =
 		{
 			isUserTriggered: true,

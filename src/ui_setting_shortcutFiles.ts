@@ -116,7 +116,7 @@ export abstract class SettingUi_ShortcutFiles
 			if (shortcutFile)
 			{
 				// Remove ".md" extension from filename
-				e.setAttr("value", shortcutFile.address.substr(0, shortcutFile.address.length - 3));
+				e.setAttr("value", shortcutFile.address.slice(0, -3));
 			}
 			e.dispatchEvent(new Event("input"));
 		e = g.createEl("datalist");

@@ -74,11 +74,11 @@ export namespace LibraryImporter
 			SettingUi_ShortcutFiles.getContents().shortcutFiles.map((f: any) => f.address);
 		// The filenames of referenced shortcut-files
 		let sfNoteNames: Array<string> =
-			sfNoteAddresses.map(s => s.substring(s.lastIndexOf("/")+1, s.length-3));
+			sfNoteAddresses.map(s => s.slice(s.lastIndexOf("/")+1, -3));
 		// The paths of referenced shortcut-files
 		let sfNotePaths: Array<string> = sfNoteAddresses.map((s: any, i: number) =>
 		{
-			return s.substring(0, s.length-sfNoteNames[i].length-4)
+			return s.slice(0, s.length-sfNoteNames[i].length-4)
 		});
 		// Find a common path, or lack thereof, to shortcut-files belonging to the library
 		let commonPath: string = null;

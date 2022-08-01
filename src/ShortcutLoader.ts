@@ -117,7 +117,7 @@ export abstract class ShortcutLoader
 				// Handle the Test being in a basic fenced code-block
 				if (c.startsWith("```") && c.endsWith("```"))
 				{
-					c = c.substring(3, c.length-3).trim();
+					c = c.slice(3, -3).trim();
 				}
 
 				try
@@ -143,7 +143,7 @@ export abstract class ShortcutLoader
 			{
 				if (exp.startsWith("```js") && exp.endsWith("```"))
 				{
-					exp = exp.substring(5, exp.length-3).trim();
+					exp = exp.slice(5, -3).trim();
 				}
 			}
 
@@ -292,12 +292,11 @@ export abstract class ShortcutLoader
 			plugin.shortcuts.push({});
 
 			// Get the file About string and shortcut About strings
-			let baseName: string = shortcutFile.address.substring(
-				shortcutFile.address.lastIndexOf("/")+1,
-				shortcutFile.address.length-3);
+			let baseName: string =
+				shortcutFile.address.slice(shortcutFile.address.lastIndexOf("/")+1, -3);
 			baseName =
 				baseName.endsWith(".sfile") ?
-				baseName.substring(0, baseName.length - 6) :
+				baseName.slice(0, -6) :
 				baseName;
 			shortcutFiles.push(baseName);
 			this.updateGeneralHelpShortcut(shortcutFiles);
