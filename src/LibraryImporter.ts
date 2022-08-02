@@ -102,8 +102,9 @@ export namespace LibraryImporter
 		}
 
 		// Have user pick the library path, using the default determined above.  Cancel ends import.
-		let libraryDestinationPath: string = await Popups.getInstance().input(
-			"What path should the library be placed in?", commonPath || DEFAULT_LOCAL_ADDRESS);
+		let libraryDestinationPath: string = await Popups.getInstance().custom(
+			"What path should the library be placed in?", POPUP_DEFINITION_DROPDOWN_INPUT,
+			{ defaultValue: commonPath || DEFAULT_LOCAL_ADDRESS });
 		if (libraryDestinationPath == null)
 		{
 			InputBlocker.setEnabled(false);
@@ -188,7 +189,41 @@ export namespace LibraryImporter
 		}
 		// Refresh settings ui to display the updated list of shortcut-files
 		InputBlocker.setEnabled(false);
-		plugin.shortcutDfc.updateFileList(plugin.getActiveShortcutFileAddresses());
 		InlineScriptsPlugin.getInstance().settingsUi.display();
 	}
+
+	const POPUP_DEFINITION_DROPDOWN_INPUT =
+	{
+		onOpen: (data: any, parent: any, firstButton: any, SettingType: any) =>
+		{
+			new SettingType(parent)
+				.addText((text: any) =>
+				{
+					text.setValue(data.defaultValue || "");
+					data.resultUi = text;
+					text.inputEl.select();
+					text.inputEl.parentElement.previousSibling.remove();
+					text.inputEl.addEventListener("keypress", (e: any) =>
+					{
+						if (e.key === "Enter") { firstButton.click(); }
+					});
+					text.inputEl.setAttr("list", "folders");
+
+					let foldersUi: any = document.createElement("datalist");
+					foldersUi.id = "folders";
+					for (const key in (InlineScriptsPlugin.getInstance().app.vault as any).fileMap)
+					{
+						if (!key.endsWith(".md") && key !== "/")
+						{
+							foldersUi.appendChild(new Option(key));
+						}
+					}
+					text.inputEl.parentNode.appendChild(foldersUi);
+				})
+		},
+		onClose: (data: any, resolveFnc: Function, buttonText: string) =>
+		{
+			resolveFnc((buttonText == "Ok") ? data.resultUi.getValue() : null);
+		}
+	};
 }
