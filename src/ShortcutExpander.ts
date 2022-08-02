@@ -111,8 +111,15 @@ export abstract class ShortcutExpander
 		let expansionText = null;
 		if (foundMatch)
 		{
-			expansionText = await this.runExpansionScript_internal(
-				expansionScript, failSilently, expansionInfo);
+			try
+			{
+				expansionText = await this.runExpansionScript_internal(
+					expansionScript, failSilently, expansionInfo);
+			}
+			catch (e: any)
+			{
+				if (!failSilently) { throw e; }
+			}
 		}
 		expansionInfo.expansionText = expansionText;
 
