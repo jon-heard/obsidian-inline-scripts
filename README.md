@@ -24,6 +24,7 @@ This plugin is currently in __open beta__.
 - Shortcut development topics
     - Development aids
         - [The console](#development-aid-the-console)
+        - [The debugger statement](#development-aid-the-debugger-statement)
         - [Fenced code blocks](#development-aid-fenced-code-blocks)
     - Advanced shortcuts
         - [The print() function](#advanced-shortcuts-the-print-function)
@@ -303,6 +304,11 @@ If a new shortcut doesn't work and it's not clear why, then the javascript conso
 5. If you are struggling with too much information in the console, you can always clear it.  There's a button to do so on the top-left of the dev-tools panel. _(see picture below)_
 
     ![Console](readmeMedia/console.png)
+
+***
+
+## DEVELOPMENT AID: The debugger statement
+If you have the console open (see [The console](#development-aid-the-console)), then you can pause an expansion mid-script, view the variables at that point, and then resume the script.  You can do this by adding `debugger;` to the script where you want to the expansion to pause.  When the expansion is run and hits `debugger;`, the script will pause.
 
 ***
 

@@ -21,12 +21,12 @@ CHECK INVALID SHORTCUT X
 3. Confirm that a console log show the shortcut as unidentified
 4. Confirm that the text that you entered for the shortcut is not removed.
 
-CHECK HELP X FOR SHORTCUT Y
+CHECK REF X FOR SHORTCUT Y
 1. Enter the shortcut "ref X"
 2. Confirm that the shortcut Y entry is in the list
 3. Confirm that the shortcut y entry is what it should be
 
-CHECK HELP X FOR INVALID SHORTCUT Y
+CHECK REF X FOR INVALID SHORTCUT Y
 1. Enter the shortcut "ref x"
 2. Confirm that the shortcut y entry is NOT in the list
 
@@ -86,9 +86,8 @@ PREP
     - note - Feel free to clear this file at any point during the test.
 4. Open console (ctrl-shift-i)
 5. Make sure the plugin is disabled
-6. Make sure legacy editor is turned off (non-mobile only)
-7. Close Obsidian
-8. Delete plugin "data.json" file if it exists
+6. Close Obsidian
+7. Delete plugin "data.json" file if it exists
 
 SETUP & SHUTDOWN
 1. Open Obsidian
@@ -185,8 +184,8 @@ BASIC SETTINGS - ERRORS
 BASIC SHORTCUTS
 1. Check invalid shortcut "test 1" (common action)
 2. Check shortcut "hi" (common action)
-3. Check help "settings" for invalid shortcut "test 1" (common action)
-4. Check help "settings" for shortcut "hi" (common action)
+3. Check ref "settings" for invalid shortcut "test 1" (common action)
+4. Check ref "settings" for shortcut "hi" (common action)
 5. add shortcut (common action)
 	- Test:
 		^test 1$
@@ -197,7 +196,7 @@ BASIC SHORTCUTS
 
 6. Check shortcut "test 1" (common action)
 7. Check shortcut "hi" (common action)
-8. Check help "settings" for shortcut "hi" (common action)
+8. Check ref "settings" for shortcut "hi" (common action)
 9. Check help "settings for shortcut "test 1" (common action)
 10. Open plugin settings
 11. Modify shortcut ^test 1$ (common action):
@@ -221,8 +220,8 @@ BASIC SHORTCUTS
 24. Close plugin settings
 25. Check invalid shortcut "test 1" (common action)
 26. Check shortcut "hi" (common action)
-27. Check help "settings" for invalid shortcut "test 1" (common action)
-28. Check help "settings" for shortcut "hi" (common action)
+27. Check ref "settings" for invalid shortcut "test 1" (common action)
+28. Check ref "settings" for shortcut "hi" (common action)
 
 BASIC SHORTCUT ERRORS
 1. Add shortcut (common action):
@@ -236,7 +235,7 @@ BASIC SHORTCUT ERRORS
 2. Confirm that popup tells about shortcut-file issues (when settings are closed)
 3. Confirm that BAD-TEST-STRING-ERROR is added to the console (when settings are closed)
 4. Check invalid shortcut "test 2" (common action)
-5. Check help "settings" for invalid shortcut "test 2" (common action)
+5. Check ref "settings" for invalid shortcut "test 2" (common action)
 6. Modify shortcut [^test 2$ (common action)
 	- Test:
 		^test 2$
@@ -247,7 +246,7 @@ BASIC SHORTCUT ERRORS
 8. Run shortcut "test 2"
 9. Confirm that popup appears about shortcut expansion issues
 10. Confirm that SHORTCUT-EXPANSION-ERROR is added to the console
-11. Check help "settings" for shortcut "test 2" (common action)
+11. Check ref "settings" for shortcut "test 2" (common action)
 12. Modify shortcut ^test 2$ (common action)
 	- Expansion:
 		return { a: "Test 2 successful" };
@@ -338,14 +337,14 @@ SHORTCUTS - EXPANSION INFO
 8. Wrap "test info a" (second line) in the shortcut prefix/suffix
 9. Confirm tht the resulting note content is:
 	first line
-	second line start 
-	Line - 	second line start ;;test info a:: end
-	start - 18
-	end - 33
-	shortcutText - test info a
-	prefix - ;;
-	suffix - ::
-	 end
+		second line start 
+		Line - 	second line start ;;test info a:: end
+		start - 18
+		end - 33
+		shortcutText - test info a
+		prefix - ;;
+		suffix - ::
+		 end
 	third line
 10. Reset settings (common action)
 
@@ -431,8 +430,8 @@ SHORTCUTS - RUNEXTERNAL FUNCTION !! NON-MOBILE ONLY !!
 BASIC SHORTCUT-FILES
 1. Check invalid shortcut "test 9" (common action)
 2. Check invalid shortcut "test 10" (common action)
-3. Check invalid help "testfile" (common action)
-4. Add note "testing/testfile.sfile" (common action)
+3. Check invalid help "testfile_1" (common action)
+4. Add note "testing/testfile_1.sfile" (common action)
 	Test file
 
 	__
@@ -455,33 +454,33 @@ BASIC SHORTCUT-FILES
 	__
 	test 10 - Tenth test shortcut
 
-5. Register shortcut-file "testing/testfile.sfile" (common action)
+5. Register shortcut-file "testing/testfile_1.sfile" (common action)
 6. Confirm that entry turns red when typing has started
 7. Confirm that entry turns dark grey when entry is finished
 8. Check shortcut "test 9" (common action)
 9. Check shortcut "test 10" (common action)
-10. Check help "testfile" (common action)
-11. Check help "testfile" for shortcut "test 9" (common action)
-12. Check help "testfile" for shortcut "test 10" (common action)
+10. Check help "testfile_1" (common action)
+11. Check ref "testfile_1" for shortcut "test 9" (common action)
+12. Check ref "testfile_1" for shortcut "test 10" (common action)
 13. Type ";;help::".
-14. Confirm that the expansion includes "testfile"
+14. Confirm that the expansion includes "testfile_1"
 15. Open plugin settings
-16. Remove shortcut-file entry for "testing/testfile.sfile"
+16. Remove shortcut-file entry for "testing/testfile_1.sfile"
 17. Close plugin settings
 18. Check invalid shortcut "test 9" (common action)
 19. Check invalid shortcut "test 10" (common action)
-20. Check invalid help "testfile" (common action)
+20. Check invalid help "testfile_1" (common action)
 21. Type ";;help::".
-22. Confirm that the expansion doesn't include "testfile"
-23. Rename the note "testing/testfile.sfile" to "testing/testfile"
+22. Confirm that the expansion doesn't include "testfile_1"
+23. Rename the note "testing/testfile_1.sfile" to "testing/testfile_1"
 24. Go to the note "testResults"
-25. Register shortcut-file "testing/testfile" (common action)
+25. Register shortcut-file "testing/testfile_1" (common action)
 26. Register shortcut-file "" (blank) (common action)
-27. Check help "testfile" (common action)
+27. Check help "testfile_1" (common action)
 28. Open plugin settings
-29. Confirm that there is only one shortcut-file entry: "testing/testfile"
+29. Confirm that there is only one shortcut-file entry: "testing/testfile_1"
 30. Reset settings (common action)
-31. Rename the note "testing/testfile" to "testing/testfile.sfile"
+31. Rename the note "testing/testfile_1" to "testing/testfile_1.sfile"
 
 BASIC SHORTCUT-FILE ERRORS - MISSING-SHORTCUT-FILE-ERROR
 1. Register shortcut-file "invalidFile" (common action)
@@ -499,7 +498,7 @@ BASIC SHORTCUT-FILE ERRORS - MISSING-SHORTCUT-FILE-ERROR
 13. Confirm that no popup or console entry appears
 
 BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
-1. Add note "testing/testfile.sfile" (common action)
+1. Add note "testing/testfile_1.sfile" (common action)
 	__
 	^test 11$
 	__
@@ -510,54 +509,54 @@ BASIC SHORTCUT-FILE ERRORS - MISNUMBERED-SECTION-COUNT-ERROR
 	__
 	return "Test 12 successful";
 
-2. Register shortcut-file "testing/testfile.sfile" (common action)
+2. Register shortcut-file "testing/testfile_1.sfile" (common action)
 3. Confirm that a popup about shortcut-file issues appears
 4. Confirm that MISNUMBERED-SECTION-COUNT-ERROR is added to the console
-5. Check help "testfile" (common action)
-6. Check help "testfile" for shortcut "^test 11$" (common action)
-7. Check help "testfile" for invalid shortcut "^test 12$" (common action)
+5. Check help "testfile_1" (common action)
+6. Check ref "testfile_1" for shortcut "^test 11$" (common action)
+7. Check ref "testfile_1" for invalid shortcut "^test 12$" (common action)
 8. Check shortcut "test 11" (common action)
 9. Check invalid shortcut "test 12" (common action)
-10. Go to note "testing/testfile.sfile"
+10. Go to note "testing/testfile_1.sfile"
 11. Go to the note "testResults"
 12. Confirm that no popup or console entry appears
 13. Check shortcut "test 11" (common action)
 14. Check invalid shortcut "test 12" (common action)
-15. Go to note "testing/testfile.sfile"
+15. Go to note "testing/testfile_1.sfile"
 16. Append a line to the end of the file with "__"
 17. Go to the note "testResults"
 18. Confirm that no popup or console entry appears
 19. Check shortcut "test 11" (common action)
 20. Check shortcut "test 12" (common action)
-21. Check help "testfile" for shortcut "^test 11$"  (common action)
-22. Check help "testfile" for shortcut "^test 12$" (common action)
+21. Check ref "testfile_1" for shortcut "^test 11$"  (common action)
+22. Check ref "testfile_1" for shortcut "^test 12$" (common action)
 23. Reset settings
 
 DEVELOPER MODE
-1. Add note "testing/testfile.sfile" (common action)
+1. Add note "testing/testfile_1.sfile" (common action)
 	__
 	^test 13$
 	__
 	return "Test 13 successful";
 
-2. Register shortcut-file "testing/testfile.sfile"
+2. Register shortcut-file "testing/testfile_1.sfile"
 3. Confirm that a new popup shows shortcut-file issues
 4. Confirm MISNUMBERED-SECTION-COUNT-ERROR is added to the console
-5. Go to the note "testing/testfile.sfile"
+5. Go to the note "testing/testfile_1.sfile"
 6. Go to the note "testResults"
 7. Confirm that no new popup or console entry appears
 8. Open plugin settings
 9. Turn on "Developer mode" (near bottom)
 10. Close plugin settings
 11. Confirm that no new popup or console entry appears
-12. Go to the note "testing/testfile.sfile"
+12. Go to the note "testing/testfile_1.sfile"
 13. Go to the note "testResults"
 14. Confirm that a new popup shows shortcut-file issues
 15. Confirm that MISNUMBERED-SECTION-COUNT-ERROR is added to the console
 16. Open plugin settings
 17. Turn off "Developer mode"
 18. Close plugin settings
-19. Go to the note "testing/testfile.sfile"
+19. Go to the note "testing/testfile_1.sfile"
 20. Go to the note "testResults"
 21. Confirm that no popup or console entry appears
 22. Reset settings
@@ -615,8 +614,8 @@ SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 	return "Test 18 successful: " + (typeof tstFnc2 === "function" ? "has tstFnc2" : "no tstFnc2");
 	__
 
-6. Register shortcut-file "testing/testfile.sfile1"
-7. Register shortcut-file "testing/testfile.sfile2"
+6. Register shortcut-file "testing/testfile_1.sfile"
+7. Register shortcut-file "testing/testfile_2.sfile"
 9. Check shortcut "test 14" (common action)
 10. Confirm that the expansion is "First test 14 successful: no tstFnc1"
 11. Check shortcut "test 15" (common action)
@@ -635,46 +634,46 @@ SHORTCUT-FILE - ORDER, HELPER SCRIPTS AND HELPER BLOCKERS
 24. Reset settings
 
 SHORTCUT-FILE - SETUP AND SHUTDOWN SCRIPTS
-1. Add note "testing/testfile.sfile" (common action)
+1. Add note "testing/testfile_1.sfile" (common action)
 	__
 	^sfile setup$
 	__
-	console.log("Setting up testfile");
+	console.log("Setting up testfile_1");
 	__
 
 	__
 	^sfile shutdown$
 	__
-	console.log("Shutting down testfile");
+	console.log("Shutting down testfile_1");
 	__
 
-2. Register shortcut-file entry "testing/testfile.sfile"
-3. Confirm that a console entry is added: "Setting up testfile"
-4. Go to the note "testing/testfile.sfile"
+2. Register shortcut-file entry "testing/testfile_1.sfile"
+3. Confirm that a console entry is added: "Setting up testfile_1"
+4. Go to the note "testing/testfile_1.sfile"
 5. Add a newline to the end of the file
 6. Go to the note "testResults"
-7. Confirm that a console entry is added: "Setting up testfile"
+7. Confirm that a console entry is added: "Setting up testfile_1"
 8. Disable the plugin
-9. Confirm that a console entry is added: "Shutting down testfile"
+9. Confirm that a console entry is added: "Shutting down testfile_1"
 10. Enable the plugin
-11. Confirm that a console entry is added: "Setting up testfile"
+11. Confirm that a console entry is added: "Setting up testfile_1"
 12. Open plugin settings
 13. Disable the shortcut-file
 14. Close plugin settings
-15. Confirm that a console entry is added: "Shutting down testfile"
+15. Confirm that a console entry is added: "Shutting down testfile_1"
 16. Open plugin settings
 17. Enable the shortcut-file
 18. Close plugin settings
-19. Confirm that a console entry is added: "Setting up testfile"
+19. Confirm that a console entry is added: "Setting up testfile_1"
 20. Open plugin settings
-21. Remove the shortcut-files entry "testing/testfile.sfile"
+21. Remove the shortcut-files entry "testing/testfile_1.sfile"
 22. Close plugin settings
-23. Confirm that a console entry is added: "Shutting down testfile"
-24. Add note "testing/testfile.sfile"
+23. Confirm that a console entry is added: "Shutting down testfile_1"
+24. Add note "testing/testfile_1.sfile"
 	__
 	^sfile setup$
 	__
-	console.log("Setting up testfile");
+	console.log("Setting up testfile_1");
 	return true;
 	__
 
@@ -687,16 +686,16 @@ SHORTCUT-FILE - SETUP AND SHUTDOWN SCRIPTS
 	__
 	^sfile shutdown$
 	__
-	console.log("Shutting down testfile");
+	console.log("Shutting down testfile_1");
 	__
 
-17. Register shortcut-file "testing/testfile.sfile" (common action)
-18. Confirm that a console entry is added "Setting up testfile"
+17. Register shortcut-file "testing/testfile_1.sfile" (common action)
+18. Confirm that a console entry is added "Setting up testfile_1"
 19. Check invalid shortcut "test 19" (common action)
 20. Open plugin settings
-21. Remove the shortcut-files entry "testing/testfile.sfile"
+21. Remove the shortcut-files entry "testing/testfile_1.sfile"
 22. Close plugin settings
-23. Confirm that a console entry is NOT added "Shutting down testfile"
+23. Confirm that a console entry is NOT added "Shutting down testfile_1"
 
 SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 1. Open plugin settings
@@ -763,7 +762,7 @@ SHORTCUT-FILE - LIBRARY IMPORTING !! REQUIRES AN INTERNET CONNECTION !!
 64. Reconnect internet
 
 SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
-1. Add note "testing/testfile.sfile" (common action)
+1. Add note "testing/testfile_1.sfile" (common action)
 	__
 	^sfile setup$
 	__
@@ -790,7 +789,7 @@ SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 	delete window._inlineScripts.listeners?.inlineScripts?.onExpansion?.testCallback;
 	__
 
-2. Register shortcut-file "testing/testfile.sfile" (common action)
+2. Register shortcut-file "testing/testfile_1.sfile" (common action)
 3. Check shortcut "hi" (common action)
 4. Confirm that a popup and console log are added that show the input and expansion text.
 5. Check shortcut "date" (common action)
@@ -801,7 +800,7 @@ SHORTCUT-FILE - LISTENER FOR EXPANSION EVENT
 10. Confirm that the expansion string is for the "time shortcut.
 11. Confirm that a popup and console message are added.
 12. Open plugin settings
-13. Remove the shortcut-file entry "testing/testfile.sfile"
+13. Remove the shortcut-file entry "testing/testfile_1.sfile"
 14. Close plugin settings
 15. Check shortcut "hi" (common action)
 16. Confirm that no popup or expansion text shows up
@@ -835,6 +834,7 @@ SHORTCUT-FILE - ENABLE/DISABLE
 	return "Test 22 successful.";
 	__
 
+
 3. Register shortcut-file "testing/testfile_1.sfile"
 4. Register shortcut-file "testing/testfile_2.sfile"
 5. Check shortcut "test 20" (common action)
@@ -842,17 +842,17 @@ SHORTCUT-FILE - ENABLE/DISABLE
 7. Check shortcut "test 21" (common action)
 8. Check shortcut "test 22" (common action)
 9. Open plugin settings
-10. Turn off the toggle to the left of the entry "testing/testfile.sfile1"
+10. Turn off the toggle to the left of the entry "testing/testfile_1.sfile"
 11. Close plugin settings
 12. Check shortcut "test 20" (common action)
 13. Confirm that the expansion is "Second test 20 successful."
 14. Check invalid shortcut "test 21" (common action)
-15. Check invalid help "testfile1" (common action)
-16. Check help "testfile2" (common action)
+15. Check invalid help "testfile_1" (common action)
+16. Check help "testfile_2" (common action)
 17. Reset settings
 
 SHORTCUT-FILE - FAIL SILENTLY
-1. Add note "testing/testfile.sfile" (common action)
+1. Add note "testing/testfile_1.sfile" (common action)
 	__
 	test 23
 	__
@@ -865,18 +865,18 @@ SHORTCUT-FILE - FAIL SILENTLY
 	return "Test 24: " + (expand("test 23") ?? "test 23 failed");
 	__
 
-2. Register shortcut-file "testing/testfile.sfile" (common action)
+2. Register shortcut-file "testing/testfile_1.sfile" (common action)
 3. Check shortcut "test 24" (common action)
-4. Confirm that console error "SHORTCUT-EXPANSION-ERROR" is added
-5. Modify test 24 in "testing/testfile.sfile"
+4. Confirm that popup and console error "SHORTCUT-EXPANSION-ERROR" is added
+5. Modify test 24 in "testing/testfile_1.sfile"
 	- Expansion:
 		return "Test 24: " + (expand("test 23", true) ?? "test 23 failed");
 
 6. Go to the note "testResults"
 7. Check shortcut "test 24" (common action)
 8. Confirm that expansion is "Test 24: test 23 failed"
-9. Go to the note "testing/testfile.sfile"
-10. Modify the test 23 in "testing/testfile.sfile"
+9. Go to the note "testing/testfile_1.sfile"
+10. Modify the test 23 in "testing/testfile_1.sfile"
 	- Expansion:
 		<blank>
 
@@ -884,6 +884,141 @@ SHORTCUT-FILE - FAIL SILENTLY
 12. Check shortcut "test 24" (common action)
 13. Confirm that expansion is "Test 24: "
 14. Open plugin settings
-15. Remove the shortcut-files entry "testing/testfile.sfile"
+15. Remove the shortcut-files entry "testing/testfile_1.sfile"
 16. Close plugin settings
 17. Confirm that a console entry is NOT added
+
+AUTOCOMPLETE
+	NON-SYNTAXED
+	BASIC SYNTAX
+	PARAMETERS
+	OPTIONAL PARAMETERS
+	ALTERNATIVES
+INSERT CHECK FOR DROPDOWN FILE LISTS
+INSERT CHECK FOR DROPDOWN FOLDER LIST IN IMPORTING
+POPUPS
+	__
+	^test alert$
+	__
+	console.log(popups.alert("hello"));
+	console.log(popups.alert(2);
+	console.log(popups.alert());
+	console.log(popups.alert(null));
+	__
+	test alert - ...
+
+	__
+	^test confirm$
+	__
+	console.log(popups.confirm("hello"));
+	console.log(popups.confirm(2));
+	console.log(popups.confirm());
+	console.log(popups.confirm(null));
+	__
+	test confirm - ...
+
+	__
+	^test input$
+	__
+	console.log(popups.input("hello", "good day") ?? "Canceled");
+	console.log(popups.input("hello") ?? "Canceled");
+	console.log(popups.input(2, 3) ?? "Canceled");
+	console.log(popups.input(2) ?? "Canceled");
+	console.log(popups.input() ?? "Canceled");
+	console.log(popups.input(null) ?? "Canceled");
+	console.log(popups.input(null, null) ?? "Canceled");
+	__
+	test input - ...
+
+	__
+	^test pick$
+	__
+	console.log(popups.pick("hello", ["first", "second", "third", "fourth"], 2) ?? "Canceled");
+	console.log(popups.pick("hello", ["first", "second", "third", "fourth"], -2) ?? "Canceled");
+	console.log(popups.pick("hello", ["first", "second", "third", "fourth"], 20) ?? "Canceled");
+	console.log(popups.pick("hello", ["first", "second", "third", "fourth"], "second") ?? "Canceled");
+	console.log(popups.pick("hello", ["first", "second", "third", "fourth"], null) ?? "Canceled");
+	console.log(popups.pick("hello", ["first", "second", "third", "fourth"]) ?? "Canceled");
+	console.log(popups.pick(1, ["first", "second", "third", "fourth"], 2) ?? "Canceled");
+	console.log(popups.pick(null, ["first", "second", "third", "fourth"], 2) ?? "Canceled");
+	console.log(popups.pick("hello", "first", 5) ?? "Canceled");
+	console.log(popups.pick("hello", 5, 0) ?? "Canceled");
+	console.log(popups.pick("hello", null, 2) ?? "Canceled");
+	console.log(popups.pick("hello") ?? "Canceled");
+	console.log(popups.pick() ?? "Canceled");
+	__
+	test pick - ...
+
+	__
+	^test custom$
+	__
+	```js
+	const customization =
+	{
+		onOpen: (data, parent, firstButton, SettingType) =>
+		{
+			new SettingType(parent)
+				.addText((text) =>
+				{
+					data.resultUi = text;
+					text.setValue("John Smith");
+					text.inputEl.select();
+					text.inputEl.parentElement.previousSibling.remove();
+					text.inputEl.classList.add("iscript_soloControl");
+					text.inputEl.addEventListener("keypress", (e) =>
+					{					if (e.key === "Enter")
+						{
+							firstButton.click();
+						}
+					});
+				})
+		},
+		onClose: (data, resolveFnc, buttonText) =>
+		{
+			resolveFnc((buttonText == "Ok") ? data.resultUi.getValue() : null);
+		}
+	};
+	return popups.custom("testing custom popup", customization) ?? "Canceled";
+	```
+	__
+	test custom - ...
+
+
+	__
+	^test custom2$
+	__
+	```js
+	const definition =
+	{
+		buttons: [ "Ok" ],
+		onOpen: function(data, parent, firstButton, SettingType)
+		{
+			let s = document.createElement("select");
+			s.appendChild(new Option("Fighter", "strong"));
+			s.appendChild(new Option("Mage", "smart"));
+			s.appendChild(new Option("Rogue", "nimble"));
+			s.selectedIndex = data.defaultValue || 0;
+			s.classList.add("dropdown");
+			s.style["margin-bottom"] = "1.5em";
+			s.addEventListener("keypress", (e) =>
+			{
+				if (e.key === "Enter")
+				{
+					firstButton.click();
+				}
+			});
+			data.resultUi = s;
+			parent.appendChild(s);
+	window.a = s;
+		},
+		onClose: function(data, resolveFnc, buttonText)
+		{
+			resolveFnc(data.resultUi.value);
+		}
+	};
+	result =
+		popups.custom("Pick a character", definition, { defaultValue: 1 });
+	return result;
+	```
+	__
+
