@@ -263,15 +263,11 @@ export class Popups extends Modal
 		// Setup message
 		if (typeof this._message === "string")
 		{
-			const messageLines = this._message.split("\n");
-			for (const line of messageLines)
-			{
-				this.titleEl.createEl("div", { text: line });
-			}
+			this.titleEl.innerHTML = this._message.replaceAll("\n", "<br/>");
 		}
 		else if (this._message)
 		{
-			this.titleEl.createEl("div", { text: this._message });
+			this.titleEl.innerHTML = this._message;
 		}
 
 		// Setup type-specific ui container

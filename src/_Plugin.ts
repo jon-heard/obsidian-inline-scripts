@@ -13,6 +13,7 @@ import { ShortcutExpander } from "./ShortcutExpander";
 import { ShortcutLoader } from "./ShortcutLoader";
 import { AutoComplete } from "./AutoComplete";
 import { InputBlocker } from "./ui_InputBlocker";
+import { Popups } from "./ui_Popups";
 
 // NOTE: The "Inline Scripts" plugin uses a custom format for shortcut-files.  I tried using
 // existing formats (json, xml, etc), but they were cumbersome for developing JavaScript code in.
@@ -23,6 +24,12 @@ import { InputBlocker } from "./ui_InputBlocker";
 // and here:
 // https://github.com/jon-heard/obsidian-inline-scripts#development-aid-fenced-code-blocks
 
+const ANNOUNCEMENT: string =
+	"A major release has come!\n\nA number of the changes may be incompatible with your " +
+	"shortcuts and/or shortcut-files.\n\nPlease check here " +
+	"<a href='https://github.com/jon-heard/obsidian-text-expander-js/discussions/22'>here</a> " +
+	"for details.";
+
 export default class InlineScriptsPlugin extends Plugin
 {
 	// Store the plugin's settings
@@ -30,7 +37,7 @@ export default class InlineScriptsPlugin extends Plugin
 	// Keep track of the suffix's final character
 	public suffixEndCharacter: string;
 	// Keep track of shutdown scripts for any shortcut-files that have them
-	public shutdownScripts: any;
+	public shutdownScripts: any = {};
 	// Keep a Dfc for shortcut-files.  This lets us monitor changes to them.
 	public shortcutDfc: Dfc;
 	// The master list of shortcuts: all registered shortcuts.  Referenced during expansion.
@@ -129,15 +136,22 @@ export default class InlineScriptsPlugin extends Plugin
 				this.cm6_handleExpansionTrigger.bind(this))
 		]);
 
-		// Track shutdown scripts in loaded shortcut-files to call when shortcut-file is unloaded.
-		this.shutdownScripts = {};
-
 		// Log that the plugin has loaded
 		UserNotifier.run(
 		{
 			consoleMessage: "Loaded (" + this.manifest.version + ")",
 			messageLevel: "info"
 		});
+
+		// Post a modal if the version was just updated
+		if (this.settings.version != this.manifest.version)
+		{
+			this.settings.version = this.manifest.version;
+			this.saveSettings();
+			if (!ANNOUNCEMENT) { return; }
+			Popups.getInstance().alert(
+				"Text Expander JS\n" + this.manifest.version + "\n\n" + ANNOUNCEMENT);
+		}
 	}
 
 	private onunload_internal(): void
