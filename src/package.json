@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-inline-scripts",
+  "name": "obsidian-text-expander-js",
   "version": "0.16.14",
   "description": "This Obsidian plugin allows the user to type text shortcuts which are then replaced with JavaScript generated text.",
   "main": "main.js",
