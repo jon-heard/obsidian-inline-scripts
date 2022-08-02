@@ -25,8 +25,8 @@ import { Popups } from "./ui_Popups";
 // https://github.com/jon-heard/obsidian-inline-scripts#development-aid-fenced-code-blocks
 
 const ANNOUNCEMENT: string =
-	"A major release has come!\n\nA number of the changes may be incompatible with your " +
-	"shortcuts and/or shortcut-files.\n\nPlease check here " +
+	"A major release has come!\nA number of the changes may be incompatible with your " +
+	"shortcuts and/or shortcut-files.\nPlease check here " +
 	"<a href='https://github.com/jon-heard/obsidian-text-expander-js/discussions/22'>here</a> " +
 	"for details.";
 
@@ -150,7 +150,8 @@ export default class InlineScriptsPlugin extends Plugin
 			this.saveSettings();
 			if (!ANNOUNCEMENT) { return; }
 			Popups.getInstance().alert(
-				"Text Expander JS\n" + this.manifest.version + "\n\n" + ANNOUNCEMENT);
+				"Text Expander JS\n" + this.manifest.version + "\n\n<div style='font-size: 75%'>" +
+				ANNOUNCEMENT + "</div>");
 		}
 	}
 
