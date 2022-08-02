@@ -8,11 +8,12 @@ import { Platform } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
 import { UserNotifier } from "./ui_userNotifier";
 
-let childProcess: any = null;
+let exec: any = null;
 
 export namespace ExternalRunner
 {
-	export function run(command: string, failSilently?: boolean, dontFixSlashes?: boolean)
+	export async function run(
+		command: string, failSilently?: boolean, dontFixSlashes?: boolean): Promise<string>
 	{
 		// Error-out if on mobile platform
 		if (Platform.isMobile)
@@ -27,11 +28,11 @@ export namespace ExternalRunner
 			});
 			return null;
 		}
-		else if (!childProcess)
+		else if (!exec)
 		{
 			try
 			{
-				childProcess = require("child_process");
+				exec = require("util").promisify(require("child_process").exec);
 			}
 			catch(e: any)
 			{
@@ -70,7 +71,7 @@ export namespace ExternalRunner
 		const vaultDir: string = (plugin.app.fileManager as any).vault.adapter.basePath;
 		try
 		{
-			let result: string = childProcess.execSync(command, { cwd: vaultDir});
+			const result: string = (await exec(command, { cwd: vaultDir })).stdout;
 			return (result + "").replaceAll("\r", "");
 		}
 
