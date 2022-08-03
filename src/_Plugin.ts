@@ -25,8 +25,8 @@ import { Popups } from "./ui_Popups";
 // https://github.com/jon-heard/obsidian-inline-scripts#development-aid-fenced-code-blocks
 
 const ANNOUNCEMENT: string =
-	"A major release has come!\nA number of the changes may be incompatible with your " +
-	"shortcuts and/or shortcut-files.\nPlease check here " +
+	"This is a major release for open-beta phase.\nA number of the changes may be incompatible " +
+	"with your shortcuts and/or shortcut-files.\nPlease check here " +
 	"<a href='https://github.com/jon-heard/obsidian-text-expander-js/discussions/22'>here</a> " +
 	"for details.";
 
