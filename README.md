@@ -133,7 +133,6 @@ __Inline Scripts__ comes with the following sample shortcuts defined by default:
 - datetime
 - d{max} - Dice roller.
     - Examples - d3, d20, d57, d999
-- fd{max} - Same as d{max}, but with fancier formatting.
 - {count}d{max}{add} - Same as d{max}, but with optional {count} and {add}.
     - Examples - d100, 3d20, d10+5, 3d6+6
 
