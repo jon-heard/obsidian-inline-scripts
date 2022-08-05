@@ -100,8 +100,9 @@ export default class InlineScriptsPlugin extends Plugin
 		InlineScriptsPlugin._instance = this;
 
 		// Load settings
-		this.settings =
-			Object.assign( {}, InlineScriptsPlugin.getDefaultSettings(), await this.loadData() );
+		this.settings = await this.loadData();
+		if (this.settings && !this.settings.version) { this.settings.version = 0; }
+		this.settings = Object.assign(InlineScriptsPlugin.getDefaultSettings(), this.settings);
 
 		// Auto-convert old-style settings (because fixing this manually is a pain to the user)
 		this.settings.shortcuts = this.settings.shortcuts.replaceAll("~~", "__");

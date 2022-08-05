@@ -1,3 +1,6 @@
+### 0.21.2
+- bug fix - announcement doesn't show properly in all situations
+
 ### 0.21.1
 - feature - default settings now include the plugin's current version
 - polish - release announcement - Refer to plugin as "Inline Scripts"
