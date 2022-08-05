@@ -18,6 +18,7 @@ const ADDRESS_REMOTE: string =
 	"obsidian-inline-scripts-library/main";
 const DEFAULT_LOCAL_ADDRESS: string = "support/inlineScripts";
 const FILE_README: string = "README.md";
+const PRE_REFACTOR_SFILES = ["tejs_state","tejs_lists","tejs_mythicv2","tejs_mythicgme","tejs_une","tejs_adventurecrafter","tejs_rpgtools","tejs_clips","tejs_arrows","tejs_lipsum","tejs_support"];
 
 export namespace LibraryImporter
 {
@@ -68,15 +69,18 @@ export namespace LibraryImporter
 			}
 		}
 
+		// Sometimes we should check both library files AND pre-refactor library files
+		const libSFiles_currentAndPrerefactor = libShortcutFiles.concat(PRE_REFACTOR_SFILES);
+
 		// Pick default library path.  This is normally ADDRESSS_LOCAL.  But, if all shortcut-file
 		// entries that match library files are in a single folder, use that instead.
-		let sfNoteAddresses: Array<string> =
+		const sfNoteAddresses: Array<string> =
 			SettingUi_ShortcutFiles.getContents().shortcutFiles.map((f: any) => f.address);
 		// The filenames of referenced shortcut-files
-		let sfNoteNames: Array<string> =
+		const sfNoteNames: Array<string> =
 			sfNoteAddresses.map(s => s.slice(s.lastIndexOf("/")+1, -3));
 		// The paths of referenced shortcut-files
-		let sfNotePaths: Array<string> = sfNoteAddresses.map((s: any, i: number) =>
+		const sfNotePaths: Array<string> = sfNoteAddresses.map((s: any, i: number) =>
 		{
 			return s.slice(0, s.length-sfNoteNames[i].length-4)
 		});
@@ -84,7 +88,7 @@ export namespace LibraryImporter
 		let commonPath: string = null;
 		for (let i: number = 0; i < sfNoteAddresses.length; i++)
 		{
-			if(libShortcutFiles.includes(sfNoteNames[i]))
+			if(libSFiles_currentAndPrerefactor.includes(sfNoteNames[i]))
 			{
 				if (commonPath === null)
 				{
@@ -145,6 +149,16 @@ export namespace LibraryImporter
 			}
 		}
 
+		// Delete any pre-refactor library files in the shortcut-files list
+		for (let i = 0; i < sfNoteAddresses.length; i++)
+		{
+			if (PRE_REFACTOR_SFILES.includes(sfNoteNames[i]))
+			{
+				plugin.app.vault.delete((plugin.app.vault as any).fileMap[sfNoteAddresses[i]]);
+			}
+		}
+
+
 		// Before adding the library shortcut-files to the plugin settings, we should
 		// update the plugin settings with the latest changes made in the settings ui.
 		plugin.settings.shortcutFiles = SettingUi_ShortcutFiles.getContents().shortcutFiles;
@@ -154,28 +168,20 @@ export namespace LibraryImporter
 		// library before appending the shortcut-files from the library to the end of the list.
 		// NOTE - we are replacing some shortcuts from the library, but we do want to keep their
 		// enable state so the user doesn't have to re-disable unwanted shortcut-files.
-		let nothingToRemove: boolean;
-		do
+		for (const libShortcutFile of libSFiles_currentAndPrerefactor)
 		{
 			const shortcutFileAddresses = plugin.settings.shortcutFiles.map((f: any) => f.address);
-			nothingToRemove = true;
-			for (const libShortcutFile of libShortcutFiles)
+			const libAddress: string = libraryDestinationPath + "/" + libShortcutFile + ".md";
+			const index: number = shortcutFileAddresses.indexOf(libAddress);
+			if (index >= 0)
 			{
-				let libAddress: string = libraryDestinationPath + "/" + libShortcutFile + ".md";
-				const index: number = shortcutFileAddresses.indexOf(libAddress);
-				if (index >= 0)
+				if (!plugin.settings.shortcutFiles[index].enabled)
 				{
-					if (!plugin.settings.shortcutFiles[index].enabled)
-					{
-						disabledShortcutFiles.push(libAddress);
-					}
-					plugin.settings.shortcutFiles.splice(index, 1);
-					nothingToRemove = false;
-					break;
+					disabledShortcutFiles.push(libAddress);
 				}
+				plugin.settings.shortcutFiles.splice(index, 1);
 			}
 		}
-		while (!nothingToRemove);
 
 		// Add all library shortcut-files to the settings
 		for (const libShortcutFile of libShortcutFiles)
