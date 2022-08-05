@@ -1,3 +1,6 @@
+### 0.21.4
+- bug fix - disabling plugin causes "hidden" autocomplete description div to show
+
 ### 0.21.3
 - polish - made announcement message applicable to all 0.21.x
 

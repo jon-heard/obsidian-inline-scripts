@@ -20,6 +20,11 @@ export class AutoComplete extends EditorSuggest<any>
 		this.constructor_internal(plugin);
 	}
 
+	public destructor()
+	{
+		document.getElementById("shortcutSuggestionDescription")?.remove();
+	}
+
 	public onTrigger(cursor: any, editor: any): any
 	{
 		return this.onTrigger_internal(cursor, editor);

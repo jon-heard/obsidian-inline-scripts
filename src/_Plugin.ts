@@ -87,8 +87,10 @@ export default class InlineScriptsPlugin extends Plugin
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private _cm5_handleExpansionTrigger: any;
 	private static _instance: InlineScriptsPlugin;
+
+	private _cm5_handleExpansionTrigger: any;
+	private _autocomplete: AutoComplete;
 
 	private async onload_internal(): Promise<void>
 	{
@@ -115,7 +117,8 @@ export default class InlineScriptsPlugin extends Plugin
 		this.addSettingTab(this.settingsUi);
 
 		// Attach autocomplete feature
-		this.registerEditorSuggest(new AutoComplete(this));
+		this._autocomplete = new AutoComplete(this)
+		this.registerEditorSuggest(this._autocomplete);
 
 		// Initialize support objects
 		ShortcutExpander.initialize();
@@ -160,6 +163,9 @@ export default class InlineScriptsPlugin extends Plugin
 	{
 		// Shutdown the shortcutDfc
 		this.shortcutDfc.destructor();
+
+		// Shutdown the AutoComplete
+		this._autocomplete.destructor();
 
 		// Call all shutdown scripts of shortcut-files
 		for (const filename in this.shutdownScripts)
