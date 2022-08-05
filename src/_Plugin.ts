@@ -150,7 +150,7 @@ export default class InlineScriptsPlugin extends Plugin
 			this.saveSettings();
 			if (!ANNOUNCEMENT) { return; }
 			Popups.getInstance().alert(
-				"Text Expander JS\n" + this.manifest.version + "\n\n<div style='font-size: 75%'>" +
+				"Inline Scripts\n(formerly Text Expander JS)\n" + this.manifest.version + "\n\n<div style='font-size: 75%'>" +
 				ANNOUNCEMENT + "</div>");
 		}
 	}

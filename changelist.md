@@ -1,3 +1,7 @@
+### 0.21.1
+- feature - default settings now include the plugin's current version
+- polish - release announcement - Refer to plugin as "Inline Scripts"
+
 ### 0.21.0
 - feature - shortcut autocomplete with shortcut descriptions
 - refactor - Plugin rename: "Text Expander JS" to "Inline Scripts"
