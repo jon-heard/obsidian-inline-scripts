@@ -605,6 +605,7 @@ See the [Changelist doc](https://github.com/jon-heard/obsidian-inline-scripts/bl
 - next release
     - Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
     - have release announcements be based on what version you have in settings (can show multiple in a row, if you are behind enough).
+    - Add a "donate" button to the bottom of the settings (or coffee?).  Make it look prettier (the paypal logo, vs the "donate")
     - have a sidebar panel for shortcut buttons - buttons that, when clicked, trigger a shortcut.
         - ??? means to open an input popup for value.
         - button settings include:
