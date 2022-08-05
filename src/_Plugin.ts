@@ -25,10 +25,10 @@ import { Popups } from "./ui_Popups";
 // https://github.com/jon-heard/obsidian-inline-scripts#development-aid-fenced-code-blocks
 
 const ANNOUNCEMENT: string =
-	"This is a major release for open-beta phase.\nA number of the changes may be incompatible " +
-	"with your shortcuts and/or shortcut-files.\nPlease check here " +
-	"<a href='https://github.com/jon-heard/obsidian-text-expander-js/discussions/22'>here</a> " +
-	"for details.";
+	"This is a major release for open-beta phase.\nIt has some great features!  However...\n A " +
+	"few of the changes may be incompatible with existing shortcuts and/or shortcut-files.\n" +
+	"<a href='https://github.com/jon-heard/obsidian-text-expander-js/discussions/22'>Please " +
+	"check here for details</a>\n...including some simple steps to resolve any incompatibilities.";
 
 export default class InlineScriptsPlugin extends Plugin
 {
