@@ -12,6 +12,7 @@ import { SettingUi_ShortcutFormat } from "./ui_setting_format";
 import { SettingUi_Other } from "./ui_setting_other";
 import { ShortcutLoader } from "./ShortcutLoader";
 import { DfcMonitorType } from "./Dfc";
+import { ButtonView } from "./ui_ButtonView";
 
 export class InlineScriptsPluginSettings extends PluginSettingTab
 {
@@ -42,6 +43,12 @@ export class InlineScriptsPluginSettings extends PluginSettingTab
 
 		// App version (in header)
 		c.createEl("div", { text: this.plugin.manifest.version, cls: "iscript_version" });
+
+		// Button view - opening button
+		c.createEl("h2", { text: "Actions" });
+		const actionsDiv = c.createEl("div", { cls: "iscript_actionsSection" });
+		const openButtonsView = actionsDiv.createEl("button", { text: "Open buttons view" });
+			openButtonsView.onclick = () => { ButtonView.activateView(); }
 
 		c.createEl("h2", { text: "Shortcut Sources" });
 
@@ -81,6 +88,9 @@ export class InlineScriptsPluginSettings extends PluginSettingTab
 
 		// Get shortcuts list
 		Object.assign(newSettings, SettingUi_Shortcuts.getContents());
+
+		// Button settings
+		newSettings.buttonViewSettings = this.plugin.settings.buttonViewSettings;
 
 		/////////////////////////////////////////////////////
 		// Determine if shortcuts setting was changed.     //

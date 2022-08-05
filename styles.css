@@ -217,3 +217,9 @@
 	top: 0.25em;
 	font-size: 75%;
 }
+.iscript_actionsSection
+{
+	text-align: center;
+	padding: 1em 0em;
+	border-top: 1px solid var(--background-modifier-border);
+}

@@ -14,6 +14,7 @@ import { ShortcutLoader } from "./ShortcutLoader";
 import { AutoComplete } from "./AutoComplete";
 import { InputBlocker } from "./ui_InputBlocker";
 import { Popups } from "./ui_Popups";
+import { ButtonView } from "./ui_ButtonView";
 
 // NOTE: The "Inline Scripts" plugin uses a custom format for shortcut-files.  I tried using
 // existing formats (json, xml, etc), but they were cumbersome for developing JavaScript code in.
@@ -131,8 +132,8 @@ export default class InlineScriptsPlugin extends Plugin
 		if (this.settings && !this.settings.version) { this.settings.version = 0; }
 		this.settings = Object.assign(InlineScriptsPlugin.getDefaultSettings(), this.settings);
 
-		// Auto-convert old-style settings (because fixing this manually is a pain to the user)
-		this.settings.shortcuts = this.settings.shortcuts.replaceAll("~~", "__");
+		// Auto-convert old-versioned settings (because fixing this manually is hard for the user)
+		this.settings.shortcuts = this.settings.shortcuts.replaceAll("\n~~\n", "\n__\n");
 
 		// Now that settings are loaded, update variable for the suffix's final character
 		this.suffixEndCharacter = this.settings.suffix.charAt(this.settings.suffix.length - 1);
@@ -140,6 +141,9 @@ export default class InlineScriptsPlugin extends Plugin
 		// Attach settings UI
 		this.settingsUi = new InlineScriptsPluginSettings(this);
 		this.addSettingTab(this.settingsUi);
+
+		// Attach buttons view
+		ButtonView.staticConstructor();
 
 		// Attach autocomplete feature
 		this._autocomplete = new AutoComplete(this)
@@ -172,38 +176,14 @@ export default class InlineScriptsPlugin extends Plugin
 			messageLevel: "info"
 		});
 
-		// Post a modal if the version was just updated
-		if (this.settings.version != this.manifest.version)
-		{
-			const toDisplay = [];
-			for (const announcement of ANNOUNCEMENTS)
-			{
-				if (versionCompare(this.settings.version, announcement.version) < 0)
-				{
-					let title = "Inline Scripts\n";
-					if (versionCompare(announcement.version, "0.21.0") == 0)
-					{
-						title += "(formerly Text Expander JS)\n";
-					}
-					toDisplay.push(
-						title + announcement.version + "\n\n<div style='font-size: 75%'>" +
-						announcement.message + "</div>");
-				}
-			}
-			for (let i = 0; i < toDisplay.length; i++)
-			{
-				const messageCounter =
-					"<div class='iscript_messageCount'>Message " + (i+1) + "/" + toDisplay.length +
-					"</div>";
-				await Popups.getInstance().alert(messageCounter + toDisplay[i]);
-			}
-			this.settings.version = this.manifest.version;
-			this.saveSettings();
-		}
+		await this.showAnnouncements();
 	}
 
 	private onunload_internal(): void
 	{
+		// Remove the button view
+		ButtonView.staticDestructor();
+
 		// Shutdown the shortcutDfc
 		this.shortcutDfc.destructor();
 
@@ -357,4 +337,35 @@ export default class InlineScriptsPlugin extends Plugin
 			{ line: cursor.line, ch: prefixIndex },
 			{ line: cursor.line, ch: suffixIndex + this.settings.suffix.length } );
 	}, 0); }
+
+	private async showAnnouncements()
+	{
+		if (this.settings.version === this.manifest.version) { return; }
+
+		const toDisplay = [];
+		for (const announcement of ANNOUNCEMENTS)
+		{
+			if (versionCompare(announcement.version, this.manifest.version) <= 0 &&
+			    versionCompare(announcement.version, this.settings.version) > 0)
+			{
+				let title = "Inline Scripts\n";
+				if (versionCompare(announcement.version, "0.21.0") == 0)
+				{
+					title += "(formerly Text Expander JS)\n";
+				}
+				toDisplay.push(
+					title + announcement.version + "\n\n<div style='font-size: 75%'>" +
+					announcement.message + "</div>");
+			}
+		}
+		for (let i = 0; i < toDisplay.length; i++)
+		{
+			const messageCounter =
+				"<div class='iscript_messageCount'>Message " + (i+1) + "/" + toDisplay.length +
+				"</div>";
+			await Popups.getInstance().alert(messageCounter + toDisplay[i]);
+		}
+		this.settings.version = this.manifest.version;
+		this.saveSettings();
+	}
 }
