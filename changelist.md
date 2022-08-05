@@ -1,3 +1,6 @@
+### 0.21.3
+- polish - made announcement message applicable to all 0.21.x
+
 ### 0.21.2
 - bug fix - announcement doesn't show properly in all situations
 
