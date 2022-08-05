@@ -66,6 +66,9 @@ export class InlineScriptsPluginSettings extends PluginSettingTab
 	{
 		let newSettings: any = {};
 
+		// Plugin version
+		newSettings.version = this.plugin.manifest.version;
+
 		// Get the format settings
 		SettingUi_ShortcutFormat.finalize();
 		Object.assign(newSettings, SettingUi_ShortcutFormat.getContents());
