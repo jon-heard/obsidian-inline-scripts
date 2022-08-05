@@ -605,7 +605,7 @@ See the [Changelist doc](https://github.com/jon-heard/obsidian-inline-scripts/bl
     - Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
     - have release announcements be based on what version you have in settings (can show multiple in a row, if you are behind enough).
     - Add a "donate" button to the bottom of the settings (or coffee?).  Make it look prettier (the paypal logo, vs the "donate")
-    - allow links that run shortcuts on click.  The text of the link turns into the result of the shortcut, while the target of the link stays at the shortcut.
+    - allow links that run shortcuts on click.  The target of the link stays at the shortcut, but the output text either gets appended to the document end OR replaces the link's text.
     - have a sidebar panel for shortcut buttons - buttons that, when clicked, trigger a shortcut.
         - button settings include:
             - button text
