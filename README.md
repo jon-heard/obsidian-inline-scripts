@@ -43,7 +43,6 @@ This plugin is currently in __open beta__.
     - [Credits](#credits)
     - [Release notes](#release-notes)
     - [Todo](#todo)
-    - [Future feature possibilities](#future-feature-possibilities)
 
 ***
 
@@ -590,22 +589,18 @@ __
 
 ## Credits
 - This project was inspired by the description of Obsidian on the RPG Tips youtube video <a href='https://www.youtube.com/watch?v=XTFFzuZVcPk' target='_blank'>How I play my games in 2021</a>.
-- This project was made with awareness of and deference to the <a href='https://github.com/konodyuk/obsidian-text-expander' target='_blank'>obsidian-text-expander</a> plugin (which has a more rudamentary feature set, but allows running external scripts).
-- In both cases, the goal of this plugin is to fulfill a need for effortless cross-system, cross-platform operability of advanced text-expansion features.
+- This project was made with awareness of and deference to the <a href='https://github.com/konodyuk/obsidian-text-expander' target='_blank'>obsidian-text-expander</a> plugin.
+- In both cases, the goal of this plugin is to fulfill an existing need for effortless cross-system, cross-platform operability of advanced text-expansion features.
 
 ***
 
 ## Release notes
 
-See [Changelist doc](https://github.com/jon-heard/obsidian-inline-scripts/blob/main/changelist.md)
+See the [Changelist doc](https://github.com/jon-heard/obsidian-inline-scripts/blob/main/changelist.md)
 
 ***
 
 ## Todo
-- From beta to release (after responding to Obsidian community for, hopefully, a month)
-- add file suggestions tool
-	https://github.com/liamcain/obsidian-periodic-notes/blob/main/src/ui/file-suggest.ts
-	https://github.com/joethei/obsidian-calibre/blob/586152cdd078a25e14a2c676da0a70cb69a9d9ee/src/settings/SettingTab.ts#L93-L105
-- fix so it works with auto-added characters.  Example: prefix={{ and suffix=}}
-- force undo between shortcut entered and expansion on cm6
-- have autocomplete react to parameter info
+- Shift from beta to release (after responding to Obsidian community for maybe a month?)
+- Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
+- Find a way to allow the prefix & suffix to contain auto-closed characters - `{`, `"`, etc
