@@ -602,5 +602,15 @@ See the [Changelist doc](https://github.com/jon-heard/obsidian-inline-scripts/bl
 
 ## Todo
 - Shift from beta to release (after responding to Obsidian community for maybe a month?)
-- Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
+- next release
+    - Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
+    - have release announcements be based on what version you have in settings (can show multiple in a row, if you are behind enough).
+    - have a sidebar panel for shortcut buttons - buttons that, when clicked, trigger a shortcut.
+        - ??? means to open an input popup for value.
+        - button settings include:
+            - button text
+            - shortcut text (including ??? to autofill with input popup results)
+            - list of captions for the ??? popup inputs
+	- button values are stored in a separate file from settings
+	- there are options to add button, edit/reorder a button, import buttons (appends), export buttons, clear buttons
 - Find a way to allow the prefix & suffix to contain auto-closed characters - `{`, `"`, etc
