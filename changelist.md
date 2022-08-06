@@ -1,3 +1,6 @@
+### 0.21.5
+- bug fix - ios platform incompatible with regex look-behinds.  Replace all lookbehinds!
+
 ### 0.21.4
 - bug fix - disabling plugin causes "hidden" autocomplete description div to show
 

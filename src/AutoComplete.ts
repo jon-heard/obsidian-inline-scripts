@@ -9,7 +9,7 @@ import InlineScriptsPlugin from "./_Plugin";
 
 const SUGGESTION_LIMIT = 1000;
 
-const REGEX_SYNTAX_SPLITTER: RegExp = /(?<=\})|(?=\{)/;
+const REGEX_SYNTAX_SPLITTER: RegExp = /~~}|(?=\{)/;
 const REGEX_FIRST_PARAMETER_START: RegExp = / ?\{/;
 
 export class AutoComplete extends EditorSuggest<any>
@@ -167,7 +167,7 @@ export class AutoComplete extends EditorSuggest<any>
 		{
 			// Split the suggestion text into parts, including the parameter sections, the
 			// non-parameter sections and the spaces between the sections
-			const parts = text.split(REGEX_SYNTAX_SPLITTER);
+			const parts = text.replaceAll("}", "}~~}").split(REGEX_SYNTAX_SPLITTER);
 
 			// Determine if the current shortcut-text is beyond the first part, and if it is just
 			// past its current part.  If so, we should highlight the NEXT part instead of the
@@ -251,7 +251,7 @@ export class AutoComplete extends EditorSuggest<any>
 		// parameters satisfied (filled or optional)?  If so, try expanding the shortcut text.
 		else
 		{
-			const parts = suggestion.text.split(REGEX_SYNTAX_SPLITTER);
+			const parts = suggestion.text.replaceAll("}", "}~~}").split(REGEX_SYNTAX_SPLITTER);
 			let parameterIndex = suggestion.match.length - 1;
 			for (let i = parts.length - 1; i >= 0; i--)
 			{

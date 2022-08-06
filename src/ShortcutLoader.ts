@@ -38,8 +38,12 @@ const SORT_SYNTAXES = (a: any, b: any): number =>
 	else if (b.text === "help") { return 1; }
 	else
 	{
-		const lhs = a.text.replaceAll("{", "0").replaceAll(/(?<!\\)~/g, String.fromCharCode(9));
-		const rhs = b.text.replaceAll("{", "0").replaceAll(/(?<!\\)~/g, String.fromCharCode(9));
+		const lhs = a.text
+			.replaceAll("{", "0")
+			.replaceAll(/(^|[^\\])~/g, "$1" + String.fromCharCode(9));
+		const rhs = b.text
+			.replaceAll("{", "0")
+			.replaceAll(/(^|[^\\])~/g, "$1" + String.fromCharCode(9));
 		return lhs.localeCompare(rhs);
 	}
 }
@@ -471,7 +475,7 @@ export abstract class ShortcutLoader
 
 	private static removeSyntaxSpecialCharacters(src: string): string
 	{
-		return src.replaceAll(/(?<!\\)~/g, "").replaceAll(/\\(?=-|~)/g, "");
+		return src.replaceAll(/(^|[^\\])~/g, "$1").replaceAll(/\\(?=-|~)/g, "");
 	}
 
 	private static generateSyntaxRegex(syntax: string): RegExp

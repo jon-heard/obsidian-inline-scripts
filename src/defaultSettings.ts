@@ -10,7 +10,7 @@ export const DEFAULT_SETTINGS: any = Object.freeze(
 	suffix: "::",
 	devMode: false,
 	allowExternal: false,
-	version: app.plugins.manifests["obsidian-text-expander-js"].version,
+	version: (app as any).plugins.manifests["obsidian-text-expander-js"].version,
 	shortcutFiles: [],
 	shortcuts: `
 __
