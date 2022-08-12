@@ -211,3 +211,9 @@
 {
 	opacity: 0.0 !important;
 }
+.iscript_messageCount
+{
+	position: absolute;
+	top: 0.25em;
+	font-size: 75%;
+}

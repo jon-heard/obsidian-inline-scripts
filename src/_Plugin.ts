@@ -24,11 +24,36 @@ import { Popups } from "./ui_Popups";
 // and here:
 // https://github.com/jon-heard/obsidian-inline-scripts#development-aid-fenced-code-blocks
 
-const ANNOUNCEMENT: string =
-	"0.21.x is a major release for open-beta phase.\nIt has some great features!  However...\n A " +
-	"few of the changes may be incompatible with existing shortcuts and/or shortcut-files.\n" +
-	"<a href='https://github.com/jon-heard/obsidian-text-expander-js/discussions/22'>Please " +
-	"check here for details</a>\n...including some simple steps to resolve any incompatibilities.";
+const ANNOUNCEMENTS: Array<any> =
+[
+	{
+		version: "0.21.0",
+		message:
+			"0.21.x is a major release for open-beta phase.\nIt has some great features!  " +
+			"However...\n A few of the changes may be incompatible with existing shortcuts " +
+			"and/or shortcut-files.\n" +
+			"<a href='https://github.com/jon-heard/obsidian-text-expander-js/discussions/22'>" +
+			"Please check here for details</a>\n...including some simple steps to resolve any " +
+			"incompatibilities."
+	},
+	{
+		version: "0.22.0",
+		message:
+			"0.22.x adds some usability features.<ul style='text-align:left'><li>A side panel " +
+			"onto which you can add custom buttons to quickly run shortcuts.</li><li>Creating " +
+			"text links that, when clicked, will run a shortcut and set the link's text  to the " +
+			"result.  You can click these links repeatedly to re-run the shortcut.</li></ul>"
+	}
+];
+
+const versionCompare = function(version1: string, version2: string): number
+{
+	const convert =
+		(v: string) => v.split(".").map((x: string) => x.padStart(4, "0")).join(".");
+	version1 = convert(version1);
+	version2 = convert(version2);
+	return (version1 < version2) ? -1 : (version1 > version2) ? 1 : 0;
+};
 
 export default class InlineScriptsPlugin extends Plugin
 {
@@ -150,12 +175,30 @@ export default class InlineScriptsPlugin extends Plugin
 		// Post a modal if the version was just updated
 		if (this.settings.version != this.manifest.version)
 		{
+			const toDisplay = [];
+			for (const announcement of ANNOUNCEMENTS)
+			{
+				if (versionCompare(this.settings.version, announcement.version) < 0)
+				{
+					let title = "Inline Scripts\n";
+					if (versionCompare(announcement.version, "0.21.0") == 0)
+					{
+						title += "(formerly Text Expander JS)\n";
+					}
+					toDisplay.push(
+						title + announcement.version + "\n\n<div style='font-size: 75%'>" +
+						announcement.message + "</div>");
+				}
+			}
+			for (let i = 0; i < toDisplay.length; i++)
+			{
+				const messageCounter =
+					"<div class='iscript_messageCount'>Message " + (i+1) + "/" + toDisplay.length +
+					"</div>";
+				await Popups.getInstance().alert(messageCounter + toDisplay[i]);
+			}
 			this.settings.version = this.manifest.version;
 			this.saveSettings();
-			if (!ANNOUNCEMENT) { return; }
-			Popups.getInstance().alert(
-				"Inline Scripts\n(formerly Text Expander JS)\n" + this.manifest.version + "\n\n<div style='font-size: 75%'>" +
-				ANNOUNCEMENT + "</div>");
 		}
 	}
 
