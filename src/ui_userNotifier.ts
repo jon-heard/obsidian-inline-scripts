@@ -21,6 +21,8 @@ import InlineScriptsPlugin from "./_Plugin";
 //     - If "info", use console.info().  If "warn", use console.warn().  Else, use console.error().
 // - consoleHasDetails: boolean
 //     - If true, popup notification includes a suggestion to review console output for details.
+// - popupTime: float
+//     - a multiplier for the amount of time that a popup stays on the screen.  Defaults to 1.0.
 
 const LONG_NOTE_TIME: number = 8 * 1000;
 const INDENT: string = " ".repeat(4);
@@ -74,6 +76,9 @@ export namespace UserNotifier
 		// Console detail parameter
 		const consoleHasDetails = !!parameters.consoleHasDetails;
 
+		// Popup time
+		const popupTime = LONG_NOTE_TIME * (parameters.popupTime ?? 1.0);
+
 		// Add the popup notification
 		if (popupMessage)
 		{
@@ -81,7 +86,7 @@ export namespace UserNotifier
 				(messageLevel === 2 ? "ERROR: " : "") +
 				popupMessage +
 				(consoleHasDetails ? "\n\n(see console for details)" : ""),
-				LONG_NOTE_TIME);
+				popupTime);
 		}
 
 		// Add the console log

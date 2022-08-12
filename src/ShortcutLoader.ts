@@ -92,7 +92,17 @@ export abstract class ShortcutLoader
 		fileAbout = sections[0];
 
 		// Check for the obvious error of misnumbered sections (bounded by "__")
-		if ((sections.length-1) % 3)
+		if (sections.length == 1)
+		{
+			UserNotifier.run(
+			{
+				message:
+					"Shortcut-file \"" + filename + "\"\nhas no shortcuts." +
+					"\n\n(Shortcut-files are sectioned with \"__\")",
+				messageLevel: "warn",
+			});
+		}
+		else if ((sections.length-1) % 3)
 		{
 			UserNotifier.run(
 			{
