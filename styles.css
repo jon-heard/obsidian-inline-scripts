@@ -223,3 +223,15 @@
 	padding: 1em 0em;
 	border-top: 1px solid var(--background-modifier-border);
 }
+.iscript_buttonView_groupSelect
+{
+	width: 100%
+}
+.iscript_buttonView_hr
+{
+	margin: 0.5em 0;
+}
+.iscript_shortcutButton
+{
+	margin-bottom: 1em;
+}

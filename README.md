@@ -603,7 +603,6 @@ See the [Changelist doc](https://github.com/jon-heard/obsidian-inline-scripts/bl
 - Shift from beta to release (after responding to Obsidian community for maybe a month?)
 - next release
     - Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
-    - have release announcements be based on what version you have in settings (can show multiple in a row, if you are behind enough).
     - Add a "donate" button to the bottom of the settings (or coffee?).  Make it look prettier (the paypal logo, vs the "donate")
     - allow links that run shortcuts on click.  The target of the link stays at the shortcut, but the output text either gets appended to the document end OR replaces the link's text.
     - have a sidebar panel for shortcut buttons - buttons that, when clicked, trigger a shortcut.
@@ -611,7 +610,7 @@ See the [Changelist doc](https://github.com/jon-heard/obsidian-inline-scripts/bl
             - button text
             - shortcut text (including ??? to auto-replace with input popup results on run)
             - list of captions for the ??? popup inputs
-	- button values are stored in a separate file from settings
-	- there are options to add button, edit/reorder a button, import buttons (appends), export buttons, clear buttons
-	- there is a select with different categories of buttons.  You can select a set of buttons with the select.  One for combat, one for journey, etc.
+        - button values are stored in a separate file from settings
+        - there are options to add button, edit/reorder a button, import buttons (appends), export buttons, clear buttons
+        - there is a select with different categories of buttons.  You can select a set of buttons with the select.  One for combat, one for journey, etc.
 - Find a way to allow the prefix & suffix to contain auto-closed characters - `{`, `"`, etc
