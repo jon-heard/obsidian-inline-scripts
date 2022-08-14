@@ -4,12 +4,14 @@
 
 "use strict";
 
-import { ItemView, WorkspaceLeaf, addIcon } from "obsidian";
+import { ItemView, MarkdownView, WorkspaceLeaf, addIcon } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
+import { ShortcutExpander } from "./ShortcutExpander";
+import { Popups } from "./ui_Popups";
 
-const BUTTON_VIEW_TYPE = "inline-scripts-button-view";
+const BUTTON_VIEW_TYPE: string = "inline-scripts-button-view";
 
-const ICONS = Object.freeze(
+const ICONS: any = Object.freeze(
 {
 	buttonView: `<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" class="widget-icon" enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 2500 2500">
 	 <g class="layer">
@@ -116,6 +118,8 @@ export class ButtonView extends ItemView
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+	private _buttonUiParent: any;
+
 	private static staticConstructor_internal(): void
 	{
 		const plugin = InlineScriptsPlugin.getInstance();
@@ -177,19 +181,19 @@ export class ButtonView extends ItemView
 		root.appendChild(groupSelect);
 
 		var buttonGroup = root.createDiv({ cls: "nav-buttons-container" });
-		this.addSettingsButton(buttonGroup, "plus", "New group", function (te) {
+		this.addSettingsButton(buttonGroup, "plus", "New group", function () {
 			console.log("Button clicked: new");
 		});
-		this.addSettingsButton(buttonGroup, "pencil", "Rename group", function (te) {
+		this.addSettingsButton(buttonGroup, "pencil", "Rename group", function () {
 			console.log("Button clicked: rename");
 		});
-		this.addSettingsButton(buttonGroup, "imp", "Import group", function (te) {
+		this.addSettingsButton(buttonGroup, "imp", "Import group", function () {
 			console.log("Button clicked: import");
 		});
-		this.addSettingsButton(buttonGroup, "exp", "Export group", function (te) {
+		this.addSettingsButton(buttonGroup, "exp", "Export group", function () {
 			console.log("Button clicked: export");
 		});
-		this.addSettingsButton(buttonGroup, "x", "Remove group", function (te) {
+		this.addSettingsButton(buttonGroup, "x", "Remove group", function () {
 			console.log("Button clicked: x");
 		});
 
@@ -198,23 +202,25 @@ export class ButtonView extends ItemView
 		root.appendChild(hr);
 
 		buttonGroup = root.createDiv({ cls: "nav-buttons-container" });
-		this.addSettingsButton(buttonGroup, "plus", "Add button", function (te) {
+		this.addSettingsButton(buttonGroup, "plus", "Add button", function () {
 			console.log("Button clicked: add");
 		});
-		this.addSettingsButton(buttonGroup, "gear", "Edit button", function (te) {
+		this.addSettingsButton(buttonGroup, "gear", "Edit button", function () {
 			console.log("Button clicked: edit");
 		});
-		this.addSettingsButton(buttonGroup, "upDown", "Reorder buttons", function (te) {
+		this.addSettingsButton(buttonGroup, "upDown", "Reorder buttons", function () {
 			console.log("Button clicked: reorder");
 		});
-		this.addSettingsButton(buttonGroup, "x", "Remove buttons", function (te) {
+		this.addSettingsButton(buttonGroup, "x", "Remove buttons", function () {
 			console.log("Button clicked: x");
 		});
 
-		buttonGroup = root.createDiv();
-		this.addShortcutButton(buttonGroup, "First", "hi");
-		this.addShortcutButton(buttonGroup, "Second", "date");
-		this.addShortcutButton(buttonGroup, "Third", "d100");
+		this._buttonUiParent = root.createDiv();
+		this.addShortcutButton({ display: "Hi", shortcut: "hi", parameterData: [] });
+		this.addShortcutButton({ display: "Date", shortcut: "date", parameterData: [] });
+		this.addShortcutButton({ display: "Roll dice", shortcut: "d???", parameterData: [ { value: 6, caption: "Die size" } ] });
+		this.addShortcutButton({ display: "Advanced dice", shortcut: "???d??????", parameterData: [ { value: 1, caption: "Dice count" }, { value: 6, caption: "Die size" }, { value: "+0", caption: "Roll adjust: [+ or -] followed by a positive number" }, { value: 999, caption: "unused" } ] });
+		this.addShortcutButton({ display: "Advanced dice #2", shortcut: "???d??????", parameterData: [ { value: 1, caption: "Dice count" } ] });
 
 		// Add new ui to view
 		const container = this.containerEl.children[1];
@@ -231,11 +237,66 @@ export class ButtonView extends ItemView
 		);
 	};
 
-	private addShortcutButton(parent: any, text: string, shortcut: string): void
+	private addShortcutButton(buttonData: any): void
 	{
 		let newButton = document.createElement("button");
 		newButton.classList.add("iscript_shortcutButton");
-		newButton.innerText = text;
-		parent.appendChild(newButton);
+		newButton.innerText = buttonData.display;
+		this._buttonUiParent.appendChild(newButton);
+		newButton.onclick = async (source) =>
+		{
+			// Get shortcut text (including replacing ??? with user-input)
+			let shortcutText = buttonData.shortcut;
+			const matches = [... shortcutText.matchAll(/\?\?\?/g) ];
+			let replacements = [];
+			for (let i = 0; i < matches.length; i++)
+			{
+				const caption = buttonData.parameterData[i]?.caption ?? "Parameter #" + (i+1);
+				const value = buttonData.parameterData[i]?.value || "";
+				const replacement = await Popups.getInstance().input(caption, value);
+				if (replacement === null)
+				{
+					return;
+				}
+				replacements.push(replacement);
+			}
+			for (let i = matches.length - 1; i >= 0; i--)
+			{
+				shortcutText =
+					shortcutText.slice(0, matches[i].index) +
+					replacements[i] +
+					shortcutText.slice(matches[i].index + 3);
+			}
+
+			// Run expansion
+			const expansion = await ShortcutExpander.expand(shortcutText);
+			if (expansion === null)
+			{
+				return;
+			}
+
+			// Append to the current file's editor, refocus on it, set caret at the end
+			const file = InlineScriptsPlugin.getInstance().app.workspace.getActiveFile();
+			if (!file)
+			{
+				return;
+			}
+			for (const leaf of app.workspace.getLeavesOfType("markdown"))
+			{
+				const view: MarkdownView = (leaf.view as MarkdownView);
+				if (view.file === file)
+				{
+					// Append to the editor
+					view.editor.setValue(view.editor.getValue() + expansion);
+
+					// Refocus on the editor
+					app.workspace.setActiveLeaf(leaf, false, true);
+
+					// Caret at the end
+					view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
+					break;
+				}
+			}
+		};
 	}
 }
