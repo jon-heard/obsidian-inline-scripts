@@ -235,3 +235,7 @@
 {
 	margin-bottom: 1em;
 }
+.iscript_selectedButton
+{
+	background-color: var(--text-highlight-bg);
+}

@@ -90,7 +90,7 @@ export class InlineScriptsPluginSettings extends PluginSettingTab
 		Object.assign(newSettings, SettingUi_Shortcuts.getContents());
 
 		// Button settings
-		newSettings.buttonViewSettings = this.plugin.settings.buttonViewSettings;
+		newSettings.buttonView = this.plugin.settings.buttonView;
 
 		/////////////////////////////////////////////////////
 		// Determine if shortcuts setting was changed.     //
