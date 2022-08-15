@@ -46,14 +46,14 @@ export abstract class SettingUi_ShortcutFiles
 			{
 				return button
 					.setButtonText("Add shortcut-file")
-					.setClass("iscript_button")
+					.setClass("iscript_spacedUi")
 					.onClick( () => this.addShortcutFileUi(app) );
 			})
 			.addButton((button: any) =>
 			{
 				return button
 					.setButtonText("Import full library")
-					.setClass("iscript_button")
+					.setClass("iscript_spacedUi")
 					.onClick(() =>
 					{
 						LibraryImporter.run();
@@ -125,14 +125,14 @@ export abstract class SettingUi_ShortcutFiles
 			{
 				e.createEl("option").value = file;
 			}
-		e = g.createEl("button", { cls: "iscript_upButton iscript_button" });
+		e = g.createEl("button", { cls: "iscript_upButton iscript_spacedUi" });
 			e.group = g;
 			e.onclick = SettingUi_Common.upButtonClicked;
 			e.listOffset = 1;
-		e = g.createEl("button", { cls: "iscript_downButton iscript_button" });
+		e = g.createEl("button", { cls: "iscript_downButton iscript_spacedUi" });
 			e.group = g;
 			e.onclick = SettingUi_Common.downButtonClicked;
-		e = g.createEl("button", { cls: "iscript_deleteButton iscript_button" });
+		e = g.createEl("button", { cls: "iscript_deleteButton iscript_spacedUi" });
 			e.group = g;
 			e.onclick = SettingUi_Common.deleteButtonClicked;
 			e.app = app;

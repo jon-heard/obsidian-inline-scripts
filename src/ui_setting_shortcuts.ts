@@ -36,14 +36,14 @@ export abstract class SettingUi_Shortcuts
 			{
 				return button
 					.setButtonText("Add shortcut")
-					.setClass("iscript_button")
+					.setClass("iscript_spacedUi")
 					.onClick( () => this.addShortcutUi(app) );
 			})
 			.addButton((button: any) =>
 			{
 				return button
 					.setButtonText("Add defaults")
-					.setClass("iscript_button")
+					.setClass("iscript_spacedUi")
 					.onClick(( () =>
 					{
 						let defaultShortcuts: Array<any> = ShortcutLoader.parseShortcutFile(
@@ -104,14 +104,14 @@ export abstract class SettingUi_Shortcuts
 					e.value = "";
 				}
 			}
-		e = g.createEl("button", { cls: "iscript_upButton iscript_button" });
+		e = g.createEl("button", { cls: "iscript_upButton iscript_spacedUi" });
 			e.group = g;
 			e.onclick = SettingUi_Common.upButtonClicked;
 			e.listOffset = 0;
-		e = g.createEl("button", { cls: "iscript_downButton iscript_button" });
+		e = g.createEl("button", { cls: "iscript_downButton iscript_spacedUi" });
 			e.group = g;
 			e.onclick = SettingUi_Common.downButtonClicked;
-		e = g.createEl("button", { cls: "iscript_deleteButton iscript_button" });
+		e = g.createEl("button", { cls: "iscript_deleteButton iscript_spacedUi" });
 			e.group = g;
 			e.onclick = SettingUi_Common.deleteButtonClicked;
 			e.app = app;

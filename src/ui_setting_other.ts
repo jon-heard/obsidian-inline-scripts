@@ -67,7 +67,6 @@ export abstract class SettingUi_Other
 			{
 				return button
 					.setButtonText("Reset to defaults")
-					.setClass("iscript_button")
 					.onClick(async () =>
 					{
 						const plugin = InlineScriptsPlugin.getInstance();

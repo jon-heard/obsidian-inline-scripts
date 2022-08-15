@@ -63,6 +63,108 @@ const ICONS: any = Object.freeze(
 	</svg>`
 });
 
+const POPUP_DEFINITION_BUTTON: any = Object.freeze(
+{
+	onOpen: async (data: any, parent: any, firstButton: any, SettingType: any) =>
+	{
+		new SettingType(parent)
+			.setName("Display")
+			.setDesc("Text shown on the button.")
+			.addText((text: any) =>
+			{
+				data.displayUi = text;
+				text.setValue(data.priorDisplay ?? "");
+				text.inputEl.setAttr("placeholder", "Button text");
+				text.inputEl.addEventListener("keypress", (e: any) =>
+				{
+					if (e.key === "Enter") { data.shortcutUi.inputEl.select(); }
+				});
+				text.inputEl.select();
+				return text;
+			});
+		new SettingType(parent)
+			.setName("Shortcut")
+			.setDesc("On click, this is added to the current note then expanded.")
+			.addText((text: any) =>
+			{
+				data.shortcutUi = text;
+				text.setValue("" + (data.priorShortcut ?? ""));
+				text.inputEl.setAttr("placeholder", "Shortcut text");
+				text.inputEl.addEventListener("keypress", (e: any) =>
+				{
+					if (e.key === "Enter") { firstButton.click(); }
+				});
+				return text;
+			})
+			.descEl.innerHTML +=
+				"<br/>Each \"???\" triggers user-input to replace the \"???\".";
+
+		const detailsUiContainer: any = parent.createDiv();
+		detailsUiContainer.style["margin-bottom"] = "1em";
+
+		data.detailUis = [];
+		const addDetailUi = () =>
+		{
+			let newDetailUi = { value: null, caption: null };
+			new SettingType(detailsUiContainer)
+				.setName("Detail #" + (data.detailUis.length + 1))
+				.addText((text: any) =>
+				{
+					text.inputEl.setAttr("placeholder", "Default value");
+					text.inputEl.classList.add("iscript_spacedUi");
+					text.inputEl.style.width = "40%";
+					newDetailUi.value = text;
+					return text;
+				})
+				.addText((text: any) =>
+				{
+					text.inputEl.setAttr("placeholder", "Caption");
+					text.inputEl.classList.add("iscript_spacedUi");
+					newDetailUi.caption = text;
+					return text;
+				})
+				.settingEl.toggleClass("iscript_settingBundled", true);
+			data.detailUis.push(newDetailUi);
+		};
+
+		new SettingType(detailsUiContainer)
+			.setName("Parameter details")
+			.setDesc("Details for each \"???\" in the shortcut-text.")
+			.addButton((button: any) =>
+			{
+				return button
+					.setButtonText("Add details for one \"???\"")
+					.onClick(addDetailUi)
+			})
+			.settingEl.toggleClass("iscript_settingBundledTop", true);
+	},
+	onClose: async (data: any, resolveFnc: Function, buttonText: string) =>
+	{
+		if (!data.displayUi.getValue() || !data.shortcutUi.getValue())
+		{
+			return;
+		}
+		let definition: any = {
+			display: data.displayUi.getValue(),
+			shortcut: data.shortcutUi.getValue(),
+			parameterData: []
+		};
+		for (const detailUi of data.detailUis)
+		{
+			if (!detailUi.value.getValue() && !detailUi.caption.getValue())
+			{
+				continue;
+			}
+			definition.parameterData.push(
+			{
+				value: detailUi.value.getValue(),
+				caption: detailUi.caption.getValue()
+			});
+		}
+		ButtonView.getInstance().addShortcutButton(definition);
+	}
+});
+
 export class ButtonView extends ItemView
 {
 	constructor(leaf: WorkspaceLeaf)
@@ -80,9 +182,19 @@ export class ButtonView extends ItemView
 		this.staticDestructor_internal();
 	}
 
+	public static getInstance(): ButtonView
+	{
+		return ButtonView._instance;
+	}
+
 	public static async activateView(): Promise<void>
 	{
 		await this.activateView_internal();
+	}
+
+	public addShortcutButton(buttonDefinition: any): void
+	{
+		this.addShortcutButton_internal(buttonDefinition);
 	}
 
 	public async onOpen(): Promise<void>
@@ -97,7 +209,6 @@ export class ButtonView extends ItemView
 
 	public load(): void
 	{
-//		super.prototype.load.call(this);
 		this.load_internal();
 	}
 
@@ -117,6 +228,8 @@ export class ButtonView extends ItemView
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+	private static _instance: ButtonView;
 
 	private _buttonUiParent: any;
 
@@ -174,6 +287,9 @@ export class ButtonView extends ItemView
 
 	private load_internal(): void
 	{
+		// Keep track of this as the single instance
+		ButtonView._instance = this;
+
 		const root = document.createElement('div');
 
 		const groupSelect = document.createElement("select");
@@ -202,8 +318,8 @@ export class ButtonView extends ItemView
 		root.appendChild(hr);
 
 		buttonGroup = root.createDiv({ cls: "nav-buttons-container" });
-		this.addSettingsButton(buttonGroup, "plus", "Add button", function () {
-			console.log("Button clicked: add");
+		this.addSettingsButton(buttonGroup, "plus", "Add button", async function () {
+			await Popups.getInstance().custom("Define a new button", POPUP_DEFINITION_BUTTON);
 		});
 		this.addSettingsButton(buttonGroup, "gear", "Edit button", function () {
 			console.log("Button clicked: edit");
@@ -216,11 +332,11 @@ export class ButtonView extends ItemView
 		});
 
 		this._buttonUiParent = root.createDiv();
-		this.addShortcutButton({ display: "Hi", shortcut: "hi", parameterData: [] });
-		this.addShortcutButton({ display: "Date", shortcut: "date", parameterData: [] });
-		this.addShortcutButton({ display: "Roll dice", shortcut: "d???", parameterData: [ { value: 6, caption: "Die size" } ] });
-		this.addShortcutButton({ display: "Advanced dice", shortcut: "???d??????", parameterData: [ { value: 1, caption: "Dice count" }, { value: 6, caption: "Die size" }, { value: "+0", caption: "Roll adjust: [+ or -] followed by a positive number" }, { value: 999, caption: "unused" } ] });
-		this.addShortcutButton({ display: "Advanced dice #2", shortcut: "???d??????", parameterData: [ { value: 1, caption: "Dice count" } ] });
+		ButtonView.getInstance().addShortcutButton({ display: "Hi", shortcut: "hi", parameterData: [] });
+		ButtonView.getInstance().addShortcutButton({ display: "Date", shortcut: "date", parameterData: [] });
+		ButtonView.getInstance().addShortcutButton({ display: "Roll dice", shortcut: "d???", parameterData: [ { value: 6, caption: "Die size" } ] });
+		ButtonView.getInstance().addShortcutButton({ display: "Advanced dice", shortcut: "???d??????", parameterData: [ { value: 1, caption: "Dice count" }, { value: 6, caption: "Die size" }, { value: "+0", caption: "Roll adjust: [+ or -] followed by a positive number" }, { value: 999, caption: "unused" } ] });
+		ButtonView.getInstance().addShortcutButton({ display: "Advanced dice #2", shortcut: "???d??????", parameterData: [ { value: 1, caption: "Dice count" } ] });
 
 		// Add new ui to view
 		const container = this.containerEl.children[1];
@@ -231,28 +347,28 @@ export class ButtonView extends ItemView
 	private addSettingsButton(parent: any, icon: string, title: string, fnc: Function): void
 	{
 		let newButton = parent.createDiv({ cls: "nav-action-button", title: title });
-		newButton.onClickEvent(() => { console.log("Button clicked: " + title); });
+		newButton.onClickEvent(fnc);
 		newButton.appendChild(
 			(new DOMParser()).parseFromString(ICONS[icon], "text/xml").documentElement
 		);
 	};
 
-	private addShortcutButton(buttonData: any): void
+	private addShortcutButton_internal(buttonDefinition: any): void
 	{
 		let newButton = document.createElement("button");
 		newButton.classList.add("iscript_shortcutButton");
-		newButton.innerText = buttonData.display;
+		newButton.innerText = buttonDefinition.display;
 		this._buttonUiParent.appendChild(newButton);
 		newButton.onclick = async (source) =>
 		{
 			// Get shortcut text (including replacing ??? with user-input)
-			let shortcutText = buttonData.shortcut;
+			let shortcutText = buttonDefinition.shortcut;
 			const matches = [... shortcutText.matchAll(/\?\?\?/g) ];
 			let replacements = [];
 			for (let i = 0; i < matches.length; i++)
 			{
-				const caption = buttonData.parameterData[i]?.caption ?? "Parameter #" + (i+1);
-				const value = buttonData.parameterData[i]?.value || "";
+				const caption = buttonDefinition.parameterData[i]?.caption ?? "Parameter #" + (i+1);
+				const value = buttonDefinition.parameterData[i]?.value || "";
 				const replacement = await Popups.getInstance().input(caption, value);
 				if (replacement === null)
 				{
