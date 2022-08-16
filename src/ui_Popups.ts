@@ -199,19 +199,19 @@ export class Popups extends Modal
 	// A popup conveying a message until the user presses the "Ok" button
 	private async alert_internal(message: string): Promise<void>
 	{
-		return await this.custom_internal(message, this.ALERT_DEFINITION);
+		return await this.custom(message, this.ALERT_DEFINITION);
 	}
 
 	// A popup asking for a confirmation until the user clicks the "Confirm" or "Cancel" button
 	private async confirm_internal(message: string): Promise<boolean>
 	{
-		return await this.custom_internal(message, this.CONFIRM_DEFINITION);
+		return await this.custom(message, this.CONFIRM_DEFINITION);
 	}
 
 	// A popup asking for some text until the user clicks the "Ok" or "Cancel" button
 	public async input_internal(message: string, defaultValue?: string) : Promise<string>
 	{
-		return await this.custom_internal(
+		return await this.custom(
 			message, this.INPUT_DEFINITION, { defaultValue: defaultValue });
 	}
 
@@ -219,7 +219,7 @@ export class Popups extends Modal
 	public async pick_internal(
 		message: string, options: Array<string>, defaultValue?: number): Promise<number>
 	{
-		return await this.custom_internal(
+		return await this.custom(
 			message, this.PICK_DEFINITION, { options: options, defaultValue: defaultValue });
 	}
 

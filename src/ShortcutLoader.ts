@@ -221,7 +221,7 @@ export abstract class ShortcutLoader
 
 		// Add shortcuts defined directly in the settings
 		let parseResult: any =
-			this.parseShortcutFile_internal("settings", plugin.settings.shortcuts);
+			this.parseShortcutFile("settings", plugin.settings.shortcuts);
 		plugin.shortcuts = plugin.shortcuts.concat(parseResult.shortcuts);
 		abouts.push({ filename: "", shortcutAbouts: parseResult.shortcutAbouts });
 

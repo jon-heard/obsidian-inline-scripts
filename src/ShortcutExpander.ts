@@ -113,7 +113,7 @@ export abstract class ShortcutExpander
 		{
 			try
 			{
-				expansionText = await this.runExpansionScript_internal(
+				expansionText = await this.runExpansionScript(
 					expansionScript, failSilently, expansionInfo);
 			}
 			catch (e: any)
@@ -158,7 +158,7 @@ export abstract class ShortcutExpander
 			}
 			if (typeof replacementInput === "string")
 			{
-				return this.expand_internal(replacementInput, false);
+				return this.expand(replacementInput, false);
 			}
 		}
 

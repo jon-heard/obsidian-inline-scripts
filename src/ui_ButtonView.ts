@@ -525,30 +525,30 @@ export class ButtonView extends ItemView
 		buttonGroup = root.createDiv({ cls: "nav-buttons-container" });
 		this.addSettingsButton(buttonGroup, "plus", "Add button", async function ()
 		{
-			ButtonView.getInstance().toggleState_internal("normal");
+			ButtonView.getInstance().toggleState("normal");
 			await Popups.getInstance().custom("Define a new button", POPUP_DEFINITION_BUTTON);
 		});
 		BUTTON_VIEW_STATES["edit"].button =
 			this.addSettingsButton(buttonGroup, "gear", "Edit button", function ()
 			{
 					const buttonView = ButtonView.getInstance();
-					buttonView.toggleState_internal("edit");
+					buttonView.toggleState("edit");
 			});
 		BUTTON_VIEW_STATES["reorder"].button =
 			this.addSettingsButton(buttonGroup, "upDown", "Re-order buttons", function ()
 			{
 					const buttonView = ButtonView.getInstance();
-					buttonView.toggleState_internal("reorder");
+					buttonView.toggleState("reorder");
 			});
 		BUTTON_VIEW_STATES["delete"].button =
 			this.addSettingsButton(buttonGroup, "x", "Remove buttons", function ()
 			{
 				const buttonView = ButtonView.getInstance();
-				buttonView.toggleState_internal("delete");
+				buttonView.toggleState("delete");
 			});
 
 		this._buttonUiParent = root.createDiv();
-		this.refreshUi_internal();
+		this.refreshUi();
 
 		// Add new ui to view
 		const container = this.containerEl.children[1];
@@ -598,7 +598,7 @@ export class ButtonView extends ItemView
 			this._state.onStateStart();
 		}
 
-		this.refreshUi_internal();
+		this.refreshUi();
 	}
 
 	private refreshUi_internal()
