@@ -14,8 +14,11 @@ let BUTTON_VIEW_STATES: any =
 	normal:
 	{
 		prefix: "",
-		onClick: async (buttonDefinition: any) =>
+		onClick: async (buttonUi: any) =>
 		{
+			const buttonDefinition =
+				ButtonView.getInstance().getButtonGroup().buttons[buttonUi.dataset.index];
+
 			// Get shortcut text (including replacing ??? with user-input)
 			let shortcutText = buttonDefinition.shortcut;
 			const matches = [... shortcutText.matchAll(/\?\?\?/g) ];
@@ -79,50 +82,80 @@ let BUTTON_VIEW_STATES: any =
 	delete:
 	{
 		prefix: "✖&nbsp; ",
-		onClick: async (buttonDefinition: any) =>
+		onClick: async (buttonUi: any) =>
 		{
-			if (await Popups.getInstance().confirm(
-				"Confirm deleting the shortcut button \"" + buttonDefinition.display + "\""))
+			const buttonTitle = buttonUi.innerText.slice(3);
+			if (!(await Popups.getInstance().confirm(
+				"Confirm deleting the shortcut button \"" + buttonTitle + "\"")))
 			{
-				let buttonDefinitions = ButtonView.getInstance().getButtonGroup().buttons;
-				for (let i = 0; i < buttonDefinitions.length; i++)
-				{
-					if (buttonDefinitions[i] === buttonDefinition)
-					{
-						buttonDefinitions.splice(i, 1);
-						InlineScriptsPlugin.getInstance().saveSettings();
-						ButtonView.getInstance().refreshUi();
-						break;
-					}
-				}
+				return;
 			}
+			buttonUi.remove();
+		},
+		onStateEnd: () =>
+		{
+			ButtonView.getInstance().refreshSettingsFromUi();
 		}
 	},
 	edit:
 	{
 		prefix: "⚙&nbsp; ",
-		onClick: async (buttonDefinition: any) =>
+		onClick: async (buttonUi: any) =>
 		{
-			ButtonView.getInstance().toggleState("normal", true);
-			let buttonDefinitions = ButtonView.getInstance().getButtonGroup().buttons;
-			for (let i = 0; i < buttonDefinitions.length; i++)
-			{
-				if (buttonDefinitions[i] === buttonDefinition)
-				{
-					await Popups.getInstance().custom(
-						"Modify this button", POPUP_DEFINITION_BUTTON,
-						{ definition: buttonDefinition });
-					break;
-				}
-			}
+			ButtonView.getInstance().toggleState("normal");
+			const buttonDefinition =
+				ButtonView.getInstance().getButtonGroup().buttons[buttonUi.dataset.index];
+			await Popups.getInstance().custom(
+				"Modify this button", POPUP_DEFINITION_BUTTON,
+				{ definition: buttonDefinition });
 		}
 	},
 	reorder:
 	{
 		prefix: "↕&nbsp; ",
-		onClick: (buttonDefinition: any) =>
+		onButtonCreated: (button: any) =>
 		{
-			console.log("reordering " + buttonDefinition.display);
+			button.setAttr("draggable", true);
+			button.style.cursor = "grab";
+			button.ondragstart = (evt: any) =>
+			{
+				button.classList.add("iscript_selectedButton");
+				BUTTON_VIEW_STATES.reorder.draggedButton = button;
+			};
+			button.ondragend = (evt: any) =>
+			{
+				button.classList.remove("iscript_selectedButton");
+				delete BUTTON_VIEW_STATES.reorder.draggedButton;
+			};
+			button.ondragenter = (evt: any) =>
+			{
+				const dragged = BUTTON_VIEW_STATES.reorder.draggedButton;
+				const target = button;
+				if (dragged === target)
+				{
+					return;
+				}
+				for (const child of dragged.parentNode.childNodes)
+				{
+					if (child === dragged)
+					{
+						dragged.parentNode.insertBefore(dragged, target);
+						dragged.parentNode.insertBefore(target, dragged);
+					}
+					else if (child === target)
+					{
+						dragged.parentNode.insertBefore(dragged, target);
+					}
+				}
+			};
+			button.ondragover = (evt: any) =>
+			{
+				evt.preventDefault();
+			};
+		},
+		onStateEnd: () =>
+		{
+			ButtonView.getInstance().refreshSettingsFromUi();
 		}
 	}
 };
@@ -353,9 +386,14 @@ export class ButtonView extends ItemView
 		this.refreshUi_internal();
 	}
 
-	public toggleState(state: string, force?: boolean): void
+	public refreshSettingsFromUi()
 	{
-		this.toggleState_internal(state, force);
+		this.refreshSettingsFronUi_internal();
+	}
+
+	public toggleState(state: string): void
+	{
+		this.toggleState_internal(state);
 	}
 
 	public async onOpen(): Promise<void>
@@ -487,7 +525,7 @@ export class ButtonView extends ItemView
 		buttonGroup = root.createDiv({ cls: "nav-buttons-container" });
 		this.addSettingsButton(buttonGroup, "plus", "Add button", async function ()
 		{
-			ButtonView.getInstance().toggleState_internal("normal", true);
+			ButtonView.getInstance().toggleState_internal("normal");
 			await Popups.getInstance().custom("Define a new button", POPUP_DEFINITION_BUTTON);
 		});
 		BUTTON_VIEW_STATES["edit"].button =
@@ -534,33 +572,54 @@ export class ButtonView extends ItemView
 		return plugin.settings.buttonView.groups[plugin.settings.buttonView.currentGroup];
 	}
 
-	private toggleState_internal(state: string, force?: boolean): void
+	private toggleState_internal(state: string): void
 	{
 		if (!BUTTON_VIEW_STATES[state])
 		{
 			return;
 		}
-		if (this._state === BUTTON_VIEW_STATES[state] && force)
+		if (state === "normal" && this._state === BUTTON_VIEW_STATES["normal"])
 		{
 			return;
 		}
+
+		if (this._state.onStateEnd)
+		{
+			this._state.onStateEnd();
+		}
+
 		this._state =
-			this._state === BUTTON_VIEW_STATES[state] ?
+			(this._state === BUTTON_VIEW_STATES[state]) ?
 			BUTTON_VIEW_STATES["normal"] :
 			BUTTON_VIEW_STATES[state];
+
+		if (this._state.onStateStart)
+		{
+			this._state.onStateStart();
+		}
+
 		this.refreshUi_internal();
 	}
 
 	private refreshUi_internal()
 	{
 		this._buttonUiParent.innerText = "";
-		for (const buttonDefinition of this.getButtonGroup().buttons)
+		const buttonDefinitions = this.getButtonGroup().buttons;
+		for (let i = 0; i < buttonDefinitions.length; i++)
 		{
 			let newButton = document.createElement("button");
 			newButton.classList.add("iscript_shortcutButton");
-			newButton.innerHTML = this._state.prefix + buttonDefinition.display;
+			newButton.innerHTML = this._state.prefix + buttonDefinitions[i].display;
+			newButton.dataset.index = i + "";
 			this._buttonUiParent.appendChild(newButton);
-			newButton.onclick = this._state.onClick.bind(null, buttonDefinition);
+			if (this._state.onClick)
+			{
+				newButton.onclick = this._state.onClick.bind(newButton, newButton);
+			}
+			if (this._state.onButtonCreated)
+			{
+				this._state.onButtonCreated(newButton);
+			}
 		}
 		for (const key in BUTTON_VIEW_STATES)
 		{
@@ -574,5 +633,17 @@ export class ButtonView extends ItemView
 				BUTTON_VIEW_STATES[key].button.classList.remove("iscript_selectedButton");
 			}
 		}
+	}
+
+	private refreshSettingsFronUi_internal()
+	{
+		const buttonDefinitions: Array<any> = this.getButtonGroup().buttons;
+		let newButtonDefinitions: Array<any> = [];
+		for (const button of this._buttonUiParent.childNodes)
+		{
+			newButtonDefinitions.push(buttonDefinitions[button.dataset.index]);
+		}
+		this.getButtonGroup().buttons = newButtonDefinitions;
+		InlineScriptsPlugin.getInstance().saveSettings();
 	}
 }

@@ -237,5 +237,5 @@
 }
 .iscript_selectedButton
 {
-	background-color: var(--text-highlight-bg);
+	background-color: var(--text-highlight-bg) !important;
 }
