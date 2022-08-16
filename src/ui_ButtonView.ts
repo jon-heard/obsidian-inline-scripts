@@ -20,6 +20,7 @@ let BUTTON_VIEW_STATES: any =
 			let shortcutText = buttonDefinition.shortcut;
 			const matches = [... shortcutText.matchAll(/\?\?\?/g) ];
 			let replacements = [];
+			let canceled: boolean = false;
 			for (let i = 0; i < matches.length; i++)
 			{
 				const caption =
@@ -28,38 +29,42 @@ let BUTTON_VIEW_STATES: any =
 				const replacement = await Popups.getInstance().input(caption, value);
 				if (replacement === null)
 				{
-					return;
+					canceled = true; // Don't just quit - still need to set focus to the note's end
+					break;
 				}
 				replacements.push(replacement);
 			}
-			for (let i = matches.length - 1; i >= 0; i--)
+			if (!canceled)
 			{
-				shortcutText =
-					shortcutText.slice(0, matches[i].index) +
-					replacements[i] +
-					shortcutText.slice(matches[i].index + 3);
+				for (let i = matches.length - 1; i >= 0; i--)
+				{
+					shortcutText =
+						shortcutText.slice(0, matches[i].index) +
+						replacements[i] +
+						shortcutText.slice(matches[i].index + 3);
+				}
 			}
 
 			// Run expansion
-			const expansion = await ShortcutExpander.expand(shortcutText);
-			if (expansion === null)
-			{
-				return;
-			}
+			let expansion = canceled ? null : await ShortcutExpander.expand(shortcutText);
 
 			// Append to the current file's editor, refocus on it, set caret at the end
 			const file = InlineScriptsPlugin.getInstance().app.workspace.getActiveFile();
-			if (!file)
-			{
-				return;
-			}
+			if (!file) { return; }
 			for (const leaf of app.workspace.getLeavesOfType("markdown"))
 			{
 				const view: MarkdownView = (leaf.view as MarkdownView);
 				if (view.file === file)
 				{
 					// Append to the editor
-					view.editor.setValue(view.editor.getValue() + expansion);
+					if (expansion)
+					{
+						if (Array.isArray(expansion))
+						{
+							expansion = expansion.join("");
+						}
+						view.editor.setValue(view.editor.getValue() + expansion);
+					}
 
 					// Refocus on the editor
 					app.workspace.setActiveLeaf(leaf, false, true);
@@ -77,23 +82,18 @@ let BUTTON_VIEW_STATES: any =
 		onClick: async (buttonDefinition: any) =>
 		{
 			if (await Popups.getInstance().confirm(
-				"Confirm deleting button \"" + buttonDefinition.display + "\""))
+				"Confirm deleting the shortcut button \"" + buttonDefinition.display + "\""))
 			{
 				let buttonDefinitions = ButtonView.getInstance().getButtonGroup().buttons;
-				let found: boolean = false;
 				for (let i = 0; i < buttonDefinitions.length; i++)
 				{
 					if (buttonDefinitions[i] === buttonDefinition)
 					{
 						buttonDefinitions.splice(i, 1);
-						found = true;
+						InlineScriptsPlugin.getInstance().saveSettings();
+						ButtonView.getInstance().refreshUi();
 						break;
 					}
-				}
-				if (found)
-				{
-					 InlineScriptsPlugin.getInstance().saveSettings();
-					ButtonView.getInstance().refreshUi();
 				}
 			}
 		}
@@ -101,9 +101,20 @@ let BUTTON_VIEW_STATES: any =
 	edit:
 	{
 		prefix: "⚙&nbsp; ",
-		onClick: (buttonDefinition: any) =>
+		onClick: async (buttonDefinition: any) =>
 		{
-			console.log("editing " + buttonDefinition.display);
+			ButtonView.getInstance().toggleState("normal", true);
+			let buttonDefinitions = ButtonView.getInstance().getButtonGroup().buttons;
+			for (let i = 0; i < buttonDefinitions.length; i++)
+			{
+				if (buttonDefinitions[i] === buttonDefinition)
+				{
+					await Popups.getInstance().custom(
+						"Modify this button", POPUP_DEFINITION_BUTTON,
+						{ definition: buttonDefinition });
+					break;
+				}
+			}
 		}
 	},
 	reorder:
@@ -127,7 +138,7 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 			.addText((text: any) =>
 			{
 				data.displayUi = text;
-				text.setValue(data.priorDisplay ?? "");
+				text.setValue(data.definition?.display ?? "");
 				text.inputEl.setAttr("placeholder", "Button text");
 				text.inputEl.addEventListener("keypress", (e: any) =>
 				{
@@ -142,7 +153,7 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 			.addText((text: any) =>
 			{
 				data.shortcutUi = text;
-				text.setValue("" + (data.priorShortcut ?? ""));
+				text.setValue("" + (data.definition?.shortcut ?? ""));
 				text.inputEl.setAttr("placeholder", "Shortcut text");
 				text.inputEl.addEventListener("keypress", (e: any) =>
 				{
@@ -153,11 +164,8 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 			.descEl.innerHTML +=
 				"<br/>Each \"???\" triggers user-input to replace the \"???\".";
 
-		const detailsUiContainer: any = parent.createDiv();
-		detailsUiContainer.style["margin-bottom"] = "1em";
-
 		data.detailUis = [];
-		const addDetailUi = () =>
+		const addParameterDatum: Function = (parameterDatum: any) =>
 		{
 			let newDetailUi: any = { value: null, caption: null };
 			new SettingType(detailsUiContainer)
@@ -168,6 +176,7 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 					text.inputEl.classList.add("iscript_spacedUi");
 					text.inputEl.style.width = "40%";
 					newDetailUi.value = text;
+					if (parameterDatum) { text.setValue(parameterDatum.value); }
 					return text;
 				})
 				.addText((text: any) =>
@@ -175,47 +184,81 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 					text.inputEl.setAttr("placeholder", "Caption");
 					text.inputEl.classList.add("iscript_spacedUi");
 					newDetailUi.caption = text;
+					if (parameterDatum) { text.setValue(parameterDatum.caption); }
 					return text;
 				})
 				.settingEl.toggleClass("iscript_settingBundled", true);
 			data.detailUis.push(newDetailUi);
 		};
 
+		const detailsUiContainer: any = parent.createDiv();
+		detailsUiContainer.style["margin-bottom"] = "1em";
 		new SettingType(detailsUiContainer)
 			.setName("Parameter details")
-			.setDesc("Details for each \"???\" in the shortcut-text.")
+			.setDesc("Details for each \"???\" in the shortcut.")
 			.addButton((button: any) =>
 			{
 				return button
-					.setButtonText("Add details for one \"???\"")
-					.onClick(addDetailUi)
+					.setButtonText("Add parameter details")
+					.onClick(addParameterDatum)
 			})
 			.settingEl.toggleClass("iscript_settingBundledTop", true);
+
+		if (data.definition)
+		{
+			for (const parameterDatum of data.definition.parameterData)
+			{
+				addParameterDatum(parameterDatum);
+			}
+		}
 	},
 	onClose: async (data: any, resolveFnc: Function, buttonText: string) =>
 	{
+		if (buttonText !== "Ok")
+		{
+			return;
+		}
 		if (!data.displayUi.getValue() || !data.shortcutUi.getValue())
 		{
 			return;
 		}
-		let definition: any = {
-			display: data.displayUi.getValue(),
-			shortcut: data.shortcutUi.getValue(),
-			parameterData: []
-		};
+
+		// Get the parameter data from the ui
+		let parameterData = [];
 		for (const detailUi of data.detailUis)
 		{
 			if (!detailUi.value.getValue() && !detailUi.caption.getValue())
 			{
 				continue;
 			}
-			definition.parameterData.push(
+			parameterData.push(
 			{
 				value: detailUi.value.getValue(),
 				caption: detailUi.caption.getValue()
 			});
 		}
-		ButtonView.getInstance().addShortcutButton(definition);
+
+		const buttonView = ButtonView.getInstance();
+
+		// Setup the definitions
+		if (data.definition)
+		{
+			data.definition.display = data.displayUi.getValue();
+			data.definition.shortcut = data.shortcutUi.getValue();
+			data.definition.parameterData = parameterData;
+		}
+		else
+		{
+			let definition: any = {
+				display: data.displayUi.getValue(),
+				shortcut: data.shortcutUi.getValue(),
+				parameterData: parameterData
+			};
+			buttonView.getButtonGroup().buttons.push(definition);
+		}
+
+		InlineScriptsPlugin.getInstance().saveSettings();
+		buttonView.refreshUi();
 	}
 });
 
@@ -300,11 +343,6 @@ export class ButtonView extends ItemView
 		await this.activateView_internal();
 	}
 
-	public addShortcutButton(buttonDefinition: any): void
-	{
-		this.addShortcutButton_internal(buttonDefinition);
-	}
-
 	public getButtonGroup(): any
 	{
 		return this.getButtonGroup_internal();
@@ -313,6 +351,11 @@ export class ButtonView extends ItemView
 	public refreshUi(): void
 	{
 		this.refreshUi_internal();
+	}
+
+	public toggleState(state: string, force?: boolean): void
+	{
+		this.toggleState_internal(state, force);
 	}
 
 	public async onOpen(): Promise<void>
@@ -444,26 +487,26 @@ export class ButtonView extends ItemView
 		buttonGroup = root.createDiv({ cls: "nav-buttons-container" });
 		this.addSettingsButton(buttonGroup, "plus", "Add button", async function ()
 		{
-			ButtonView.getInstance().toggleState("normal", true);
+			ButtonView.getInstance().toggleState_internal("normal", true);
 			await Popups.getInstance().custom("Define a new button", POPUP_DEFINITION_BUTTON);
 		});
 		BUTTON_VIEW_STATES["edit"].button =
 			this.addSettingsButton(buttonGroup, "gear", "Edit button", function ()
 			{
 					const buttonView = ButtonView.getInstance();
-					buttonView.toggleState("edit");
+					buttonView.toggleState_internal("edit");
 			});
 		BUTTON_VIEW_STATES["reorder"].button =
 			this.addSettingsButton(buttonGroup, "upDown", "Re-order buttons", function ()
 			{
 					const buttonView = ButtonView.getInstance();
-					buttonView.toggleState("reorder");
+					buttonView.toggleState_internal("reorder");
 			});
 		BUTTON_VIEW_STATES["delete"].button =
 			this.addSettingsButton(buttonGroup, "x", "Remove buttons", function ()
 			{
 				const buttonView = ButtonView.getInstance();
-				buttonView.toggleState("delete");
+				buttonView.toggleState_internal("delete");
 			});
 
 		this._buttonUiParent = root.createDiv();
@@ -491,14 +534,7 @@ export class ButtonView extends ItemView
 		return plugin.settings.buttonView.groups[plugin.settings.buttonView.currentGroup];
 	}
 
-	private addShortcutButton_internal(buttonDefinition: any): void
-	{
-		this.getButtonGroup().buttons.push(buttonDefinition);
-		InlineScriptsPlugin.getInstance().saveSettings();
-		this.refreshUi_internal();
-	}
-
-	private toggleState(state: string, force?: boolean)
+	private toggleState_internal(state: string, force?: boolean): void
 	{
 		if (!BUTTON_VIEW_STATES[state])
 		{

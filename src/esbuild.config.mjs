@@ -4,7 +4,7 @@ esbuild.build({
 	outfile: "../main.js",
 	bundle: true,
 	sourcemap: false,
-	minify: (process.argv.indexOf("--minify") > -1),
+	minify: (process.argv.includes("--minify")),
 	external: [ "obsidian", "@codemirror/state", "acorn" ],
 	format: 'cjs',
 	target: 'es2021',

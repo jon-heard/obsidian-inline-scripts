@@ -92,7 +92,7 @@ export abstract class ShortcutLoader
 		fileAbout = sections[0];
 
 		// Check for the obvious error of misnumbered sections (bounded by "__")
-		if (sections.length == 1)
+		if (sections.length === 1)
 		{
 			UserNotifier.run(
 			{

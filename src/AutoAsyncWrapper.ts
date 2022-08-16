@@ -86,7 +86,7 @@ export namespace AutoAsyncWrapper
 			let isNestable: boolean = true;
 			while (index < sLength)
 			{
-				if (source[index] == stack[stack.length-1])
+				if (source[index] === stack[stack.length-1])
 				{
 					stack.pop();
 					isNestable = true;

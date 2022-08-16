@@ -109,7 +109,7 @@ export namespace LibraryImporter
 		let libraryDestinationPath: string = await Popups.getInstance().custom(
 			"What path should the library be placed in?", POPUP_DEFINITION_DROPDOWN_INPUT,
 			{ defaultValue: commonPath || DEFAULT_LOCAL_ADDRESS });
-		if (libraryDestinationPath == null)
+		if (libraryDestinationPath === null)
 		{
 			InputBlocker.setEnabled(false);
 			return;
@@ -189,7 +189,7 @@ export namespace LibraryImporter
 			const address = libraryDestinationPath + "/" + libShortcutFile + ".md";
 			plugin.settings.shortcutFiles.push(
 			{
-				enabled: (disabledShortcutFiles.indexOf(address) < 0),
+				enabled: !disabledShortcutFiles.includes(address),
 				address: address
 			});
 		}
@@ -229,7 +229,7 @@ export namespace LibraryImporter
 		},
 		onClose: (data: any, resolveFnc: Function, buttonText: string) =>
 		{
-			resolveFnc((buttonText == "Ok") ? data.resultUi.getValue() : null);
+			resolveFnc((buttonText === "Ok") ? data.resultUi.getValue() : null);
 		}
 	};
 }

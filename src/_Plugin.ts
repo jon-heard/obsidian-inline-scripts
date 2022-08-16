@@ -349,7 +349,7 @@ export default class InlineScriptsPlugin extends Plugin
 			    versionCompare(announcement.version, this.settings.version) > 0)
 			{
 				let title = "Inline Scripts\n";
-				if (versionCompare(announcement.version, "0.21.0") == 0)
+				if (versionCompare(announcement.version, "0.21.0") === 0)
 				{
 					title += "(formerly Text Expander JS)\n";
 				}

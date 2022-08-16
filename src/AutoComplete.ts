@@ -258,14 +258,13 @@ export class AutoComplete extends EditorSuggest<any>
 				if (parts[i].startsWith("{"))
 				{
 					// If parameter isn't fulfilled and isn't optional, end now
-					if (!suggestion.match[parameterIndex] &&
-					    parts[i].indexOf("optional") == -1)
+					if (!suggestion.match[parameterIndex] && !parts[i].includes("optional"))
 					{
 						break;
 					}
 					parameterIndex--;
 				}
-				if (parameterIndex == 0)
+				if (parameterIndex === 0)
 				{
 					const plugin: InlineScriptsPlugin = InlineScriptsPlugin.getInstance();
 					this.context.editor.replaceRange(
@@ -295,7 +294,7 @@ export class AutoComplete extends EditorSuggest<any>
 			{
 				return b.length;
 			}
-			if (a[i] != b[i])
+			if (a[i] !== b[i])
 			{
 				return i;
 			}

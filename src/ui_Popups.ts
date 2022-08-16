@@ -124,7 +124,7 @@ export class Popups extends Modal
 		},
 		onClose: async (data: any, resolveFnc: Function, buttonText: string) =>
 		{
-			resolveFnc((buttonText == "Ok") ? data.resultUi.getValue() : null);
+			resolveFnc((buttonText === "Ok") ? data.resultUi.getValue() : null);
 		}
 	});
 
@@ -163,7 +163,7 @@ export class Popups extends Modal
 		},
 		onClose: async (data: any, resolveFnc: Function, buttonText: string) =>
 		{
-			resolveFnc((buttonText == "Ok") ? data.resultUi.getValue() : null);
+			resolveFnc((buttonText === "Ok") ? data.resultUi.getValue() : null);
 		}
 	});
 
