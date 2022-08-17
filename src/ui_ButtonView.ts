@@ -8,6 +8,7 @@ import { ItemView, MarkdownView, WorkspaceLeaf, addIcon } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
 import { ShortcutExpander } from "./ShortcutExpander";
 import { Popups } from "./ui_Popups";
+import { UserNotifier } from "./ui_userNotifier";
 
 let BUTTON_VIEW_STATES: any =
 {
@@ -86,7 +87,7 @@ let BUTTON_VIEW_STATES: any =
 		{
 			const buttonTitle = buttonUi.innerText.slice(3);
 			if (!(await Popups.getInstance().confirm(
-				"Confirm deleting the shortcut button \"" + buttonTitle + "\"")))
+				"Confirm removing the shortcut button \"" + buttonTitle + "\"")))
 			{
 				return;
 			}
@@ -291,7 +292,7 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 		}
 
 		InlineScriptsPlugin.getInstance().saveSettings();
-		buttonView.refreshUi();
+		buttonView.refreshButtonUi();
 	}
 });
 
@@ -333,16 +334,14 @@ const ICONS: any = Object.freeze(
 	  <path d="m78.29,255.78l101.47,-101.47l0,50.73l147.06,0l0,-50.73l101.47,101.47l-101.47,101.47l0,-50.73l-147.06,0l0,50.73l-101.47,-101.47z" fill="currentcolor" id="svg_1" stroke="currentcolor" transform="rotate(90, 253.289, 255.78)"/>
 	 </g>
 	</svg>`,
-	imp: `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" class="widget-icon" enable-background="new 0 0 512 512" version="1.1">
+	impExp: `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" class="widget-icon" enable-background="new 0 0 512 512" version="1.1">
 	 <g class="layer">
-	  <rect fill="currentcolor" fill-opacity="0.01" height="278" id="button" rx="62" ry="62" stroke="currentcolor" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-opacity="null" stroke-width="51" transform="matrix(1, 0, 0, 1, 0, 0)" width="278" x="44" y="188"/>
-	  <path d="m358.66,9.86l-1.69,18.2l19.91,3.17c50.41,8.02 99.82,42.03 127.33,87.64c4.94,8.18 8.24,16.07 7.34,17.52c-2.06,3.33 -52.25,29.87 -56.5,29.87c-1.73,0 -5.89,-4.88 -9.24,-10.85c-14.3,-25.44 -51.3,-51.97 -77.35,-55.47l-10.56,-1.42l1.82,15.73c1.89,16.33 1.36,19.76 -3.06,19.76c-2.82,0 -87,-62.72 -89.41,-66.61c-1.83,-2.95 9.75,-13.91 51.21,-48.47c18.01,-15.01 34.8,-27.29 37.32,-27.29c4.03,0 4.38,2.18 2.89,18.2l-0.01,0.02z" fill="currentcolor" id="svg_1" stroke="currentcolor" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-opacity="null" transform="rotate(-56.7572, 389.382, 78.9606)"/>
-	 </g>
-	</svg>`,
-	exp: `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" class="widget-icon" enable-background="new 0 0 512 512" version="1.1">
-	 <g class="layer">
-	  <rect fill="currentcolor" fill-opacity="0.01" height="278" id="button" rx="62" ry="62" stroke="currentcolor" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-opacity="null" stroke-width="51" transform="matrix(1, 0, 0, 1, 0, 0)" width="278" x="44" y="188"/>
-	  <path d="m391.96,52.38l-1.56,17l18.43,2.96c46.66,7.49 92.4,39.26 117.87,81.87c4.57,7.64 7.63,15.01 6.79,16.37c-1.91,3.11 -48.37,27.9 -52.3,27.9c-1.6,0 -5.45,-4.56 -8.55,-10.14c-13.24,-23.77 -47.49,-48.55 -71.6,-51.82l-9.78,-1.33l1.68,14.69c1.75,15.26 1.26,18.46 -2.83,18.46c-2.61,0 -80.54,-58.59 -82.77,-62.23c-1.69,-2.76 9.03,-12.99 47.41,-45.28c16.67,-14.02 32.21,-25.49 34.55,-25.49c3.73,0 4.05,2.04 2.68,17l-0.01,0.02z" fill="currentcolor" id="svg_1" stroke="currentcolor" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-opacity="null" transform="rotate(98.3071, 420.404, 116.923)"/>
+	  <g class="layer" id="svg_4">
+	   <g class="layer" id="svg_2">
+		<path d="m44,106c0,-33.69 28.31,-62 62,-62l185,2c-0.31,85 96,172.31 179,171l-2,189c0,33.69 -28.31,62 -62,62l-300,0c-33.69,0 -62,-28.31 -62,-62l0,-300z" fill="currentcolor" fill-opacity="0.01" id="button" stroke="currentcolor" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-opacity="null" stroke-width="51"/>
+		<path d="m222.44,288.64l5.66,-159.42l38.44,38.44l119.62,-119.62l-38.44,-38.44l159.42,-5.66l-5.66,159.42l-38.44,-38.44l-119.62,119.62l38.44,38.44l-159.42,5.66z" fill="currentcolor" id="svg_1" stroke="currentcolor"/>
+	   </g>
+	  </g>
 	 </g>
 	</svg>`
 });
@@ -381,14 +380,19 @@ export class ButtonView extends ItemView
 		return this.getButtonGroup_internal();
 	}
 
-	public refreshUi(): void
+	public refreshGroupUi(): void
 	{
-		this.refreshUi_internal();
+		this.refreshGroupUi_internal();
+	}
+
+	public refreshButtonUi(): void
+	{
+		this.refreshButtonUi_internal();
 	}
 
 	public refreshSettingsFromUi()
 	{
-		this.refreshSettingsFronUi_internal();
+		this.refreshSettingsFromUi_internal();
 	}
 
 	public toggleState(state: string): void
@@ -430,6 +434,8 @@ export class ButtonView extends ItemView
 
 	private static _instance: ButtonView;
 
+	private _currentGroup: string = "";
+	private _groupSelect: any;
 	private _buttonUiParent: any;
 	private _state: any = BUTTON_VIEW_STATES.normal;
 
@@ -492,30 +498,118 @@ export class ButtonView extends ItemView
 
 		const root = document.createElement('div');
 
-		const groupSelect = document.createElement("select");
-		groupSelect.classList.add("iscript_buttonView_groupSelect");
-		root.appendChild(groupSelect);
+		this._groupSelect = document.createElement("select");
+		this._groupSelect.classList.add("iscript_buttonView_groupSelect");
+		this._groupSelect.onchange = () =>
+		{
+			this._currentGroup =
+				ButtonView.getInstance()._groupSelect.value;
+			ButtonView.getInstance().refreshButtonUi();
+		}
+		root.appendChild(this._groupSelect);
 
 		var buttonGroup = root.createDiv({ cls: "nav-buttons-container" });
-		this.addSettingsButton(buttonGroup, "plus", "New group", function ()
+		this.addSettingsButton(buttonGroup, "plus", "New group", async () =>
 		{
-			console.log("Button clicked: new");
+			const name = await Popups.getInstance().input("Enter the name of the new group.");
+			if (name === "")
+			{
+				await Popups.getInstance().alert("Group not created.\nInvalid name given: blank");
+				return;
+			}
+			if (!name)
+			{
+				return;
+			}
+			const groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
+			if (groups[name])
+			{
+				await Popups.getInstance().alert(
+					"Group not created.\nThe name \"" + name + "\" is already taken");
+			}
+			else
+			{
+				groups[name] = { buttons: [] };
+			}
+			this._currentGroup = name;
+			InlineScriptsPlugin.getInstance().saveSettings();
+			this.refreshGroupUi();
 		});
-		this.addSettingsButton(buttonGroup, "pencil", "Rename group", function ()
+		this.addSettingsButton(buttonGroup, "pencil", "Rename group", async () =>
 		{
-			console.log("Button clicked: rename");
+			const name = await Popups.getInstance().input(
+				"Enter a new name for group \"" + this._currentGroup + "\"", this._currentGroup);
+			if (name === "")
+			{
+				await Popups.getInstance().alert("Name not changed.\nInvalid name given: blank");
+				return;
+			}
+			if (!name)
+			{
+				return;
+			}
+			let groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
+			if (name === this._currentGroup)
+			{}
+			else if (groups[name])
+			{
+				await Popups.getInstance().alert(
+					"Name not changed.\nThe name \"" + name + "\" is already taken");
+			}
+			else
+			{
+				groups[name] = groups[this._currentGroup];
+				delete groups[this._currentGroup];
+				this._currentGroup = name;
+				InlineScriptsPlugin.getInstance().saveSettings();
+				this.refreshGroupUi();
+			}
 		});
-		this.addSettingsButton(buttonGroup, "imp", "Import group", function ()
+		this.addSettingsButton(buttonGroup, "impExp", "Import / Export group", async () =>
 		{
-			console.log("Button clicked: import");
+			const groups: any = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
+			const oldGroupCode = JSON.stringify(groups[this._currentGroup]);
+			const newGroupCode = await Popups.getInstance().input(
+				"Copy this code to export from group \"" + this._currentGroup + "\"\n" +
+				"Replace this code to import to group \"" + this._currentGroup + "\"",
+				oldGroupCode);
+			if (newGroupCode === null)
+			{
+				return;
+			}
+			if (newGroupCode !== oldGroupCode)
+			{
+				try
+				{
+					groups[this._currentGroup] = JSON.parse(newGroupCode);
+					InlineScriptsPlugin.getInstance().saveSettings();
+					this.refreshButtonUi();
+				}
+				catch (e)
+				{
+					UserNotifier.run(
+					{
+						message: "Import failed.\nThe given group code had errors"
+					});
+				}
+			}
 		});
-		this.addSettingsButton(buttonGroup, "exp", "Export group", function ()
+		this.addSettingsButton(buttonGroup, "x", "Remove group", async () =>
 		{
-			console.log("Button clicked: export");
-		});
-		this.addSettingsButton(buttonGroup, "x", "Remove group", function ()
-		{
-			console.log("Button clicked: x");
+			if (!(await Popups.getInstance().confirm(
+				"Confirm removing the group \"" + this._currentGroup + "\"")))
+			{
+				return;
+			}
+			let groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
+			delete groups[this._currentGroup];
+			if (!Object.keys(groups).length)
+			{
+				groups.main = { buttons: [] };
+			}
+			InlineScriptsPlugin.getInstance().saveSettings();
+			this._currentGroup = null;
+			this.refreshGroupUi();
 		});
 
 		const hr = document.createElement("hr");
@@ -548,7 +642,6 @@ export class ButtonView extends ItemView
 			});
 
 		this._buttonUiParent = root.createDiv();
-		this.refreshUi();
 
 		// Add new ui to view
 		const container = this.containerEl.children[1];
@@ -569,7 +662,7 @@ export class ButtonView extends ItemView
 	private getButtonGroup_internal(): any
 	{
 		const plugin: InlineScriptsPlugin = InlineScriptsPlugin.getInstance();
-		return plugin.settings.buttonView.groups[plugin.settings.buttonView.currentGroup];
+		return plugin.settings.buttonView.groups[this._currentGroup];
 	}
 
 	private toggleState_internal(state: string): void
@@ -598,11 +691,28 @@ export class ButtonView extends ItemView
 			this._state.onStateStart();
 		}
 
-		this.refreshUi();
+		this.refreshButtonUi();
 	}
 
-	private refreshUi_internal()
+	private refreshGroupUi_internal()
 	{
+		let groupList = Object.keys(InlineScriptsPlugin.getInstance().settings.buttonView.groups);
+		groupList.sort();
+		this._currentGroup ||= groupList[0];
+		this._groupSelect.options.length = 0;
+		for (const groupName of groupList)
+		{
+			const selected: boolean =
+				(groupName === this._currentGroup);
+			this._groupSelect.options[this._groupSelect.options.length] =
+				new Option(groupName, undefined, undefined, selected);
+		}
+		this.refreshButtonUi();
+	}
+
+	private refreshButtonUi_internal()
+	{
+		// Shortcut buttons
 		this._buttonUiParent.innerText = "";
 		const buttonDefinitions = this.getButtonGroup().buttons;
 		for (let i = 0; i < buttonDefinitions.length; i++)
@@ -621,6 +731,8 @@ export class ButtonView extends ItemView
 				this._state.onButtonCreated(newButton);
 			}
 		}
+
+		// System button highlighting
 		for (const key in BUTTON_VIEW_STATES)
 		{
 			if (!BUTTON_VIEW_STATES[key].button) { continue; }
@@ -635,7 +747,7 @@ export class ButtonView extends ItemView
 		}
 	}
 
-	private refreshSettingsFronUi_internal()
+	private refreshSettingsFromUi_internal()
 	{
 		const buttonDefinitions: Array<any> = this.getButtonGroup().buttons;
 		let newButtonDefinitions: Array<any> = [];

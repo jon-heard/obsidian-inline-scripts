@@ -142,7 +142,7 @@ export class Popups extends Modal
 					let options = data.options;
 					if (options === null || options === undefined)
 					{
-						result = true;
+						result = true; // "result" is outside this function.  Set it, then quit.
 						return;
 					}
 					if (!Array.isArray(options)) { options = [ options ]; }

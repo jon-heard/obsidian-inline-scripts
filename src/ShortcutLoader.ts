@@ -8,6 +8,7 @@ import InlineScriptsPlugin from "./_Plugin";
 import { UserNotifier } from "./ui_userNotifier";
 import { ShortcutExpander } from "./ShortcutExpander";
 import { InputBlocker } from "./ui_InputBlocker";
+import { ButtonView } from "./ui_ButtonView";
 
 const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
 const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
@@ -335,6 +336,9 @@ export abstract class ShortcutLoader
 
 		// Finalize the master syntaxes list
 		this.finalizeShortcutSyntaxes();
+
+		// ButtonView needs to be updated with the latest shortcut info
+		ButtonView.getInstance().refreshGroupUi();
 	}
 
 	private static updateGeneralHelpShortcut(shortcutFiles: Array<string>): void

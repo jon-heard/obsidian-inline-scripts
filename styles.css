@@ -239,3 +239,9 @@
 {
 	background-color: var(--text-highlight-bg) !important;
 }
+.widget-icon
+{
+	width: 20px;
+	height: 20px;
+	fill: var(--text-muted);
+}
