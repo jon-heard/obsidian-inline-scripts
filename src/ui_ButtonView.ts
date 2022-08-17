@@ -10,6 +10,9 @@ import { ShortcutExpander } from "./ShortcutExpander";
 import { Popups } from "./ui_Popups";
 import { UserNotifier } from "./ui_userNotifier";
 
+const SFILE_BUTTON_PARAMETER_CAPTION: string = "Enter a value for\n<span style='font-weight:bold;text-transform:uppercase'>%1</span>\n<i>(%2)</i>";
+const SFILE_GROUP_PREFIX: string = "[sfile] ";
+
 let BUTTON_VIEW_STATES: any =
 {
 	normal:
@@ -436,8 +439,10 @@ export class ButtonView extends ItemView
 
 	private _currentGroup: string = "";
 	private _groupSelect: any;
+	private _settingsUi: any = {};
 	private _buttonUiParent: any;
 	private _state: any = BUTTON_VIEW_STATES.normal;
+	private _sfileGroupDefinitions: any;
 
 	private static staticConstructor_internal(): void
 	{
@@ -526,42 +531,51 @@ export class ButtonView extends ItemView
 			InlineScriptsPlugin.getInstance().saveSettings();
 			this.refreshGroupUi();
 		});
-		this.addSettingsButton(buttonGroup, "pencil", "Rename group", async () =>
-		{
-			const name = await Popups.getInstance().input(
-				"Enter a new name for group \"" + this._currentGroup + "\"", this._currentGroup);
-			if (name === "")
+		this._settingsUi.groupRename = this.addSettingsButton(buttonGroup, "pencil", "Rename group",
+			async () =>
 			{
-				await Popups.getInstance().alert("Name not changed.\nInvalid name given: blank");
-				return;
-			}
-			if (!name || name === this._currentGroup)
-			{
-				return;
-			}
-			let groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
-			if (groups[name])
-			{
-				await Popups.getInstance().alert(
-					"Name not changed.\nThe name \"" + name + "\" is already taken");
-				return;
-			}
+				if (this._currentGroup.startsWith(SFILE_GROUP_PREFIX)) { return; }
+				const name = await Popups.getInstance().input("Enter a new name for group \"" +
+					this._currentGroup + "\"", this._currentGroup);
+				if (name === "")
+				{
+					await Popups.getInstance().alert("Name not changed.\nInvalid name: blank");
+					return;
+				}
+				if (!name || name === this._currentGroup)
+				{
+					return;
+				}
+				let groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
+				if (groups[name])
+				{
+					await Popups.getInstance().alert(
+						"Name not changed.\nThe name \"" + name + "\" is already taken");
+					return;
+				}
 
-			groups[name] = groups[this._currentGroup];
-			delete groups[this._currentGroup];
-			this._currentGroup = name;
-			InlineScriptsPlugin.getInstance().saveSettings();
-			this.refreshGroupUi();
-		});
+				groups[name] = groups[this._currentGroup];
+				delete groups[this._currentGroup];
+				this._currentGroup = name;
+				InlineScriptsPlugin.getInstance().saveSettings();
+				this.refreshGroupUi();
+			});
 		this.addSettingsButton(buttonGroup, "impExp", "Import / Export group", async () =>
 		{
-			const groups: any = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
-			const oldGroupCode = JSON.stringify(groups[this._currentGroup]);
-			const newGroupCode = await Popups.getInstance().input(
-				"Copy this code to export from group \"" + this._currentGroup + "\"\n" +
-				"Replace this code to import to group \"" + this._currentGroup + "\"",
-				oldGroupCode);
-			if (newGroupCode === null)
+			const plugin = InlineScriptsPlugin.getInstance();
+			const oldGroupCode = JSON.stringify(this.getButtonGroup());
+			const isSFile: boolean = this._currentGroup.startsWith(SFILE_GROUP_PREFIX);
+			let message = "Copy this code to export from group \"" + this._currentGroup + "\"\n";
+			if (isSFile)
+			{
+				message += "This group is locked, so ignores importing.";
+			}
+			else
+			{
+				message += "Replace this code to import to group \"" + this._currentGroup + "\"";
+			}
+			const newGroupCode = await Popups.getInstance().input(message, oldGroupCode);
+			if (isSFile || newGroupCode === null)
 			{
 				return;
 			}
@@ -569,8 +583,9 @@ export class ButtonView extends ItemView
 			{
 				try
 				{
-					groups[this._currentGroup] = JSON.parse(newGroupCode);
-					InlineScriptsPlugin.getInstance().saveSettings();
+					plugin.settings.buttonView.groups[this._currentGroup] =
+						JSON.parse(newGroupCode);
+					plugin.saveSettings();
 					this.refreshButtonUi();
 				}
 				catch (e)
@@ -582,48 +597,54 @@ export class ButtonView extends ItemView
 				}
 			}
 		});
-		this.addSettingsButton(buttonGroup, "x", "Remove group", async () =>
-		{
-			if (!(await Popups.getInstance().confirm(
-				"Confirm removing the group \"" + this._currentGroup + "\"")))
+		this._settingsUi.groupRemove = this.addSettingsButton(buttonGroup, "x", "Remove group",
+			async () =>
 			{
-				return;
-			}
-			let groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
-			delete groups[this._currentGroup];
-			InlineScriptsPlugin.getInstance().saveSettings();
-			this._currentGroup = null;
-			this.refreshGroupUi();
-		});
+				if (this._currentGroup.startsWith(SFILE_GROUP_PREFIX)) { return; }
+				if (!(await Popups.getInstance().confirm(
+					"Confirm removing the group \"" + this._currentGroup + "\"")))
+				{
+					return;
+				}
+				let groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
+				delete groups[this._currentGroup];
+				InlineScriptsPlugin.getInstance().saveSettings();
+				this._currentGroup = null;
+				this.refreshGroupUi();
+			});
 
 		const hr = document.createElement("hr");
 		hr.classList.add("iscript_buttonView_hr");
 		root.appendChild(hr);
 
-		buttonGroup = root.createDiv({ cls: "nav-buttons-container" });
-		this.addSettingsButton(buttonGroup, "plus", "Add button", async function ()
-		{
-			ButtonView.getInstance().toggleState("normal");
-			await Popups.getInstance().custom("Define a new button", POPUP_DEFINITION_BUTTON);
-		});
-		BUTTON_VIEW_STATES["edit"].button =
-			this.addSettingsButton(buttonGroup, "gear", "Edit button", function ()
+		this._settingsUi.buttonSettings = root.createDiv({ cls: "nav-buttons-container" });
+		this.addSettingsButton(
+			this._settingsUi.buttonSettings, "plus", "Add button", async function ()
+			{
+				ButtonView.getInstance().toggleState("normal");
+				await Popups.getInstance().custom("Define a new button", POPUP_DEFINITION_BUTTON);
+			});
+		BUTTON_VIEW_STATES["edit"].button = this.addSettingsButton(
+			this._settingsUi.buttonSettings, "gear", "Edit button", function ()
 			{
 					const buttonView = ButtonView.getInstance();
 					buttonView.toggleState("edit");
 			});
-		BUTTON_VIEW_STATES["reorder"].button =
-			this.addSettingsButton(buttonGroup, "upDown", "Re-order buttons", function ()
+		BUTTON_VIEW_STATES["reorder"].button = this.addSettingsButton(
+			this._settingsUi.buttonSettings, "upDown", "Re-order buttons", function ()
 			{
 					const buttonView = ButtonView.getInstance();
 					buttonView.toggleState("reorder");
 			});
-		BUTTON_VIEW_STATES["delete"].button =
-			this.addSettingsButton(buttonGroup, "x", "Remove buttons", function ()
+		BUTTON_VIEW_STATES["delete"].button = this.addSettingsButton(
+			this._settingsUi.buttonSettings, "x", "Remove buttons", function ()
 			{
 				const buttonView = ButtonView.getInstance();
 				buttonView.toggleState("delete");
 			});
+
+		this._settingsUi.buttonSettingsBlock = root.createDiv(
+			{ text: "Group locked", cls: "iscript_buttonSettingsBlock iscript_hidden" });
 
 		this._buttonUiParent = root.createDiv();
 
@@ -636,7 +657,7 @@ export class ButtonView extends ItemView
 	private addSettingsButton(parent: any, icon: string, title: string, fnc: Function): any
 	{
 		let newButton = parent.createDiv({ cls: "nav-action-button", title: title });
-		newButton.onClickEvent(fnc);
+		newButton.onclick = fnc;
 		newButton.appendChild(
 			(new DOMParser()).parseFromString(ICONS[icon], "text/xml").documentElement
 		);
@@ -646,7 +667,47 @@ export class ButtonView extends ItemView
 	private getButtonGroup_internal(): any
 	{
 		const plugin: InlineScriptsPlugin = InlineScriptsPlugin.getInstance();
-		return plugin.settings.buttonView.groups[this._currentGroup];
+
+		if (!this._currentGroup.startsWith(SFILE_GROUP_PREFIX))
+		{
+			return plugin.settings.buttonView.groups[this._currentGroup];
+		}
+
+		if (!this._sfileGroupDefinitions[this._currentGroup])
+		{
+			let buttonDefinitions: Array<any> = [];
+			const sfile: string = this._currentGroup.slice(SFILE_GROUP_PREFIX.length);
+			const syntaxes: Array<string> =
+				plugin.syntaxes.filter(v => v.sfile === sfile).map(v => v.text);
+			for (const syntax of syntaxes)
+			{
+				let display: string = syntax;
+				let shortcut: string = syntax;
+				let parameterData: Array<any> = [];
+				const matches = [...syntax.matchAll(/{[^}]+}/g)];
+				for (let i = matches.length - 1; i >= 0; i--)
+				{
+					display =
+						display.slice(0, matches[i].index) + "?" +
+						display.slice(matches[i].index + matches[i][0].length);
+					shortcut =
+						shortcut.slice(0, matches[i].index) + "???" +
+						shortcut.slice(matches[i].index + matches[i][0].length);
+					const pName: string = matches[i][0].slice(1, matches[i][0].indexOf(":"));
+					const pFeatures: string =
+						matches[i][0].slice(matches[i][0].indexOf(":") + 2, -1);
+					const caption: string =
+						SFILE_BUTTON_PARAMETER_CAPTION
+						.replace("%1", pName).replace("%2", pFeatures);
+					parameterData.push({ value: "", caption: caption });
+				}
+				parameterData.reverse();
+				buttonDefinitions.push({ display, shortcut, parameterData });
+			}
+			this._sfileGroupDefinitions[this._currentGroup] = { buttons: buttonDefinitions };
+		}
+
+		return this._sfileGroupDefinitions[this._currentGroup];
 	}
 
 	private toggleState_internal(state: string): void
@@ -680,7 +741,9 @@ export class ButtonView extends ItemView
 
 	private refreshGroupUi_internal()
 	{
-		let groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
+		let plugin = InlineScriptsPlugin.getInstance();
+
+		let groups = plugin.settings.buttonView.groups;
 		let groupList = Object.keys(groups);
 		if (!groupList.length)
 		{
@@ -688,6 +751,14 @@ export class ButtonView extends ItemView
 			groupList = Object.keys(groups);
 		}
 		groupList.sort();
+
+		let sfileGroups = [... new Set(plugin.syntaxes.map(v => v.sfile))].slice(1).sort();
+		for (const sfileGroup of sfileGroups)
+		{
+			groupList.push(SFILE_GROUP_PREFIX + sfileGroup);
+		}
+		this._sfileGroupDefinitions = [];
+
 		this._currentGroup ||= groupList[0];
 		this._groupSelect.options.length = 0;
 		for (const groupName of groupList)
@@ -702,6 +773,26 @@ export class ButtonView extends ItemView
 
 	private refreshButtonUi_internal()
 	{
+		// System ui
+		if (this._currentGroup.startsWith(SFILE_GROUP_PREFIX))
+		{
+			this._settingsUi.buttonSettings.classList.add("iscript_hidden");
+			this._settingsUi.buttonSettingsBlock.classList.remove("iscript_hidden");
+			this._settingsUi.groupRename.classList.remove("nav-action-button");
+			this._settingsUi.groupRename.classList.add("iscript_buttonViewDisabled");
+			this._settingsUi.groupRemove.classList.remove("nav-action-button");
+			this._settingsUi.groupRemove.classList.add("iscript_buttonViewDisabled");
+		}
+		else
+		{
+			this._settingsUi.buttonSettings.classList.remove("iscript_hidden");
+			this._settingsUi.buttonSettingsBlock.classList.add("iscript_hidden");
+			this._settingsUi.groupRename.classList.add("nav-action-button");
+			this._settingsUi.groupRename.classList.remove("iscript_buttonViewDisabled");
+			this._settingsUi.groupRemove.classList.add("nav-action-button");
+			this._settingsUi.groupRemove.classList.remove("iscript_buttonViewDisabled");
+		}
+
 		// Shortcut buttons
 		this._buttonUiParent.innerText = "";
 		const buttonDefinitions = this.getButtonGroup().buttons;

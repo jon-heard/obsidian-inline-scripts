@@ -228,6 +228,7 @@ export abstract class ShortcutLoader
 
 		// Add shortcut syntaxes to the master list
 		this.addShortcutFileSyntaxes(
+			"settings",
 			parseResult.shortcutAbouts,
 			[ [ "help", "A list of helpful shortcuts" ],
 			  [ "ref settings", "A list of shortcuts defined in settings" ],
@@ -324,6 +325,7 @@ export abstract class ShortcutLoader
 
 			// Add shortcut syntaxes to the master list
 			this.addShortcutFileSyntaxes(
+				baseName,
 				parseResult.shortcutAbouts,
 				[ [ "help " + baseName,
 				    "Description of the \"" + baseName + "\" shortcut-file." ],
@@ -444,14 +446,14 @@ export abstract class ShortcutLoader
 		return result;
 	}
 
-	private static addShortcutFileSyntaxes(abouts: Array<any>, syntaxes: Array<any>)
+	private static addShortcutFileSyntaxes(sfile: string, abouts: Array<any>, syntaxes: Array<any>)
 	{
 		const plugin = InlineScriptsPlugin.getInstance();
 
-		const addSyntax = (syntax: string, description: string, about?: any) =>
+		const addSyntax = (syntax: string, description: string, about: any, sfile: string) =>
 		{
 			description = description.replaceAll("\n***", "");
-			plugin.syntaxes.push({ text: syntax, description: description });
+			plugin.syntaxes.push({ text: syntax, description: description, sfile: sfile });
 
 			if (about) { about.syntax = this.removeSyntaxSpecialCharacters(syntax); }
 
@@ -460,17 +462,17 @@ export abstract class ShortcutLoader
 			{
 				const altDescription = description.replace(
 					REGEX_ALTERNATIVE_SYNTAX, "\n\t- Alternative: __" + syntax + "__");
-				plugin.syntaxes.push({ text: altSyntax, description: altDescription });
+				plugin.syntaxes.push({ text: altSyntax, description: altDescription, sfile: "" });
 			}
 		}
 
 		for (const about of abouts)
 		{
-			addSyntax(about.syntax, about.description, about);
+			addSyntax(about.syntax, about.description, about, sfile);
 		}
 		for (const syntax of syntaxes)
 		{
-			addSyntax(syntax[0], syntax[1]);
+			addSyntax(syntax[0], syntax[1], null, "");
 		}
 	}
 
