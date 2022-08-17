@@ -136,7 +136,7 @@ export class AutoComplete extends EditorSuggest<any>
 	private getSuggestions_internal(context: any): any
 	{
 		// Get ALL shortcut syntaxes
-		const result = this._plugin.syntaxes
+		const result = this._plugin.syntaxesSorted
 		// Check each syntax against the query (i.e. the user's current shortcut-text)
 			.map((p: any) =>
 			{

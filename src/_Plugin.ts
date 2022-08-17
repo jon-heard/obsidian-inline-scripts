@@ -72,6 +72,8 @@ export default class InlineScriptsPlugin extends Plugin
 	public settingsUi: InlineScriptsPluginSettings;
 	// The master list of shortcut syntaxes (provided by the About strings of all shortcuts)
 	public syntaxes: Array<any>;
+	// The same thing as "syntaxes", but sorted by syntax.
+	public syntaxesSorted: Array<any>;
 	// If set, all keyboard input is ignored
 	public inputDisabled: boolean;
 
