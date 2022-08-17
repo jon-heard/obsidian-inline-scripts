@@ -563,18 +563,14 @@ export class ButtonView extends ItemView
 		this.addSettingsButton(buttonGroup, "impExp", "Import / Export group", async () =>
 		{
 			const plugin = InlineScriptsPlugin.getInstance();
-			const oldGroupCode = JSON.stringify(this.getButtonGroup());
+			let oldGroupCode = JSON.stringify(this.getButtonGroup().buttons).slice(1, -1);
+			oldGroupCode += oldGroupCode ? "," : "";
 			const isSFile: boolean = this._currentGroup.startsWith(SFILE_GROUP_PREFIX);
-			let message = "Copy this code to export from group \"" + this._currentGroup + "\"\n";
-			if (isSFile)
-			{
-				message += "This group is locked, so ignores importing.";
-			}
-			else
-			{
-				message += "Replace this code to import to group \"" + this._currentGroup + "\"";
-			}
-			const newGroupCode = await Popups.getInstance().input(message, oldGroupCode);
+			let message = "Copy this code to export from group \"" + this._currentGroup + "\"\n" +
+				isSFile ?
+				"This group is locked, so ignores importing." :
+				"Replace this code to import to group \"" + this._currentGroup + "\"";
+			let newGroupCode = await Popups.getInstance().input(message, oldGroupCode);
 			if (isSFile || newGroupCode === null)
 			{
 				return;
@@ -583,8 +579,8 @@ export class ButtonView extends ItemView
 			{
 				try
 				{
-					plugin.settings.buttonView.groups[this._currentGroup] =
-						JSON.parse(newGroupCode);
+					plugin.settings.buttonView.groups[this._currentGroup].buttons =
+						JSON.parse("[" + newGroupCode.replace(/,$/, "") + "]");
 					plugin.saveSettings();
 					this.refreshButtonUi();
 				}
@@ -755,6 +751,10 @@ export class ButtonView extends ItemView
 		let sfileGroups = [... new Set(plugin.syntaxes.map(v => v.sfile))].slice(1).sort();
 		for (const sfileGroup of sfileGroups)
 		{
+			if (!sfileGroup)
+			{
+				continue;
+			}
 			groupList.push(SFILE_GROUP_PREFIX + sfileGroup);
 		}
 		this._sfileGroupDefinitions = [];
