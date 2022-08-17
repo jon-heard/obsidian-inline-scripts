@@ -511,26 +511,17 @@ export class ButtonView extends ItemView
 		var buttonGroup = root.createDiv({ cls: "nav-buttons-container" });
 		this.addSettingsButton(buttonGroup, "plus", "New group", async () =>
 		{
-			const name = await Popups.getInstance().input("Enter the name of the new group.");
-			if (name === "")
-			{
-				await Popups.getInstance().alert("Group not created.\nInvalid name given: blank");
-				return;
-			}
-			if (!name)
-			{
-				return;
-			}
 			const groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
-			if (groups[name])
+			let name: string;
+			let id = 0;
+			do
 			{
-				await Popups.getInstance().alert(
-					"Group not created.\nThe name \"" + name + "\" is already taken");
+				id++;
+				name = "Group " + (id+"").padStart(2, "0");
 			}
-			else
-			{
-				groups[name] = { buttons: [] };
-			}
+			while (groups[name]);
+
+			groups[name] = { buttons: [] };
 			this._currentGroup = name;
 			InlineScriptsPlugin.getInstance().saveSettings();
 			this.refreshGroupUi();
@@ -544,26 +535,23 @@ export class ButtonView extends ItemView
 				await Popups.getInstance().alert("Name not changed.\nInvalid name given: blank");
 				return;
 			}
-			if (!name)
+			if (!name || name === this._currentGroup)
 			{
 				return;
 			}
 			let groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
-			if (name === this._currentGroup)
-			{}
-			else if (groups[name])
+			if (groups[name])
 			{
 				await Popups.getInstance().alert(
 					"Name not changed.\nThe name \"" + name + "\" is already taken");
+				return;
 			}
-			else
-			{
-				groups[name] = groups[this._currentGroup];
-				delete groups[this._currentGroup];
-				this._currentGroup = name;
-				InlineScriptsPlugin.getInstance().saveSettings();
-				this.refreshGroupUi();
-			}
+
+			groups[name] = groups[this._currentGroup];
+			delete groups[this._currentGroup];
+			this._currentGroup = name;
+			InlineScriptsPlugin.getInstance().saveSettings();
+			this.refreshGroupUi();
 		});
 		this.addSettingsButton(buttonGroup, "impExp", "Import / Export group", async () =>
 		{
@@ -603,10 +591,6 @@ export class ButtonView extends ItemView
 			}
 			let groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
 			delete groups[this._currentGroup];
-			if (!Object.keys(groups).length)
-			{
-				groups.main = { buttons: [] };
-			}
 			InlineScriptsPlugin.getInstance().saveSettings();
 			this._currentGroup = null;
 			this.refreshGroupUi();
@@ -696,7 +680,13 @@ export class ButtonView extends ItemView
 
 	private refreshGroupUi_internal()
 	{
-		let groupList = Object.keys(InlineScriptsPlugin.getInstance().settings.buttonView.groups);
+		let groups = InlineScriptsPlugin.getInstance().settings.buttonView.groups;
+		let groupList = Object.keys(groups);
+		if (!groupList.length)
+		{
+			groups["Group 01"] = { buttons: [] };
+			groupList = Object.keys(groups);
+		}
 		groupList.sort();
 		this._currentGroup ||= groupList[0];
 		this._groupSelect.options.length = 0;
