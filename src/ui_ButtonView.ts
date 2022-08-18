@@ -10,7 +10,7 @@ import { ShortcutExpander } from "./ShortcutExpander";
 import { Popups } from "./ui_Popups";
 import { UserNotifier } from "./ui_userNotifier";
 
-const SFILE_BUTTON_PARAMETER_CAPTION: string = "Enter a value for\n<span style='font-weight:bold;text-transform:uppercase'>%1</span>\n<i>(%2)</i>";
+const SFILE_BUTTON_PARAMETER_CAPTION: string = "Enter a value for\n<b>%1</b>\n<i>(%2)</i>";
 const SFILE_GROUP_PREFIX: string = "[sfile] ";
 
 let BUTTON_VIEW_STATES: any =
@@ -85,7 +85,7 @@ let BUTTON_VIEW_STATES: any =
 	},
 	delete:
 	{
-		prefix: "✖&nbsp; ",
+		prefix: "✖   ",
 		onClick: async (buttonUi: any) =>
 		{
 			const buttonTitle = buttonUi.innerText.slice(3);
@@ -103,7 +103,7 @@ let BUTTON_VIEW_STATES: any =
 	},
 	edit:
 	{
-		prefix: "⚙&nbsp; ",
+		prefix: "⚙   ",
 		onClick: async (buttonUi: any) =>
 		{
 			ButtonView.getInstance().toggleState("normal");
@@ -116,7 +116,7 @@ let BUTTON_VIEW_STATES: any =
 	},
 	reorder:
 	{
-		prefix: "↕&nbsp; ",
+		prefix: "↕   ",
 		onButtonCreated: (button: any) =>
 		{
 			button.setAttr("draggable", true);
@@ -567,9 +567,9 @@ export class ButtonView extends ItemView
 			oldGroupCode += oldGroupCode ? "," : "";
 			const isSFile: boolean = this._currentGroup.startsWith(SFILE_GROUP_PREFIX);
 			let message = "Copy this code to export from group \"" + this._currentGroup + "\"\n" +
-				isSFile ?
+				(isSFile ?
 				"This group is locked, so ignores importing." :
-				"Replace this code to import to group \"" + this._currentGroup + "\"";
+				"Replace this code to import to group \"" + this._currentGroup + "\"");
 			let newGroupCode = await Popups.getInstance().input(message, oldGroupCode);
 			if (isSFile || newGroupCode === null)
 			{
@@ -694,7 +694,7 @@ export class ButtonView extends ItemView
 						matches[i][0].slice(matches[i][0].indexOf(":") + 2, -1);
 					const caption: string =
 						SFILE_BUTTON_PARAMETER_CAPTION
-						.replace("%1", pName).replace("%2", pFeatures);
+						.replace("%1", pName.toUpperCase()).replace("%2", pFeatures);
 					parameterData.push({ value: "", caption: caption });
 				}
 				parameterData.reverse();
@@ -800,7 +800,7 @@ export class ButtonView extends ItemView
 		{
 			let newButton = document.createElement("button");
 			newButton.classList.add("iscript_shortcutButton");
-			newButton.innerHTML = this._state.prefix + buttonDefinitions[i].display;
+			newButton.innerText = this._state.prefix + buttonDefinitions[i].display;
 			newButton.dataset.index = i + "";
 			this._buttonUiParent.appendChild(newButton);
 			if (this._state.onClick)
