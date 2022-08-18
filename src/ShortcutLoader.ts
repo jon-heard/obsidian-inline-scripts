@@ -259,48 +259,41 @@ export abstract class ShortcutLoader
 			parseResult = this.parseShortcutFile(shortcutFile.address, content)
 
 			// Look for a "setup" script in this shortcut-file.  Run if found.
-			for (const newShortcut of parseResult.shortcuts)
+			const setupScript = this.getExpansionScript("^sfile setup$", parseResult.shortcuts);
+			if (setupScript)
 			{
-				if (newShortcut.test.source === "^sfile setup$")
-				{
-					// Disable input while running the setup script (in case it takes a while)
-					InputBlocker.setEnabled(true);
+				// Disable input while running the setup script (in case it takes a while)
+				InputBlocker.setEnabled(true);
 
-					// Run the setup script
-					try
+				// Run the setup script
+				try
+				{
+					// If setup script returns TRUE, don't use shortcuts in this shortcut-file
+					if (await ShortcutExpander.runExpansionScript(
+						setupScript, false, { shortcutText: "sfile setup" }))
 					{
-						// If setup script returns TRUE, don't use shortcuts in this shortcut-file
-						if (await ShortcutExpander.runExpansionScript(
-							newShortcut.expansion, false, { shortcutText: "sfile setup" }))
-						{
-							parseResult.shortcuts = null;
-						}
-					}
-					catch (e: any)
-					{
-						// If setup script failed, don't use the shortcuts in this shortcut-file
 						parseResult.shortcuts = null;
 					}
-
-					// Enable input, now that the expansion is over
-					InputBlocker.setEnabled(false);
-
-					// We've found and handled the setup script.  Stop looking.
-					break;
 				}
+				catch (e: any)
+				{
+					// If setup script failed, don't use the shortcuts in this shortcut-file
+					parseResult.shortcuts = null;
+				}
+
+				// Enable input, now that the expansion is over
+				InputBlocker.setEnabled(false);
 			}
 
 			// If setup script returned true, abort adding the new shortcuts
 			if (!parseResult.shortcuts) { continue; }
 
 			// Look for "shutdown" script in this shortcut-file.  Store if found.
-			for (const newShortcut of parseResult.shortcuts)
+			const shutdownScript =
+				this.getExpansionScript("^sfile shutdown$", parseResult.shortcuts);
+			if (shutdownScript)
 			{
-				if (newShortcut.test.source === "^sfile shutdown$")
-				{
-					plugin.shutdownScripts[shortcutFile.address] = newShortcut.expansion;
-					break;
-				}
+				plugin.shutdownScripts[shortcutFile.address] = shutdownScript;
 			}
 
 			// Add new shortcuts to master list, followed by helper-blocker
@@ -341,6 +334,28 @@ export abstract class ShortcutLoader
 
 		// ButtonView needs to be updated with the latest shortcut info
 		ButtonView.getInstance().refreshGroupUi();
+	}
+
+	private static getExpansionScript(scriptId: string, shortcuts: Array<any>): string
+	{
+		let result = "";
+		for (const shortcut of shortcuts)
+		{
+			if (!shortcut.test.source || shortcut.test.source === "(?:)")
+			{
+				if (!shortcut.expansion) { result = ""; }
+				else
+				{
+					result += shortcut.expansion;
+				}
+			}
+			else if (shortcut.test.source === scriptId)
+			{
+				result += shortcut.expansion;
+				break;
+			}
+		}
+		return result;
 	}
 
 	private static updateGeneralHelpShortcut(shortcutFiles: Array<string>): void
