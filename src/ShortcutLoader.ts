@@ -333,7 +333,7 @@ export abstract class ShortcutLoader
 		this.finalizeShortcutSyntaxes();
 
 		// ButtonView needs to be updated with the latest shortcut info
-		ButtonView.getInstance().refreshGroupUi();
+		ButtonView.getInstance()?.refreshGroupUi();
 	}
 
 	private static getExpansionScript(scriptId: string, shortcuts: Array<any>): string

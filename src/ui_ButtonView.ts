@@ -500,7 +500,6 @@ export class ButtonView extends ItemView
 	{
 		// Keep track of this as the single instance
 		ButtonView._instance = this;
-
 		const root = document.createElement('div');
 
 		this._groupSelect = document.createElement("select");
@@ -648,6 +647,8 @@ export class ButtonView extends ItemView
 		const container = this.containerEl.children[1];
 		container.empty();
 		container.appendChild(root);
+
+		this.refreshGroupUi();
 	}
 
 	private addSettingsButton(parent: any, icon: string, title: string, fnc: Function): any
