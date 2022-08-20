@@ -648,7 +648,8 @@ export class ButtonView extends ItemView
 		container.empty();
 		container.appendChild(root);
 
-		this.refreshGroupUi();
+		// DON'T DO THIS - refreshGroupUi is called after shortcuts are loaded.  This is too early.
+		//this.refreshGroupUi();
 	}
 
 	private addSettingsButton(parent: any, icon: string, title: string, fnc: Function): any
@@ -681,7 +682,7 @@ export class ButtonView extends ItemView
 				let display: string = syntax;
 				let shortcut: string = syntax;
 				let parameterData: Array<any> = [];
-				const matches = [...syntax.matchAll(/{[^}]+}/g)];
+				const matches = [... syntax.matchAll(/{[^}]+}/g) ];
 				for (let i = matches.length - 1; i >= 0; i--)
 				{
 					display =
@@ -749,7 +750,7 @@ export class ButtonView extends ItemView
 		}
 		groupList.sort();
 
-		let sfileGroups = [... new Set(plugin.syntaxes.map(v => v.sfile))].slice(1).sort();
+		let sfileGroups = [... new Set(plugin.syntaxes.map(v => v.sfile)) ].slice(1).sort();
 		for (const sfileGroup of sfileGroups)
 		{
 			if (!sfileGroup)

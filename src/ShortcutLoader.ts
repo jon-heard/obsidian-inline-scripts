@@ -495,7 +495,7 @@ export abstract class ShortcutLoader
 	{
 		const plugin = InlineScriptsPlugin.getInstance();
 
-		plugin.syntaxesSorted = [...plugin.syntaxes];
+		plugin.syntaxesSorted = [... plugin.syntaxes ];
 		plugin.syntaxesSorted.sort(SORT_SYNTAXES);
 
 		for (let syntax of plugin.syntaxes)
