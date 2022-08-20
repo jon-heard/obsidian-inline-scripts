@@ -247,8 +247,6 @@
 }
 .iscript_buttonSettingsBlock
 {
-	text-align: center;
-	margin-bottom: 1em;
 	font-style: italic;
 }
 .iscript_hidden
@@ -261,4 +259,14 @@
 	margin: 0 3px 10px 3px;
 	border-radius: 4px;
 	color: var(--text-faint);
+}
+.iscript_buttonSettingsHelp
+{
+	margin-bottom: 1em;
+	border: solid;
+	border-color: var(--text-highlight-bg);
+	border-radius: 4px;
+	padding: 0.25em 0.5em;
+	margin-top: -0.5em;
+	display: none;
 }

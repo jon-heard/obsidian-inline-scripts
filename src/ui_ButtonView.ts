@@ -55,32 +55,31 @@ let BUTTON_VIEW_STATES: any =
 			// Run expansion
 			let expansion = canceled ? null : await ShortcutExpander.expand(shortcutText);
 
-			// Append to the current file's editor, refocus on it, set caret at the end
-			const file = InlineScriptsPlugin.getInstance().app.workspace.getActiveFile();
-			if (!file) { return; }
-			for (const leaf of app.workspace.getLeavesOfType("markdown"))
-			{
-				const view: MarkdownView = (leaf.view as MarkdownView);
-				if (view.file === file)
-				{
-					// Append to the editor
-					if (expansion)
-					{
-						if (Array.isArray(expansion))
-						{
-							expansion = expansion.join("");
-						}
-						view.editor.setValue(view.editor.getValue() + expansion);
-					}
-
-					// Refocus on the editor
-					app.workspace.setActiveLeaf(leaf, false, true);
-
-					// Caret at the end
-					view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
-					break;
-				}
-			}
+			ButtonView.appendToEndOfNote(expansion);
+		}
+	},
+	help:
+	{
+		prefix: "❔   ",
+		onClick: async (buttonUi: any) =>
+		{
+			const buttonDefinition =
+				ButtonView.getInstance().getButtonGroup().buttons[buttonUi.dataset.index];
+			ButtonView.getInstance().helpUi.innerHTML =
+				buttonDefinition.help ?
+				"<b>" + buttonDefinition.display + "</b><br/>" + buttonDefinition.help :
+				"";
+		},
+		onStateStart: () =>
+		{
+			const helpUi = ButtonView.getInstance().helpUi;
+			helpUi.innerText = "";
+			ButtonView.getInstance().helpUi.style.display = "block";
+		},
+		onStateEnd: () =>
+		{
+			const helpUi = ButtonView.getInstance().helpUi;
+			helpUi.style.display = "none";
 		}
 	},
 	delete:
@@ -194,12 +193,27 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 				text.inputEl.setAttr("placeholder", "Shortcut text");
 				text.inputEl.addEventListener("keypress", (e: any) =>
 				{
-					if (e.key === "Enter") { firstButton.click(); }
+					if (e.key === "Enter") { data.helpUi.inputEl.select(); }
 				});
 				return text;
 			})
 			.descEl.innerHTML +=
 				"<br/>Each \"???\" triggers user-input to replace the \"???\".";
+
+		new SettingType(parent)
+			.setName("Help")
+			.setDesc("Help text for this button.")
+			.addText((text: any) =>
+			{
+				data.helpUi = text;
+				text.setValue("" + (data.definition?.help ?? ""));
+				text.inputEl.setAttr("placeholder", "Help text");
+				text.inputEl.addEventListener("keypress", (e: any) =>
+				{
+					if (e.key === "Enter") { firstButton.click(); }
+				});
+				return text;
+			});
 
 		data.detailUis = [];
 		const addParameterDatum: Function = (parameterDatum: any) =>
@@ -282,6 +296,7 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 		{
 			data.definition.display = data.displayUi.getValue();
 			data.definition.shortcut = data.shortcutUi.getValue();
+			data.definition.help = data.helpUi.getValue();
 			data.definition.parameterData = parameterData;
 		}
 		else
@@ -289,6 +304,7 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 			let definition: any = {
 				display: data.displayUi.getValue(),
 				shortcut: data.shortcutUi.getValue(),
+				help: data.helpUi.getValue(),
 				parameterData: parameterData
 			};
 			buttonView.getButtonGroup().buttons.push(definition);
@@ -346,6 +362,14 @@ const ICONS: any = Object.freeze(
 	   </g>
 	  </g>
 	 </g>
+	</svg>`,
+	question: `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" class="widget-icon" enable-background="new 0 0 512 512" version="1.1">
+	 <g class="layer">
+	  <g class="layer" id="svg_1">
+	   <rect fill="currentcolor" fill-opacity="0.01" height="424" id="button" rx="62" ry="62" stroke="currentcolor" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-opacity="null" stroke-width="51" width="424" x="44" y="44"/>
+	  </g>
+	  <text fill="currentcolor" fill-opacity="null" font-family="Serif" font-size="512" font-weight="bold" id="svg_2" stroke="currentcolor" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-opacity="null" stroke-width="0" text-anchor="middle" x="258.4" xml:space="preserve" y="425.4">?</text>
+	 </g>
 	</svg>`
 });
 
@@ -357,6 +381,8 @@ export class ButtonView extends ItemView
 	{
 		super(leaf);
 	}
+
+	public helpUi: any;
 
 	public static staticConstructor(): void
 	{
@@ -401,6 +427,11 @@ export class ButtonView extends ItemView
 	public toggleState(state: string): void
 	{
 		this.toggleState_internal(state);
+	}
+
+	public static appendToEndOfNote(toAppend: string): void
+	{
+		this.appendToEndOfNote_internal(toAppend);
 	}
 
 	public async onOpen(): Promise<void>
@@ -612,7 +643,14 @@ export class ButtonView extends ItemView
 		hr.classList.add("iscript_buttonView_hr");
 		root.appendChild(hr);
 
-		this._settingsUi.buttonSettings = root.createDiv({ cls: "nav-buttons-container" });
+		const allButtonSettings = root.createDiv({ cls: "nav-buttons-container" });
+		BUTTON_VIEW_STATES["help"].button = this.addSettingsButton(
+			allButtonSettings, "question", "Help with buttons", function ()
+			{
+				ButtonView.getInstance().toggleState("help");
+			});
+		this._settingsUi.buttonSettings =
+			allButtonSettings.createDiv({ cls: "nav-buttons-container" });
 		this.addSettingsButton(
 			this._settingsUi.buttonSettings, "plus", "Add button", async function ()
 			{
@@ -622,24 +660,23 @@ export class ButtonView extends ItemView
 		BUTTON_VIEW_STATES["edit"].button = this.addSettingsButton(
 			this._settingsUi.buttonSettings, "gear", "Edit button", function ()
 			{
-					const buttonView = ButtonView.getInstance();
-					buttonView.toggleState("edit");
+				ButtonView.getInstance().toggleState("edit");
 			});
 		BUTTON_VIEW_STATES["reorder"].button = this.addSettingsButton(
 			this._settingsUi.buttonSettings, "upDown", "Re-order buttons", function ()
 			{
-					const buttonView = ButtonView.getInstance();
-					buttonView.toggleState("reorder");
+				ButtonView.getInstance().toggleState("reorder");
 			});
 		BUTTON_VIEW_STATES["delete"].button = this.addSettingsButton(
 			this._settingsUi.buttonSettings, "x", "Remove buttons", function ()
 			{
-				const buttonView = ButtonView.getInstance();
-				buttonView.toggleState("delete");
+				ButtonView.getInstance().toggleState("delete");
 			});
 
-		this._settingsUi.buttonSettingsBlock = root.createDiv(
-			{ text: "Group locked", cls: "iscript_buttonSettingsBlock iscript_hidden" });
+		this._settingsUi.buttonSettingsBlock = allButtonSettings.createDiv(
+			{ text: "   Group locked", cls: "iscript_buttonSettingsBlock iscript_hidden" });
+
+		this.helpUi = root.createDiv({ cls: "iscript_buttonSettingsHelp" });
 
 		this._buttonUiParent = root.createDiv();
 
@@ -675,18 +712,19 @@ export class ButtonView extends ItemView
 		{
 			let buttonDefinitions: Array<any> = [];
 			const sfile: string = this._currentGroup.slice(SFILE_GROUP_PREFIX.length);
-			const syntaxes: Array<string> =
-				plugin.syntaxes.filter(v => v.sfile === sfile).map(v => v.text);
+			const syntaxes: Array<any> =
+				plugin.syntaxes.filter(v => v.sfile === sfile);
 			for (const syntax of syntaxes)
 			{
-				let display: string = syntax;
-				let shortcut: string = syntax;
+				let display: string = syntax.text;
+				let shortcut: string = syntax.text;
 				let parameterData: Array<any> = [];
-				const matches = [... syntax.matchAll(/{[^}]+}/g) ];
+				const matches = [... syntax.text.matchAll(/{[^}]+}/g) ];
 				for (let i = matches.length - 1; i >= 0; i--)
 				{
 					display =
-						display.slice(0, matches[i].index) + "?" +
+						display.slice(0, matches[i].index) +
+						matches[i][0].replace(/:[^}]*/, "") +
 						display.slice(matches[i].index + matches[i][0].length);
 					shortcut =
 						shortcut.slice(0, matches[i].index) + "???" +
@@ -700,7 +738,15 @@ export class ButtonView extends ItemView
 					parameterData.push({ value: "", caption: caption });
 				}
 				parameterData.reverse();
-				buttonDefinitions.push({ display, shortcut, parameterData });
+
+				let help: string = syntax.description;
+				const helpCutoff = help.indexOf("	- Alternative");
+				if (helpCutoff >= 0)
+				{
+					help = help.slice(0, helpCutoff);
+				}
+
+				buttonDefinitions.push({ display, shortcut, parameterData, help });
 			}
 			this._sfileGroupDefinitions[this._currentGroup] = { buttons: buttonDefinitions };
 		}
@@ -840,5 +886,34 @@ export class ButtonView extends ItemView
 		}
 		this.getButtonGroup().buttons = newButtonDefinitions;
 		InlineScriptsPlugin.getInstance().saveSettings();
+	}
+
+	private static appendToEndOfNote_internal(toAppend: string): void
+	{
+		const file = InlineScriptsPlugin.getInstance().app.workspace.getActiveFile();
+		if (!file) { return; }
+		for (const leaf of app.workspace.getLeavesOfType("markdown"))
+		{
+			const view: MarkdownView = (leaf.view as MarkdownView);
+			if (view.file === file)
+			{
+				// Append to the editor
+				if (toAppend)
+				{
+					if (Array.isArray(toAppend))
+					{
+						toAppend = toAppend.join("");
+					}
+					view.editor.setValue( view.editor.getValue() + toAppend );
+				}
+
+				// Refocus on the editor
+				app.workspace.setActiveLeaf(leaf, false, true);
+
+				// Caret at the end
+				view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
+				break;
+			}
+		}
 	}
 }
