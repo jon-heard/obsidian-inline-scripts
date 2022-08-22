@@ -10,7 +10,7 @@ import { ShortcutExpander } from "./ShortcutExpander";
 import { Popups } from "./ui_Popups";
 import { UserNotifier } from "./ui_userNotifier";
 
-const SFILE_BUTTON_PARAMETER_CAPTION: string = "Enter a value for\n<b>%1</b>\n<i>(%2)</i>";
+const SFILE_BUTTON_PARAMETER_CAPTION: string = "Enter a value for\n<b>%1</b>\n\n<i>%2</i>\n";
 const SFILE_GROUP_PREFIX: string = "[sfile] ";
 
 let BUTTON_VIEW_STATES: any =
@@ -68,8 +68,8 @@ let BUTTON_VIEW_STATES: any =
 				ButtonView.getInstance().getButtonGroup().buttons[buttonUi.dataset.index];
 			ButtonView.getInstance().helpUi.innerHTML =
 				buttonDefinition.help ?
-				"<b>" + buttonDefinition.display.replaceAll("<", "&lt;") + "</b><br/>" +
-					buttonDefinition.help :
+				"<b>" + buttonDefinition.display.replaceAll("<", "&lt;") +
+					"</b><br/>" + buttonDefinition.help.replaceAll("\n", "<br/>") :
 				"";
 		},
 		onStateStart: () =>
@@ -733,7 +733,8 @@ export class ButtonView extends ItemView
 						shortcut.slice(matches[i].index + matches[i][0].length);
 					const pName: string = matches[i][0].slice(1, matches[i][0].indexOf(":"));
 					const pFeatures: string =
-						matches[i][0].slice(matches[i][0].indexOf(":") + 2, -1);
+						matches[i][0].slice(matches[i][0].indexOf(":") + 2, -1)
+						.replaceAll(/, ?/g, "<br/>");
 					const caption: string =
 						SFILE_BUTTON_PARAMETER_CAPTION
 						.replace("%1", pName.toUpperCase()).replace("%2", pFeatures);
@@ -915,8 +916,12 @@ export class ButtonView extends ItemView
 				// Refocus on the editor
 				app.workspace.setActiveLeaf(leaf, false, true);
 
-				// Caret at the end
-				view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
+				// Move caret to the note's end (only if "toAppend" isn't null)
+				if (toAppend)
+				{
+					view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
+				}
+
 				break;
 			}
 		}

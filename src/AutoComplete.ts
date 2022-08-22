@@ -248,7 +248,7 @@ export class AutoComplete extends EditorSuggest<any>
 		}
 
 		// The current shortcut-text already has all the fill, but there are parameters.  Are all
-		// parameters satisfied (filled or optional)?  If so, try expanding the shortcut text.
+		// parameters satisfied? (either filled or with default)  If so, try expanding.
 		else
 		{
 			const parts = suggestion.text.replaceAll("}", "}~~}").split(REGEX_SYNTAX_SPLITTER);
@@ -257,8 +257,8 @@ export class AutoComplete extends EditorSuggest<any>
 			{
 				if (parts[i].startsWith("{"))
 				{
-					// If parameter isn't fulfilled and isn't optional, end now
-					if (!suggestion.match[parameterIndex] && !parts[i].includes("optional"))
+					// If parameter isn't fulfilled and has no default, end now
+					if (!suggestion.match[parameterIndex] && !parts[i].includes("default"))
 					{
 						break;
 					}

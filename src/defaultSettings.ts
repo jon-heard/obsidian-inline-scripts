@@ -52,7 +52,7 @@ __
 __
 return "🎲 __" + roll($1) + "__ /D" + $1;
 __
-d{max: required, >0} - A dice roller shortcut.  Expands into "🎲 {roll result} /D{max}".  {max} is the size of dice to roll.
+d{max: >0} - A dice roller shortcut.  Expands into "🎲 {roll result} /D{max}".  {max} is the size of dice to roll.
     - Examples - d3, d20, d57, d999
 
 __
@@ -71,7 +71,7 @@ if (Number($3)) {
 if (isNaN(label.slice(1))) { label = "(" + label + ")"; }
 return "🎲 __" + result + "__ /" + label;
 __
-{count: optional, >0}d{max: required, >0}{add: optional, + or \\- followed by >0} - A dice roller shortcut, same as d{max}, but with optional {count} and {add} parameters.  {count} is the number of dice to roll and add together.  {add} is "+" or "-" followed by an amount to adjust the result by.
+{count: >0, default: 1}d{max: >0}{add: + or \\- followed by >0, default: +0} - A dice roller shortcut, same as d{max}, but with optional {count} and {add} parameters.  {count} is the number of dice to roll and add together.  {add} is "+" or "-" followed by an amount to adjust the result by.
     - Examples - d100, 3d20, d10+5, 3d6+6
 `,
 	buttonView: { visible: true, groups: {} }
