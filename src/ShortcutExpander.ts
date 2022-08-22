@@ -57,7 +57,7 @@ export abstract class ShortcutExpander
 	{
 		if (!shortcutText) { return; }
 
-		expansionInfo = expansionInfo ||
+		expansionInfo = Object.assign(
 			{
 				isUserTriggered: false,
 				line: shortcutText,
@@ -66,7 +66,7 @@ export abstract class ShortcutExpander
 				shortcutText: shortcutText,
 				prefix: "",
 				suffix: ""
-			};
+			}, expansionInfo);
 
 		let foundMatch: boolean = false;
 

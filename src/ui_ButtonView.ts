@@ -53,7 +53,8 @@ let BUTTON_VIEW_STATES: any =
 			}
 
 			// Run expansion
-			let expansion = canceled ? null : await ShortcutExpander.expand(shortcutText);
+			let expansion = canceled ? null :
+				await ShortcutExpander.expand(shortcutText, false, { isUserTriggered: true });
 
 			ButtonView.appendToEndOfNote(expansion);
 		}
@@ -67,7 +68,8 @@ let BUTTON_VIEW_STATES: any =
 				ButtonView.getInstance().getButtonGroup().buttons[buttonUi.dataset.index];
 			ButtonView.getInstance().helpUi.innerHTML =
 				buttonDefinition.help ?
-				"<b>" + buttonDefinition.display + "</b><br/>" + buttonDefinition.help :
+				"<b>" + buttonDefinition.display.replaceAll("<", "&lt;") + "</b><br/>" +
+					buttonDefinition.help :
 				"";
 		},
 		onStateStart: () =>
@@ -874,6 +876,9 @@ export class ButtonView extends ItemView
 				BUTTON_VIEW_STATES[key].button.classList.remove("iscript_selectedButton");
 			}
 		}
+
+		// Clear the help display
+		this.helpUi.innerText = "";
 	}
 
 	private refreshSettingsFromUi_internal()
