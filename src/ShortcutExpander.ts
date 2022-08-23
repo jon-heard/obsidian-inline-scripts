@@ -4,6 +4,7 @@
 
 "use strict";
 
+import { MarkdownRenderer } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
 import { UserNotifier } from "./ui_userNotifier";
 import { ExternalRunner } from "./ExternalRunner";
@@ -16,9 +17,9 @@ const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 
 export abstract class ShortcutExpander
 {
-	public static initialize(): void
+	public static staticConstructor(): void
 	{
-		this.initialize_internal();
+		this.staticConstructor_internal();
 	}
 
 	// Take a shortcut string and expand it based on shortcuts active in the plugin
@@ -35,11 +36,16 @@ export abstract class ShortcutExpander
 		return await this.runExpansionScript_internal(expansionScript, failSilently, expansionInfo);
 	}
 
+	public static parseMarkdown(md: string): string
+	{
+		return this.parseMarkdown_internal(md);
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private static _expand_internal: any;
 
-	private static initialize_internal(): void
+	private static staticConstructor_internal(): void
 	{
 		// Initialize the AutoAsyncWrapper
 		AutoAsyncWrapper.initialize([
@@ -268,5 +274,17 @@ export abstract class ShortcutExpander
 			messageType: "SHORTCUT-EXPANSION-ERROR",
 			consoleHasDetails: true
 		});
+	}
+
+	public static parseMarkdown_internal(md: string): string
+	{
+		const ui = document.createElement("div");
+		MarkdownRenderer.renderMarkdown(md, ui, '', null);
+		let result = ui.innerHTML;
+		if (result.startsWith("<p>") && result.endsWith("</p>"))
+		{
+			result = result.slice(3, -4);
+		}
+		return result;
 	}
 }

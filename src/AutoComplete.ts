@@ -4,8 +4,9 @@
 
 "use strict";
 
-import { EditorSuggest, MarkdownRenderer } from "obsidian";
+import { EditorSuggest } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
+import { ShortcutExpander } from "./ShortcutExpander";
 
 const SUGGESTION_LIMIT = 1000;
 
@@ -308,9 +309,8 @@ export class AutoComplete extends EditorSuggest<any>
 	{
 		this._forceSetSelectedItem(e, t);
 		this._suggestionDescriptionUi.setText("");
-		MarkdownRenderer.renderMarkdown(
-			this._descriptions[this.suggestions.selectedItem],
-			this._suggestionDescriptionUi, '', null);
+		this._suggestionDescriptionUi.innerHTML =
+			ShortcutExpander.parseMarkdown(this._descriptions[this.suggestions.selectedItem]);
 	}
 
 	private open_modified()

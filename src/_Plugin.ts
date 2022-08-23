@@ -11,6 +11,7 @@ import { DEFAULT_SETTINGS } from "./defaultSettings";
 import { Dfc, DfcMonitorType } from "./Dfc";
 import { ShortcutExpander } from "./ShortcutExpander";
 import { ShortcutLoader } from "./ShortcutLoader";
+import { ShortcutLinks } from "./ShortcutLinks";
 import { AutoComplete } from "./AutoComplete";
 import { InputBlocker } from "./ui_InputBlocker";
 import { Popups } from "./ui_Popups";
@@ -152,7 +153,8 @@ export default class InlineScriptsPlugin extends Plugin
 		this.registerEditorSuggest(this._autocomplete);
 
 		// Initialize support objects
-		ShortcutExpander.initialize();
+		ShortcutExpander.staticConstructor();
+		ShortcutLinks.staticConstructor();
 		this.shortcutDfc = new Dfc(
 			this.getActiveShortcutFileAddresses(), ShortcutLoader.getFunction_setupShortcuts(),
 			this.onShortcutFileDisabled.bind(this), true);

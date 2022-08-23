@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// ButtonsVoew - A sidepanel for adding buttons to.  Each button triggers a specific shortcut. //
+// ButtonsView - A sidepanel for adding buttons to.  Each button triggers a specific shortcut. //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 "use strict";
@@ -68,8 +68,8 @@ let BUTTON_VIEW_STATES: any =
 				ButtonView.getInstance().getButtonGroup().buttons[buttonUi.dataset.index];
 			ButtonView.getInstance().helpUi.innerHTML =
 				buttonDefinition.help ?
-				"<b>" + buttonDefinition.display.replaceAll("<", "&lt;") +
-					"</b><br/>" + buttonDefinition.help.replaceAll("\n", "<br/>") :
+				"<b>" + buttonDefinition.display.replaceAll("<", "&lt;") + "</b><br/>" +
+					ShortcutExpander.parseMarkdown(buttonDefinition.help) :
 				"";
 		},
 		onStateStart: () =>

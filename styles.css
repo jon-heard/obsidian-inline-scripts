@@ -180,7 +180,7 @@
 {
 	background-color: #16172b;
 	position: absolute;
-	padding: 0 0.75em;
+	padding: 0.75em;
 	border-radius: 4px;
 	border: 1px solid var(--background-modifier-border);
 	width: auto !important;
