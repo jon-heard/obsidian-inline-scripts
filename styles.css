@@ -271,3 +271,18 @@
 	margin-top: -0.5em;
 	display: none;
 }
+.iscript_donationsHeading
+{
+	text-align: center;
+	width: 22em;
+	margin: auto;
+}
+.iscript_donations
+{
+	text-align: center;
+	margin: 1em;
+}
+.iscript_donations > a
+{
+	text-decoration: none;
+}
