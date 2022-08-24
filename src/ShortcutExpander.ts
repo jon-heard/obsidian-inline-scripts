@@ -24,9 +24,10 @@ export abstract class ShortcutExpander
 
 	// Take a shortcut string and expand it based on shortcuts active in the plugin
 	public static async expand(
-		shortcutText: string, failSilently?: boolean, expansionInfo?: any): Promise<any>
+		shortcutText: string, failSilently?: boolean, expansionInfo?: any,
+		parameterData?: any): Promise<any>
 	{
-		return await this.expand_internal(shortcutText, failSilently, expansionInfo);
+		return await this.expand_internal(shortcutText, failSilently, expansionInfo, parameterData);
 	}
 
 	// Execute an expansion script (a string of JavaScript defined in a shortcut's Expansion string)
@@ -59,7 +60,8 @@ export abstract class ShortcutExpander
 	// Take a shortcut string and return the proper Expansion script.
 	// WARNING: user-facing function
 	private static async expand_internal(
-		shortcutText: string, failSilently?: boolean, expansionInfo?: any): Promise<any>
+		shortcutText: string, failSilently?: boolean, expansionInfo?: any,
+		parameterData?: any): Promise<any>
 	{
 		if (!shortcutText) { return; }
 
@@ -75,6 +77,28 @@ export abstract class ShortcutExpander
 			}, expansionInfo);
 
 		let foundMatch: boolean = false;
+
+		// Handle any "???"
+		const matches = [... shortcutText.matchAll(/\?\?\?/g) ];
+		let replacements = [];
+		for (let i = 0; i < matches.length; i++)
+		{
+			const caption = parameterData?.[i]?.caption ?? "Parameter #" + (i+1);
+			const value = parameterData?.[i]?.value || "";
+			const replacement = await Popups.getInstance().input(caption, value);
+			if (replacement === null)
+			{
+				return null;
+			}
+			replacements.push(replacement);
+		}
+		for (let i = matches.length - 1; i >= 0; i--)
+		{
+			shortcutText =
+				shortcutText.slice(0, matches[i].index) +
+				replacements[i] +
+				shortcutText.slice(matches[i].index + 3);
+		}
 
 		// Build an expansion script from the master list of shortcuts
 		let expansionScript: string = "";

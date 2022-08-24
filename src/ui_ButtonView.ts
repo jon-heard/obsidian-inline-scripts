@@ -23,38 +23,9 @@ let BUTTON_VIEW_STATES: any =
 			const buttonDefinition =
 				ButtonView.getInstance().getButtonGroup().buttons[buttonUi.dataset.index];
 
-			// Get shortcut text (including replacing ??? with user-input)
-			let shortcutText = buttonDefinition.shortcut;
-			const matches = [... shortcutText.matchAll(/\?\?\?/g) ];
-			let replacements = [];
-			let canceled: boolean = false;
-			for (let i = 0; i < matches.length; i++)
-			{
-				const caption =
-					buttonDefinition.parameterData[i]?.caption ?? "Parameter #" + (i+1);
-				const value = buttonDefinition.parameterData[i]?.value || "";
-				const replacement = await Popups.getInstance().input(caption, value);
-				if (replacement === null)
-				{
-					canceled = true; // Don't just quit - still need to set focus to the note's end
-					break;
-				}
-				replacements.push(replacement);
-			}
-			if (!canceled)
-			{
-				for (let i = matches.length - 1; i >= 0; i--)
-				{
-					shortcutText =
-						shortcutText.slice(0, matches[i].index) +
-						replacements[i] +
-						shortcutText.slice(matches[i].index + 3);
-				}
-			}
-
-			// Run expansion
-			let expansion = canceled ? null :
-				await ShortcutExpander.expand(shortcutText, false, { isUserTriggered: true });
+			const expansion = await ShortcutExpander.expand(
+					buttonDefinition.shortcut, false, { isUserTriggered: true },
+					buttonDefinition.parameterData);
 
 			ButtonView.appendToEndOfNote(expansion);
 		}

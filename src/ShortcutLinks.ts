@@ -51,14 +51,18 @@ export abstract class ShortcutLinks
 			}
 
 			const parts = nodeInnerText.slice(headerLength).split(/ ?\| ?/g);
+			if (parts[0] === "") { continue; }
+
+			const parameterData = parts.slice(2).map(v => { return { caption: v.trim() }; });
 			let a = document.createElement("a");
 			a.classList.add("internal-link");
-			a.innerText = (parts[1].trim() || parts[0]).trim();
+			a.innerText = (parts[1]?.trim() || parts[0]).trim();
 			a.setAttr("href", "#");
 			a.onclick = async function()
 			{
 				const result =
-					await ShortcutExpander.expand(parts[0], false, { isUserTriggered: true });
+					await ShortcutExpander.expand(parts[0], false, { isUserTriggered: true },
+					parameterData);
 				if (result)
 				{
 					resolutionFnc(this, result);
