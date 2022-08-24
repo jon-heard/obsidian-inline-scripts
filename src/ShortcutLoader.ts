@@ -213,7 +213,7 @@ export abstract class ShortcutLoader
 		let abouts: Array<any> = [];
 
 		// Restart the master list of shortcuts
-		plugin.shortcuts = [ { test: /^help$/, expansion: "" } ];
+		plugin.shortcuts = [ { test: /^help ?$/, expansion: "" } ];
 		let shortcutFiles: Array<string> = [];
 		this.updateGeneralHelpShortcut(shortcutFiles);
 
@@ -448,7 +448,7 @@ export abstract class ShortcutLoader
 		}
 
 		// Create "ref all" shortcut: expands to a reference for ALL shortcuts
-		makeRefShortcut("all", settingsAbouts.concat(shortcutFileAbouts), "All shortcuts");
+		makeRefShortcut("?(?:all)?", settingsAbouts.concat(shortcutFileAbouts), "All shortcuts");
 
 		// Create "ref settings" shortcut: expands to a reference for shortcuts defined in settings
 		makeRefShortcut("settings", settingsAbouts);
