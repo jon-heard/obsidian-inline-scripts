@@ -95,7 +95,8 @@ If you...
 ... then visit the [discussions page](https://github.com/jon-heard/obsidian-inline-scripts/discussions).
 
 ### Donations
-If you've found this plugin useful, then a donation lets me know that I should keep it up!
+If you find this plugin useful, then a donation lets me know<br/>
+that I should keep working to make it better.
 
 <a href='https://paypal.me/jonheard99?country.x=US&locale.x=en_US'>
 
