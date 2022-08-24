@@ -99,7 +99,7 @@ If you've found this plugin useful, then a small donation lets me know that I sh
 
 <a href='https://paypal.me/jonheard99?country.x=US&locale.x=en_US'>
 
-![paypal](readmeMedia/paypal.svg)
+![paypal](readmeMedia/paypal.svg) <a href="https://www.buymeacoffee.com/jonheard" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 45px !important;width: 163px !important;"></a>
 
 </a>
 
