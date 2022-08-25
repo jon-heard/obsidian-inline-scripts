@@ -93,9 +93,10 @@ export class AutoComplete extends EditorSuggest<any>
 			{
 				this._suggestionDescriptionUi = document.createElement("div");
 				this._suggestionDescriptionUi.id = "shortcutSuggestionDescription";
-				document.querySelector(".workspace-split.mod-root").
-					appendChild(this._suggestionDescriptionUi);
 				this._suggestionDescriptionUi.classList.add("iscript_suggestionDescription");
+
+				const parent = document.querySelector(".workspace-split.mod-root");
+				parent.insertBefore(this._suggestionDescriptionUi, parent.firstChild);
 			});
 		}
 	}
