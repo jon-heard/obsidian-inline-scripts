@@ -1,3 +1,6 @@
+### 0.21.7
+- bug fix - 0.21.6 introduced a console error on plugin loading at app load time
+
 ### 0.21.6
 - bug fix - a resize handle beside the right panel is being erroneously activated.
 
