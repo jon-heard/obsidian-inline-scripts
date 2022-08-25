@@ -1,3 +1,6 @@
+### 0.21.6
+- bug fix - a resize handle beside the right panel is being erroneously activated.
+
 ### 0.21.5
 - bug fix - ios platform incompatible with regex look-behinds.  Replace all lookbehinds!
 
