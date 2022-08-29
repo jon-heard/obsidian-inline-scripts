@@ -6,7 +6,7 @@
 
 import { EditorSuggest } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
-import { ShortcutExpander } from "./ShortcutExpander";
+import { HelperFncs } from "./HelperFncs";
 
 const SUGGESTION_LIMIT = 1000;
 
@@ -311,7 +311,7 @@ export class AutoComplete extends EditorSuggest<any>
 		this._forceSetSelectedItem(e, t);
 		this._suggestionDescriptionUi.setText("");
 		this._suggestionDescriptionUi.innerHTML =
-			ShortcutExpander.parseMarkdown(this._descriptions[this.suggestions.selectedItem]);
+			HelperFncs.parseMarkdown(this._descriptions[this.suggestions.selectedItem]);
 	}
 
 	private open_modified()

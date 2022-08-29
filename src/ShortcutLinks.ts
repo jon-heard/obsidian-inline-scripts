@@ -7,6 +7,7 @@
 import { MarkdownPostProcessorContext } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
 import { ShortcutExpander } from "./ShortcutExpander";
+import { HelperFncs } from "./HelperFncs";
 
 export abstract class ShortcutLinks
 {
@@ -38,12 +39,17 @@ export abstract class ShortcutLinks
 			if (nodeInnerText.startsWith("iscript:"))
 			{
 				headerLength = (nodeInnerText[8] == " ") ? 9 : 8;
-				resolutionFnc = ShortcutLinks.linkResolution_repeater;
+				resolutionFnc = ShortcutLinks.linkResolution_standard;
 			}
 			else if (nodeInnerText.startsWith("iscript-once:"))
 			{
 				headerLength = (nodeInnerText[13] == " ") ? 14 : 13;
 				resolutionFnc = ShortcutLinks.linkResolution_once;
+			}
+			else if (nodeInnerText.startsWith("iscript-append:"))
+			{
+				headerLength = (nodeInnerText[15] == " ") ? 16 : 15;
+				resolutionFnc = ShortcutLinks.linkResolution_append;
 			}
 			else
 			{
@@ -73,16 +79,21 @@ export abstract class ShortcutLinks
 		}
 	}
 
-	private static linkResolution_repeater(ui: HTMLElement, expansion: string)
+	private static linkResolution_standard(ui: HTMLElement, expansion: string)
 	{
-		ui.innerHTML = ShortcutExpander.parseMarkdown(expansion);
+		ui.innerHTML = HelperFncs.parseMarkdown(expansion);
 	}
 
 	private static linkResolution_once(ui: HTMLElement, expansion: string)
 	{
 		let newUi: HTMLElement = document.createElement("span");
-		newUi.innerHTML = ShortcutExpander.parseMarkdown(expansion);
+		newUi.innerHTML = HelperFncs.parseMarkdown(expansion);
 		ui.parentNode.insertBefore(newUi, ui);
 		ui.remove();
+	}
+
+	private static linkResolution_append(ui: HTMLElement, expansion: string)
+	{
+		HelperFncs.appendToEndOfNote(expansion);
 	}
 }

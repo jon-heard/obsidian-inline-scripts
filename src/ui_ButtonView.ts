@@ -4,11 +4,12 @@
 
 "use strict";
 
-import { ItemView, MarkdownView, WorkspaceLeaf, addIcon } from "obsidian";
+import { ItemView, WorkspaceLeaf, addIcon } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
 import { ShortcutExpander } from "./ShortcutExpander";
 import { Popups } from "./ui_Popups";
 import { UserNotifier } from "./ui_userNotifier";
+import { HelperFncs } from "./HelperFncs";
 
 const SFILE_BUTTON_PARAMETER_CAPTION: string = "Enter a value for\n<b>%1</b>\n\n<i>%2</i>\n";
 const SFILE_GROUP_PREFIX: string = "[sfile] ";
@@ -27,7 +28,7 @@ let BUTTON_VIEW_STATES: any =
 					buttonDefinition.shortcut, false, { isUserTriggered: true },
 					buttonDefinition.parameterData);
 
-			ButtonView.appendToEndOfNote(expansion);
+			HelperFncs.appendToEndOfNote(expansion);
 		}
 	},
 	help:
@@ -40,7 +41,7 @@ let BUTTON_VIEW_STATES: any =
 			ButtonView.getInstance().helpUi.innerHTML =
 				buttonDefinition.help ?
 				"<b>" + buttonDefinition.display.replaceAll("<", "&lt;") + "</b><br/>" +
-					ShortcutExpander.parseMarkdown(buttonDefinition.help) :
+					HelperFncs.parseMarkdown(buttonDefinition.help) :
 				"";
 		},
 		onStateStart: () =>
@@ -400,11 +401,6 @@ export class ButtonView extends ItemView
 	public toggleState(state: string): void
 	{
 		this.toggleState_internal(state);
-	}
-
-	public static appendToEndOfNote(toAppend: string): void
-	{
-		this.appendToEndOfNote_internal(toAppend);
 	}
 
 	public async onOpen(): Promise<void>
@@ -861,38 +857,5 @@ export class ButtonView extends ItemView
 		}
 		this.getButtonGroup().buttons = newButtonDefinitions;
 		InlineScriptsPlugin.getInstance().saveSettings();
-	}
-
-	private static appendToEndOfNote_internal(toAppend: string): void
-	{
-		const file = InlineScriptsPlugin.getInstance().app.workspace.getActiveFile();
-		if (!file) { return; }
-		for (const leaf of app.workspace.getLeavesOfType("markdown"))
-		{
-			const view: MarkdownView = (leaf.view as MarkdownView);
-			if (view.file === file)
-			{
-				// Append to the editor
-				if (toAppend)
-				{
-					if (Array.isArray(toAppend))
-					{
-						toAppend = toAppend.join("");
-					}
-					view.editor.setValue( view.editor.getValue() + toAppend );
-				}
-
-				// Refocus on the editor
-				app.workspace.setActiveLeaf(leaf, false, true);
-
-				// Move caret to the note's end (only if "toAppend" isn't null)
-				if (toAppend)
-				{
-					view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
-				}
-
-				break;
-			}
-		}
 	}
 }

@@ -4,7 +4,6 @@
 
 "use strict";
 
-import { MarkdownRenderer } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
 import { UserNotifier } from "./ui_userNotifier";
 import { ExternalRunner } from "./ExternalRunner";
@@ -35,11 +34,6 @@ export abstract class ShortcutExpander
 		expansionScript: string, failSilently?: boolean, expansionInfo?: any): Promise<any>
 	{
 		return await this.runExpansionScript_internal(expansionScript, failSilently, expansionInfo);
-	}
-
-	public static parseMarkdown(md: string): string
-	{
-		return this.parseMarkdown_internal(md);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -298,17 +292,5 @@ export abstract class ShortcutExpander
 			messageType: "SHORTCUT-EXPANSION-ERROR",
 			consoleHasDetails: true
 		});
-	}
-
-	public static parseMarkdown_internal(md: string): string
-	{
-		const ui = document.createElement("div");
-		MarkdownRenderer.renderMarkdown(md, ui, '', null);
-		let result = ui.innerHTML;
-		if (result.startsWith("<p>") && result.endsWith("</p>"))
-		{
-			result = result.slice(3, -4);
-		}
-		return result;
 	}
 }
