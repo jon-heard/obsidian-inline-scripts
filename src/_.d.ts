@@ -9,5 +9,6 @@ declare global
 		plugin: any;
 		dbg: boolean;
 		brk: Function;
+		getEmPixels: Function;
 	}
 }

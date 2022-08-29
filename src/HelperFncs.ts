@@ -8,7 +8,7 @@ import { MarkdownRenderer } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
 
 /*! getEmPixels  | Author: Tyson Matanich (http://matanich.com), 2013 | License: MIT */
-(function(n,t){"use strict";var i="!important;",r="position:absolute"+i+"visibility:hidden"+i+"width:1em"+i+"font-size:1em"+i+"padding:0"+i;window.getEmPixels=function(u){var f,e,o;return u||(u=f=n.createElement("body"),f.style.cssText="font-size:1em"+i,t.insertBefore(f,n.body)),e=n.createElement("i"),e.style.cssText=r,u.appendChild(e),o=e.clientWidth,f?t.removeChild(f):u.removeChild(e),o}})(document,document.documentElement);
+(function(n,t){"use strict";var i="!important;",r="position:absolute"+i+"visibility:hidden"+i+"width:1em"+i+"font-size:1em"+i+"padding:0"+i;window.getEmPixels=function(u:any){var f,e,o;return u||(u=f=n.createElement("body"),f.style.cssText="font-size:1em"+i,t.insertBefore(f,n.body)),e=n.createElement("i"),e.style.cssText=r,u.appendChild(e),o=e.clientWidth,f?t.removeChild(f):u.removeChild(e),o}})(document,document.documentElement);
 
 export namespace HelperFncs
 {
@@ -76,7 +76,7 @@ export namespace HelperFncs
 			{
 				if (scroller.scrollTop != oldScrollTop)
 				{
-					scroller.scrollTop += getEmPixels(scroller) * 2;
+					scroller.scrollTop += window.getEmPixels(scroller) * 2;
 				}
 			}, 100);
 		}
