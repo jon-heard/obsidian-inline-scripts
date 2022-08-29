@@ -770,15 +770,13 @@ export class ButtonView extends ItemView
 		}
 		groupList.sort();
 
-		let sfileGroups = [... new Set(plugin.syntaxes.map(v => v.sfile)) ].slice(1).sort();
-		for (const sfileGroup of sfileGroups)
-		{
-			if (!sfileGroup)
-			{
-				continue;
-			}
-			groupList.push(SFILE_GROUP_PREFIX + sfileGroup);
-		}
+		let sfileGroups =
+			[... new Set(plugin.syntaxes.map(v => v.sfile)) ]
+			.filter(v => v)
+			.map(v => SFILE_GROUP_PREFIX + v)
+			.sort();
+		groupList = groupList.concat(sfileGroups);
+
 		this._sfileGroupDefinitions = [];
 
 		this._currentGroup ||= groupList[0];
