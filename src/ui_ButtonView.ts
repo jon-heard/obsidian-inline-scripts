@@ -11,7 +11,7 @@ import { Popups } from "./ui_Popups";
 import { UserNotifier } from "./ui_userNotifier";
 import { HelperFncs } from "./HelperFncs";
 
-const SFILE_BUTTON_PARAMETER_CAPTION: string = "Enter a value for\n<b>%1</b>\n\n<i>%2</i>\n";
+const SFILE_BUTTON_PARAMETER_CAPTION: string = "Enter a value for\n<b>%1</b>\n<i>%2</i>\n";
 const SFILE_GROUP_PREFIX: string = "[sfile] ";
 
 let BUTTON_VIEW_STATES: any =

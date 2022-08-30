@@ -6,7 +6,7 @@
 "use strict";
 
 const REGEX_AWAIT_TEMPLATE: string = "(?:~1~)[\s]*\\(";
-const REGEX_ASYNC: RegExp = /function[\s]*(?:|[_a-zA-Z][_a-zA-Z0-9]*)[\s]*\(/g;
+const REGEX_ASYNC: RegExp = /function[\s]*\(/g;
 const UNNESTABLE_BLOCK_PAIRS: any = Object.freeze(
 {
 	"\"": "\"",
