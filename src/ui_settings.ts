@@ -48,7 +48,7 @@ export class InlineScriptsPluginSettings extends PluginSettingTab
 		c.createEl("h2", { text: "Actions" });
 		const actionsDiv = c.createEl("div", { cls: "iscript_actionsSection" });
 		const openButtonsView = actionsDiv.createEl("button", { text: "Open buttons view" });
-			openButtonsView.onclick = () => { ButtonView.activateView(); }
+			openButtonsView.onclick = () => { ButtonView.activateView(true); }
 
 		c.createEl("h2", { text: "Shortcut Sources" });
 

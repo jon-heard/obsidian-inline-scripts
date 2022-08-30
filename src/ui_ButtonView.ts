@@ -373,9 +373,9 @@ export class ButtonView extends ItemView
 		return ButtonView._instance;
 	}
 
-	public static async activateView(): Promise<void>
+	public static async activateView(doUiRefresh?: boolean): Promise<void>
 	{
-		await this.activateView_internal();
+		await this.activateView_internal(doUiRefresh);
 	}
 
 	public getButtonGroup(): any
@@ -459,7 +459,7 @@ export class ButtonView extends ItemView
 					(plugin.app.workspace.getLeavesOfType(BUTTON_VIEW_TYPE).length !== 0);
 				if (!checking && !isViewOpened)
 				{
-					this.activateView();
+					this.activateView(true);
 				}
 				return !isViewOpened;
 			}
@@ -486,14 +486,18 @@ export class ButtonView extends ItemView
 		}
 	}
 
-	private static async activateView_internal(): Promise<void>
+	private static async activateView_internal(doUiRefresh?: boolean): Promise<void>
 	{
 		const plugin: InlineScriptsPlugin = InlineScriptsPlugin.getInstance();
 		if (plugin.app.workspace.getLeavesOfType(BUTTON_VIEW_TYPE).length)
 		{
 			return;
 		}
-        await plugin.app.workspace.getRightLeaf(false).setViewState({ type: BUTTON_VIEW_TYPE });
+		await plugin.app.workspace.getRightLeaf(false).setViewState({ type: BUTTON_VIEW_TYPE });
+		if (doUiRefresh)
+		{
+			ButtonView.getInstance().refreshGroupUi();
+		}
 	}
 
 	private load_internal(): void
