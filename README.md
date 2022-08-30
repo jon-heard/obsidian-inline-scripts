@@ -38,12 +38,11 @@ This plugin is currently in __open beta__.
         - [Helper scripts](#advanced-shortcuts-helper-scripts)
         - [Setup and shutdown scripts](#advanced-shortcuts-setup-and-shutdown-scripts)
         - [Popup boxes for user info](#advanced-shortcuts-popup-boxes-for-user-info)
-        - [Creating custom Popup boxes](#advanced-shortcuts-creating-custom-Popup-boxes)
+        - [Creating custom Popup boxes](#advanced-shortcuts-creating-custom-popup-boxes)
         - [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion)
         - [async and await](#advanced-shortcuts-async-and-await)
         - [Hiding shortcuts](#advanced-shortcuts-hiding-shortcuts)
         - [Reacting to shortcut expansions](#advanced-shortcuts-reacting-to-shortcut-expansions)
-        - [Checking for loaded shortcut-files](#advanced-shortcuts-checking-for-loaded-shortcut-files)
 - Technical
     - [Known Issues](#known-issues)
     - [Credits](#credits)
@@ -310,7 +309,7 @@ A shortcut-file's About text, and each shortcut's about text are used to create 
 __Inline Scripts__ adds an optional panel onto which you can setup buttons to trigger different shortcuts.  It is active by default, and can be found on the right sidebar.  If it's not there you can open it by going to the __Inline Scripts__ plugin settings and clicking the button "Open buttons view" (at the top).
 
 ### An overview of the buttons panel user interface.
-![[buttonPanel_1.png]]
+![Button Panel](readmeMedia/buttonPanel_1.png)
 1. __Button ui: Button help__ - Toggle "Help mode".  While in help mode, clicking any shortcut button __(#6)__ will show help text related to the button.
 2. __Button ui: Add button__ - Add a shortcut button to the list.
 3. __Button ui: Edit button__ - Toggle "Edit mode".  While in edit mode, clicking any shortcut button __(#6)__ will open a panel for editing the button.
@@ -328,7 +327,7 @@ __Inline Scripts__ adds an optional panel onto which you can setup buttons to tr
 15. __Shortcut-file group options locked__ - When a shortcut-file group is selected, it can't be renamed or removed, and none of the __Button ui__ buttons are available, except for the help button.
 
 ### A shortcut button's options
-![[buttonPanel_2.png]]
+![ShortcutButtonSettings](readmeMedia/buttonPanel_2.png)
 1. __Display text__ - The text to be displayed on the front of the button
 2. __Shortcut text__ - What will be run as a shortcut when the button is clicked.  Can include "???" blocks, each of which will be resolved with a text-input popup asking the user what to replace the "???" with.  Once all "???" are replaced, the shortcut is run.
 3. __Help text__ - Help text to show when the user clicks on the button while in "Help mode".
