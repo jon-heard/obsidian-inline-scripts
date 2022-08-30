@@ -13,7 +13,7 @@ import { SettingUi_ShortcutFiles } from "./ui_setting_shortcutFiles";
 
 const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp =
 	/### ([_a-zA-Z0-9]+.sfile)\n(_\(disabled by default)?/g;
-const ADDRESS_REMOTE: string =
+const DEFAULT_REMOTE_ADDRESS: string =
 	"https://raw.githubusercontent.com/jon-heard/" +
 	"obsidian-inline-scripts-library/main";
 const DEFAULT_LOCAL_ADDRESS: string = "support/inlineScripts";
@@ -30,7 +30,7 @@ export namespace LibraryImporter
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	async function run_internal(): Promise<void>
+	async function run_internal(useCustomSource?: boolean): Promise<void>
 	{
 		const plugin = InlineScriptsPlugin.getInstance();
 
@@ -38,12 +38,26 @@ export namespace LibraryImporter
 		// (due to asynchronous downloads not otherwise blocking user-input)
 		InputBlocker.setEnabled(true);
 
+		let addressRemote: string = DEFAULT_REMOTE_ADDRESS;
+
+		// Give the option to change the library source
+		if (useCustomSource)
+		{
+			addressRemote = await Popups.getInstance().input(
+				"What is the library source?", DEFAULT_REMOTE_ADDRESS);
+			if (addressRemote === null)
+			{
+				InputBlocker.setEnabled(false);
+				return;
+			}
+		}
+
 		// Get list of shortcut-files from the project's github readme.  Sanitize the newlines.
 		let readmeContent: string;
 		try
 		{
 			readmeContent = await window.request({
-				url: ADDRESS_REMOTE + "/" + FILE_README,
+				url: addressRemote + "/" + FILE_README,
 				method: "GET", headers: { "Cache-Control": "no-cache" }
 			});
 		}
@@ -115,6 +129,12 @@ export namespace LibraryImporter
 			return;
 		}
 
+		if (libraryDestinationPath === "customLibSrc")
+		{
+			run_internal(true);
+			return;
+		}
+
 		// Normalize the inputted library destination path
 		libraryDestinationPath = normalizePath(libraryDestinationPath);
 
@@ -133,7 +153,7 @@ export namespace LibraryImporter
 		{
 			// Download the file
 			let content: string = await window.request({
-				url: ADDRESS_REMOTE + "/" + libShortcutFile + ".md",
+				url: addressRemote + "/" + libShortcutFile + ".md",
 				method: "GET", headers: { "Cache-Control": "no-cache" }
 			});
 
