@@ -149,7 +149,7 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 			{
 				data.displayUi = text;
 				text.setValue(data.definition?.display ?? "");
-				text.inputEl.setAttr("placeholder", "Button text");
+				text.inputEl.setAttr("placeholder", "Display text");
 				text.inputEl.addEventListener("keypress", (e: any) =>
 				{
 					if (e.key === "Enter") { data.shortcutUi.inputEl.select(); }

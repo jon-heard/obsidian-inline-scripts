@@ -16,25 +16,31 @@ This plugin is currently in __open beta__.
     - [Overview](#overview)
     - [REFERENCE: Settings](#reference-settings)
     - [User support, bugs, feedback, dontations, etc.](#user-support-bugs-feedback-donations-etc)
-- Tutorials &nbsp; _(suggest reading in-order)_
+- Tutorials: basics &nbsp; _(suggest reading in-order)_
     1. [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out)
     2. [Create a new shortcut](#tutorial-create-a-new-shortcut)
     3. [Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)
     4. [Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)
-- Shortcut development topics
-    - Development aids
+- Tutorials: extra features
+    - [Use the buttons panel to run shortcuts](#tutorial-use-the-buttons-panel-to-run-shortcuts)
+    - [Add links to a note to run shortcuts](#tutorial-add-links-to-a-note-to-run-shortcuts)
+- Shortcut writing topics
+    - Helpful tools and features
         - [The console](#development-aid-the-console)
         - [The debugger statement](#development-aid-the-debugger-statement)
         - [Fenced code blocks](#development-aid-fenced-code-blocks)
-    - Advanced shortcuts
+    - Advanced shortcut writing
         - [The print() function](#advanced-shortcuts-the-print-function)
         - [Running external applications and scripts](#advanced-shortcuts-running-external-applications-and-scripts)
+        - [Syntax strings and regex patterns](#advanced-shortcuts-syntax-strings-and-regex-patterns)
         - [Calling shortcuts from shortcuts](#advanced-shortcuts-calling-shortcuts-from-shortcuts)
+        - [Various useful functions](#advanced-shortcuts-various-useful-functions)
         - [Helper scripts](#advanced-shortcuts-helper-scripts)
         - [Setup and shutdown scripts](#advanced-shortcuts-setup-and-shutdown-scripts)
         - [Popup boxes for user info](#advanced-shortcuts-popup-boxes-for-user-info)
         - [Creating custom Popup boxes](#advanced-shortcuts-creating-custom-Popup-boxes)
         - [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion)
+        - [async and await](#advanced-shortcuts-async-and-await)
         - [Hiding shortcuts](#advanced-shortcuts-hiding-shortcuts)
         - [Reacting to shortcut expansions](#advanced-shortcuts-reacting-to-shortcut-expansions)
         - [Checking for loaded shortcut-files](#advanced-shortcuts-checking-for-loaded-shortcut-files)
@@ -56,7 +62,9 @@ The second example shows how shortcut text can include parameter text (`male eur
 
 Shortcuts can be defined in the settings.  __Inline Scripts__ comes with some sample shortcuts defined by default.  See the tutorials "[Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out)" and "[Create a new shortcut](#tutorial-create-a-new-shortcut)" for details.
 
-Shortcuts can also be defined in shortcut-files, to be added to the vault as notes.  This requires a bit more work, but allows for much nicer organization and sharing of shortcuts.  Users can download prewritten shortcut-files into their vault, or write their own.  See the tutorials "[Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)" and "[Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)" for details.
+Shortcuts can also be defined in shortcut-files, to be added to the vault as notes.  This requires a bit more work, but allows for better organization and sharing of shortcuts.  Users can download prewritten shortcut-files into their vault, or write their own.  See the tutorials "[Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)" and "[Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)" for details.
+
+Finally, __Inline Scripts__ provides a number of ways to trigger shortcuts beyond typing them directly in the note, such as a panel where buttons can be added to trigger shortcuts as well as the ability to write links into a note that trigger a shortcut each time they are clicked.  See the tutorials "[Use the buttons panel to run shortcuts](#tutorial-use-the-buttons-panel-to-run-shortcuts)" and "[Add links to a note to run shortcuts](#tutorial-add-links-to-a-note-to-run-shortcuts)" for details.
 
 ***
 
@@ -298,6 +306,61 @@ A shortcut-file's About text, and each shortcut's about text are used to create 
 ***
 ***
 
+## TUTORIAL: Use the buttons panel to run shortcuts
+__Inline Scripts__ adds an optional panel onto which you can setup buttons to trigger different shortcuts.  It is active by default, and can be found on the right sidebar.  If it's not there you can open it by going to the __Inline Scripts__ plugin settings and clicking the button "Open buttons view" (at the top).
+
+### An overview of the buttons panel user interface.
+![[buttonPanel_1.png]]
+1. __Button ui: Button help__ - Toggle "Help mode".  While in help mode, clicking any shortcut button __(#6)__ will show help text related to the button.
+2. __Button ui: Add button__ - Add a shortcut button to the list.
+3. __Button ui: Edit button__ - Toggle "Edit mode".  While in edit mode, clicking any shortcut button __(#6)__ will open a panel for editing the button.
+4. __Button ui: Re-order buttons__ - Toggle "Reordering mode".  While in rordering mode, dragging a shortcut button __(#6)__ will allow placing it elsewhere in the list of shortcut buttons.
+5. __Button ui: Remove button__ - Toggle "Removing mode".  While in removing mode, clicking a shortcut button __(#6)__ will confirm, then remove the button.
+6. __Button ui: The shortcut buttons__ - All shortcut buttons in the current group __(#7)__ show up here.
+7. __Group ui: Group selector__ - A dropdown list where you can select the current button group.  Each button group is a list of shortcut buttons __(#6)__.
+8. __Group ui: Add group__ - Adds a new group with a generic name.
+9. __Group ui: Rename group__ - Asks the user to enter a new name for the current group.
+10. __Group ui: Import / export group__ - Brings up text representing the current group's buttons.  Can copy this text to "export".  Can replace it with different text representing different buttons to "import".
+11. __Group ui: Remove group__ - Clicking will confirm, then remove the current group.
+12. __Groups: Custom groups__ - You can create custom groups.  They start empty, but you can import buttons from a different group, and/or create custom buttons.
+13. __Groups: shortcut-file groups__ - Each shortcut-file has a button group automatically created for it that includes a button for each shortcut in the shortcut-file.
+14. __Shortcut-file group selected__ - If you select a shortcut-file group, it is locked in a number of ways.  To modify its buttons, export them into a custom group first.
+15. __Shortcut-file group options locked__ - When a shortcut-file group is selected, it can't be renamed or removed, and none of the __Button ui__ buttons are available, except for the help button.
+
+### A shortcut button's options
+![[buttonPanel_2.png]]
+1. __Display text__ - The text to be displayed on the front of the button
+2. __Shortcut text__ - What will be run as a shortcut when the button is clicked.  Can include "???" blocks, each of which will be resolved with a text-input popup asking the user what to replace the "???" with.  Once all "???" are replaced, the shortcut is run.
+3. __Help text__ - Help text to show when the user clicks on the button while in "Help mode".
+4. __Add parameter details__ - Each time this is clicked, another "Parameter details" row is added to the list __(#5)__.
+5. __Parameter details__ - A list of settings for "???" blocks in the __Shortcut text (#2)__.  Each entry contains settings for one "???" block (going left to right).  The __Default value__ is what value shows up initially in the popup, to be replaced by whatever the user types.  The __Caption__ is what text to show to explain what the user needs to enter.  Any blank entries are ignored.
+6. __Ok/Cancel buttons__ - When all info is entered, or edited, to satisfaction click the "Ok" button.  To discard the current __Add__ or __Edit__ action, click "Cancel".
+
+***
+***
+
+## TUTORIAL: Add links to a note to run shortcuts
+__Inline Scripts__ allows writing links into notes that, when clicked, will run predefined shortcuts.  There are a few options:
+- __iscript__ - The link can be clicked multiple times.  Each time it is clicked, the link's displayed text is set to the expansion result of the shortcut it triggers.
+- __iscript-once__ - The link can be clicked only once.  Once it is clicked, it is replaced with the expansion result of the shortcut it triggers.
+- __iscript-append__ - The link can be clicked multiple times.  Each time it is clicked, the expansion result of the shortcut it triggers is appended to the end of the note.
+
+In addition, the links will accept "???" blocks in their shortcut text (similar to how the Button Panel handles them).  Each "???" triggers a text input popup asking the user to enter the text with which to replace the "???".  The shortcut link can even define the caption to show for each "???" block.
+
+| Link text | Description |
+| --------- | ----------- |
+| \`iscript:&nbsp;d100\` | The link's display text is "d100".  Each time the user clicks the link, the shortcut "d100" is run and the link's displayed text is set to the shortcut's expansion. |
+| \`iscript:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as the prior link, except that the link's initial display text is "rollem" instead of "d100". |
+| \`iscript&#8209;append:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as the prior link, except the link's display text does not change.  Instead, the shortcut's expansion text is appended to the end of the note.  This is due to the "iscript-append" heading. |
+| \`iscript&#8209;once:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as the prior link, except the link is entirely replaced by the shortcut's expansion text, meaning only the first click has any effect.  This is due to the "iscript-once" heading. |
+| \`iscript:&nbsp;d???&nbsp;\|&nbsp;rollem\` | Before running the shortcut, the user is asked to enter a value to replace the "???" block with.  The heading for the text entry popup is "Parameter #1". |
+| \`iscript:&nbsp;d???&nbsp;\|&nbsp;rollem&nbsp;\|&nbsp;Enter&nbsp;the&nbsp;dice&nbsp;size.\` | Same as the prior link, except that the heading for the text entry popup is "Enter the dice size.". |
+| \`iscript:&nbsp;???d???&nbsp;\|&nbsp;rollem\` | Before running the shortcut, the user is asked to enter two values to replace the two "???" blocks.  The headings for the text entry popups are "Parameter #1" and  "Parameter #2". |
+| \`iscript:&nbsp;???d??? \| rollem \| Enter&nbsp;the&nbsp;dice&nbsp;count. \| Enter&nbsp;the&nbsp;dice&nbsp;size.\` | Same as the prior link, except that the headings for the text entry popups are "Enter the dice count." and "Enter the dice size.". |
+
+***
+***
+
 ## DEVELOPMENT AID: The console
 If a new shortcut doesn't work and it's not clear why, then the javascript console can help.
 1. Type ctrl-shift-i to open the dev-tools panel. _(see picture below)_
@@ -311,7 +374,7 @@ If a new shortcut doesn't work and it's not clear why, then the javascript conso
 ***
 
 ## DEVELOPMENT AID: The debugger statement
-If you have the console open (see [The console](#development-aid-the-console)), then you can pause an expansion mid-script, view the variables at that point, and then resume the script.  You can do this by adding `debugger;` to the script where you want to the expansion to pause.  When the expansion is run and hits `debugger;`, the script will pause.
+If you have the console open (see [The console](#development-aid-the-console)), then you can pause an expansion mid-script, view the variables at that point, and then resume the script.  You can do this by adding the statement "debugger;" to the script where you want to the expansion to pause.  When the expansion is run and hits "debugger;", the script will pause.
 
 ***
 
@@ -361,6 +424,8 @@ The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` 
 ## ADVANCED SHORTCUTS: The print() function
 `print(message)` is a function that can be called from within a shortcut's Expansion script.  It creates both a console entry and a popup notification that display the given message.  It then returns the given message.
 
+***
+
 ## ADVANCED SHORTCUTS: Running external applications and scripts
 This feature is unavailable on mobile (Obsidian's backend doesn't allow it).
 
@@ -402,7 +467,51 @@ By default, on Windows, any forward-slashes in the shell command are automatical
 
 ***
 
-## ADVANCED SHORTCUTS: Calling shortcuts from shortcuts.
+## ADVANCED SHORTCUTS: Syntax strings and regex patterns
+Each shortcut has an About string (which may be empty).  The About string should start with a Syntax section, then a dash, then a description of the shortcut.  The About string is referenced for user help and reference.  The Syntax section is ALSO used by autocomplete and the button panel.  IN FACT, a shortcut without a Syntax section will not show up in autocomplete at all.
+
+Here's an example:
+```
+lipsum {paragraph count: >0, default: 1} - Generates a lorem ipsum text with {paragraph count} paragraphs.
+```
+
+In the example, `lipsum {paragraph count: >0, default: 1}` is the Syntax section, while everything after the dash is the shortcut description.
+
+The Syntax section shows what shortcut-text will trigger this shortcut.  Any undetermined text is called a "shortcut parameter" and is represented by curly braces surrounding details of the shortcut parameter text.  For example:
+```
+{paragraph count: >0, default: 1}`
+```
+
+shortcut parameter details always start with a name to call the parameter.  In this case `paragraph count`.  After the name is a colon, then a comma separated list.  The first item of the list usually defines the data type.  In this case `>0` means an integer over 0.  The second item, if included, is usually a default value.  In this case `default: 1` means that if the user does not include a value for the parameter text then "1" is used.  If a default is given, then the shortcut parameter is optional.  If no default is given then the shortcut parameter is required.
+
+So, for this example, these are valid shortcut-texts to trigger this shortcut:
+```
+lipsum
+lipsum 1
+lipsum 10
+```
+while these are invalid shortcut-texts:
+```
+lipsum 0
+lipsum 4.5
+```
+
+In addition to `>0`, there are many types used in the Iline Scripts library.  Here is a list of the most common, along with their regex pattern.
+
+| Type string | Regex | Description |
+| ----------- | ----- | ----------- |
+| text | `.+` | Any text including any spacing. |
+| non-spacetext | `[^ ]+` | Same as "text", but no spaces allowed. |
+| name text | `([_a-zA-Z][_a-zA-Z0-9]*)` | A name: no space, alpha or underscore character to start, alpha, undescore or number character for rest. |
+| path text | `[_a-zA-Z][_a-zA-Z0-9/\.]*` | Similar to name text, but allows slash and period after the first character. |
+| >0 | `[1-9][0-9]*` | Any integer greater than 0. |
+| >=0 | `[0-9]*` | Any integer greater than or equal to 0. |
+| x&nbsp;TO&nbsp;z | `x\|y\|z` | A range of integers, from x to y.  Example: 3 TO 18 |
+| x&nbsp;OR&nbsp;y&nbsp;OR&nbsp;z | `x\|y\|z` | A list of possible values.  Example: red OR green OR blue. |
+
+***
+
+## ADVANCED SHORTCUTS: Calling shortcuts from shortcuts
 There are two features that work in tandem to allow you to nest shortcuts (i.e. use shortcut results as part of other shortcuts).  The first is the ability for an Expansion script to return a string array.  The second is the ability for an Expansion script to trigger another shortcut expansion, then get and use the result.
 
 ### Returning string arrays
@@ -447,15 +556,104 @@ In this list of shortcuts, the shortcut #2 has an empty Test string.  That means
 
 ***
 
-## ADVANCED SHORTCUTS: Setup and shutdown scripts
-A shortcut-file can contain a "setup script".  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  A setup script is defined as a shortcut with a specific Test string of `^sfile setup$`.  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.  Also, if the setup script returns true (or something evaluating to true), this shortcut-file's shortcuts will _not_ be added.
+## ADVANCED SHORTCUTS: Various useful functions
+There are a few functions that have been useful to the point where I thought it'd be good to document them here.
 
-A shortcut-file can contain a "shutdown script".  A shutdown script will run when a shortcut-file is being disabled: when it is removed from the shortcut-file list, when it is "turned off" in the shortcut-file list, or when __Inline Scripts__ is being disabled or uninstalled.  A shutdown script is defined as a shortcut with a specific Test string of `^sfile shutdown$`.  This feature is useful if your shortcut-file needs to clean-up when being disabled.
+#### roll(max)
+Returns a random number (evenly distributed) from 1 to "max".
+```
+	function roll(max)
+	  {
+		  return Math.trunc(Math.random() * max + 1);
+	  }
+```
+
+### aPick(a)
+Returns a random value (evenly distributed) from "a", an array of values.
+```
+	function aPick(a)
+	{
+		return a[roll(a.length)-1];
+	}
+```
+
+### aPickWeight(a, wIndex, theRoll)
+Returns a weighted random value from "a", an array of values.  Each item in the array is, itself, array containing the wanted value (usually the first element) and one or more weights (usual the elements after the first).  A number is randomliy picked (or "theRoll" is used if it is provided), and the first item that matches the number is returned.
+	- Example - `aPickWeight([ ["red", 3], ["blue", 10], ["green", 20] ])` - picks a random number from 1 to 20 (the weight of the last item).  If the number is at or below 3, the first item is returned.  If the number is from 4 to 10, the second item is returned.  If the number is from 11 to 20, the third item is returned.
+	- Example - `aPickWeight([ ["red", 3, 2], ["blue", 10, 40], ["green", 20, 45] ], 2)` - same as the prior example, except that "wIndex" is 2, so the second number is used for picking weights.  Pick ranges are 1 to 2 for the first item, 3 to 40 for the second item and 41 to 45 for the third item.
+	- Example - `aPickWeight([ ["red", 3, 2], ["blue", 10, 40], ["green", 20, 45] ], 2, 32)` - same as the the prior example, except that the parameter "theRoll" is 32.  This means that the second item is always returned, since "theRoll" is inside the item's range (3 to 40, based on the second numbers of the items).
+```
+	function aPickWeight(a, wIndex, theRoll)
+	{
+		wIndex = wIndex || 1;
+		theRoll = theRoll || roll(a.last()[wIndex]);
+		for (const item of a)
+		{
+			if (item[wIndex] >= theRoll)
+			{
+				return item;
+			}
+		}
+		return a.last();
+	}
+```
+
+### confirmObjPath(path, leaf)
+Confirms that there is a chain of objects-within-objects starting from "window" and following the "path" parameter (a period-separated string).  If not, then confirmObjPath creates whatever parts of the "path" chain are missing.  If the "leaf" parameter is given, then the last element of the "path" chain will be assigned to "leaf" if it doesn't yet exist.
+	- Example - these two scripts are equivalent:
+		- `confirmObjPath("a.b.c", 3)`
+		- `window.a ||= {}; window.a.b ||= {}; window.a.b.c ||= 3;`
+```
+	function confirmObjPath(path, leaf)
+	{
+	    path = path.split(".");
+	    let parent = window;
+	    for (let i = 0; i < path.length-1; i++)
+	    {
+	        parent = (parent[path[i]] ||= {});
+	    }
+	    parent[path[path.length-1]] ||= (leaf || {});
+	}
+```
+
+### callFunctionCollection(colName, collection)
+Takes a collection (either array or object) of functions and calls all functions inside of it.  This is useful for storing callbacks for an event in a collection, then calling that entire collection at once when the event occurs.  "colName" is a string to identify the collection if an error or warning is thrown.
+```
+	function callFunctionCollection(colName, collection)
+	{
+		if (!Array.isArray(collection))
+		{
+			collection = Object.values(collection);
+		}
+		for (const fnc of collection)
+		{
+			if (typeof fnc === "function")
+			{
+				fnc(expand);
+			}
+			else
+			{
+				console.warn(
+					"Non-function in collection \"" +
+					colName + "\": " + fnc);
+			}
+		}
+	}
+```
+
+***
+
+## ADVANCED SHORTCUTS: Setup and shutdown scripts
+- TODO (use objChain function)
+A shortcut-file can contain a "setup script".  A setup script is defined as a shortcut with a specific Test string of `^sfile setup$`.  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.  Also, if the setup script returns true (or something evaluating to true), this shortcut-file's shortcuts will _not_ be loaded.
+
+A shortcut-file can contain a "shutdown script".  A shutdown script is defined as a shortcut with a specific Test string of `^sfile shutdown$`.  A shutdown script will run when a shortcut-file is being disabled: when it is removed from the shortcut-file list, when it is "turned off" in the shortcut-file list, or when __Inline Scripts__ is being disabled or uninstalled.  This feature is useful if your shortcut-file needs to clean-up when being disabled.
 
 ### Example
 | Test string | Expansion string | Overview |
 | ----------- | ---------------- | -------- |
-| ^sfile&nbsp;setup$ | window._inlineScripts.state&nbsp;\|\|=&nbsp;{};<br/>window._inlineScripts.state.clips&nbsp;\|\|=&nbsp;{}; | This setup script creates some global variables that shortcuts in the shortcut-file presumably rely upon.<br/><br/>Notice that the setup script only creates the global variables if they don't yet exist (`\|\|=`).  This is important as a setup script _may_ be run many times during a session.  We don't want later runs to wipe out anything that was created earlier. |
+| ^sfile&nbsp;setup$ | confirmObjPath("_inlineScripts.state");<br/>inlineScripts.state.flag \|\|= 1; | This setup script creates some global variables that shortcuts in the shortcut-file presumably rely upon.<br/><br/>Notice that the setup script _ONLY_ creates the global variables if they don't yet exist (`\|\|=`).  This is important as a setup script _may_ be run many times during a session.  We don't want later runs to wipe out anything that was created earlier.<br/><br/>This script also uses the __confirmObjPath__ function documented [here](#confirmObjPath_path_leaf). |
+| ^sfile&nbsp;shutdown$ | delete&nbsp;_inlineScripts.state; | This shutdown script removes a variable that was created by the setup script. |
 
 ***
 
@@ -544,12 +742,28 @@ Expansion scripts have access to a varible `expansionInfo` which contains inform
 
 ***
 
+## ADVANCED SHORTCUTS: async and await
+If you aren't familiar with the "async" and "await" keywords in JavaScript, this section will not make much sense to you.  You can most-likely skip it and be ok.
+
+Shortcut Expansion scripts are run asynchronously.  You can safely add "await" before asynchronous statements.  In addition, "async" and "await" are automatically prepended to certain statements.  This allows a novice JS scripter to write shortcuts without needing to understand asynchronicity.  Here are details about when this automatic prepending occurs.
+
+#### async
+- Prepended to named functions.
+- Prepended to unnamed functions.
+- NOT prepended to arrow functions.
+#### await
+- Prepended to calls to __expand()__.
+- Prepended to calls to any functions in __popups__.
+
+***
+
 ## ADVANCED SHORTCUTS: Hiding shortcuts
 If the syntax string that starts a shortcut's About string is "hidden", then that shortcut will not show up in the help system (the "ref" shortcuts), though it can still be called within a note.  This is helpful to prevent cluttering the help system with shortcuts that are not useful to the user, only to other shortcuts.
 
 ***
 
 ## ADVANCED SHORTCUTS: Reacting to shortcut expansions
+- TODO (use objChain function here)
 If a shortcut-file needs to react to shortcut expansions, it can now setup a callback function to be called on such an event.  The callback should have one parameter: `expansionInfo`.  See [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion) for details on `expansionInfo`.  A callback is registered by assigning the function to a unique key in `window._inlineScripts.listeners.inlineScripts.onExpansion`.  Note that this object heirarchy isn't created automatically, and must be manually created if it doesn't already exist.
 
 In addition, if the callback function returns a string, then _that_ string is expanded as a shortcut and the result replaces the old expansion.
@@ -559,28 +773,32 @@ In addition, if the callback function returns a string, then _that_ string is ex
 __
 ^sfile setup$
 __
-window._inlineScripts ||= {};
-window._inlineScripts.listeners ||= {};
-window._inlineScripts.listeners.inlineScripts ||= {};
-window._inlineScripts.listeners.inlineScripts.onExpansion ||= {};
-window._inlineScripts.listeners.inlineScripts.onExpansion.testCallback ||= (expansionInfo) =>
-{
-	if (expansionInfo.shortcutText.contains("d"))
+confirmObjPath(
+	"_inlineScripts.listeners.inlineScripts.onExpansion.testCallback",
+	(expansionInfo) =>
 	{
-		// Force expansion to be result of the "hi" shortcut
-		return "hi";
-	}
-	else
-	{
-		print("Shortcut input '" + expansionInfo.shortcutText + "' expanded to '" + expansionInfo.expansionText + "'.");
-	}
-};
+		if (expansionInfo.shortcutText.contains("d"))
+		{
+			// Force expansion to be result of the "hi" shortcut
+			return "hi";
+		}
+		else
+		{
+			print(
+				"Shortcut input '" +
+				expansionInfo.shortcutText +
+				"' expanded to '" +
+				expansionInfo.expansionText + "'.");
+		}
+	});
 __
 
 __
 ^sfile shutdown$
 __
-delete window._inlineScripts.listeners?.inlineScripts?.onExpansion?.testCallback;
+delete _inlineScripts
+	.listeners?.inlineScripts?
+	.onExpansion?.testCallback;
 __
 ```
 
