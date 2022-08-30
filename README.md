@@ -44,7 +44,6 @@ This plugin is currently in __open beta__.
         - [Hiding shortcuts](#advanced-shortcuts-hiding-shortcuts)
         - [Reacting to shortcut expansions](#advanced-shortcuts-reacting-to-shortcut-expansions)
 - Technical
-    - [Known Issues](#known-issues)
     - [Credits](#credits)
     - [Release notes](#release-notes)
     - [Todo](#todo)
@@ -63,11 +62,12 @@ Shortcuts can be defined in the settings.  __Inline Scripts__ comes with some sa
 
 Shortcuts can also be defined in shortcut-files, to be added to the vault as notes.  This requires a bit more work, but allows for better organization and sharing of shortcuts.  Users can download prewritten shortcut-files into their vault, or write their own.  See the tutorials "[Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)" and "[Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)" for details.
 
-Finally, __Inline Scripts__ provides a number of ways to trigger shortcuts beyond typing them directly in the note, such as a panel where buttons can be added to trigger shortcuts as well as the ability to write links into a note that trigger a shortcut each time they are clicked.  See the tutorials "[Use the buttons panel to run shortcuts](#tutorial-use-the-buttons-panel-to-run-shortcuts)" and "[Add links to a note to run shortcuts](#tutorial-add-links-to-a-note-to-run-shortcuts)" for details.
+Finally, __Inline Scripts__ provides a number of ways to trigger shortcuts beyond typing them directly in the note.  This includes a panel where buttons can be added to trigger shortcuts.  It also includes the ability to write links into a note that trigger a shortcut each time they are clicked.  See the tutorials "[Use the buttons panel to run shortcuts](#tutorial-use-the-buttons-panel-to-run-shortcuts)" and "[Add links to a note to run shortcuts](#tutorial-add-links-to-a-note-to-run-shortcuts)" for details.
 
 ***
 
 ## REFERENCE: Settings
+- __Open buttons view__ - When this button is clicked, the "Buttons panel" is added to the right sidebar of the Obsidian ui.
 - __Shortcut-files__ - A list of addresses (folder-paths and filenames) of notes containing shortcut-files.
     - The "Add shortcut-file" button adds a new entry for a shortcut-file address.
     - The "Import full library" button downloads and sets up the entire __Inline Scripts__ shortcut-file library into your vault.  You can reimport to update your vault's library to the latest version.
@@ -116,7 +116,7 @@ that I should keep working to make it better.
 
 ## TUTORIAL: Setup the plugin and try it out
 ### Setup the plugin
-1. Open the vault to install __Inline Scripts__ into.  If you don't yet have a vault ready, create one now.
+1. Open the vault you want to install the plugin __Inline Scripts__ into.  If you don't yet have a vault ready, create one now.
 2. Open the Community plugins settings.
     1. Click the settings button at the lower-left of the Obsidian window (It looks like a gear).
     2. Click `Community plugins` in the left-hand menu (at the bottom of the `Options` section).
@@ -149,7 +149,7 @@ __Inline Scripts__ comes with the following sample shortcuts defined by default:
     - Examples - d100, 3d20, d10+5, 3d6+6
 
 ### Help shortcuts
-__Inline Scripts__ has a collection of shortcuts that describe all of the shortcuts that are currently loaded.  The `help` shortcut is a good start.  It shows a list and summary of these shortcuts.
+__Inline Scripts__ has a collection of "help" shortcuts that describe all shortcuts currently loaded.  The shortcut `help` is a good place to start.  It shows a list and summary of the "help" shortcuts.
 
 ***
 ***
@@ -158,14 +158,14 @@ __Inline Scripts__ has a collection of shortcuts that describe all of the shortc
 ### Shortcut components
 Each shortcut is defined by three strings.
 - __Test string__ - This is a regex.  It is an expression used to identify whether a pattern exists in another string.  This Test string is regex used to determine whether shortcut text the user has typed matches _this_ shortcut.
-- __Expansion string__ - This is JavaScript.  It is used to define what this shortcut expands into.  If the user types a shortcut, and it is accepted by the Test string, the Expansion string script is called and the result replaces the user-typed shortcut text.
+- __Expansion string__ - This is JavaScript.  It is used to define what this shortcut expands into.  If the user types a shortcut, and it is accepted by the Test string, this Expansion string's JavaScript is run and the result replaces the shortcut text that the user typed.
 - __About string__ - This is formatted prose to describe this shortcut's syntax, expansion and purpose.  It begins with the shortcut's syntax, then a dash, then a description of the shortcut.  __The About string _can_ be safely left blank.__
 
 | Id | Test string | Expansion string | About string |
 | -- | ----------- | ---------------- | ------------ |
 |  1 | hi | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | hi - Expands into "Hello! How are you?".  A simple shortcut to see if the Inline Scripts plugin is running. |
 |  2 | ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | Expands into the current, local date. |
-|  3 | ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; | age {how old: required, >=0} - Expands into "I am {how old} years old".  {how old} can be any positive integer.  This is a demo shortcut written for this documentation. |
+|  3 | ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; | age {how old: >=0} - Expands into "I am {how old} years old".  {how old} can be any positive integer.  This is a demo shortcut written for this documentation. |
 
 #### Shortcut #1 - hi (basic)
 At its most basic, a Test string can just be the shortcut itself.  In this example, the shortcut will be triggered when the user types `;;hi::`.  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;hi::`) will be replaced with `Hello! How are you?`.
@@ -180,16 +180,18 @@ This shortcut's About string contains no syntax or purpose, only the expansion. 
 #### Shortcut #3 - age (advanced)
 This shortcut's Test string has some advanced regex.  If it's not clear then there is plenty of documentation online to learn regex syntax.  Notice the parenthesis `(`, `)`.  These are regex tokens to collect whatever is recognized within them and put it into a variable.  The first parenthesis are put into variable `$1`, a second parenthesis would be put into variable `$2`, and so on.  These variables are available to the Expansion string.  In this shortcut, the Expansion string _does_ reference variable `$1`.  The result of this shortcut is: if the user types `;;age 3::` the shortcut will be replaced with `I am 3 years old.`  If the user types `;;age 21::`, it will be replaced with `I am 21 years old`.
 
-The About string starts with the syntax, including a named descriptor `{how old: required, >= 0}` representing a parameter.  `required, >= 0` lets us know that the parameter is required and is a positive integer.  After the syntax (and dash) is the expansion and purpose.
+The About string starts with the syntax, including a named descriptor `{how old: >=0}` representing a parameter.  `>=0` lets us know that the parameter is an integer greater than or equal to 0.  There is no "default" listed, so this parameter is required.
+
+After the syntax (and dash) is the expansion and purpose.
 
 ### Step-by-step: Adding a shortcut
-1. Make sure that the __Inline Script__ plugin is installed and enabled in your vault. (see the tutorial [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out).)
+1. Make sure that the __Inline Scripts__ plugin is installed and enabled in your vault. (see the tutorial [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out).)
 2. Open the settings for the __Inline Script__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
     2. In the left-side menu of the settings panel, find and click __Inline Scripts__.  It is beneath "Community plugins", near the bottom.  This opens the settings for __Inline Scripts__.
-3. Go down to the "Shortcuts" setting.  It's the second setting in the panel, just after "Shortcut-files". _(see picture below)_
+3. Go down to the "Shortcuts" setting.  It's just after "Shortcut-files". _(see picture below)_
 4. The setting has two buttons: "Add shortcut" and "Add defaults".  Click on the "Add shortcut" button.  This adds a shortcut entry to the bottom of the list.  The new entry should include three textboxes with the greyed text "Test (regex)", "Expansion (JavaScript)" and "About (text)".  _(see picture below)_
-5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: `test` and `return "The test worked.";`.  The About string is optional.  If entered, follow the format: syntax, dash, description.  _(see picture below)_
+5. Enter a shortcut's Test and Expansion strings into the new entry.  I suggest starting with something simple like: `test` and `return "The test worked.";`.  The About string is optional, but is required for the autocomplete feature to recognize the shortcut.  If entered, follow the format: syntax, dash, description.  _(see picture below)_
 
     ![Shortcuts](readmeMedia/shortcuts.png)
 
@@ -210,11 +212,11 @@ Shortcuts, by their JavScript nature, have a risk of being malicious.  Make sure
 There is a library of shortcut-files for __Inline Scripts__ [here](https://github.com/jon-heard/obsidian-inline-scripts-library).  You can bring individual shortcut-files into your vault from this library, or from any other source.  Alternately, the __Inline Scripts__ plugin has a button to import the entire library to your vault at once.
 
 ### Step-by-step: Importing the entire shortcut-file library to the vault
-1. Make sure that the __Inline Scripts__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
+1. Make sure that the __Inline Scripts__ plugin is installed and enabled in your vault. (see the tutorial [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out).)
 2. Open the settings for the __Inline Scripts__ plugin.
     1. click the settings button on the lower-left of the Obsidian window.  This opens the settings panel.
     2. In the left-side menu of the settings panel, find and click __Inline Scripts__.  It is beneath "Community plugins", near the bottom.  This opens the settings for __Inline Scripts__.
-3. Find the "Shortcut-files" setting.  It is just beneath "Shortcut Sources.
+3. Find the "Shortcut-files" setting.  It is just beneath "Shortcut Sources".
 4. To the right of the setting is the button "Import full library".  Click on that button and then click the "Ok" button.  This will trigger the import.  It might take a minute to download, depending on your internet connection and device.
 
     ![Import full library](readmeMedia/importFullLibrary.png)
@@ -227,7 +229,7 @@ There is a library of shortcut-files for __Inline Scripts__ [here](https://githu
 9. If you find that you need to _disable_ a shortcut-file listed in the settings, you can do so by turning off the toggle button to the left of the entry.
 
 ### Step-by-step: Adding a SINGLE shortcut-file to the vault
-1. Make sure that the __Inline Scripts__ plugin is installed and enabled in your vault. (see [HOW-TO: Setup the plugin and try it out](#how-to-setup-the-plugin-and-try-it-out).)
+1. Make sure that the __Inline Scripts__ plugin is installed and enabled in your vault. (see the tutorial [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out).)
 2. Get the contents of a shortcut-file into a note in your vault.  You can do this in one of two ways.
     - Copy the shortcut-file's text content into an empty note.
         - If the shortcut-file is on github, I suggest copying the contents of the "raw file".
@@ -239,10 +241,10 @@ There is a library of shortcut-files for __Inline Scripts__ [here](https://githu
     2. In the left-side menu of the settings panel, find and click __Inline Scripts__.  It is beneath "Community plugins", near the bottom.  This opens the settings for __Inline Scripts__.
 5. Add a reference to the shortcut-file.
     1. Find the "Shortcut-files" setting.  It is just beneath "Shortcut Sources" _(see picture below)_.
-    2. In the "Shortcut-files" setting, click the "Add shortcut-file" button on the right side.  This adds an empty entery to the bottom of the list.  The entry should show the word "Filename" in grey text. _(see picture below)_
+    2. In the "Shortcut-files" setting, click the "Add shortcut-file" button on the right side.  This adds an empty entry to the bottom of the list.  The entry should show the word "Filename" in grey text. _(see picture below)_
     3. Click on the textbox, then type in the shortcut-file note's address, determined in step 3.  The textbox will be red until a valid note address has been entered. _(see picture below)_
         - Example: `support/inlineScripts/state.sfile`.
-    4. (optional) Turning off the toggle button to the left of the entry will disable this shortcut-file, as if it was removed from this list.  This is is useful to stop using a shortcut file, without fully removing it from the list.
+    4. (optional) Turning off the toggle button to the left of the entry will disable this shortcut-file.  This makes __Inline Scripts__ act as if the shortcut-file was removed from this list.  This is is useful to stop using a shortcut file, without fully removing it from the list.
         
         ![Shortcut-files setting](readmeMedia/shortcutFiles.png)
 
@@ -289,10 +291,10 @@ Here is another, more meaty, example:
 > __<br/>
 > return $1.repeat(5);<br/>
 > __<br/>
-> repeat {to repeat: required, one letter} - Expands to 5 repetitions of {to repeat}: "aaaaa".<br/>
+> repeat {to repeat: single character} - Expands to 5 repetitions of {to repeat}: "aaaaa".<br/>
 >
 
-This shortcut-file begins with an About string, a description of the shortcut-file.  After the About string, it contains two shortcuts.  Notice that the first `__` is placed after the shorcut-file's About string.  Every shortcut-file as an About string, including the minimal example above, though in that case the About string is empty.  Also notice that there are empty lines between each section of this shortcut-file.  __Inline Scripts__ ignores empty lines in shortcut-files, so use them to organize your shortcut-files.
+This shortcut-file begins with an About string, a description of the shortcut-file.  After the About string, it contains two shortcuts.  Notice that the first `__` is placed after the shorcut-file's About string.  Every shortcut-file has an About string, including the minimal example above, though in that case the About string is empty.  Also notice that there are empty lines between each section of this shortcut-file.  __Inline Scripts__ ignores empty lines in shortcut-files, so use them to organize your shortcut-files.
 
 ### Developer mode
 At the bottom of the __Inline Scripts__ settings is a switch named Developer mode _(see picture below)_.  When Developer mode is on, all shortcuts will be reloaded whenever you leave a shortcut-file note, either by selecting a different note, or closing the shortcut-file note.  This lets you edit a shortcut-file note, then move to another note to try out your changes without needing to manually refreshing anything.  "Developer mode" adds a slight delay when switching notes, so I suggest keeping it off unless you are actively developing a shortcut-file.
@@ -306,7 +308,7 @@ A shortcut-file's About text, and each shortcut's about text are used to create 
 ***
 
 ## TUTORIAL: Use the buttons panel to run shortcuts
-__Inline Scripts__ adds an optional panel onto which you can setup buttons to trigger different shortcuts.  It is active by default, and can be found on the right sidebar.  If it's not there you can open it by going to the __Inline Scripts__ plugin settings and clicking the button "Open buttons view" (at the top).
+The __Inline Scripts__ plugin adds an optional panel to Obsidian onto which you can setup buttons to trigger different shortcuts.  It is turned on by default, and can be found in Obsidian's right sidebar.  If it's not there you can open it by going to the __Inline Scripts__ plugin settings and clicking the button "Open buttons view" (at the top).
 
 ### An overview of the buttons panel user interface.
 ![Button Panel](readmeMedia/buttonPanel_1.png)
@@ -319,11 +321,11 @@ __Inline Scripts__ adds an optional panel onto which you can setup buttons to tr
 7. __Group ui: Group selector__ - A dropdown list where you can select the current button group.  Each button group is a list of shortcut buttons __(#6)__.
 8. __Group ui: Add group__ - Adds a new group with a generic name.
 9. __Group ui: Rename group__ - Asks the user to enter a new name for the current group.
-10. __Group ui: Import / export group__ - Brings up text representing the current group's buttons.  Can copy this text to "export".  Can replace it with different text representing different buttons to "import".
+10. __Group ui: Import / export group__ - Brings up a string of text that holds all data for the current group's buttons.  To "export" this group, copy this string of text.  To "import" this group, replace the string of text with a different string representing different buttons.
 11. __Group ui: Remove group__ - Clicking will confirm, then remove the current group.
 12. __Groups: Custom groups__ - You can create custom groups.  They start empty, but you can import buttons from a different group, and/or create custom buttons.
-13. __Groups: shortcut-file groups__ - Each shortcut-file has a button group automatically created for it that includes a button for each shortcut in the shortcut-file.
-14. __Shortcut-file group selected__ - If you select a shortcut-file group, it is locked in a number of ways.  To modify its buttons, export them into a custom group first.
+13. __Groups: shortcut-file groups__ - Each shortcut-file that is registered with the __Inline Scripts__ plugin has a button group created for it automatically.  The group includes one button for each shortcut in the shortcut-file.
+14. __Shortcut-file group selected__ - If you select a shortcut-file group, much of the ui becomes locked.  To modify the group's buttons, first export them into a custom group.
 15. __Shortcut-file group options locked__ - When a shortcut-file group is selected, it can't be renamed or removed, and none of the __Button ui__ buttons are available, except for the help button.
 
 ### A shortcut button's options
@@ -339,12 +341,12 @@ __Inline Scripts__ adds an optional panel onto which you can setup buttons to tr
 ***
 
 ## TUTORIAL: Add links to a note to run shortcuts
-__Inline Scripts__ allows writing links into notes that, when clicked, will run predefined shortcuts.  There are a few options:
+The __Inline Scripts__ plugin allows writing links into notes that, when clicked, will run predefined shortcuts.  There are a few options:
 - __iscript__ - The link can be clicked multiple times.  Each time it is clicked, the link's displayed text is set to the expansion result of the shortcut it triggers.
 - __iscript-once__ - The link can be clicked only once.  Once it is clicked, it is replaced with the expansion result of the shortcut it triggers.
 - __iscript-append__ - The link can be clicked multiple times.  Each time it is clicked, the expansion result of the shortcut it triggers is appended to the end of the note.
 
-In addition, the links will accept "???" blocks in their shortcut text (similar to how the Button Panel handles them).  Each "???" triggers a text input popup asking the user to enter the text with which to replace the "???".  The shortcut link can even define the caption to show for each "???" block.
+In addition, the links will accept "???" blocks in their shortcut text (similar to how the Button Panel handles them).  Each "???" triggers a text input popup asking the user to enter the text with which to replace the "???".  The shortcut link can even define a caption to show for each "???" block.
 
 | Link text | Description |
 | --------- | ----------- |
@@ -467,7 +469,7 @@ By default, on Windows, any forward-slashes in the shell command are automatical
 ***
 
 ## ADVANCED SHORTCUTS: Syntax strings and regex patterns
-Each shortcut has an About string (which may be empty).  The About string should start with a Syntax section, then a dash, then a description of the shortcut.  The About string is referenced for user help and reference.  The Syntax section is ALSO used by autocomplete and the button panel.  IN FACT, a shortcut without a Syntax section will not show up in autocomplete at all.
+Each shortcut has an About string (which may be empty).  If the About string is not empty, it should start with a Syntax section, then a dash, then a description of the shortcut.  The About string is used for user help and reference.  The Syntax section is ALSO used by autocomplete and the button panel.  IN FACT, a shortcut without a Syntax section will not show up in autocomplete at all.
 
 Here's an example:
 ```
@@ -481,7 +483,7 @@ The Syntax section shows what shortcut-text will trigger this shortcut.  Any und
 {paragraph count: >0, default: 1}`
 ```
 
-shortcut parameter details always start with a name to call the parameter.  In this case `paragraph count`.  After the name is a colon, then a comma separated list.  The first item of the list usually defines the data type.  In this case `>0` means an integer over 0.  The second item, if included, is usually a default value.  In this case `default: 1` means that if the user does not include a value for the parameter text then "1" is used.  If a default is given, then the shortcut parameter is optional.  If no default is given then the shortcut parameter is required.
+shortcut parameter details always start with a parameter name.  In this case `paragraph count`.  After the name is a colon, then a comma separated list.  The first item of the list usually defines the data type.  In this case `>0` means an integer over 0.  The second item, if included, is usually a default value.  In this case `default: 1` means that if the user does not include a value for the parameter text then "1" is used.  If a default is given, then the shortcut parameter is optional.  If no default is given then the shortcut parameter is required.
 
 So, for this example, these are valid shortcut-texts to trigger this shortcut:
 ```
@@ -495,13 +497,13 @@ lipsum 0
 lipsum 4.5
 ```
 
-In addition to `>0`, there are many types used in the Iline Scripts library.  Here is a list of the most common, along with their regex pattern.
+In addition to `>0`, there are many other types used in the _Inline Scripts_ library.  Here is a list of the most common, along with their regex pattern.
 
 | Type string | Regex | Description |
 | ----------- | ----- | ----------- |
 | text | `.+` | Any text including any spacing. |
-| non-spacetext | `[^ ]+` | Same as "text", but no spaces allowed. |
-| name text | `([_a-zA-Z][_a-zA-Z0-9]*)` | A name: no space, alpha or underscore character to start, alpha, undescore or number character for rest. |
+| non-space text | `[^ ]+` | Same as "text", but no spaces allowed. |
+| name text | `([_a-zA-Z][_a-zA-Z0-9]*)` | A name: no space.  The first character is an alpha or underscore character.  The remaining characters can be alpha, underscore or number characters. |
 | path text | `[_a-zA-Z][_a-zA-Z0-9/\.]*` | Similar to name text, but allows slash and period after the first character. |
 | >0 | `[1-9][0-9]*` | Any integer greater than 0. |
 | >=0 | `[0-9]*` | Any integer greater than or equal to 0. |
@@ -556,15 +558,15 @@ In this list of shortcuts, the shortcut #2 has an empty Test string.  That means
 ***
 
 ## ADVANCED SHORTCUTS: Various useful functions
-There are a few functions that have been useful to the point where I thought it'd be good to document them here.
+There are a handful of functions that have been useful to the point where I thought it'd be good to document them here.
 
-#### roll(max)
+### roll(max)
 Returns a random number (evenly distributed) from 1 to "max".
 ```
 	function roll(max)
-	  {
-		  return Math.trunc(Math.random() * max + 1);
-	  }
+	{
+		return Math.trunc(Math.random() * max + 1);
+	}
 ```
 
 ### aPick(a)
@@ -578,9 +580,10 @@ Returns a random value (evenly distributed) from "a", an array of values.
 
 ### aPickWeight(a, wIndex, theRoll)
 Returns a weighted random value from "a", an array of values.  Each item in the array is, itself, array containing the wanted value (usually the first element) and one or more weights (usual the elements after the first).  A number is randomliy picked (or "theRoll" is used if it is provided), and the first item that matches the number is returned.
-	- Example - `aPickWeight([ ["red", 3], ["blue", 10], ["green", 20] ])` - picks a random number from 1 to 20 (the weight of the last item).  If the number is at or below 3, the first item is returned.  If the number is from 4 to 10, the second item is returned.  If the number is from 11 to 20, the third item is returned.
-	- Example - `aPickWeight([ ["red", 3, 2], ["blue", 10, 40], ["green", 20, 45] ], 2)` - same as the prior example, except that "wIndex" is 2, so the second number is used for picking weights.  Pick ranges are 1 to 2 for the first item, 3 to 40 for the second item and 41 to 45 for the third item.
-	- Example - `aPickWeight([ ["red", 3, 2], ["blue", 10, 40], ["green", 20, 45] ], 2, 32)` - same as the the prior example, except that the parameter "theRoll" is 32.  This means that the second item is always returned, since "theRoll" is inside the item's range (3 to 40, based on the second numbers of the items).
+
+- Example - `aPickWeight([ ["red", 3], ["blue", 10], ["green", 20] ])` - picks a random number from 1 to 20 (the weight of the last item).  If the number is at or below 3, the first item is returned.  If the number is from 4 to 10, the second item is returned.  If the number is from 11 to 20, the third item is returned.
+- Example - `aPickWeight([ ["red", 3, 2], ["blue", 10, 40], ["green", 20, 45] ], 2)` - same as the prior example, except that "wIndex" is 2, so the second number is used for picking heights.  Pick ranges are 1 to 2 for the first item, 3 to 40 for the second item and 41 to 45 for the third item.
+- Example - `aPickWeight([ ["red", 3, 2], ["blue", 10, 40], ["green", 20, 45] ], 2, 32)` - same as the the prior example, except that the parameter "theRoll" is 32.  This means that the second item is always returned, since "theRoll" is inside the item's range (3 to 40, based on the second numbers of the items).
 ```
 	function aPickWeight(a, wIndex, theRoll)
 	{
@@ -599,9 +602,9 @@ Returns a weighted random value from "a", an array of values.  Each item in the 
 
 ### confirmObjPath(path, leaf)
 Confirms that there is a chain of objects-within-objects starting from "window" and following the "path" parameter (a period-separated string).  If not, then confirmObjPath creates whatever parts of the "path" chain are missing.  If the "leaf" parameter is given, then the last element of the "path" chain will be assigned to "leaf" if it doesn't yet exist.
-	- Example - these two scripts are equivalent:
-		- `confirmObjPath("a.b.c", 3)`
-		- `window.a ||= {}; window.a.b ||= {}; window.a.b.c ||= 3;`
+- Example - these two scripts are equivalent:
+	- `confirmObjPath("a.b.c", 3)`
+	- `window.a ||= {}; window.a.b ||= {}; window.a.b.c ||= 3;`
 ```
 	function confirmObjPath(path, leaf)
 	{
@@ -643,27 +646,26 @@ Takes a collection (either array or object) of functions and calls all functions
 ***
 
 ## ADVANCED SHORTCUTS: Setup and shutdown scripts
-- TODO (use objChain function)
-A shortcut-file can contain a "setup script".  A setup script is defined as a shortcut with a specific Test string of `^sfile setup$`.  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.  Also, if the setup script returns true (or something evaluating to true), this shortcut-file's shortcuts will _not_ be loaded.
+A shortcut-file can contain a "setup script".  A setup script is defined as a shortcut with a specific Test string of `^sfile setup$`.  A setup script will run whenever the shortcut-file is loaded, including when switching notes while in "Developer mode".  This feature is useful if your shortcut-file requires initialization before its shortcuts will work.  Also, if the setup script returns true (or something evaluating to true), this signals that the shortcut-file should NOT be loaded: the shortcut-file's shortcuts will not be available.
 
 A shortcut-file can contain a "shutdown script".  A shutdown script is defined as a shortcut with a specific Test string of `^sfile shutdown$`.  A shutdown script will run when a shortcut-file is being disabled: when it is removed from the shortcut-file list, when it is "turned off" in the shortcut-file list, or when __Inline Scripts__ is being disabled or uninstalled.  This feature is useful if your shortcut-file needs to clean-up when being disabled.
 
 ### Example
 | Test string | Expansion string | Overview |
 | ----------- | ---------------- | -------- |
-| ^sfile&nbsp;setup$ | confirmObjPath("_inlineScripts.state");<br/>inlineScripts.state.flag \|\|= 1; | This setup script creates some global variables that shortcuts in the shortcut-file presumably rely upon.<br/><br/>Notice that the setup script _ONLY_ creates the global variables if they don't yet exist (`\|\|=`).  This is important as a setup script _may_ be run many times during a session.  We don't want later runs to wipe out anything that was created earlier.<br/><br/>This script also uses the __confirmObjPath__ function documented [here](#confirmObjPath_path_leaf). |
+| ^sfile&nbsp;setup$ | confirmObjPath("_inlineScripts.state");<br/>inlineScripts.state.flag \|\|= 1; | This setup script creates some global variables that shortcuts in the shortcut-file presumably rely upon.<br/><br/>Notice that the setup script _ONLY_ creates the global variables if they don't yet exist (`\|\|=`).  This is important as a setup script _may_ be run many times during a session.  We don't want later runs to wipe out anything that was created earlier.<br/><br/>This script also uses the __confirmObjPath__ function documented [here](#confirmobjpathpath-leaf). |
 | ^sfile&nbsp;shutdown$ | delete&nbsp;_inlineScripts.state; | This shutdown script removes a variable that was created by the setup script. |
 
 ***
 
 ## ADVANCED SHORTCUTS: Popup boxes for user info
-Sometimes an Expansion script needs information from the user that is not feasable using a shortcut's parameters.  This can include getting confirmation before a dangerous action, having the user select from a list of options or asking for too much information to reasonably type up in shortcut text.  Popup panels can help.  There are 4 kinds of popup panel:
+Sometimes an Expansion script needs information from the user that is not feasable using a shortcut's parameters.  This can include getting confirmation before a dangerous action, having the user select from a list of options or asking for too much information to reasonably type up in shortcut text.  Popup panels can help.  There are 4 kinds of popup panels:
 - __popups.alert(message)__ - A popup to convey a message to the user.
 - __popups.confirm(message)__ - A popup for the user to confirm or cancel an action.  Returns true if the Confirm button is clicked, false otherwise.
 - __popups.input(message, defaultValue)__ - A popup for the user to enter some text.  Returns the text the user entered, or null if the user canceled.
 - __popups.pick(message, options, defaultValue)__ - A popup for the user to select from a list.  Returns the index of the option the user selected, or null if the user canceled.
 
-Usage is simple: add one of the above statements into an Expansion text.  If the statement is not an alert, you should also use the return value of the statement in some way.
+Usage is simple: add one of the above statements into an Expansion text.  You should also use the return value of the statement in some way, except when using the alert popup.
 
 ### Examples
 - `popup.alert("Don't forget to save!")`
@@ -715,22 +717,27 @@ const definition =
 		});
 		data.resultUi = s;
 		parent.appendChild(s);
-window.a = s;
 	},
 	onClose: function(data, resolveFnc, buttonText)
 	{
-		resolveFnc(data.resultUi.value);
+		if (buttonText)
+		{
+			resolveFnc(data.resultUi.value);
+		}
+		else
+		{
+			resolveFnc(null);
+		}
 	}
 };
-result =
-	popups.custom("Pick a character", definition, { defaultValue: 1 });
+result = popups.custom("Pick a character", definition, { defaultValue: 1 });
 return result;
 ```
 
 ***
 
 ## ADVANCED SHORTCUTS: Getting info about the current expansion
-Expansion scripts have access to a varible `expansionInfo` which contains information about the current expansion.  expansionInfo includes:
+Shortcut Expansion scripts have access to a varible `expansionInfo` which contains information about the current expansion.  expansionInfo includes:
 - __expansionInfo.isUserTriggered__ - True if this expansion was caused by typing a shortcut into a note.  False if this expansion was triggered as a special script, or by calling `expand(x)`.
 - __expansionInfo.line__ - The full line of text the shortcut was typed into.
 - __expansionInfo.inputStart__ - Where in "line" the shortcut text entry begins.
@@ -747,9 +754,9 @@ If you aren't familiar with the "async" and "await" keywords in JavaScript, this
 Shortcut Expansion scripts are run asynchronously.  You can safely add "await" before asynchronous statements.  In addition, "async" and "await" are automatically prepended to certain statements.  This allows a novice JS scripter to write shortcuts without needing to understand asynchronicity.  Here are details about when this automatic prepending occurs.
 
 #### async
-- Prepended to named functions.
-- Prepended to unnamed functions.
-- NOT prepended to arrow functions.
+- Prepended to unnamed functions.  `const a = function() { }`
+- NOT Prepended to named functions.  `function a() { }`
+- NOT prepended to arrow functions.  `const a = () => { }`
 #### await
 - Prepended to calls to __expand()__.
 - Prepended to calls to any functions in __popups__.
@@ -757,13 +764,12 @@ Shortcut Expansion scripts are run asynchronously.  You can safely add "await" b
 ***
 
 ## ADVANCED SHORTCUTS: Hiding shortcuts
-If the syntax string that starts a shortcut's About string is "hidden", then that shortcut will not show up in the help system (the "ref" shortcuts), though it can still be called within a note.  This is helpful to prevent cluttering the help system with shortcuts that are not useful to the user, only to other shortcuts.
+If the Syntax string at the start of a shortcut's About string is the text "hidden", then that shortcut will not show up in the help system (the "ref" shortcuts), though it can still be called within a note.  This is helpful to prevent cluttering the help system with shortcuts that are not useful to the user, only to other shortcuts.
 
 ***
 
 ## ADVANCED SHORTCUTS: Reacting to shortcut expansions
-- TODO (use objChain function here)
-If a shortcut-file needs to react to shortcut expansions, it can now setup a callback function to be called on such an event.  The callback should have one parameter: `expansionInfo`.  See [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion) for details on `expansionInfo`.  A callback is registered by assigning the function to a unique key in `window._inlineScripts.listeners.inlineScripts.onExpansion`.  Note that this object heirarchy isn't created automatically, and must be manually created if it doesn't already exist.
+If a shortcut-file needs to react to shortcut expansions, it can setup a callback function to be called on such an event.  The callback should have one parameter: `expansionInfo`.  See [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion) for details on `expansionInfo`.  A callback is registered by assigning the function to a unique key in `window._inlineScripts.listeners.inlineScripts.onExpansion`.  Note that this object heirarchy isn't created automatically, and must be manually created if it doesn't already exist.
 
 In addition, if the callback function returns a string, then _that_ string is expanded as a shortcut and the result replaces the old expansion.
 
@@ -800,11 +806,6 @@ delete _inlineScripts
 	.onExpansion?.testCallback;
 __
 ```
-
-***
-
-## Known Issues
-- Undo of expansion works a bit differently between the old editor (CodeMirror 5, non-mobile) and the new editor (CodeMirror 6, mobile and new non-mobile).  When using the new editor, the character that was typed just prior to the expansion does not show on undo.
 
 ***
 
