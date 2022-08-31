@@ -237,6 +237,10 @@ export abstract class ShortcutLoader
 		// Add a helper-blocker to segment helper scripts within their shortcut-files
 		plugin.shortcuts.push({});
 
+		// Track shortcut-files (to provide a list to the shortcuts)
+		let sfileIndices: any = {};
+		let sfileIndicesIndex = 0;
+
 		// Go over all shortcut-files
 		for (const shortcutFile of plugin.settings.shortcutFiles)
 		{
@@ -324,6 +328,9 @@ export abstract class ShortcutLoader
 				    "Description of the \"" + baseName + "\" shortcut-file." ],
 				  [ "ref " + baseName,
 				    "A list of shortcuts defined in the \"" + baseName + "\" shortcut-file." ] ]);
+
+			sfileIndices[baseName] = sfileIndicesIndex;
+			sfileIndicesIndex++;
 		}
 
 		// Generate and add help shortcuts
@@ -331,6 +338,11 @@ export abstract class ShortcutLoader
 
 		// Finalize the master syntaxes list
 		this.finalizeShortcutSyntaxes();
+
+		// Setup a list of indices for shortcut-files, available to shortcuts
+		window._inlineScripts ||= {};
+		window._inlineScripts.inlineScripts ||= {};
+		window._inlineScripts.inlineScripts.sfileIndices = sfileIndices;
 
 		// ButtonView needs to be updated with the latest shortcut info
 		ButtonView.getInstance()?.refreshGroupUi();
