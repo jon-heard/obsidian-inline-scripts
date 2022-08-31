@@ -769,7 +769,7 @@ If the Syntax string at the start of a shortcut's About string is the text "hidd
 ***
 
 ## ADVANCED SHORTCUTS: Reacting to shortcut expansions
-If a shortcut-file needs to react to shortcut expansions, it can setup a callback function to be called on such an event.  The callback should have one parameter: `expansionInfo`.  See [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion) for details on `expansionInfo`.  A callback is registered by assigning the function to a unique key in `window._inlineScripts.listeners.inlineScripts.onExpansion`.  Note that this object heirarchy isn't created automatically, and must be manually created if it doesn't already exist.
+If a shortcut-file needs to react to shortcut expansions, it can setup a callback function to be called on such an event.  The callback should have one parameter: `expansionInfo`.  See [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion) for details on `expansionInfo`.  A callback is registered by assigning the function to a unique key in `window._inlineScripts.inlineScripts.listeners.inlineScripts.onExpansion`.  Note that this object heirarchy isn't created automatically, and must be manually created if it doesn't already exist.
 
 In addition, if the callback function returns a string, then _that_ string is expanded as a shortcut and the result replaces the old expansion.
 
@@ -779,7 +779,8 @@ __
 ^sfile setup$
 __
 confirmObjPath(
-	"_inlineScripts.listeners.inlineScripts.onExpansion.testCallback",
+	"_inlineScripts.inlineScripts.listeners." +
+	"inlineScripts.onExpansion.testCallback",
 	(expansionInfo) =>
 	{
 		if (expansionInfo.shortcutText.contains("d"))
@@ -801,9 +802,8 @@ __
 __
 ^sfile shutdown$
 __
-delete _inlineScripts
-	.listeners?.inlineScripts?
-	.onExpansion?.testCallback;
+delete _inlineScripts.inlineScripts?.listeners?.
+	inlineScripts?.onExpansion?.testCallback;
 __
 ```
 

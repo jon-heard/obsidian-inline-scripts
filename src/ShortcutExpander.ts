@@ -163,12 +163,14 @@ export abstract class ShortcutExpander
 		// If there are any listeners for the expansion event, call them.  If any of them return
 		// true, then cancel the expansion.
 		else if (expansionInfo.isUserTriggered && !expansionInfo.cancel &&
-		         window._inlineScripts?.listeners?.inlineScripts?.onExpansion)
+		         window._inlineScripts?.inlineScripts?.listeners?.inlineScripts?.onExpansion)
 		{
 			let replacementInput: string = null;
-			for (const key in window._inlineScripts.listeners.inlineScripts.onExpansion)
+			for (const key in
+			     window._inlineScripts.inlineScripts.listeners.inlineScripts.onExpansion)
 			{
-				const listener: any = window._inlineScripts.listeners.inlineScripts.onExpansion[key];
+				const listener: any =
+					window._inlineScripts.inlineScripts.listeners.inlineScripts.onExpansion[key];
 				if (typeof listener !== "function" && !failSilently)
 				{
 					UserNotifier.run({ message: "Non-function listener:\n" + listener });
