@@ -1,3 +1,6 @@
+### 0.21.8
+- bug fix - "await" wrap doesn't handle escaped quotes right.
+
 ### 0.21.7
 - bug fix - 0.21.6 introduced a console error on plugin loading at app load time
 
