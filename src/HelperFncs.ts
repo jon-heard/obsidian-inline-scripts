@@ -12,6 +12,12 @@ import InlineScriptsPlugin from "./_Plugin";
 
 export namespace HelperFncs
 {
+	// confirm that an object path is available
+	export function confirmObjPath(path: string, leaf?: any): void
+	{
+		return confirmObjPath_internal(path, leaf);
+	}
+
 	export function getLeafForFile(file: any): any
 	{
 		return getLeafForFile_internal(file);
@@ -30,6 +36,17 @@ export namespace HelperFncs
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+	function confirmObjPath_internal(path: string, leaf?: any): void
+	{
+		const pathChain = path.split(".");
+		let parent: any = window;
+		for (let i = 0; i < pathChain.length-1; i++)
+		{
+			parent = (parent[pathChain[i]] ||= {});
+		}
+		parent[pathChain[pathChain.length-1]] ||= (leaf || {});
+	}
 
 	function getLeafForFile_internal(file: any): any
 	{

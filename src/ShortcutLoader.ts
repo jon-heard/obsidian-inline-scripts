@@ -9,6 +9,7 @@ import { UserNotifier } from "./ui_userNotifier";
 import { ShortcutExpander } from "./ShortcutExpander";
 import { InputBlocker } from "./ui_InputBlocker";
 import { ButtonView } from "./ui_ButtonView";
+import { HelperFncs } from "./HelperFncs";
 
 const REGEX_NOTE_METADATA: RegExp = /^\n*---\n(?:[^-]+\n)?---\n/;
 const REGEX_SPLIT_FIRST_DASH: RegExp = / - (.*)/s;
@@ -237,8 +238,9 @@ export abstract class ShortcutLoader
 		// Add a helper-blocker to segment helper scripts within their shortcut-files
 		plugin.shortcuts.push({});
 
-		// Track shortcut-files (to provide a list to the shortcuts)
-		let sfileIndices: any = {};
+		// Setup a list of indices for shortcut-files, available to shortcuts
+		HelperFncs.confirmObjPath("_inlineScripts.inlineScripts");
+		window._inlineScripts.inlineScripts.sfileIndices = {};
 		let sfileIndicesIndex = 0;
 
 		// Go over all shortcut-files
@@ -329,7 +331,7 @@ export abstract class ShortcutLoader
 				  [ "ref " + baseName,
 				    "A list of shortcuts defined in the \"" + baseName + "\" shortcut-file." ] ]);
 
-			sfileIndices[baseName] = sfileIndicesIndex;
+			window._inlineScripts.inlineScripts.sfileIndices[baseName] = sfileIndicesIndex;
 			sfileIndicesIndex++;
 		}
 
@@ -338,11 +340,6 @@ export abstract class ShortcutLoader
 
 		// Finalize the master syntaxes list
 		this.finalizeShortcutSyntaxes();
-
-		// Setup a list of indices for shortcut-files, available to shortcuts
-		window._inlineScripts ||= {};
-		window._inlineScripts.inlineScripts ||= {};
-		window._inlineScripts.inlineScripts.sfileIndices = sfileIndices;
 
 		// ButtonView needs to be updated with the latest shortcut info
 		ButtonView.getInstance()?.refreshGroupUi();
