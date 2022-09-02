@@ -600,49 +600,6 @@ Returns a weighted random value from "a", an array of values.  Each item in the 
 	}
 ```
 
-### confirmObjPath(path, leaf)
-Confirms that there is a chain of objects-within-objects starting from "window" and following the "path" parameter (a period-separated string).  If not, then confirmObjPath creates whatever parts of the "path" chain are missing.  If the "leaf" parameter is given, then the last element of the "path" chain will be assigned to "leaf" if it doesn't yet exist.
-- Example - these two scripts are equivalent:
-	- `confirmObjPath("a.b.c", 3)`
-	- `window.a ||= {}; window.a.b ||= {}; window.a.b.c ||= 3;`
-```
-	function confirmObjPath(path, leaf)
-	{
-	    path = path.split(".");
-	    let parent = window;
-	    for (let i = 0; i < path.length-1; i++)
-	    {
-	        parent = (parent[path[i]] ||= {});
-	    }
-	    parent[path[path.length-1]] ||= (leaf || {});
-	}
-```
-
-### callFunctionCollection(colName, collection)
-Takes a collection (either array or object) of functions and calls all functions inside of it.  This is useful for storing callbacks for an event in a collection, then calling that entire collection at once when the event occurs.  "colName" is a string to identify the collection if an error or warning is thrown.
-```
-	function callFunctionCollection(colName, collection)
-	{
-		if (!Array.isArray(collection))
-		{
-			collection = Object.values(collection);
-		}
-		for (const fnc of collection)
-		{
-			if (typeof fnc === "function")
-			{
-				fnc(expand);
-			}
-			else
-			{
-				console.warn(
-					"Non-function in collection \"" +
-					colName + "\": " + fnc);
-			}
-		}
-	}
-```
-
 ***
 
 ## ADVANCED SHORTCUTS: Setup and shutdown scripts
@@ -653,7 +610,7 @@ A shortcut-file can contain a "shutdown script".  A shutdown script is defined a
 ### Example
 | Test string | Expansion string | Overview |
 | ----------- | ---------------- | -------- |
-| ^sfile&nbsp;setup$ | confirmObjPath("_inlineScripts.state");<br/>inlineScripts.state.flag \|\|= 1; | This setup script creates some global variables that shortcuts in the shortcut-file presumably rely upon.<br/><br/>Notice that the setup script _ONLY_ creates the global variables if they don't yet exist (`\|\|=`).  This is important as a setup script _may_ be run many times during a session.  We don't want later runs to wipe out anything that was created earlier.<br/><br/>This script also uses the __confirmObjPath__ function documented [here](#confirmobjpathpath-leaf). |
+| ^sfile&nbsp;setup$ | const confirmObjectPath&nbp;=<br/>&nbsp;&nbsp;_inlineScripts.inlineScripts.helperFncs.<br/>&nbsp;&nbsp;confirmObjectPath;<br/>confirmObjectPath("_inlineScripts.state");<br/>inlineScripts.state.flag \|\|= 1; | This setup script creates some global variables that shortcuts in the shortcut-file presumably rely upon.<br/><br/>Notice that the setup script _ONLY_ creates the global variables if they don't yet exist (`\|\|=`).  This is important as a setup script _may_ be run many times during a session.  We don't want later runs to wipe out anything that was created earlier.<br/><br/>This script also uses __confirmObjectPath__, a function provided by __Inline Scripts__ to make sure that a specific object-within-object chain exists. |
 | ^sfile&nbsp;shutdown$ | delete&nbsp;_inlineScripts.state; | This shutdown script removes a variable that was created by the setup script. |
 
 ***
@@ -769,7 +726,7 @@ If the Syntax string at the start of a shortcut's About string is the text "hidd
 ***
 
 ## ADVANCED SHORTCUTS: Reacting to shortcut expansions
-If a shortcut-file needs to react to shortcut expansions, it can setup a callback function to be called on such an event.  The callback should have one parameter: `expansionInfo`.  See [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion) for details on `expansionInfo`.  A callback is registered by assigning the function to a unique key in `window._inlineScripts.inlineScripts.listeners.inlineScripts.onExpansion`.  Note that this object heirarchy isn't created automatically, and must be manually created if it doesn't already exist.
+If a shortcut-file needs to react to shortcut expansions, it can setup a callback function to be called on such an event.  The callback should have one parameter: `expansionInfo`.  See [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion) for details on `expansionInfo`.  A callback is registered by assigning the function to a unique key in `window._inlineScripts.inlineScripts.listeners.onExpansion`.  Note that this object heirarchy isn't created automatically, and must be manually created if it doesn't already exist.
 
 In addition, if the callback function returns a string, then _that_ string is expanded as a shortcut and the result replaces the old expansion.
 
@@ -778,9 +735,11 @@ In addition, if the callback function returns a string, then _that_ string is ex
 __
 ^sfile setup$
 __
-confirmObjPath(
+const confirmObjectPath =
+	_inlineScripts.inlineScripts.helperFncs.confirmObjectPath;
+confirmObjectPath(
 	"_inlineScripts.inlineScripts.listeners." +
-	"inlineScripts.onExpansion.testCallback",
+	"onExpansion.testCallback",
 	(expansionInfo) =>
 	{
 		if (expansionInfo.shortcutText.contains("d"))
@@ -803,7 +762,7 @@ __
 ^sfile shutdown$
 __
 delete _inlineScripts.inlineScripts?.listeners?.
-	inlineScripts?.onExpansion?.testCallback;
+	onExpansion?.testCallback;
 __
 ```
 
