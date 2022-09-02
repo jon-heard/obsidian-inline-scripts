@@ -239,7 +239,7 @@ export abstract class ShortcutLoader
 		plugin.shortcuts.push({});
 
 		// Setup a list of indices for shortcut-files, available to shortcuts
-		HelperFncs.confirmObjPath("_inlineScripts.inlineScripts");
+		HelperFncs.confirmObjectPath("_inlineScripts.inlineScripts");
 		window._inlineScripts.inlineScripts.sfileIndices = {};
 		let sfileIndicesIndex = 0;
 

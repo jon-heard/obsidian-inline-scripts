@@ -16,6 +16,7 @@ import { AutoComplete } from "./AutoComplete";
 import { InputBlocker } from "./ui_InputBlocker";
 import { Popups } from "./ui_Popups";
 import { ButtonView } from "./ui_ButtonView";
+import { HelperFncs } from "./HelperFncs";
 
 // NOTE: The "Inline Scripts" plugin uses a custom format for shortcut-files.  I tried using
 // existing formats (json, xml, etc), but they were cumbersome for developing JavaScript code in.
@@ -158,6 +159,7 @@ export default class InlineScriptsPlugin extends Plugin
 		// Initialize support objects
 		ShortcutExpander.staticConstructor();
 		ShortcutLinks.staticConstructor();
+		HelperFncs.staticConstructor();
 		this.shortcutDfc = new Dfc(
 			this.getActiveShortcutFileAddresses(), ShortcutLoader.getFunction_setupShortcuts(),
 			this.onShortcutFileDisabled.bind(this), true);

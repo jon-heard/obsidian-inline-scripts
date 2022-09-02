@@ -10,6 +10,7 @@ import { ExternalRunner } from "./ExternalRunner";
 import { AutoAsyncWrapper } from "./AutoAsyncWrapper";
 import { Parser } from "./node_modules/acorn/dist/acorn";
 import { Popups } from "./ui_Popups";
+import { HelperFncs } from "./HelperFncs";
 
 // Get the AsyncFunction constructor to setup and run Expansion scripts with
 const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
@@ -38,7 +39,7 @@ export abstract class ShortcutExpander
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private static _expand_internal: any;
+	private static _boundExpand: Function;
 
 	private static staticConstructor_internal(): void
 	{
@@ -48,7 +49,7 @@ export abstract class ShortcutExpander
 			"popups\s*\.\s*pick", "popups\s*\.\s*custom" ]);
 
 		//Setup bound versons of these function for persistant use
-		this._expand_internal = this.expand_internal.bind(this);
+		this._boundExpand = this.expand.bind(this);
 	}
 
 	// Take a shortcut string and return the proper Expansion script.
@@ -163,25 +164,20 @@ export abstract class ShortcutExpander
 		// If there are any listeners for the expansion event, call them.  If any of them return
 		// true, then cancel the expansion.
 		else if (expansionInfo.isUserTriggered && !expansionInfo.cancel &&
-		         window._inlineScripts?.inlineScripts?.listeners?.inlineScripts?.onExpansion)
+		         window._inlineScripts?.inlineScripts?.listeners?.onExpansion)
 		{
 			let replacementInput: string = null;
-			for (const key in
-			     window._inlineScripts.inlineScripts.listeners.inlineScripts.onExpansion)
-			{
-				const listener: any =
-					window._inlineScripts.inlineScripts.listeners.inlineScripts.onExpansion[key];
-				if (typeof listener !== "function" && !failSilently)
+			HelperFncs.callEventListenerCollection(
+				"inlineScripts.onExpansion",
+				window._inlineScripts.inlineScripts.listeners.onExpansion,
+				expansionInfo,
+				(result: any) =>
 				{
-					UserNotifier.run({ message: "Non-function listener:\n" + listener });
-					continue;
-				}
-				const result = listener(expansionInfo);
-				if (typeof result === "string")
-				{
-					replacementInput = result;
-				}
-			}
+					if (typeof result === "string")
+					{
+						replacementInput = result;
+					}
+				});
 			if (typeof replacementInput === "string")
 			{
 				return this.expand(replacementInput, false);
@@ -236,7 +232,7 @@ export abstract class ShortcutExpander
 			return await ( new AsyncFunction(
 				"expand", "runExternal", "print", "expansionInfo", "popups",
 				expansionScript) )
-				( this._expand_internal, ExternalRunner.run, UserNotifier.getFunction_print(),
+				( this._boundExpand, ExternalRunner.run, UserNotifier.getFunction_print(),
 				  expansionInfo, Popups.getInstance() ) ?? "";
 		}
 		// If there was an error...

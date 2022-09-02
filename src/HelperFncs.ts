@@ -12,10 +12,22 @@ import InlineScriptsPlugin from "./_Plugin";
 
 export namespace HelperFncs
 {
-	// confirm that an object path is available
-	export function confirmObjPath(path: string, leaf?: any): void
+	export function staticConstructor(): void
 	{
-		return confirmObjPath_internal(path, leaf);
+		confirmObjectPath("_inlineScripts.inlineScripts.helperFncs",
+		{
+			confirmObjectPath,
+			getLeafForFile,
+			appendToEndOfNote,
+			parseMarkdown,
+			callEventListenerCollection,
+		});
+	}
+
+	// confirm that an object path is available
+	export function confirmObjectPath(path: string, leaf?: any): void
+	{
+		confirmObjectPath_internal(path, leaf);
 	}
 
 	export function getLeafForFile(file: any): any
@@ -35,9 +47,15 @@ export namespace HelperFncs
 		return parseMarkdown_internal(md);
 	}
 
+	export async function callEventListenerCollection(
+		title: string, collection: any, parameters?: Array<any>, onReturn?: Function): Promise<void>
+	{
+		await callEventListenerCollection_internal(title, collection, parameters, onReturn);
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	function confirmObjPath_internal(path: string, leaf?: any): void
+	function confirmObjectPath_internal(path: string, leaf?: any): void
 	{
 		const pathChain = path.split(".");
 		let parent: any = window;
@@ -130,5 +148,41 @@ export namespace HelperFncs
 			result = result.slice(3, -4);
 		}
 		return result;
+	}
+
+	async function callEventListenerCollection_internal(
+		title: string, collection: any, parameters?: Array<any>, onReturn?: Function): Promise<void>
+	{
+		let toCall: any =
+			Object.keys(collection).map(v => { return {key: v, fnc: collection[v]}; });
+		const sfileIndices = window._inlineScripts.inlineScripts.sfileIndices;
+		for (const toCallItem of toCall)
+		{
+			if (sfileIndices[toCallItem.key])
+			{
+				toCallItem.key =
+					(sfileIndices[toCallItem.key]+"").padStart(3, "0") + toCallItem.key;
+			}
+		}
+		toCall =
+			toCall
+			.sort((lhs: any, rhs: any) => { return lhs.key.localeCompare(rhs.key); })
+			.map((v: any) => v.fnc);
+
+		for (const fnc of toCall)
+		{
+			if (typeof fnc === "function")
+			{
+				const result = await fnc(parameters);
+				if (result != undefined && onReturn)
+				{
+					onReturn(result);
+				}
+			}
+			else
+			{
+				console.warn("Non-function in collection \"" + title + "\": " + fnc);
+			}
+		}
 	}
 }
