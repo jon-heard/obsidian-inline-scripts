@@ -63,7 +63,7 @@ export namespace HelperFncs
 		{
 			parent = (parent[pathChain[i]] ||= {});
 		}
-		parent[pathChain[pathChain.length-1]] ||= (leaf || {});
+		parent[pathChain[pathChain.length-1]] ||= (leaf === null ? {} : leaf);
 	}
 
 	function getLeafForFile_internal(file: any): any
@@ -153,6 +153,10 @@ export namespace HelperFncs
 	async function callEventListenerCollection_internal(
 		title: string, collection: any, parameters?: Array<any>, onReturn?: Function): Promise<void>
 	{
+		if (!collection)
+		{
+			return;
+		}
 		let toCall: any =
 			Object.keys(collection).map(v => { return {key: v, fnc: collection[v]}; });
 		const sfileIndices = window._inlineScripts.inlineScripts.sfileIndices;
