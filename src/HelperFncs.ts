@@ -63,7 +63,7 @@ export namespace HelperFncs
 		{
 			parent = (parent[pathChain[i]] ||= {});
 		}
-		parent[pathChain[pathChain.length-1]] ||= (leaf === null ? {} : leaf);
+		parent[pathChain[pathChain.length-1]] ||= (leaf === undefined ? {} : leaf);
 	}
 
 	function getLeafForFile_internal(file: any): any
