@@ -42,9 +42,9 @@ const ANNOUNCEMENTS: Array<any> =
 	{
 		version: "0.22.0",
 		message:
-			"0.22.x adds some notable features.<ul style='text-align:left'><li>A side panel " +
+			"0.22.x adds some notable features:<ul style='text-align:left'><li>A side panel " +
 			"onto which you can add custom buttons to quickly run shortcuts.</li><li>Adding " +
-			"text links to your notes that will run a shortcut when clicked.</li></ul>" +
+			"Links you can add to your notes that will run a shortcut when clicked.</li></ul>" +
 			"Watch <a href='https://www.youtube.com/watch?v=wOxZwovPfxg'>this video</a> for a " +
 			"demonstration of the major features being added in 0.22.0.\nCheck " +
 			"<a href='https://github.com/jon-heard/obsidian-inline-scripts/discussions/29'>" +
