@@ -19,7 +19,7 @@ This plugin is currently in __open beta__.
 - Tutorials: basics &nbsp; _(suggest reading in-order)_
     1. [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out)
     2. [Create a new shortcut](#tutorial-create-a-new-shortcut)
-    3. [Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)
+    3. [Add existing shortcut-files to a vault](#tutorial-add-existing-shortcut-files-to-a-vault)
     4. [Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)
 - Tutorials: extra features
     - [Use the buttons panel to run shortcuts](#tutorial-use-the-buttons-panel-to-run-shortcuts)
@@ -60,7 +60,7 @@ The second example shows how shortcut text can include parameter text (`male eur
 
 Shortcuts can be defined in the settings.  __Inline Scripts__ comes with some sample shortcuts defined by default.  See the tutorials "[Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out)" and "[Create a new shortcut](#tutorial-create-a-new-shortcut)" for details.
 
-Shortcuts can also be defined in shortcut-files, to be added to the vault as notes.  This requires a bit more work, but allows for better organization and sharing of shortcuts.  Users can download prewritten shortcut-files into their vault, or write their own.  See the tutorials "[Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)" and "[Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)" for details.
+Shortcuts can also be defined in shortcut-files, to be added to the vault as notes.  This requires a bit more work, but allows for better organization and sharing of shortcuts.  Users can download prewritten shortcut-files into their vault, or write their own.  See the tutorials "[Add existing shortcut-files to a vault](#tutorial-add-existing-shortcut-files-to-a-vault)" and "[Create a new shortcut-file](#tutorial-create-a-new-shortcut-file)" for details.
 
 Finally, __Inline Scripts__ provides a number of ways to trigger shortcuts beyond typing them directly in the note.  This includes a panel where buttons can be added to trigger shortcuts.  It also includes the ability to write links into a note that trigger a shortcut each time they are clicked.  See the tutorials "[Use the buttons panel to run shortcuts](#tutorial-use-the-buttons-panel-to-run-shortcuts)" and "[Add links to a note to run shortcuts](#tutorial-add-links-to-a-note-to-run-shortcuts)" for details.
 
@@ -203,13 +203,21 @@ After the syntax (and dash) is the expansion and purpose.
 ***
 ***
 
-## TUTORIAL: Add an existing shortcut-file to a vault
+## TUTORIAL: Add existing shortcut-files to a vault
 
 ### A warning
 Shortcuts, by their JavScript nature, have a risk of being malicious.  Make sure you trust a shortcut or shortcut-file before using it.
 
 ### Shortcut-file sources
 There is a library of shortcut-files for __Inline Scripts__ [here](https://github.com/jon-heard/obsidian-inline-scripts-library).  You can bring individual shortcut-files into your vault from this library, or from any other source.  Alternately, the __Inline Scripts__ plugin has a button to import the entire library to your vault at once.
+
+Some of the shortcut-files in the library have video tutorials on how to use them.  Type "help x", where "x" is the shortcut-file's name, to get links to any tutorial videos on the shortcut-file.
+
+For beginners, I'd advise watching these tutorial videos:
+- [State system for users (runtime 2:23)](https://www.youtube.com/watch?v=WHQuQm3RieY)
+- [Lists system (runtime 5:34)](https://www.youtube.com/watch?v=xIYpnBKdYRg)
+
+_(Note - The shortcut-file "states.sfile" has two videos, one for users and one for developers.)_
 
 ### Step-by-step: Importing the entire shortcut-file library to the vault
 1. Make sure that the __Inline Scripts__ plugin is installed and enabled in your vault. (see the tutorial [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out).)
@@ -261,7 +269,7 @@ There is a library of shortcut-files for __Inline Scripts__ [here](https://githu
 
 ### NOTE: If you make a shortcut-file you think others would like, it'd be real nice if you could share it [here](https://github.com/jon-heard/obsidian-inline-scripts/discussions)!  If it is polished and generally useful, then I'll even add it to the [library of shortcut-files](https://github.com/jon-heard/obsidian-inline-scripts-library).
 
-This tutorial assumes that you have read and understood the tutorial "[Create a new shortcut](#tutorial-create-a-new-shortcut)", and are at least aware that the tutorial "[Add an existing shortcut-file to a vault](#tutorial-add-an-existing-shortcut-file-to-a-vault)" shows how to setup an existing shortcut-file.
+This tutorial assumes that you have read and understood the tutorial "[Create a new shortcut](#tutorial-create-a-new-shortcut)", and are at least aware that the tutorial "[Add existing shortcut-files to a vault](#tutorial-add-existing-shortcuts-files-to-a-vault)" shows how to setup an existing shortcut-file.
 
 A shortcut-file contains multiple shortcuts.  Each shortcut contains three strings: Test, Expansion and About.  A shortcut-file will typically bundle collections of shortcuts that work toward a common goal, such as a particular functionality (saving & loading) or a particular system (Dungeons and Dragons).
 
