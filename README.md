@@ -211,13 +211,13 @@ Shortcuts, by their JavScript nature, have a risk of being malicious.  Make sure
 ### Shortcut-file sources
 There is a library of shortcut-files for __Inline Scripts__ [here](https://github.com/jon-heard/obsidian-inline-scripts-library).  You can bring individual shortcut-files into your vault from this library, or from any other source.  Alternately, the __Inline Scripts__ plugin has a button to import the entire library to your vault at once.
 
-Some of the shortcut-files in the library have video tutorials on how to use them.  Type "help x", where "x" is the shortcut-file's name, to get links to any tutorial videos on the shortcut-file.
+Video tutorials have been added for the more stable and complex shortcut-files in the library.  Type "help x" (where "x" is the shortcut-file's name) to get links to any tutorial videos for the shortcut-file.
 
 For beginners, I'd advise watching these tutorial videos:
 - [State system for users (runtime 2:23)](https://www.youtube.com/watch?v=WHQuQm3RieY)
 - [Lists system (runtime 5:34)](https://www.youtube.com/watch?v=xIYpnBKdYRg)
 
-_(Note - The shortcut-file "states.sfile" has two videos, one for users and one for developers.)_
+_(Note - The shortcut-file "states.sfile" has two tutorial videos, one for users and one for developers.)_
 
 ### Step-by-step: Importing the entire shortcut-file library to the vault
 1. Make sure that the __Inline Scripts__ plugin is installed and enabled in your vault. (see the tutorial [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out).)
