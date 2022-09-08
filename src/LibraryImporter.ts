@@ -129,7 +129,7 @@ export namespace LibraryImporter
 			return;
 		}
 
-		if (libraryDestinationPath === "customLibSrc")
+		if (libraryDestinationPath.trim().toLowerCase() === "customlibsrc")
 		{
 			run_internal(true);
 			return;
