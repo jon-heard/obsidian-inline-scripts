@@ -19,6 +19,8 @@ import { Modal, Setting } from "obsidian";
 // 			resolveFnc - The function to call with the result of the popup.
 // 			buttonText - The text of button that was clicked (or null if no button was clicked).
 
+const CLOSE_CHECK_INTERVAL = 250;
+
 export class Popups extends Modal
 {
 	// Singleton getter
@@ -67,9 +69,9 @@ export class Popups extends Modal
 	}
 
 	// Override inherited method
-	public onClose(): void
+	public onclose(): void
 	{
-		this.onClose_internal();
+		this.onclose_internal();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -303,21 +305,33 @@ export class Popups extends Modal
 				this.close();
 			}
 		}
+
+		// Closing logic.  Needs to happen here instead of onClose as onClose doesn't work with
+		// sequential popups when on mobile.
+		let looper = setInterval(async () =>
+		{
+			if (!this.contentEl.parentNode.parentNode.parentNode)
+			{
+				clearInterval(looper);
+
+				// Call type-specific onClose
+				if (this._definition.onClose)
+				{
+					await this._definition.onClose(
+						this._data, this._resolve, this._clickedButtonText);
+				}
+
+				// Do extra resolve, in case _onClose isn't available, or didn't end up resolving.
+				this._resolve(null);
+
+			}
+		}, CLOSE_CHECK_INTERVAL);
 	}
 
-	private async onClose_internal(): Promise<void>
+	private onclose_internal(): void
 	{
 		// Unhide blocker dimmer
-		let inputBlockerDimmer = document.getElementById("iscript_inputBlocker");
+		const inputBlockerDimmer = document.getElementById("iscript_inputBlocker");
 		if (inputBlockerDimmer) { inputBlockerDimmer.style.display = "unset"; }
-
-		// Call type-specific onClose
-		if (this._definition.onClose)
-		{
-			await this._definition.onClose(this._data, this._resolve, this._clickedButtonText);
-		}
-
-		// Do extra resolve, in case _onClose isn't available, or didn't end up resolving.
-		this._resolve(null);
 	}
 }
