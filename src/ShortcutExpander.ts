@@ -48,8 +48,12 @@ export abstract class ShortcutExpander
 			"expand", "popups\s*\.\s*alert", "popups\s*\.\s*confirm", "popups\s*\.\s*input",
 			"popups\s*\.\s*pick", "popups\s*\.\s*custom" ]);
 
-		//Setup bound versons of these function for persistant use
+		// Setup bound versons of these function for persistant use
 		this._boundExpand = this.expand.bind(this);
+
+		// Add "expand()" to "window._inlineScripts.inlineScripts.helperFncs"
+		HelperFncs.confirmObjectPath("_inlineScripts.inlineScripts.helperFncs");
+		window._inlineScripts.inlineScripts.helperFncs.expand = this._boundExpand;
 	}
 
 	// Take a shortcut string and return the proper Expansion script.

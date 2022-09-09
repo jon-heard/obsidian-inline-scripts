@@ -14,14 +14,13 @@ export namespace HelperFncs
 {
 	export function staticConstructor(): void
 	{
-		confirmObjectPath("_inlineScripts.inlineScripts.helperFncs",
-		{
-			confirmObjectPath,
-			getLeafForFile,
-			appendToEndOfNote,
-			parseMarkdown,
-			callEventListenerCollection,
-		});
+		confirmObjectPath("_inlineScripts.inlineScripts.helperFncs");
+		let h = window._inlineScripts.inlineScripts.helperFncs;
+		h.confirmObjectPath = confirmObjectPath;
+		h.getLeafForFile = getLeafForFile;
+		h.appendToEndOfNote = appendToEndOfNote;
+		h.parseMarkdown = parseMarkdown;
+		h.callEventListenerCollection = callEventListenerCollection;
 	}
 
 	// confirm that an object path is available
