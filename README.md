@@ -214,10 +214,10 @@ There is a library of shortcut-files for __Inline Scripts__ [here](https://githu
 Video tutorials have been added for the more stable and complex shortcut-files in the library.  Type "help x" (where "x" is the shortcut-file's name) to get links to any tutorial videos for the shortcut-file.
 
 For beginners, I'd advise watching these tutorial videos:
-- [State system for users (runtime 2:23)](https://www.youtube.com/watch?v=WHQuQm3RieY)
-- [Lists system (runtime 5:34)](https://www.youtube.com/watch?v=xIYpnBKdYRg)
+- [State system for users](https://www.youtube.com/watch?v=WHQuQm3RieY) (runtime 2:23)
+- [Lists system](https://www.youtube.com/watch?v=xIYpnBKdYRg) (runtime 5:34)
 
-_(Note - The shortcut-file "states.sfile" has two tutorial videos, one for users and one for developers.)_
+_(Note - The shortcut-file "states.sfile" has __two__ tutorial videos, one for users and one for developers.)_
 
 ### Step-by-step: Importing the entire shortcut-file library to the vault
 1. Make sure that the __Inline Scripts__ plugin is installed and enabled in your vault. (see the tutorial [Setup the plugin and try it out](#tutorial-setup-the-plugin-and-try-it-out).)
