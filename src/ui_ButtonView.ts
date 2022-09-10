@@ -510,6 +510,7 @@ export class ButtonView extends ItemView
 		this._groupSelect.classList.add("iscript_buttonView_groupSelect");
 		this._groupSelect.onchange = () =>
 		{
+			ButtonView.getInstance().toggleState("normal");
 			this._currentGroup =
 				ButtonView.getInstance()._groupSelect.value;
 			ButtonView.getInstance().refreshButtonUi();
