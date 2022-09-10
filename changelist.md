@@ -1,3 +1,7 @@
+### 0.22.1
+- bug fix - announcement - latest has a broken link.
+- polish - announcement - added bullet to announce support shortcut-files.
+
 ### 0.22.0
   FEATURES
 	- A button panel has been added to plugin, allowing custom button creation for running shortcuts

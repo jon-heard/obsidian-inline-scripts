@@ -46,9 +46,10 @@ const ANNOUNCEMENTS: Array<any> =
 			"<li>A side panel onto which you can add custom buttons to quickly run shortcuts.</li>" +
 			"<li>Links you can add to your notes that will run a shortcut when clicked.</li>" +
 			"<li>Tutorial videos for the more stable and complex shortcut-files in the library</li>" +
+			"<li>Support shortcut-files added to the library (X_ui.sfile) to provide more graphical interfaces.</li>" +
 			"</ul>Watch <a href='https://www.youtube.com/watch?v=wOxZwovPfxg'>this video</a> for " +
 			"a demonstration of the major features being added in 0.22.0.\n" +
-			"Check <a href='https://github.com/jon-heard/obsidian-inline-scripts/discussions/29'>" +
+			"Check <a href='https://github.com/jon-heard/obsidian-inline-scripts/discussions/30'>" +
 			"here</a> for more details on this release."
 	}
 ];
