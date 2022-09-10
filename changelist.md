@@ -1,3 +1,29 @@
+### 0.22.0
+  FEATURES
+	- A button panel has been added to plugin, allowing custom button creation for running shortcuts
+		- Button panel buttons can run shortcuts with "???" run-time parameters
+		- Button panel groups allow setting up groups of buttons for different tasks
+		- Shortcut-files automatically get their own button panel groups
+	- Shortcut links
+		- Links that will trigger a shortcut on clicked, either once or on each click.
+		- Can define run-time parameter captions in the link
+	- In the library, many shortcut-files now have "x_ui" suppliment shortcut-files to redo complex shortcuts in a more graphical ui way.
+	- Global variable setup in shortcut-files has been streamlined with the addition of "confirmObjectPath()"
+	- Added video tutorials for a number of shortcut-files in the library.
+	- Added a variable with list of the loaded shortcut-files and their registered order.
+	- Made a collection of helper functions available to shortcuts
+  BREAKING CHANGES
+	- About string syntax - parameters no longer include "required" or "optional".
+		- "Optional" parameters are now any parameters that specify a default value.
+	- The variable where session state is stored has changed location:
+		- It has moved from "_inlineScripts.state" to "_inlineScripts.state.sessionState"
+	- In the library, the new "x_ui" suppliment shortcut-files redo some of the more complex shortcuts.  It's possible that this may cause some confusion, if the user isn't aware of them.
+  NON-BREAKING CHANGES
+	- Startup and shutdown scripts can now use helper scripts
+	- Warning added when shortcut-file is registered, but has no shortcuts
+	- Can display multiple version annoucements when plugin is updated
+	- Buymecoffee donation method added.  Donation methods added to bottom of settings.
+
 ### 0.21.5
 - bug fix - ios platform incompatible with regex look-behinds.  Replace all lookbehinds!
 
