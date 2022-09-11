@@ -158,6 +158,9 @@ export default class InlineScriptsPlugin extends Plugin
 		this._autocomplete = new AutoComplete(this)
 		this.registerEditorSuggest(this._autocomplete);
 
+		// Add this plugin to "_inlineScripts.inlineScripts"
+		HelperFncs.confirmObjectPath("_inlineScripts.inlineScripts.plugin", this);
+
 		// Initialize support objects
 		ShortcutExpander.staticConstructor();
 		ShortcutLinks.staticConstructor();
@@ -210,6 +213,9 @@ export default class InlineScriptsPlugin extends Plugin
 		// Disconnect "code mirror 5" instances from this plugin
 		this.app.workspace.iterateCodeMirrors(
 			(cm: any) => cm.off("keydown", this._cm5_handleExpansionTrigger));
+
+		// Remove the plugin global state
+		delete window._inlineScripts;
 
 		// Log that the plugin has unloaded
 		UserNotifier.run(
