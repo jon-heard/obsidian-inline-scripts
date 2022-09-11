@@ -15,12 +15,11 @@ export namespace HelperFncs
 	export function staticConstructor(): void
 	{
 		confirmObjectPath("_inlineScripts.inlineScripts.helperFncs");
-		let h = window._inlineScripts.inlineScripts.helperFncs;
-		h.confirmObjectPath = confirmObjectPath;
-		h.getLeafForFile = getLeafForFile;
-		h.appendToEndOfNote = appendToEndOfNote;
-		h.parseMarkdown = parseMarkdown;
-		h.callEventListenerCollection = callEventListenerCollection;
+		Object.assign(window._inlineScripts.inlineScripts.helperFncs,
+		{
+			confirmObjectPath, getLeafForFile, appendToEndOfNote, parseMarkdown,
+			callEventListenerCollection, addCss, removeCss
+		});
 	}
 
 	// confirm that an object path is available
@@ -50,6 +49,16 @@ export namespace HelperFncs
 		title: string, collection: any, parameters?: Array<any>, onReturn?: Function): Promise<void>
 	{
 		await callEventListenerCollection_internal(title, collection, parameters, onReturn);
+	}
+
+	export function addCss(id: string, css: string): void
+	{
+		addCss_internal(id, css);
+	}
+
+	export function removeCss(id: string): void
+	{
+		removeCss_internal(id);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,5 +196,25 @@ export namespace HelperFncs
 				console.warn("Non-function in collection \"" + title + "\": " + fnc);
 			}
 		}
+	}
+
+	export function addCss_internal(id: string, css: string): void
+	{
+		id = id + "_css";
+		let e = document.getElementById(id);
+		if (!e)
+		{
+			e = document.createElement("style");
+			e.id = id;
+			document.head.appendChild(e);
+		}
+		e.innerText = css;
+	}
+
+	export function removeCss_internal(id: string): void
+	{
+		id = id + "_css";
+		const e = document.getElementById(id);
+		e.remove();
 	}
 }
