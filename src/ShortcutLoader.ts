@@ -522,19 +522,22 @@ export abstract class ShortcutLoader
 	private static generateSyntaxRegex(syntax: string): RegExp
 	{
 		let result: string = "^";
-		let isInParameter: boolean = false;
 		for (let i = 0; i < syntax.length; i++)
 		{
 			if (syntax[i] === "{")
 			{
-				result += "(?:([^ ]+)|$)";
-				isInParameter = true;
+				const parameterEnd = syntax.indexOf("}", i);
+				if (syntax.slice(i, parameterEnd).indexOf("default") != -1)
+				{
+					result += "(?:([^ ]*)|$)";
+				}
+				else
+				{
+					result += "(?:([^ ]+)|$)";
+				}
+				i = parameterEnd;
 			}
-			else if (syntax[i] === "}" && isInParameter)
-			{
-				isInParameter = false;
-			}
-			else if (!isInParameter)
+			else
 			{
 				result += "(?:" + this.escapeCharacterForRegex(syntax[i]) + "|$)";
 			}

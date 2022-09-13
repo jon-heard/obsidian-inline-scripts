@@ -167,54 +167,73 @@ export class AutoComplete extends EditorSuggest<any>
 		// the parameter the user is currently on.
 		if (suggestion.match.length > 1)
 		{
-			// Split the suggestion text into parts, including the parameter sections, the
-			// non-parameter sections and the spaces between the sections
-			const parts = text.replaceAll("}", "}~~}").split(REGEX_SYNTAX_SPLITTER);
+			let currentParameterIndex = -1;
+			// TODO - Uncomment this after fixing the TODO below
+			// let inNonParameterSection = false;
 
-			// Determine if the current shortcut-text is beyond the first part, and if it is just
-			// past its current part.  If so, we should highlight the NEXT part instead of the
-			// current part.
-			const isPassedAParameter =
-				this.context.query.startsWith(parts[0]) && this.context.query.endsWith(" ");
-
-			// Figure out the part to higlight
-			let partToHighlight = parts.length-1;
-			for (let i = suggestion.match.length-1; i >= 0; i--)
+			// Artificially add a dummy character to see if it's accepted.  If so, we're in a
+			// parameter section, since they accept ANY character, except space.  We use the
+			// "unit separator" for the dummy character as it's unlikely to show false positive.
+			let match = (this.context.query + "\u241F").match(suggestion.regex);
+			if (match)
 			{
-				let part = parts[partToHighlight];
-				while (!part.startsWith("{") || !part.endsWith("}"))
+				// Find which parameter section accepted the dummy character.
+				for (let i = 1; i < match.length; i++)
 				{
-					partToHighlight--;
-					part = parts[partToHighlight];
-				}
-				if (suggestion.match[i])
-				{
-					break;
-				}
-				if (!isPassedAParameter || i < suggestion.match.length-1)
-				{
-					partToHighlight--;
-					if (partToHighlight <= 0)
+					if (match[i].endsWith("\u241F"))
 					{
+						currentParameterIndex = i;
 						break;
 					}
 				}
 			}
-
-			// If the part to highlight is beyond the first (i.e. past the non-parameter part), then
-			// highlight that part
-			if (partToHighlight > 0 || parts[partToHighlight]?.startsWith("{"))
+			// The dummy character was NOT accepted, so we're in a hardcoded section.  Determine
+			// the last parameter section that was accepted and we're in the section just beyond
+			// that one.  If NO parameter sections were accepted, we're in the hardcoded section
+			// before ANY parameter sections, so don't set currentParameterIndex and NO sections
+			// will be highlighted.
+			else
 			{
-				parts[partToHighlight] =
-					"<span class='iscript_suggestionHighlight'>" + parts[partToHighlight] +
-					"</span>";
+				// TODO - Fix this so that it works if skipping an optional parameter section into
+				// a hardcoded one.
+
+				// inNonParameterSection = true;
+				// match = suggestion.match;
+				// // Find which parameter section accepted the dummy character.
+				// for (let i = 1; i < match.length; i++)
+				// {
+					// if (match[i])
+					// {
+						// currentParameterIndex = i;
+					// }
+				// }
 			}
 
-			// Put the parts back together in the text
-			text = parts.join("");
+			if (currentParameterIndex !== -1)
+			{
+				// Split the suggestion text into parts, including the parameter sections.
+				const parts = text.replaceAll("}", "}~~}").split(REGEX_SYNTAX_SPLITTER);
+				// Find and highlight the current section.
+				let parameterCounter = 0;
+				for (let i = 0; i < parts.length; i++)
+				{
+					if (parts[i].startsWith("{") && parts[i].endsWith("}"))
+					{
+						parameterCounter++;
+						if (parameterCounter == currentParameterIndex)
+						{
+							// TODO - Uncomment after fixing TODO above this one
+							// if (inNonParameterSection) { i++; }
+							parts[i] =
+								"<span class='iscript_suggestionHighlight'>" + parts[i] + "</span>";
+							text = parts.join("");
+							break;
+						}
+					}
+				}
+			}
 		}
 
-		// Fill the ui with the suggestion text
 		el.innerHTML = text;
 	};
 
