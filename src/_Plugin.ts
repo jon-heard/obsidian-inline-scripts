@@ -129,10 +129,6 @@ export default class InlineScriptsPlugin extends Plugin
 
 	private async onload_internal(): Promise<void>
 	{
-		// DEBUG aids
-		//window.brk = function() { if (window.dbg) { debugger; } }
-		//window.plugin = this;
-
 		// Set this as THE instance
 		InlineScriptsPlugin._instance = this;
 
