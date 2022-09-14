@@ -215,6 +215,6 @@ export namespace HelperFncs
 	{
 		id = id + "_css";
 		const e = document.getElementById(id);
-		e.remove();
+		e?.remove();
 	}
 }
