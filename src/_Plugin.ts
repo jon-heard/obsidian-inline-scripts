@@ -4,7 +4,7 @@
 
 "use strict";
 
-import { Plugin, MarkdownView, ItemView } from "obsidian";
+import { Plugin, MarkdownView, ItemView, addIcon } from "obsidian";
 import { UserNotifier } from "./ui_userNotifier";
 import { InlineScriptsPluginSettings } from "./ui_settings";
 import { DEFAULT_SETTINGS } from "./defaultSettings";
@@ -389,6 +389,6 @@ export default class InlineScriptsPlugin extends Plugin
 
 	private getObsidianInterface_internal(): any
 	{
-		return { ItemView };
+		return { ItemView, addIcon };
 	}
 }
