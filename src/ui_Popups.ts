@@ -8,16 +8,16 @@ import InlineScriptsPlugin from "./_Plugin";
 import { Modal, Setting } from "obsidian";
 
 // Custom popup definition:
-// 		buttons - Which buttons show at the bottom of the popup dialog
+// 		buttonsIds - Which buttons show at the bottom of the popup dialog
 // 		onOpen(data, parent, firstButton, SettingType) - Allows creating the ui for this popup.
 // 			data - An object for relaying info: passed in and passed to both onOpen() and onClose().
 // 			parent - The html div to contain the popup ui.
 // 			firstButton - The first html button.  Useful for triggering popup completion from code.
 // 			SettingType - An Obsidian type to instantiate.  Provides an API for creating ui.
-// 		onClose(data, resolveFnc, buttonText) - Called when the user is finished deciding.
+// 		onClose(data, resolveFnc, buttonId) - Called when the user is finished deciding.
 // 			data - An object for relaying info: passed in and passed to both onOpen() and onClose().
 // 			resolveFnc - The function to call with the result of the popup.
-// 			buttonText - The text of button that was clicked (or null if no button was clicked).
+// 			buttonId - The id of button that was clicked (or null if no button was clicked).
 
 const CLOSE_CHECK_INTERVAL = 250;
 
@@ -30,34 +30,37 @@ export class Popups extends Modal
 	}
 
 	// A popup conveying a message until the user presses the "Ok" button
-	public async alert(message: string): Promise<void>
+	public async alert(message: string, buttonLabel?: string): Promise<void>
 	{
-		await this.alert_internal(message);
+		await this.alert_internal(message, buttonLabel);
 	}
 
 	// A popup asking for a confirmation until the user clicks the "Confirm" or "Cancel" button
-	public async confirm(message: string): Promise<boolean>
+	public async confirm(message: string, buttonLabels?: Array<string>): Promise<boolean>
 	{
-		return await this.confirm_internal(message);
+		return await this.confirm_internal(message, buttonLabels);
 	}
 
 	// A popup asking for some text until the user clicks the "Ok" or "Cancel" button
-	public async input(message: string, defaultValue?: string): Promise<string>
+	public async input(message: string, defaultValue?: string, buttonLabels?: Array<string>)
+		: Promise<string>
 	{
-		return await this.input_internal(message, defaultValue);
+		return await this.input_internal(message, defaultValue, buttonLabels);
 	}
 
 	// A popup asking for selection from a list until the user clicks the "Ok" or "Cancel" button
 	public async pick(
-		message: string, options: Array<string>, defaultValue?: number): Promise<number>
+		message: string, options: Array<string>, defaultValue?: number,
+		buttonLabels?: Array<string>): Promise<number>
 	{
-		return await this.pick_internal(message, options, defaultValue);
+		return await this.pick_internal(message, options, defaultValue, buttonLabels);
 	}
 
 	// A popup that works based on a custom popup definition.  Closes when the user clicks a button.
-	public async custom(message: string, definition: any, data?: any): Promise<any>
+	public async custom(message: string, definition: any, data?: any, buttonLabels?: Array<string>)
+		: Promise<any>
 	{
-		return await this.custom_internal(message, definition, data);
+		return await this.custom_internal(message, definition, data, buttonLabels);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +82,7 @@ export class Popups extends Modal
 	// The function to close the popup and define the return
 	private _resolve: Function;
 	// Stores the text of the popup button that was clicked
-	private _clickedButtonText: string;
+	private _clickedButtonId: string;
 
 	// The user-supplied message
 	private _message: string;
@@ -87,22 +90,24 @@ export class Popups extends Modal
 	private _definition: any;
 	// The object of parameters for the current popup
 	private _data: any;
+	// Optional button labels for customizing the button displays.
+	private _buttonLabels: Array<string>;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Customiation for an "Alert" poupup
 	private ALERT_DEFINITION = Object.freeze(
 	{
-		buttons: [ "Ok" ]
+		buttonIds: [ "Ok" ]
 	});
 
 	// Customiation for a "Confirm" poupup
 	private CONFIRM_DEFINITION = Object.freeze(
 	{
-		buttons: [ "Confirm", "Cancel" ],
-		onClose: async (data: any, resolveFnc: Function, buttonText: string) =>
+		buttonIds: [ "Confirm", "Cancel" ],
+		onClose: async (data: any, resolveFnc: Function, buttonId: string) =>
 		{
-			resolveFnc(buttonText === "Confirm");
+			resolveFnc(buttonId === "Confirm");
 		}
 	});
 
@@ -124,9 +129,9 @@ export class Popups extends Modal
 					});
 				})
 		},
-		onClose: async (data: any, resolveFnc: Function, buttonText: string) =>
+		onClose: async (data: any, resolveFnc: Function, buttonId: string) =>
 		{
-			resolveFnc((buttonText === "Ok") ? data.resultUi.getValue() : null);
+			resolveFnc((buttonId === "Ok") ? data.resultUi.getValue() : null);
 		}
 	});
 
@@ -163,9 +168,9 @@ export class Popups extends Modal
 				});
 			return result;
 		},
-		onClose: async (data: any, resolveFnc: Function, buttonText: string) =>
+		onClose: async (data: any, resolveFnc: Function, buttonId: string) =>
 		{
-			resolveFnc((buttonText === "Ok") ? Number(data.resultUi.getValue()) : null);
+			resolveFnc((buttonId === "Ok") ? Number(data.resultUi.getValue()) : null);
 		}
 	});
 
@@ -188,63 +193,61 @@ export class Popups extends Modal
 		this.modalEl.classList.add("iscript_popup");
 	}
 
-	// An event handler used for all buttons - records the button text, then closes the popup
+	// An event handler used for all buttons - records the button id, then closes the popup
 	private onButton(this: any): void
 	{
 		const p = Popups.getInstance();
-		p._clickedButtonText = this.getText();
+		p._clickedButtonId = this.dataset.id;
 		p.close();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// A popup conveying a message until the user presses the "Ok" button
-	private async alert_internal(message: string): Promise<void>
+	private async alert_internal(message: string, buttonLabel?: string): Promise<void>
 	{
-		return await this.custom(message, this.ALERT_DEFINITION);
+		return await this.custom(message, this.ALERT_DEFINITION, null, [ buttonLabel ]);
 	}
 
 	// A popup asking for a confirmation until the user clicks the "Confirm" or "Cancel" button
-	private async confirm_internal(message: string): Promise<boolean>
+	private async confirm_internal(message: string, buttonLabels?: Array<string>): Promise<boolean>
 	{
-		return await this.custom(message, this.CONFIRM_DEFINITION);
+		return await this.custom(message, this.CONFIRM_DEFINITION, null, buttonLabels);
 	}
 
 	// A popup asking for some text until the user clicks the "Ok" or "Cancel" button
-	public async input_internal(message: string, defaultValue?: string) : Promise<string>
+	public async input_internal(
+		message: string, defaultValue?: string, buttonLabels?: Array<string>) : Promise<string>
 	{
 		return await this.custom(
-			message, this.INPUT_DEFINITION, { defaultValue: defaultValue });
+			message, this.INPUT_DEFINITION, { defaultValue: defaultValue }, buttonLabels);
 	}
 
 	// A popup asking for selection from a list until the user clicks the "Ok" or "Cancel" button
 	public async pick_internal(
-		message: string, options: Array<string>, defaultValue?: number): Promise<number>
+		message: string, options: Array<string>, defaultValue?: number,
+		buttonLabels?: Array<string>): Promise<number>
 	{
 		return await this.custom(
-			message, this.PICK_DEFINITION, { options: options, defaultValue: defaultValue });
+			message, this.PICK_DEFINITION, { options: options, defaultValue: defaultValue },
+			buttonLabels);
 	}
 
 	// A popup that works based on a custom popup definition.  Closes when the user clicks a button.
-	public async custom_internal(message: string, definition: any, data?: any): Promise<any>
+	public async custom_internal(
+		message: string, definition: any, data?: any, buttonLabels?: Array<string>): Promise<any>
 	{
-		// Sanitize parameters
-		message = message ?? "";
-		definition = definition || {};
-		data = data || {};
-
+		// Initialize the popup with sanitized parameters
+		this._message = message ?? "";
+		this._definition = definition || {};
+		this._data = data || {};
+		this._buttonLabels = buttonLabels || [];
+		this._clickedButtonId = null;
 		// Return a promise, which resolves once the user clicks one of the buttons
 		return await new Promise((resolve) =>
 		{
 			// Initialize the popup
 			this._resolve = resolve;
-			this._clickedButtonText = null;
-
-			// Store all user-input
-			this._message = message;
-			this._definition = definition;
-			this._data = data;
-
 			// Open the popup
 			this.open();
 		});
@@ -278,15 +281,17 @@ export class Popups extends Modal
 
 		// Setup buttons
 		let firstButton: any = null;
-		let buttonsUi = new Setting(this.contentEl);
+		const buttonsUi = new Setting(this.contentEl);
 		buttonsUi.settingEl.style.padding = "0";
-		for (const buttonText of this._definition.buttons || [ "Ok", "Cancel" ])
+		const buttonIds = this._definition.buttonIds || [ "Ok", "Cancel" ];
+		for (let i = 0; i < buttonIds.length; i++)
 		{
 			buttonsUi.addButton((button: any) =>
 			{
 				button
-					.setButtonText(buttonText)
+					.setButtonText(this._buttonLabels[i] || buttonIds[i])
 					.onClick(this.onButton.bind(button.buttonEl));
+				button.buttonEl.dataset.id = buttonIds[i];
 				if (!firstButton)
 				{
 					button.setCta();
@@ -318,7 +323,7 @@ export class Popups extends Modal
 				if (this._definition.onClose)
 				{
 					await this._definition.onClose(
-						this._data, this._resolve, this._clickedButtonText);
+						this._data, this._resolve, this._clickedButtonId);
 				}
 
 				// Do extra resolve, in case _onClose isn't available, or didn't end up resolving.
