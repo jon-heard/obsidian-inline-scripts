@@ -73,9 +73,9 @@ export class Popups extends Modal
 	}
 
 	// Override inherited method
-	public onclose(): void
+	public onClose(): void
 	{
-		this.onclose_internal();
+		this.onClose_internal();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ export class Popups extends Modal
 	{
 		onOpen: async (data: any, parent: any, firstButton: any, SettingType: any) =>
 		{
-			let textUi = null;
+			let textUi: any = null;
 			new SettingType(parent)
 				.addText((text: any) =>
 				{
@@ -318,7 +318,7 @@ export class Popups extends Modal
 		// Setup type-specific ui
 		if (this._definition.onOpen)
 		{
-			// If type-specific onOpen returns true, we should early out (something went wrong)
+			// If type-specific onOpen returns true, we should early out
 			if (await this._definition.onOpen(this._data, typeSpecificUi, firstButton, Setting))
 			{
 				this._definition = {};
@@ -348,7 +348,7 @@ export class Popups extends Modal
 		}, CLOSE_CHECK_INTERVAL);
 	}
 
-	private onclose_internal(): void
+	private onClose_internal(): void
 	{
 		// Unhide blocker dimmer
 		const inputBlockerDimmer = document.getElementById("iscript_inputBlocker");

@@ -31,7 +31,7 @@ export abstract class SettingUi_Shortcuts
 	{
 		new Setting(parent)
 			.setName("Shortcuts")
-			.setDesc("Define shortcuts here (in addition to shortcut-files)")
+			.setDesc("Define shortcuts here (in addition to shortcut-files).")
 			.addButton((button: any) =>
 			{
 				return button
