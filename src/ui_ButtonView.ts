@@ -237,9 +237,9 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 			}
 		}
 	},
-	onClose: async (data: any, resolveFnc: Function, buttonText: string) =>
+	onClose: async (data: any, resolveFnc: Function, buttonId: string) =>
 	{
-		if (buttonText !== "Ok")
+		if (buttonId !== "Ok")
 		{
 			return;
 		}

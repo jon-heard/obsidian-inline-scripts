@@ -42,10 +42,11 @@ export class Popups extends Modal
 	}
 
 	// A popup asking for some text until the user clicks the "Ok" or "Cancel" button
-	public async input(message: string, defaultValue?: string, buttonLabels?: Array<string>)
-		: Promise<string>
+	public async input(
+		message: string, defaultValue?: string, suggestions?: Array<string>,
+		buttonLabels?: Array<string>) : Promise<string>
 	{
-		return await this.input_internal(message, defaultValue, buttonLabels);
+		return await this.input_internal(message, defaultValue, suggestions, buttonLabels);
 	}
 
 	// A popup asking for selection from a list until the user clicks the "Ok" or "Cancel" button
@@ -116,6 +117,7 @@ export class Popups extends Modal
 	{
 		onOpen: async (data: any, parent: any, firstButton: any, SettingType: any) =>
 		{
+			let textUi = null;
 			new SettingType(parent)
 				.addText((text: any) =>
 				{
@@ -127,7 +129,19 @@ export class Popups extends Modal
 					{
 						if (e.key === "Enter") { firstButton.click(); }
 					});
+					textUi = text.inputEl;
 				})
+			if (data.suggestions?.length)
+			{
+				let suggestionsUi: any = document.createElement("datalist");
+				suggestionsUi.id = "suggestionsUi";
+				for (const suggestion of data.suggestions)
+				{
+					suggestionsUi.appendChild(new Option(suggestion));
+				}
+				textUi.parentNode.appendChild(suggestionsUi);
+				textUi.setAttr("list", "suggestionsUi");
+			}
 		},
 		onClose: async (data: any, resolveFnc: Function, buttonId: string) =>
 		{
@@ -217,10 +231,11 @@ export class Popups extends Modal
 
 	// A popup asking for some text until the user clicks the "Ok" or "Cancel" button
 	public async input_internal(
-		message: string, defaultValue?: string, buttonLabels?: Array<string>) : Promise<string>
+		message: string, defaultValue?: string, suggestions?: Array<string>,
+		buttonLabels?: Array<string>) : Promise<string>
 	{
 		return await this.custom(
-			message, this.INPUT_DEFINITION, { defaultValue: defaultValue }, buttonLabels);
+			message, this.INPUT_DEFINITION, { defaultValue, suggestions }, buttonLabels);
 	}
 
 	// A popup asking for selection from a list until the user clicks the "Ok" or "Cancel" button
