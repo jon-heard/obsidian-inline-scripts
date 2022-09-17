@@ -120,9 +120,9 @@ export default class InlineScriptsPlugin extends Plugin
 		this.tryShortcutExpansion_internal();
 	}
 
-	public getObsidianInterface(): any
+	public getObsidianInterfaces(): any
 	{
-		return this.getObsidianInterface_internal();
+		return this.getObsidianInterfaces_internal();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -387,7 +387,7 @@ export default class InlineScriptsPlugin extends Plugin
 		this.saveSettings();
 	}
 
-	private getObsidianInterface_internal(): any
+	private getObsidianInterfaces_internal(): any
 	{
 		return { ItemView, addIcon };
 	}
