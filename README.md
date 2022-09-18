@@ -737,14 +737,14 @@ If your shortcut-file needs custom CSS, then you can use the "addCss()" and "rem
 __
 ^sfile setup$
 __
-_inlineScripts.inlineScripts.helperFncs.addCss("tst", ".cm-scroller { background-color: blue; }");
+_inlineScripts.inlineScripts.helperFncs.addCss("example", ".cm-scroller { background-color: blue; }");
 __
 Setup this shortcut-file
 
 __
 ^sfile shutdown$
 __
-_inlineScripts.inlineScripts.helperFncs.removeCss("tst");
+_inlineScripts.inlineScripts.helperFncs.removeCss("example");
 __
 Shutdown this shortcut-file
 ```
