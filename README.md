@@ -41,6 +41,7 @@ This plugin is currently in __open beta__.
         - [Creating custom Popup boxes](#advanced-shortcuts-creating-custom-popup-boxes)
         - [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion)
         - [async and await](#advanced-shortcuts-async-and-await)
+	- [Adding custom CSS](#advanced-shortcuts-adding-custom-css]
         - [Hiding shortcuts](#advanced-shortcuts-hiding-shortcuts)
         - [Reacting to shortcut expansions](#advanced-shortcuts-reacting-to-shortcut-expansions)
 - Technical
@@ -725,6 +726,33 @@ Shortcut Expansion scripts are run asynchronously.  You can safely add "await" b
 #### await
 - Prepended to calls to __expand()__.
 - Prepended to calls to any functions in __popups__.
+
+***
+
+## ADVANCED SHORTCUTS: Adding custom CSS
+If your shortcut-file needs custom CSS, then you can use the "addCss()" and "removeCss()" functions.  Put "_inlineScripts.inlineScripts.helperFncs.addCss()" into the "^sfile setup$" shortcut and "_inlineScripts.inlineScripts.helperFncs.removeCss()" into the "^sfile shutdown$" shortcut of your shortcut-file.  addCss() takes an id (usually the shortcut-file's name) and a string of css and adds the css.  removeCss() takes the id passed to addCss() and removes the css added by addCss().
+
+### Example
+__
+```
+^sfile setup$
+```
+__
+```js
+_inlineScripts.inlineScripts.helperFncs.addCss("tst", ".cm-scroller { background-color: blue; }");
+```
+__
+
+__
+```
+^sfile shutdown$
+```
+__
+```js
+_inlineScripts.inlineScripts.helperFncs.removeCss("tst");
+```
+__
+
 
 ***
 

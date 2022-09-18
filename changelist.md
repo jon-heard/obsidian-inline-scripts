@@ -1,3 +1,22 @@
+### 0.22.2
+  LIBRARY UPDATES
+	- Interfacing with the Dice Roller plugin made possible with the new "plugin_diceroller" shortcut-file.
+		- Contains a single shortcut ;;diceroller {command}::
+	- Virtual cards within Obsidian made possible with the new "cards" shortcut-file.
+		- Check out the tutorial video: https://www.youtube.com/watch?v=-m4n7d3aKC8
+	- A new panel type to view card-piles added with the new "cards_pileviewer" shortcut-file.
+	- More user-friendly versions of shortcuts added with the "cards_ui" shortcut-file.
+	- notepick now uses the state system to save state between Obsidian sessions.
+  FEATURES
+	- Functions "addCss()" and "removeCss()" provided to allow shortcut-files to use their own CSS.  Added to "window._inlineScripts.inlineScripts.helperFncs".
+	- Can now customize button texts for popup panels.
+	- popups.input now takes an optional "suggestions" array that will show in a dropdown list beneath the textbox (if provided).
+	- Plugin access added at "window._inlineScripts.inlineScripts.plugin"
+	- Plugin has getObsidianInterfaces() function that returns some useful Obsidian interfaces.
+  BUG-FIXES
+	- Current parameter isn't highlighted if space-skipping past prior optional ones.
+	- "window._inlineScripts" is'n't removed when plugin is disabled
+
 ### 0.22.1
 - bug fix - announcement - latest has a broken link.
 - polish - announcement - added bullet to announce support shortcut-files.
