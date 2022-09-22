@@ -813,6 +813,4 @@ See the [Changelist doc](https://github.com/jon-heard/obsidian-inline-scripts/bl
 ***
 
 ## Todo
-- Shift from beta to release (after responding to Obsidian community for maybe a month?)
-- Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
-- Find a way to allow the prefix & suffix to contain auto-closed characters - `{`, `"`, etc
+See the [todo doc](https://github.com/jon-heard/obsidian-inline-scripts/blob/main/todo.md) for changes planned for future releases.

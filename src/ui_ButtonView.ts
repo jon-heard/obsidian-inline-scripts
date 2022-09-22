@@ -118,10 +118,12 @@ let BUTTON_VIEW_STATES: any =
 					{
 						dragged.parentNode.insertBefore(dragged, target);
 						dragged.parentNode.insertBefore(target, dragged);
+						break;
 					}
 					else if (child === target)
 					{
 						dragged.parentNode.insertBefore(dragged, target);
+						break;
 					}
 				}
 			};
