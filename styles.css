@@ -285,3 +285,27 @@
 {
 	text-decoration: none;
 }
+
+.iscript_drag_container
+{
+	touch-action: none;
+}
+.iscript_drag_item
+{
+	touch-action: none;
+	cursor: grab;
+}
+.iscript_drag_container_dragging
+{
+	cursor: grabbing;
+}
+.iscript_drag_item_dragged
+{
+	border: 2px solid yellow;
+	cursor: unset !important;
+}
+.iscript_drag_item_notDragged
+{
+	filter: brightness(.75);
+	cursor: unset !important;
+}

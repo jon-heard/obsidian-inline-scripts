@@ -3,8 +3,11 @@
 ### Next release
 / Make "state" automatically store state un closing and opening Obsidian.
 / make shortcuts case insensitive
-- make dragging work on mobile
+/ make dragging work on mobile
+
+### Release after that
 - Update the "cards" system based on the pre-release (https://github.com/jon-heard/obsidian-inline-scripts/discussions/36)
+- more options for shortcut links
 
 ### Post-next release
 - library - write an sfile for ironsworn

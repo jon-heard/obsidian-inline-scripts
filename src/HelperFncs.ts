@@ -4,7 +4,8 @@
 
 "use strict";
 
-import { MarkdownRenderer } from "obsidian";
+import { MarkdownRenderer, ItemView, addIcon } from "obsidian";
+import { DragReorder } from "./ui_dragReorder";
 import InlineScriptsPlugin from "./_Plugin";
 
 /*! getEmPixels  | Author: Tyson Matanich (http://matanich.com), 2013 | License: MIT */
@@ -18,7 +19,7 @@ export namespace HelperFncs
 		Object.assign(window._inlineScripts.inlineScripts.helperFncs,
 		{
 			confirmObjectPath, getLeafForFile, appendToEndOfNote, parseMarkdown,
-			callEventListenerCollection, addCss, removeCss
+			callEventListenerCollection, addCss, removeCss, ItemView, addIcon, DragReorder
 		});
 	}
 

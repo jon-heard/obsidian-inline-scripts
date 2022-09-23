@@ -344,6 +344,14 @@ export abstract class ShortcutLoader
 
 		// ButtonView needs to be updated with the latest shortcut info
 		ButtonView.getInstance()?.refreshGroupUi();
+
+		// Call any listeners of the shortcutsLoaded event
+		if (window._inlineScripts?.inlineScripts?.listeners?.onShortcutsLoaded)
+		{
+			HelperFncs.callEventListenerCollection(
+				"inlineScripts.onShortcutsLoaded",
+				window._inlineScripts.inlineScripts.listeners.onShortcutsLoaded);
+		}
 	}
 
 	private static getExpansionScript(scriptId: string, shortcuts: Array<any>): string

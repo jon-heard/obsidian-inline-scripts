@@ -10,6 +10,7 @@ import { ShortcutExpander } from "./ShortcutExpander";
 import { Popups } from "./ui_Popups";
 import { UserNotifier } from "./ui_userNotifier";
 import { HelperFncs } from "./HelperFncs";
+import { DragReorder } from "./ui_dragReorder";
 
 const SFILE_BUTTON_PARAMETER_CAPTION: string = "Enter a value for\n<b>%1</b>\n<i>%2</i>\n";
 const SFILE_GROUP_PREFIX: string = "[sfile] ";
@@ -90,50 +91,13 @@ let BUTTON_VIEW_STATES: any =
 	reorder:
 	{
 		prefix: "↕   ",
-		onButtonCreated: (button: any) =>
+		onButtonsAdded: (container: any) =>
 		{
-			button.setAttr("draggable", true);
-			button.style.cursor = "grab";
-			button.ondragstart = (evt: any) =>
-			{
-				button.classList.add("iscript_selectedButton");
-				BUTTON_VIEW_STATES.reorder.draggedButton = button;
-			};
-			button.ondragend = (evt: any) =>
-			{
-				button.classList.remove("iscript_selectedButton");
-				delete BUTTON_VIEW_STATES.reorder.draggedButton;
-			};
-			button.ondragenter = (evt: any) =>
-			{
-				const dragged = BUTTON_VIEW_STATES.reorder.draggedButton;
-				const target = button;
-				if (dragged === target)
-				{
-					return;
-				}
-				for (const child of dragged.parentNode.childNodes)
-				{
-					if (child === dragged)
-					{
-						dragged.parentNode.insertBefore(dragged, target);
-						dragged.parentNode.insertBefore(target, dragged);
-						break;
-					}
-					else if (child === target)
-					{
-						dragged.parentNode.insertBefore(dragged, target);
-						break;
-					}
-				}
-			};
-			button.ondragover = (evt: any) =>
-			{
-				evt.preventDefault();
-			};
+			BUTTON_VIEW_STATES.reorder.dragSystem = new DragReorder(container);
 		},
 		onStateEnd: () =>
 		{
+			BUTTON_VIEW_STATES.reorder.dragSystem = null;
 			ButtonView.getInstance().refreshSettingsFromUi();
 		}
 	}
@@ -830,10 +794,10 @@ export class ButtonView extends ItemView
 			{
 				newButton.onclick = this._state.onClick.bind(newButton, newButton);
 			}
-			if (this._state.onButtonCreated)
-			{
-				this._state.onButtonCreated(newButton);
-			}
+		}
+		if (this._state.onButtonsAdded)
+		{
+			this._state.onButtonsAdded(this._buttonUiParent);
 		}
 
 		// System button highlighting

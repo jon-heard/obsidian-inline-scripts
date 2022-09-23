@@ -4,7 +4,7 @@
 
 "use strict";
 
-import { Plugin, MarkdownView, ItemView, addIcon } from "obsidian";
+import { Plugin, MarkdownView } from "obsidian";
 import { UserNotifier } from "./ui_userNotifier";
 import { InlineScriptsPluginSettings } from "./ui_settings";
 import { DEFAULT_SETTINGS } from "./defaultSettings";
@@ -118,11 +118,6 @@ export default class InlineScriptsPlugin extends Plugin
 	public tryShortcutExpansion(): void
 	{
 		this.tryShortcutExpansion_internal();
-	}
-
-	public getObsidianInterfaces(): any
-	{
-		return this.getObsidianInterfaces_internal();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,10 +393,5 @@ export default class InlineScriptsPlugin extends Plugin
 		}
 		this.settings.version = this.manifest.version;
 		this.saveSettings();
-	}
-
-	private getObsidianInterfaces_internal(): any
-	{
-		return { ItemView, addIcon };
 	}
 }
