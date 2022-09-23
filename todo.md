@@ -1,7 +1,9 @@
 ### Pre-next release
 
 ### Next release
-- Make "state" automatically store state un closing and opening Obsidian.
+/ Make "state" automatically store state un closing and opening Obsidian.
+/ make shortcuts case insensitive
+- make dragging work on mobile
 - Update the "cards" system based on the pre-release (https://github.com/jon-heard/obsidian-inline-scripts/discussions/36)
 
 ### Post-next release

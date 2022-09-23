@@ -138,7 +138,7 @@ export abstract class ShortcutLoader
 
 				try
 				{
-					testRegex = new RegExp(c);
+					testRegex = new RegExp(c, "i");
 				}
 				catch (e: any)
 				{
@@ -177,8 +177,9 @@ export abstract class ShortcutLoader
 			// About string handling
 			// Skip if it's a helper script, helper blocker or setup script, or if the About
 			// string's syntax string is the string "hidden"
-			if (testRegex.source !== "(?:)" && testRegex.source !== "^sfile setup$" &&
-			    testRegex.source !== "^sfile shutdown$" && !sections[i+2].startsWith("hidden - "))
+			if (testRegex.source !== "(?:)" && testRegex.source.toLowerCase() !== "^sfile setup$" &&
+			    testRegex.source.toLowerCase() !== "^sfile shutdown$" &&
+			    !sections[i+2].startsWith("hidden - "))
 			{
 				let aboutParts: Array<string> =
 					sections[i+2].split(REGEX_SPLIT_FIRST_DASH).map((v: string) => v.trim());
@@ -358,7 +359,7 @@ export abstract class ShortcutLoader
 					result += shortcut.expansion;
 				}
 			}
-			else if (shortcut.test.source === scriptId)
+			else if (shortcut.test.source.toLowerCase() === scriptId)
 			{
 				result += shortcut.expansion;
 				break;
