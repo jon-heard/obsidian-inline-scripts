@@ -130,6 +130,7 @@ export default class InlineScriptsPlugin extends Plugin
 	private static _instance: InlineScriptsPlugin;
 
 	private _cm5_handleExpansionTrigger: any;
+	private _runAllShutdownScripts: any;
 	private _autocomplete: AutoComplete;
 
 	private async onload_internal(): Promise<void>
@@ -168,12 +169,13 @@ export default class InlineScriptsPlugin extends Plugin
 		HelperFncs.staticConstructor();
 		this.shortcutDfc = new Dfc(
 			this.getActiveShortcutFileAddresses(), ShortcutLoader.getFunction_setupShortcuts(),
-			this.onShortcutFileDisabled.bind(this), true);
+			this.runShutdownScript.bind(this), true);
 		this.shortcutDfc.setMonitorType(
 			this.settings.devMode ? DfcMonitorType.OnTouch : DfcMonitorType.OnModify);
 
 		//Setup bound verson of this function for persistant use
 		this._cm5_handleExpansionTrigger = this.cm5_handleExpansionTrigger.bind(this);
+		this._runAllShutdownScripts = this.runAllShutdownScripts.bind(this);
 
 		// Connect "code mirror 5" instances to this plugin to trigger expansions
 		this.registerCodeMirror( (cm: any) => cm.on("keydown", this._cm5_handleExpansionTrigger) );
@@ -183,6 +185,9 @@ export default class InlineScriptsPlugin extends Plugin
 			require("@codemirror/state").EditorState.transactionFilter.of(
 				this.cm6_handleExpansionTrigger.bind(this))
 		]);
+
+		// Call all shutdown scripts of shortcut-files
+		this.app.workspace.on("quit", this._runAllShutdownScripts);
 
 		// Log that the plugin has loaded
 		UserNotifier.run(
@@ -206,10 +211,8 @@ export default class InlineScriptsPlugin extends Plugin
 		this._autocomplete.destructor();
 
 		// Call all shutdown scripts of shortcut-files
-		for (const filename in this.shutdownScripts)
-		{
-			this.onShortcutFileDisabled(filename);
-		}
+		this.runAllShutdownScripts();
+		this.app.workspace.off("quit", this._runAllShutdownScripts);
 
 		// Disconnect "code mirror 5" instances from this plugin
 		this.app.workspace.iterateCodeMirrors(
@@ -228,17 +231,27 @@ export default class InlineScriptsPlugin extends Plugin
 
 	// Call the given shortcut-file's shutdown script.
 	// Note: This is called when shortcut-file is being disabled
-	private onShortcutFileDisabled(filename: string): void
+	private async runShutdownScript(filename: string): Promise<void>
 	{
 		if (!this.shutdownScripts[filename]) { return; }
 		try
 		{
-			ShortcutExpander.runExpansionScript(
+			await ShortcutExpander.runExpansionScript(
 				this.shutdownScripts[filename], false, { shortcutText: "sfile shutdown" });
 		}
 		catch (e: any) {}
 		delete this.shutdownScripts[filename];
 	}
+
+	// Shutdown all scripts
+	private async runAllShutdownScripts(): Promise<void>
+	{
+		for (const filename in this.shutdownScripts)
+		{
+			await this.runShutdownScript(filename);
+		}
+	}
+
 
 	// CM5 callback for "keydown".  Used to kick off shortcut expansion attempt.
 	private cm5_handleExpansionTrigger(cm: any, keydown: KeyboardEvent): void

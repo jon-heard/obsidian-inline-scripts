@@ -1,4 +1,5 @@
 data.json
+state.data.txt
 src/node_modules
 main.js
 *.bak
