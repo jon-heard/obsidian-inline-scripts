@@ -51,6 +51,16 @@ const ANNOUNCEMENTS: Array<any> =
 			"a demonstration of the major features being added in 0.22.0.\n" +
 			"Check <a href='https://github.com/jon-heard/obsidian-inline-scripts/discussions/30'>" +
 			"here</a> for more details on this release."
+	},
+	{
+		version: "0.23.0",
+		message:
+			"<div style='text-align:left;padding:0 1.5em'>0.23.x adds some quality of life features.  Notably:<ul>" +
+			"<li>The state system now automatically maintains state between Obsidian sessions." +
+				"<br/>No need to manually save and restore session state.</li>" +
+			"<li>Various features added to the cards system.</li></ul>" +
+			"Check <a href='https://github.com/jon-heard/obsidian-inline-scripts/releases/tag/0.23.0'>" +
+			"the release notes</a> for details.</div>"
 	}
 ];
 

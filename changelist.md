@@ -1,3 +1,23 @@
+### 0.23.0
+  LIBRARY UPDATES
+	- The state system now keeps the state between Obsidian sessions without needing user interaction.
+	- Shortcut added - "lists fromfile lines {list name} {file name}" reads a file and adds each of its lines to a list as an item.
+	- Cards system updates:
+		- Can modify the cards through the card-pile viewer panel.  Drag to reorder and double-click to rotate.
+		- Custom card-backing.
+		- Global card size.
+		- Can predefine card-piles with the shortcut "cards pile {pile id}"
+		- Square cards now rotate to any of four directions.  Non-square cards still only rotate to two directions: rightside-up and upside-down.
+  PLUGIN
+	- Shortcuts are now case-insensitive (useful for mobile, which auto-cases letters)
+	- "getObsidianInterfaces" was merged into "helperFncs"
+	- "onShortcutsLoaded" event added.
+	- Shutdown scripts are called when closing Obsidian.
+	- The drag-reorder system is improved.
+	- Button panel's create/edit button popup has better field descriptions.
+  BUG-FUXES
+	- Card images in notes are absolute, so break when vault is moved or synced.
+	- Drag-reorder not working on mobile.
 ### 0.22.2
   LIBRARY UPDATES
 	- Interfacing with the Dice Roller plugin made possible with the new "plugin_diceroller" shortcut-file.

@@ -43,7 +43,7 @@ This plugin is currently in __open beta__.
         - [async and await](#advanced-shortcuts-async-and-await)
         - [Using custom CSS](#advanced-shortcuts-using-custom-css)
         - [Hiding shortcuts](#advanced-shortcuts-hiding-shortcuts)
-        - [Reacting to shortcut expansions](#advanced-shortcuts-reacting-to-shortcut-expansions)
+        - [Plugin events](#advanced-shortcuts-plugin-events)
 - Technical
     - [Credits](#credits)
     - [Release notes](#release-notes)
@@ -215,7 +215,7 @@ There is a library of shortcut-files for __Inline Scripts__ [here](https://githu
 Video tutorials have been added for the more stable and complex shortcut-files in the library.  Type "help x" (where "x" is the shortcut-file's name) to get links to any tutorial videos for the shortcut-file.
 
 For beginners, I'd advise watching these tutorial videos:
-- [State system for users](https://www.youtube.com/watch?v=WHQuQm3RieY) (runtime 2:23)
+- [State system for users](https://www.youtube.com/watch?v=IiRHB0FfJcI) (runtime 2:45)
 - [Lists system](https://www.youtube.com/watch?v=xIYpnBKdYRg) (runtime 5:34)
 
 _(Note - The shortcut-file "states.sfile" has __two__ tutorial videos, one for users and one for developers.)_
@@ -756,12 +756,15 @@ If the Syntax string at the start of a shortcut's About string is the text "hidd
 
 ***
 
-## ADVANCED SHORTCUTS: Reacting to shortcut expansions
-If a shortcut-file needs to react to shortcut expansions, it can setup a callback function to be called on such an event.  The callback should have one parameter: `expansionInfo`.  See [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion) for details on `expansionInfo`.  A callback is registered by assigning the function to a unique key in `window._inlineScripts.inlineScripts.listeners.onExpansion`.  Note that this object heirarchy isn't created automatically, and must be manually created if it doesn't already exist.
+## ADVANCED SHORTCUTS: Plugin events
+__Inline Scripts__ has a few events that shortcuts can react to: __onExpansion__ and __onShortcutsLoaded__.  To react to one of these events, add a callback function to the object `window._inlineScripts.inlineScripts.listeners.X` (where "X" is the name of the event).  Add the callback under the key that is identical to your shortcut-file.  Note that that object must be created if it doesn't exist.  See below for examples.
+
+### onExpansion event
+If a shortcut-file needs to react to shortcut expansions, it can setup a callback function to be called on such an event.  The callback can take one parameter: `expansionInfo`.  See [Getting info about the current expansion](#advanced-shortcuts-getting-info-about-the-current-expansion) for details on `expansionInfo`.
 
 In addition, if the callback function returns a string, then _that_ string is expanded as a shortcut and the result replaces the old expansion.
 
-### Example shortcut-file
+#### Example shortcut-file
 ```
 __
 ^sfile setup$
@@ -796,6 +799,9 @@ delete _inlineScripts.inlineScripts?.listeners?.
 	onExpansion?.testCallback;
 __
 ```
+
+### onShortcutsLoaded event
+See onExpansion event above for details.  This event works the same, except that it occurs each time the full list of shortcuts is loaded from all registered shortcut-files.  Also, it passes no parameters into the callback functions.
 
 ***
 
