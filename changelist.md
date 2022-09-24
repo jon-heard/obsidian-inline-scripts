@@ -15,7 +15,7 @@
 	- Shutdown scripts are called when closing Obsidian.
 	- The drag-reorder system is improved.
 	- Button panel's create/edit button popup has better field descriptions.
-  BUG-FUXES
+  BUG-FIXES
 	- Card images in notes are absolute, so break when vault is moved or synced.
 	- Drag-reorder not working on mobile.
 ### 0.22.2
