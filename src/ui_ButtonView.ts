@@ -123,9 +123,9 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 				text.inputEl.select();
 				return text;
 			});
+		const settings = InlineScriptsPlugin.getInstance().settings;
 		new SettingType(parent)
 			.setName("Shortcut")
-			.setDesc("On click, this is added to the current note then expanded.")
 			.addText((text: any) =>
 			{
 				data.shortcutUi = text;
@@ -138,7 +138,11 @@ const POPUP_DEFINITION_BUTTON: any = Object.freeze(
 				return text;
 			})
 			.descEl.innerHTML +=
-				"<br/>Each \"???\" triggers user-input to replace the \"???\".";
+				"When the button is clicked, this is expanded.  The<br/>" +
+				"expansion is then appended to the current note.<br/>" +
+				"Don't include a prefix or suffix ( <b>" + settings.prefix + "</b> or <b>" +
+				settings.suffix + "</b> ).  <br/>" +
+				"Add \"???\" blocks to be defined at button click.";
 
 		new SettingType(parent)
 			.setName("Help")

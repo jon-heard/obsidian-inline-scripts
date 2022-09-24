@@ -51,7 +51,7 @@ export class DragReorder
 					this.dragOver(evt.target);
 				}
 			});
-			item.addEventListener("pointerout", evt =>
+			item.addEventListener("pointerout", (evt: any) =>
 			{
 				if (this.dragged || !this.downPoint) { return; }
 				this.initDrag(evt.target);
