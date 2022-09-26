@@ -1,3 +1,6 @@
+### 0.23.2
+- bug fix - state is occasionally not saved on Obsidian quit.
+
 ### 0.23.1
 - bug fix - fixed announcement to include "import latest library" message.
 

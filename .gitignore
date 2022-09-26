@@ -1,5 +1,6 @@
 data.json
-state.data.txt
+state_auto.data.txt
+state_onquit.data.txt
 src/node_modules
 main.js
 *.bak

@@ -68,11 +68,11 @@ const ANNOUNCEMENTS: Array<any> =
 	{
 		version: "0.23.2",
 		message:
-			"<div style='text-align:left'>The state auto-save added in 0.23.0 works... most of " +
-			"the time.<br><br>It turns out that \"quit\" event scripts aren't guaranteed.  This " +
-			"update adds periodic saving, to prevent data loss if state save fails when quitting " +
-			"Obsidian.<br><br>NOTE - This release primarily updates the library.  Import the " +
-			"latest library!</div></div>"
+			"<div style=\"text-align:left\">The save-on-quit feature that was added in 0.23.0 " +
+			"works... most of the time.<br><br>It turns out that \"quit\" scripts aren't " +
+			"guaranteed!  This update adds auto-save to mitigate data loss if save-on-quit " +
+			"fails.<br><br>" +
+			"NOTE - This release updates the library.  Make sure you import the latest library!</div>"
 	}
 ];
 
