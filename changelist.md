@@ -1,3 +1,6 @@
+### 0.23.1
+- bug fix - fixed announcement to include "import latest library" message.
+
 ### 0.23.0
   LIBRARY UPDATES
 	- The state system now keeps the state between Obsidian sessions without needing user interaction.

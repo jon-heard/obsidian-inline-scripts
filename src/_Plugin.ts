@@ -55,12 +55,24 @@ const ANNOUNCEMENTS: Array<any> =
 	{
 		version: "0.23.0",
 		message:
-			"<div style='text-align:left;padding:0 1.5em'>0.23.x adds some quality of life features.  Notably:<ul>" +
+			"<div style='text-align:left;padding:0 1.5em'>NOTE - The old Inline Scripts library " +
+			"is incompatible with this new release.  Re-import the latest library to resolve " +
+			"the errors.<br/><br/>" +
+			"0.23.x adds some quality of life features.  Notably:<ul>" +
 			"<li>The state system now automatically maintains state between Obsidian sessions." +
-				"<br/>No need to manually save and restore session state.</li>" +
+			"<br/>No need to manually save and restore session state.</li>" +
 			"<li>Various features added to the cards system.</li></ul>" +
 			"Check <a href='https://github.com/jon-heard/obsidian-inline-scripts/releases/tag/0.23.0'>" +
 			"the release notes</a> for details.</div>"
+	},
+	{
+		version: "0.23.2",
+		message:
+			"<div style='text-align:left'>The state auto-save added in 0.23.0 works... most of " +
+			"the time.<br><br>It turns out that \"quit\" event scripts aren't guaranteed.  This " +
+			"update adds periodic saving, to prevent data loss if state save fails when quitting " +
+			"Obsidian.<br><br>NOTE - This release primarily updates the library.  Import the " +
+			"latest library!</div></div>"
 	}
 ];
 
@@ -204,7 +216,7 @@ export default class InlineScriptsPlugin extends Plugin
 		await this.showAnnouncements();
 	}
 
-	private onunload_internal(): void
+	private async onunload_internal(): Promise<void>
 	{
 		// Remove the button view
 		ButtonView.staticDestructor();
@@ -216,7 +228,7 @@ export default class InlineScriptsPlugin extends Plugin
 		this._autocomplete.destructor();
 
 		// Call all shutdown scripts of shortcut-files
-		this.runAllShutdownScripts();
+		await this.runAllShutdownScripts();
 		this.app.workspace.off("quit", this._runAllShutdownScripts);
 
 		// Disconnect "code mirror 5" instances from this plugin
