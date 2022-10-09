@@ -29,7 +29,7 @@ let BUTTON_VIEW_STATES: any =
 					buttonDefinition.shortcut, false, { isUserTriggered: true },
 					buttonDefinition.parameterData);
 
-			HelperFncs.appendToEndOfNote(expansion);
+			HelperFncs.addToNote(expansion);
 		}
 	},
 	help:

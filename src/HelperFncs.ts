@@ -18,7 +18,7 @@ export namespace HelperFncs
 		confirmObjectPath("_inlineScripts.inlineScripts.helperFncs");
 		Object.assign(window._inlineScripts.inlineScripts.helperFncs,
 		{
-			confirmObjectPath, getLeafForFile, appendToEndOfNote, parseMarkdown,
+			confirmObjectPath, getLeafForFile, addToNote, parseMarkdown,
 			callEventListenerCollection, addCss, removeCss, ItemView, addIcon, DragReorder
 		});
 	}
@@ -34,11 +34,11 @@ export namespace HelperFncs
 		return getLeafForFile_internal(file);
 	}
 
-	// Takes some text and places it at the end of the current notee, then focuses on the note with
-	// with the carat at the end.
-	export function appendToEndOfNote(toAppend: string): void
+	// Takes some text and places it into the current note, replacing the text at targetPosition,
+	// if it is assigned, or appending to the document end if not.
+	export function addToNote(toAdd: string, targetPosition?: any): void
 	{
-		appendToEndOfNote_internal(toAppend);
+		addToNote_internal(toAdd, targetPosition);
 	}
 
 	export function parseMarkdown(md: string): string
@@ -88,8 +88,10 @@ export namespace HelperFncs
 		return null;
 	}
 
-	function appendToEndOfNote_internal(toAppend: string): void
+	function addToNote_internal(toAdd: string, targetPosition?: any): void
 	{
+		targetPosition ||= { start: Number.MAX_SAFE_INTEGER, end: Number.MAX_SAFE_INTEGER };
+
 		const plugin = InlineScriptsPlugin.getInstance();
 
 		const file = plugin.app.workspace.getActiveFile();
@@ -98,21 +100,26 @@ export namespace HelperFncs
 		if (!leaf) { return; }
 		const currentMode = leaf.view.currentMode;
 
+		if (Array.isArray(toAdd))
+		{
+			toAdd = toAdd.join("");
+		}
+
 		if (currentMode.type === "source")
 		{
 			// Refocus on the editor
 			plugin.app.workspace.setActiveLeaf(leaf, false, true);
 
-			if (!toAppend) { return; }
+			if (!toAdd) { return; }
 
 			// Append to the editor
-			if (Array.isArray(toAppend))
-			{
-				toAppend = toAppend.join("");
-			}
-			leaf.view.editor.setValue( leaf.view.editor.getValue() + toAppend );
+			let content = leaf.view.editor.getValue();
+			content =
+				content.slice(0, targetPosition.start) + toAdd + content.slice(targetPosition.end);
 
-			// Move caret to the note's end (only if "toAppend" isn't null)
+			leaf.view.editor.setValue(content);
+
+			// Move caret to the note's end (only if "toAdd" isn't null)
 			const scroller = currentMode.contentContainerEl.parentElement;
 			const oldScrollTop = scroller.scrollTop;
 			leaf.view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
@@ -126,23 +133,23 @@ export namespace HelperFncs
 		}
 		else
 		{
-			if (!toAppend) { return; }
+			if (!toAdd) { return; }
 
-			if (Array.isArray(toAppend))
-			{
-				toAppend = toAppend.join("");
-			}
-			plugin.app.vault.modify(file, leaf.view.data + toAppend);
+			let content = leaf.view.data;
+			content =
+				content.slice(0, targetPosition.start) + toAdd + content.slice(targetPosition.end);
+
+			plugin.app.vault.modify(file, content);
 
 			// Scroll to note's end
 			const scroller = currentMode.containerEl.childNodes[0];
-			const content = scroller.childNodes[0];
-			const paddingBottom = content.style["padding-bottom"];
-			content.style["padding-bottom"] = 0;
+			const scrollerChild = scroller.childNodes[0];
+			const paddingBottom = scrollerChild.style["padding-bottom"];
+			scrollerChild.style["padding-bottom"] = 0;
 			setTimeout(() =>
 			{
 				scroller.scrollTop = scroller.scrollHeight;
-				content.style["padding-bottom"] = paddingBottom;
+				scrollerChild.style["padding-bottom"] = paddingBottom;
 			}, 100);
 		}
 	}
