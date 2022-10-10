@@ -159,7 +159,7 @@ export abstract class ShortcutExpander
 			{
 				UserNotifier.run(
 				{
-					message: "Shortcut unidentified:\n" + shortcutText,
+					message: "Shortcut unidentified:\n\"" + shortcutText + "\"",
 					messageLevel: "warn"
 				});
 			}

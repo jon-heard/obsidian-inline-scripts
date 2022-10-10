@@ -1,13 +1,9 @@
-### Pre-next release
-- fix state system to save periodically (save at quit is not guaranteed)
-
 ### Next release
 - Update the "cards" system based on the pre-release (https://github.com/jon-heard/obsidian-inline-scripts/discussions/36)
 	/ look into not loading the entire image just to get the aspect ratio
 	/ put out to playtesters
-- Adding more options for shortcut links
-- Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
-	- allow posting custom types (such as lists)
+	- update cards_ui for new architecture
+/ Adding more options for shortcut links
 - make tablerunner.sfile
 	- "tables addfolder" adds folder to list.  Tables are dynamically loaded from the folder.
 	- "tables roll" opens popup with list of loaded tables to select.
@@ -18,8 +14,9 @@
 				- settings include checkbox "weighted" for taking number at end off and using for roll
 				- settings include search tags textbox: comma separated tags
 				- settings include regex for what part of the table items to display
-	- option for how many to pull
-	- option for what format to display output in (comma'd line, bullet list, table)
+				- offset into table file to start drawing lines from
+		- option for how many to pull
+		- option for what format to display output in (comma'd line, bullet list, table)
 / cards.sfile
 	/ add "cards reverse"
 	/ make fromfolder more efficient at determining aspect ratio
@@ -30,9 +27,13 @@
 	/ files extensionchange {file: path text} {to: unspaced text} - converts extensions for file {file} to {to}.
 	/ files shortcutbatch {folder: path text} {shortcut: text} - runs shortcut {shortcut} once for each file in {folder}.  Replaces %1 in {shortcut} with each file's name.
 		/ internally uses "lists shortcutbatch" - uses a temporary list to do this.
+- finish mythicv2 (missing stats system)
+- sublists sfile
 - make sure all sfiles are represented in the readme
 
 ### Post-next release
+- Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
+	- allow posting custom types (such as lists)
 - library - write an sfile for ironsworn (or D&D)
 - Shift from beta to release (after making either a D&D system or Ironsworn system)
 - plugin - typescript - use HTMLElement type wherever possible
