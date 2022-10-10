@@ -32,6 +32,10 @@
 - make sure all sfiles are represented in the readme
 
 ### Post-next release
+- __notepick pickFromQuery {count: >0} {pick id: name text, default: ""} : {query: text}__ - Picks {count} random notes based on {query} and remembers them as {pick id}.  The query can contain:
+	- __path:__ - Allows entering a path (complete or partial) that file choices will be filtered down to
+	- __file:__ - Allows entering a filename (complete or partial) that file choices will be filtered down to
+	- __tags:__ - Allows entering a tag that file choices will be filtered down to
 - Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
 	- allow posting custom types (such as lists)
 - library - write an sfile for ironsworn (or D&D)
