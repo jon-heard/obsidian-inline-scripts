@@ -94,7 +94,7 @@ export abstract class SettingUi_ShortcutFiles
 	{
 		let fileListUiId = "fileList" + this._shortcutFileUis.childNodes.length;
 		let g: any = this._shortcutFileUis.createEl("div", { cls: "iscript_shortcutFile" });
-		let e: any = g.createEl("div", { cls: "checkbox-container iscript_checkbox" });
+		let e: any = g.createEl("div", { cls: "checkbox-container iscript_toggle" });
 			e.toggleClass("is-enabled", shortcutFile ? shortcutFile.enabled : true);
 			e.addEventListener("click", function(this: any)
 			{

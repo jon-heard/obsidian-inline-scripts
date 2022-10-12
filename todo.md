@@ -5,18 +5,20 @@
 	- update cards_ui for new architecture
 / Adding more options for shortcut links
 - make tablerunner.sfile
-	- "tables addfolder" adds folder to list.  Tables are dynamically loaded from the folder.
-	- "tables roll" opens popup with list of loaded tables to select.
-		- contains search at top for searching name, items, tags
-		- contains buttons: "Roll", "settings" and "Cancel".  Roll rolls the selected table.  cancel does nothing.
-			- settings opens the table settings panel, which adds custom settings for selected table to "state.sessionState.rollTables.settings"
-				- settings are saved per table-file
+	/ "tables addfolder" adds folder to list.  Tables are dynamically loaded from the folder.
+	/ "tables roll" opens popup with list of loaded tables to select.
+		/ contains search at top for searching name, items, tags
+		/ contains buttons: "Roll", "settings" and "Cancel".  Roll rolls the selected table.  cancel does nothing.
+			/ settings opens the table settings panel, which adds custom settings for selected table to "state.sessionState.rollTables.settings"
+				/ settings are saved per table-file
+				/ offset into table file to start drawing lines from
+				/ a checkbox for pulling with/without repeats
+				/ config button given icon at end: up arrow if config is shown, down arrow if it is not
+				/ settings include "Table start line" with readonly display of line and up/down arrows to shift it
 				- settings include checkbox "weighted" for taking number at end off and using for roll
-				- settings include search tags textbox: comma separated tags
 				- settings include regex for what part of the table items to display
-				- offset into table file to start drawing lines from
-		- option for how many to pull
-		- option for what format to display output in (comma'd line, bullet list, table)
+		/ option for how many to pull
+		/ option for what format to display output in (comma'd line, bullet list, table)
 / cards.sfile
 	/ add "cards reverse"
 	/ make fromfolder more efficient at determining aspect ratio
@@ -30,6 +32,8 @@
 - finish mythicv2 (missing stats system)
 - sublists sfile
 - make sure all sfiles are represented in the readme
+/ pick can show a list select instead of a dropdown select
+- ui and adventurecrafter sfiles converted to use pick popup with list select
 
 ### Post-next release
 - __notepick pickFromQuery {count: >0} {pick id: name text, default: ""} : {query: text}__ - Picks {count} random notes based on {query} and remembers them as {pick id}.  The query can contain:

@@ -77,7 +77,7 @@ export abstract class ShortcutLinks
 				// Bad target?  Do nothing.  Else get the target's place in the note.
 				if (target)
 				{
-					const noteFile = app.vault.fileMap[notePath];
+					const noteFile = (app.vault as any).fileMap[notePath];
 					if (!noteFile) { return; }
 					const fileCache = app.metadataCache.getFileCache(noteFile);
 					if (!fileCache) { return; }
@@ -89,7 +89,8 @@ export abstract class ShortcutLinks
 						end: blockData.position.end.offset
 					};
 					// Don't overwrite the block id
-					const noteContent = await app.vault.cachedRead(app.vault.fileMap[notePath]);
+					const noteContent =
+						await app.vault.cachedRead((app.vault as any).fileMap[notePath]);
 					const blockContent = noteContent.slice(targetPos.start, targetPos.end);
 					const idMatch = blockContent.match(/\s\^[^\n]+$/);
 					if (idMatch)

@@ -6,6 +6,7 @@
 
 import { MarkdownRenderer, ItemView, addIcon } from "obsidian";
 import { DragReorder } from "./ui_dragReorder";
+import { InputBlocker } from "./ui_InputBlocker";
 import InlineScriptsPlugin from "./_Plugin";
 
 /*! getEmPixels  | Author: Tyson Matanich (http://matanich.com), 2013 | License: MIT */
@@ -19,7 +20,7 @@ export namespace HelperFncs
 		Object.assign(window._inlineScripts.inlineScripts.helperFncs,
 		{
 			confirmObjectPath, getLeafForFile, addToNote, parseMarkdown,
-			callEventListenerCollection, addCss, removeCss, ItemView, addIcon, DragReorder
+			callEventListenerCollection, addCss, removeCss, ItemView, addIcon, DragReorder, unblock
 		});
 	}
 
@@ -60,6 +61,11 @@ export namespace HelperFncs
 	export function removeCss(id: string): void
 	{
 		removeCss_internal(id);
+	}
+
+	export function unblock(): void
+	{
+		InputBlocker.setEnabled(false);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

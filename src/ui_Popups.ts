@@ -14,6 +14,8 @@ import { Modal, Setting } from "obsidian";
 // 			parent - The html div to contain the popup ui.
 // 			firstButton - The first html button.  Useful for triggering popup completion from code.
 // 			SettingType - An Obsidian type to instantiate.  Provides an API for creating ui.
+// 			resolveFnc - The function to call with the result of the popup (return true to early-
+//				out, call this first to set return value).
 // 		onClose(data, resolveFnc, buttonId) - Called when the user is finished deciding.
 // 			data - An object for relaying info: passed in and passed to both onOpen() and onClose().
 // 			resolveFnc - The function to call with the result of the popup.
@@ -51,10 +53,10 @@ export class Popups extends Modal
 
 	// A popup asking for selection from a list until the user clicks the "Ok" or "Cancel" button
 	public async pick(
-		message: string, options: Array<string>, defaultValue?: number,
+		message: string, options: Array<string>, defaultValue?: number, showCount?: number,
 		buttonLabels?: Array<string>): Promise<number>
 	{
-		return await this.pick_internal(message, options, defaultValue, buttonLabels);
+		return await this.pick_internal(message, options, defaultValue, showCount, buttonLabels);
 	}
 
 	// A popup that works based on a custom popup definition.  Closes when the user clicks a button.
@@ -130,6 +132,7 @@ export class Popups extends Modal
 						if (e.key === "Enter") { firstButton.click(); }
 					});
 					textUi = text.inputEl;
+					return text;
 				})
 			if (data.suggestions?.length)
 			{
@@ -172,13 +175,19 @@ export class Popups extends Modal
 					if (isNaN(defaultValue)) { defaultValue = options.indexOf(data.defaultValue); }
 					defaultValue = Math.clamp(defaultValue, 0, options.length - 1);
 
-					dropdown.addOptions(options)
+					dropdown.addOptions(options);
 					dropdown.setValue(defaultValue || 0);
+					if (data.showCount > 1)
+					{
+						dropdown.selectEl.setAttr("size", data.showCount);
+						dropdown.selectEl.classList.add("iscript_listSelect");
+					}
 					dropdown.selectEl.parentElement.previousSibling.remove();
 					dropdown.selectEl.addEventListener("keypress", (e: any) =>
 					{
 						if (e.key === "Enter") { firstButton.click(); }
 					});
+					return dropdown;
 				});
 			return result;
 		},
@@ -240,12 +249,12 @@ export class Popups extends Modal
 
 	// A popup asking for selection from a list until the user clicks the "Ok" or "Cancel" button
 	public async pick_internal(
-		message: string, options: Array<string>, defaultValue?: number,
+		message: string, options: Array<string>, defaultValue?: number, showCount?: number,
 		buttonLabels?: Array<string>): Promise<number>
 	{
+		showCount ||= 1;
 		return await this.custom(
-			message, this.PICK_DEFINITION, { options: options, defaultValue: defaultValue },
-			buttonLabels);
+			message, this.PICK_DEFINITION, { options, defaultValue, showCount }, buttonLabels);
 	}
 
 	// A popup that works based on a custom popup definition.  Closes when the user clicks a button.
@@ -319,7 +328,8 @@ export class Popups extends Modal
 		if (this._definition.onOpen)
 		{
 			// If type-specific onOpen returns true, we should early out
-			if (await this._definition.onOpen(this._data, typeSpecificUi, firstButton, Setting))
+			if (await this._definition.onOpen(
+				this._data, typeSpecificUi, firstButton, Setting, this._resolve))
 			{
 				this._definition = {};
 				this.close();

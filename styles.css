@@ -157,7 +157,7 @@
 {
 	margin-left: .25em !important;
 }
-.iscript_checkbox
+.iscript_toggle
 {
 	margin-right: 0.5em;
 	margin-bottom: -0.3em;
@@ -308,4 +308,18 @@
 {
 	filter: brightness(.75);
 	cursor: unset !important;
+}
+.iscript_listSelect
+{
+	background-image: none;
+	padding-right: 0.75em;
+}
+.iscript_listSelect option:not(:checked)
+{
+	background-color: rgb(0,0,0,0);
+}
+.iscript_checkbox
+{
+	height: 16px;
+	width: 16px !important;
 }
