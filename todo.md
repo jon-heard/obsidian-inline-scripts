@@ -15,10 +15,12 @@
 				/ a checkbox for pulling with/without repeats
 				/ config button given icon at end: up arrow if config is shown, down arrow if it is not
 				/ settings include "Table start line" with readonly display of line and up/down arrows to shift it
-				- settings include checkbox "weighted" for taking number at end off and using for roll
-				- settings include regex for what part of the table items to display
+				/ settings include checkbox "weighted" for taking number at end off and using for roll
+				/ settings include regex for what part of the table items to display
 		/ option for how many to pull
 		/ option for what format to display output in (comma'd line, bullet list, table)
+	- review code
+	- make test video
 / cards.sfile
 	/ add "cards reverse"
 	/ make fromfolder more efficient at determining aspect ratio
@@ -34,6 +36,8 @@
 - make sure all sfiles are represented in the readme
 / pick can show a list select instead of a dropdown select
 - ui and adventurecrafter sfiles converted to use pick popup with list select
+- allow toggling off autocomplete help popup and autocomplete
+- figure out how to determine if there's not a lot of screen resolution, and hide autocomplete and ac help panel if so
 
 ### Post-next release
 - __notepick pickFromQuery {count: >0} {pick id: name text, default: ""} : {query: text}__ - Picks {count} random notes based on {query} and remembers them as {pick id}.  The query can contain:
