@@ -3,8 +3,9 @@
 	/ look into not loading the entire image just to get the aspect ratio
 	/ put out to playtesters
 	- update cards_ui for new architecture
+	- make new video for cards
 / Adding more options for shortcut links
-- make tablerunner.sfile
+/ make tablerunner.sfile
 	/ "tables addfolder" adds folder to list.  Tables are dynamically loaded from the folder.
 	/ "tables roll" opens popup with list of loaded tables to select.
 		/ contains search at top for searching name, items, tags
@@ -19,8 +20,6 @@
 				/ settings include regex for what part of the table items to display
 		/ option for how many to pull
 		/ option for what format to display output in (comma'd line, bullet list, table)
-	- review code
-	- make test video
 / cards.sfile
 	/ add "cards reverse"
 	/ make fromfolder more efficient at determining aspect ratio
@@ -31,19 +30,21 @@
 	/ files extensionchange {file: path text} {to: unspaced text} - converts extensions for file {file} to {to}.
 	/ files shortcutbatch {folder: path text} {shortcut: text} - runs shortcut {shortcut} once for each file in {folder}.  Replaces %1 in {shortcut} with each file's name.
 		/ internally uses "lists shortcutbatch" - uses a temporary list to do this.
-- finish mythicv2 (missing stats system)
-- sublists sfile
-- make sure all sfiles are represented in the readme
 / pick can show a list select instead of a dropdown select
 - ui and adventurecrafter sfiles converted to use pick popup with list select
+- update cards_ui for new architecture
+- make new video for cards
 - allow toggling off autocomplete help popup and autocomplete
+- finish mythicv2 (missing stats system)
+- sublists sfile
 - figure out how to determine if there's not a lot of screen resolution, and hide autocomplete and ac help panel if so
-
-### Post-next release
+- test for bug with notepick
 - __notepick pickFromQuery {count: >0} {pick id: name text, default: ""} : {query: text}__ - Picks {count} random notes based on {query} and remembers them as {pick id}.  The query can contain:
 	- __path:__ - Allows entering a path (complete or partial) that file choices will be filtered down to
 	- __file:__ - Allows entering a filename (complete or partial) that file choices will be filtered down to
 	- __tags:__ - Allows entering a tag that file choices will be filtered down to
+
+### Post-next release
 - Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
 	- allow posting custom types (such as lists)
 - library - write an sfile for ironsworn (or D&D)
