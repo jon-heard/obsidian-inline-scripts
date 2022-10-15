@@ -3,7 +3,6 @@
 	/ look into not loading the entire image just to get the aspect ratio
 	/ put out to playtesters
 	- update cards_ui for new architecture
-	- make new video for cards
 / Adding more options for shortcut links
 / make tablerunner.sfile
 	/ "tables addfolder" adds folder to list.  Tables are dynamically loaded from the folder.
@@ -33,12 +32,13 @@
 / pick can show a list select instead of a dropdown select
 - ui and adventurecrafter sfiles converted to use pick popup with list select
 - update cards_ui for new architecture
-- make new video for cards
 - allow toggling off autocomplete help popup and autocomplete
 - finish mythicv2 (missing stats system)
 - sublists sfile
 - figure out how to determine if there's not a lot of screen resolution, and hide autocomplete and ac help panel if so
 - test for bug with notepick
+- make new video for cards
+- make new video for tablefiles (go into first and second capturing groups in the regex)
 - __notepick pickFromQuery {count: >0} {pick id: name text, default: ""} : {query: text}__ - Picks {count} random notes based on {query} and remembers them as {pick id}.  The query can contain:
 	- __path:__ - Allows entering a path (complete or partial) that file choices will be filtered down to
 	- __file:__ - Allows entering a filename (complete or partial) that file choices will be filtered down to

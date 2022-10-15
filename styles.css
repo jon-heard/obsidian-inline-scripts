@@ -311,8 +311,11 @@
 }
 .iscript_listSelect
 {
-	background-image: none;
+	background-image: none !important;
 	padding-right: 0.75em;
+	height: unset;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
 }
 .iscript_listSelect option:not(:checked)
 {
