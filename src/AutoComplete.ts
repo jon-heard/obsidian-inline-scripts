@@ -104,6 +104,11 @@ export class AutoComplete extends EditorSuggest<any>
 	// Called by the system to determine if auto-complete should pop up
 	private onTrigger_internal(cursor: any, editor: any): any
 	{
+		if (InlineScriptsPlugin.getInstance().settings.autocomplete === false)
+		{
+			return;
+		}
+
 		// Keep track of the shortcut prefix and suffix
 		const prefix: string = this._plugin.settings.prefix;
 		const suffix: string = this._plugin.settings.suffix;
@@ -336,6 +341,11 @@ export class AutoComplete extends EditorSuggest<any>
 	private open_modified()
 	{
 		this._open();
+
+		if (InlineScriptsPlugin.getInstance().settings.autocompleteHelp === false)
+		{
+			return;
+		}
 		this._suggestionDescriptionUi.style.display = "unset";
 		// Put descriptionUi at top or bottom of suggestions?
 		setTimeout(() =>

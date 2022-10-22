@@ -32,6 +32,29 @@ export abstract class SettingUi_Other
 
 		parent.createEl("h2", { text: "Other Settings" });
 
+		// Autocomplete
+		new Setting(parent)
+			.setName("Autocomplete")
+			.setDesc("Enable / disable autocomplete for shortcut entry.")
+			.addToggle((toggle: any) =>
+			{
+				return toggle
+					.setValue(settings.autocomplete === undefined ? true : settings.autocomplete)
+					.onChange((value: string) => this._settings.autocomplete = value );
+			});
+
+		// Autocomplete help popup
+		new Setting(parent)
+			.setName("Autocomplete help popup")
+			.setDesc("Enable / disable the shortcut descriptor popup during autocomplete.")
+			.addToggle((toggle: any) =>
+			{
+				return toggle
+					.setValue(settings.autocompleteHelp === undefined ?
+					          true : settings.autocompleteHelp)
+					.onChange((value: string) => this._settings.autocompleteHelp = value );
+			});
+
 		// Developer mode
 		new Setting(parent)
 			.setName("Developer mode")

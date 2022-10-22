@@ -32,22 +32,23 @@
 / pick can show a list select instead of a dropdown select
 / ~pick-and-replace~othertableFilename
 / ui and adventurecrafter sfiles converted to use pick popup with list select
-- update cards_ui for new architecture
-- allow toggling off autocomplete help popup and autocomplete
-- finish mythicv2 (missing stats system)
+/ allow toggling off autocomplete help popup and autocomplete
+- add > prefix to output
 - sublists sfile
-- figure out how to determine if there's not a lot of screen resolution, and hide autocomplete and ac help panel if so
+- finish mythicv2 (missing stats system)
+- update cards_ui for new architecture
 - test for bug with notepick
+- comment the heck out of the library code
 - make new video for cards
 - make new video for tablefiles (go into first and second capturing groups in the regex, go into pick-and-replace, cover "tbl list" once you've added multiple table paths)
-- add "Expansion prefix" to settings that is automatically added to all expansions printed to screen
-- comment the heck out of the library code
+
 - __notepick pickFromQuery {count: >0} {pick id: name text, default: ""} : {query: text}__ - Picks {count} random notes based on {query} and remembers them as {pick id}.  The query can contain:
 	- __path:__ - Allows entering a path (complete or partial) that file choices will be filtered down to
 	- __file:__ - Allows entering a filename (complete or partial) that file choices will be filtered down to
 	- __tags:__ - Allows entering a tag that file choices will be filtered down to
 
 ### Post-next release
+- figure out how to determine if there's not a lot of screen resolution, and hide autocomplete and ac help panel if so
 - Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
 	- allow posting custom types (such as lists)
 - library - write an sfile for ironsworn (or D&D)
