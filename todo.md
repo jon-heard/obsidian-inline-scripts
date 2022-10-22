@@ -30,7 +30,8 @@
 	/ files shortcutbatch {folder: path text} {shortcut: text} - runs shortcut {shortcut} once for each file in {folder}.  Replaces %1 in {shortcut} with each file's name.
 		/ internally uses "lists shortcutbatch" - uses a temporary list to do this.
 / pick can show a list select instead of a dropdown select
-- ui and adventurecrafter sfiles converted to use pick popup with list select
+/ ~pick-and-replace~othertableFilename
+/ ui and adventurecrafter sfiles converted to use pick popup with list select
 - update cards_ui for new architecture
 - allow toggling off autocomplete help popup and autocomplete
 - finish mythicv2 (missing stats system)
@@ -38,7 +39,9 @@
 - figure out how to determine if there's not a lot of screen resolution, and hide autocomplete and ac help panel if so
 - test for bug with notepick
 - make new video for cards
-- make new video for tablefiles (go into first and second capturing groups in the regex)
+- make new video for tablefiles (go into first and second capturing groups in the regex, go into pick-and-replace, cover "tbl list" once you've added multiple table paths)
+- add "Expansion prefix" to settings that is automatically added to all expansions printed to screen
+- comment the heck out of the library code
 - __notepick pickFromQuery {count: >0} {pick id: name text, default: ""} : {query: text}__ - Picks {count} random notes based on {query} and remembers them as {pick id}.  The query can contain:
 	- __path:__ - Allows entering a path (complete or partial) that file choices will be filtered down to
 	- __file:__ - Allows entering a filename (complete or partial) that file choices will be filtered down to

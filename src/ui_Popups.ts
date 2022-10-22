@@ -177,6 +177,19 @@ export class Popups extends Modal
 
 					dropdown.addOptions(options);
 					dropdown.setValue(defaultValue || 0);
+					if (isNaN(data.showCount))
+					{
+						if (data.showCount.toLowerCase().startsWith("adaptive"))
+						{
+							const max =
+								data.showCount.toLowerCase().match(/adaptive:([0-9]+)/)?.[1] || 20;
+							data.showCount = Math.min(data.options.length, max);
+						}
+						else
+						{
+							data.showCount = 1;
+						}
+					}
 					if (data.showCount > 1)
 					{
 						dropdown.selectEl.setAttr("size", data.showCount);
