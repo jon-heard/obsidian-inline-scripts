@@ -234,10 +234,11 @@ export abstract class ShortcutExpander
 		{
 			// Run the expansion script and return the result
 			return await ( new AsyncFunction(
-				"expand", "runExternal", "print", "expansionInfo", "popups",
+				"expand", "runExternal", "print", "expansionInfo", "popups", "expFormat",
 				expansionScript) )
 				( this._boundExpand, ExternalRunner.run, UserNotifier.getFunction_print(),
-				  expansionInfo, Popups.getInstance() ) ?? "";
+				  expansionInfo, Popups.getInstance(), this.expFormat
+				) ?? "";
 		}
 		// If there was an error...
 		catch (e: any)
@@ -266,6 +267,7 @@ export abstract class ShortcutExpander
 		}
 	}
 
+	// Event handler for errors that occur during the expansion process
 	private static handleExpansionError(
 		expansionScript: string, message: string, position: any, shortcutText?: string): void
 	{
@@ -294,5 +296,51 @@ export abstract class ShortcutExpander
 			messageType: "SHORTCUT-EXPANSION-ERROR",
 			consoleHasDetails: true
 		});
+	}
+
+	// Passed to a shortcut script to allow formatting the result (i.e. add prefixes & suffix)
+	private static expFormat(
+		expansion: string, skipPrefix: boolean, skipLinePrefix: boolean, skipSuffix: boolean)
+	{
+		// Used on all prefixes and suffixes to allow user to specify newlines, tabs and quotes.
+		function unescapeText(src: string)
+		{
+			return src.replaceAll("\\n", "\n").replaceAll("\\t", "\t").replaceAll("\\\"", "\"");
+		}
+
+		// Expansion can be a string or an array-of-strings.  If expansion is NOT an
+		// array-of-strings, make it an array-of-strings, temporarily, to simplify formatting logic.
+		let result = Array.isArray(expansion) ? expansion : [ expansion ];
+
+		const settings = InlineScriptsPlugin.getInstance().settings;
+
+		// linePrefix handling - @ start of result[0] & after each newline in all result elements.
+		if (!skipLinePrefix)
+		{
+			const linePrefix = unescapeText(settings.expansionLinePrefix);
+			result[0] = linePrefix + result[0];
+			for (let i = 0; i < result.length; i++)
+			{
+				if (!result[i].replaceAll) { continue; }
+				result[i] = result[i].replaceAll("\n", "\n" + linePrefix);
+			}
+		}
+
+		// Prefix handling - at start of first element
+		if (!skipPrefix)
+		{
+			const prefix = unescapeText(settings.expansionPrefix);
+			result[0] = prefix + result[0];
+		}
+
+		// Suffix handling - after end of last element
+		if (!skipSuffix)
+		{
+			const suffix = unescapeText(settings.expansionSuffix);
+			result[result.length-1] = result[result.length-1] + suffix;
+		}
+
+		// If passed expansion wasn't an array, turn result back into a non-array.
+		return Array.isArray(expansion) ? result : result[0];
 	}
 }

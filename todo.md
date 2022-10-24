@@ -33,21 +33,26 @@
 / ~pick-and-replace~othertableFilename
 / ui and adventurecrafter sfiles converted to use pick popup with list select
 / allow toggling off autocomplete help popup and autocomplete
-- add > prefix to output
-- sublists sfile
-- finish mythicv2 (missing stats system)
-- update cards_ui for new architecture
-- test for bug with notepick
+
+- add expansion start and end texts in settings
 - comment the heck out of the library code
+- when popup cancel cancels a shortcut, don't display anything
+
+- update cards_ui for new architecture
+
 - make new video for cards
 - make new video for tablefiles (go into first and second capturing groups in the regex, go into pick-and-replace, cover "tbl list" once you've added multiple table paths)
 
+### Post-next release
+- fix specific situation in complex dice roller
+- test for bug with notepick
+- sublists sfile
+- finish mythicv2 (missing stats system)
 - __notepick pickFromQuery {count: >0} {pick id: name text, default: ""} : {query: text}__ - Picks {count} random notes based on {query} and remembers them as {pick id}.  The query can contain:
 	- __path:__ - Allows entering a path (complete or partial) that file choices will be filtered down to
 	- __file:__ - Allows entering a filename (complete or partial) that file choices will be filtered down to
 	- __tags:__ - Allows entering a tag that file choices will be filtered down to
-
-### Post-next release
+- check for issues with "QuickAdd" plulgin: https://www.reddit.com/r/solorpgplay/comments/y41sbj/comment/itd962a/?context=3
 - figure out how to determine if there's not a lot of screen resolution, and hide autocomplete and ac help panel if so
 - Have shortcut autocomplete react to parameter types (when they are provided by the syntax string)
 	- allow posting custom types (such as lists)

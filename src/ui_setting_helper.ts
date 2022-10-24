@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////////////
-// Setting ui common - a collection of functions used by multiple SettingUi classes //
+// Setting ui helper - a collection of functions used by multiple SettingUi classes //
 //////////////////////////////////////////////////////////////////////////////////////
 
 "use strict";
 
 import { Popups } from "./ui_Popups";
 
-export namespace SettingUi_Common
+export namespace SettingUi_Helper
 {
 	export async function deleteButtonClicked(this: any): Promise<void>
 	{

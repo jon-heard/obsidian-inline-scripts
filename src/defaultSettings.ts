@@ -8,10 +8,13 @@ export const DEFAULT_SETTINGS: any = Object.freeze(
 {
 	prefix: ";;",
 	suffix: "::",
+	expansionPrefix: "",
+	expansionLinePrefix: "> ",
+	expansionSuffix: "\\n\\n",
+	autocomplete: true,
+	autocompleteHelp: true,
 	devMode: false,
 	allowExternal: false,
-	autocompleteHelp: true,
-	autocomplete: true,
 	version: (app as any).plugins.manifests["obsidian-text-expander-js"].version,
 	shortcutFiles: [],
 	shortcuts: `

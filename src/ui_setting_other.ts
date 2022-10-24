@@ -28,7 +28,13 @@ export abstract class SettingUi_Other
 
 	private static create_internal(parent: any, settings: any): void
 	{
-		this._settings = { devMode: settings.devMode, allowExternal: settings.allowExternal };
+		this._settings =
+		{
+			autocomplete: settings.autocomplete,
+			autocompleteHelp: settings.autocompleteHelp,
+			devMode: settings.devMode,
+			allowExternal: settings.allowExternal
+		};
 
 		parent.createEl("h2", { text: "Other Settings" });
 

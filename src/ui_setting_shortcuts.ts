@@ -5,7 +5,7 @@
 "use strict";
 
 import { Setting } from "obsidian";
-import { SettingUi_Common } from "./ui_setting_common";
+import { SettingUi_Helper } from "./ui_setting_helper";
 import { ShortcutLoader } from "./ShortcutLoader";
 import { DEFAULT_SETTINGS } from "./defaultSettings";
 
@@ -106,14 +106,14 @@ export abstract class SettingUi_Shortcuts
 			}
 		e = g.createEl("button", { cls: "iscript_upButton iscript_spacedUi" });
 			e.group = g;
-			e.onclick = SettingUi_Common.upButtonClicked;
+			e.onclick = SettingUi_Helper.upButtonClicked;
 			e.listOffset = 0;
 		e = g.createEl("button", { cls: "iscript_downButton iscript_spacedUi" });
 			e.group = g;
-			e.onclick = SettingUi_Common.downButtonClicked;
+			e.onclick = SettingUi_Helper.downButtonClicked;
 		e = g.createEl("button", { cls: "iscript_deleteButton iscript_spacedUi" });
 			e.group = g;
-			e.onclick = SettingUi_Common.deleteButtonClicked;
+			e.onclick = SettingUi_Helper.deleteButtonClicked;
 			e.app = app;
 			e.typeTitle = "shortcut";
 		e = g.createEl("textarea", { cls: "iscript_shortcutExpansion" });

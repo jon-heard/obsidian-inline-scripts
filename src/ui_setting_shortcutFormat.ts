@@ -48,7 +48,7 @@ export abstract class SettingUi_ShortcutFormat
 
 		// Prefix
 		new Setting(parent)
-			.setName("Prefix")
+			.setName("Shortcut prefix")
 			.setDesc("What to type BEFORE a shortcut.")
 			.addText((text: any) =>
 			{
@@ -66,7 +66,7 @@ export abstract class SettingUi_ShortcutFormat
 
 		// Suffix
 		new Setting(parent)
-			.setName("Suffix")
+			.setName("Shortcut suffix")
 			.setDesc("What to type AFTER a shortcut.")
 			.addText((text: any) =>
 			{

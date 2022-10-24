@@ -8,7 +8,8 @@ import { PluginSettingTab } from "obsidian";
 import InlineScriptsPlugin from "./_Plugin";
 import { SettingUi_ShortcutFiles } from "./ui_setting_shortcutFiles";
 import { SettingUi_Shortcuts } from "./ui_setting_shortcuts";
-import { SettingUi_ShortcutFormat } from "./ui_setting_format";
+import { SettingUi_ShortcutFormat } from "./ui_setting_shortcutFormat";
+import { SettingUi_ExpansionFormat } from "./ui_setting_expansionFormat";
 import { SettingUi_Other } from "./ui_setting_other";
 import { ShortcutLoader } from "./ShortcutLoader";
 import { DfcMonitorType } from "./Dfc";
@@ -61,6 +62,9 @@ export class InlineScriptsPluginSettings extends PluginSettingTab
 		// Shortcut format settings
 		SettingUi_ShortcutFormat.create(c, this.plugin.settings);
 
+		// Expansion format settings
+		SettingUi_ExpansionFormat.create(c, this.plugin.settings);
+
 		// Other settings
 		SettingUi_Other.create(c, this.plugin.settings);
 
@@ -76,9 +80,12 @@ export class InlineScriptsPluginSettings extends PluginSettingTab
 		// Plugin version
 		newSettings.version = this.plugin.manifest.version;
 
-		// Get the format settings
+		// Get the shortcut format settings
 		SettingUi_ShortcutFormat.finalize();
 		Object.assign(newSettings, SettingUi_ShortcutFormat.getContents());
+
+		// Get the expansion format settings
+		Object.assign(newSettings, SettingUi_ExpansionFormat.getContents());
 
 		// Get the other settings
 		Object.assign(newSettings, SettingUi_Other.getContents());

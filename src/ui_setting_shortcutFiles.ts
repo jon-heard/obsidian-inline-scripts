@@ -5,7 +5,7 @@
 "use strict";
 
 import { Setting, normalizePath } from "obsidian";
-import { SettingUi_Common } from "./ui_setting_common";
+import { SettingUi_Helper } from "./ui_setting_helper";
 import { LibraryImporter } from "./LibraryImporter";
 
 export abstract class SettingUi_ShortcutFiles
@@ -127,14 +127,14 @@ export abstract class SettingUi_ShortcutFiles
 			}
 		e = g.createEl("button", { cls: "iscript_upButton iscript_spacedUi" });
 			e.group = g;
-			e.onclick = SettingUi_Common.upButtonClicked;
+			e.onclick = SettingUi_Helper.upButtonClicked;
 			e.listOffset = 1;
 		e = g.createEl("button", { cls: "iscript_downButton iscript_spacedUi" });
 			e.group = g;
-			e.onclick = SettingUi_Common.downButtonClicked;
+			e.onclick = SettingUi_Helper.downButtonClicked;
 		e = g.createEl("button", { cls: "iscript_deleteButton iscript_spacedUi" });
 			e.group = g;
-			e.onclick = SettingUi_Common.deleteButtonClicked;
+			e.onclick = SettingUi_Helper.deleteButtonClicked;
 			e.app = app;
 			e.typeTitle = "shortcut-file";
 	};

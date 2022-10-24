@@ -30,6 +30,7 @@ This plugin is currently in __open beta__.
         - [The debugger statement](#development-aid-the-debugger-statement)
         - [Fenced code blocks](#development-aid-fenced-code-blocks)
     - Advanced shortcut writing
+        - [The expFormat() function for polish](#advanced-shortcuts-the-expformat-function-for-polish)
         - [The print() function](#advanced-shortcuts-the-print-function)
         - [Running external applications and scripts](#advanced-shortcuts-running-external-applications-and-scripts)
         - [Syntax strings and regex patterns](#advanced-shortcuts-syntax-strings-and-regex-patterns)
@@ -428,6 +429,27 @@ can be written as:
 
 ### Warning
 The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` ` for Test string.  ` ```javascript `, ` ```JS `, or anything else will break the shortcut.
+
+***
+
+## ADVANCED SHORTCUTS: The expFormat() function for polish
+`expFormat(expansionString)` is a function that adds a common layout to values that are passed through it.  This common layout is intended for expansion results (values that are returned from expansion-scripts).  It takes "expansionString" (a string or string array) adds a prefix (such as "> "), suffix (such as "\n\n") and line-prefix (prepended to each line).  The prefix, suffix and line-prefix are all defined in the __Inline Scripts__ settings, allowing the user to define their own common shortcut format.
+
+### Examples
+
+| Shortcut expansion script   | Expansion result     |
+| --------------------------- | -------------------- |
+| return "result";            | ... result ...       |
+| return expFormat("result"); | ... > result\n\n ... |
+
+Note: The "\n\n" in the results are displayed in the note as a blank line between the result and the following content.
+Note: The Second expansion result is based on the default values for the expansion prefix, suffix and line-prefix in the settings.
+
+### Optional parameters
+The full definition of expFormat is `expFormat(expansionString, skipPrefix, skipLinePrefix, skipSuffix)`.  The final three parameters are optional.
+- __skipPrefix__ - if true, the expansion prefix is not added to the result.
+- __skipLinePrefix__ - if true, the expansion line-prefix is not added to the result.
+- __skipSuffix__ - if true, the expansion suffix is not added to the result.
 
 ***
 
