@@ -126,16 +126,23 @@ export namespace HelperFncs
 			leaf.view.editor.setValue(content);
 
 			// Move caret to the note's end (only if "toAdd" isn't null)
-			const scroller = currentMode.contentContainerEl.parentElement;
-			const oldScrollTop = scroller.scrollTop;
-			leaf.view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
-			setTimeout(() =>
+			const scroller = currentMode?.contentContainerEl?.parentElement;
+			if (scroller)
 			{
-				if (scroller.scrollTop != oldScrollTop)
+				const oldScrollTop = scroller.scrollTop;
+				leaf.view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
+				setTimeout(() =>
 				{
-					scroller.scrollTop += window.getEmPixels(scroller) * 2;
-				}
-			}, 100);
+					if (scroller.scrollTop != oldScrollTop)
+					{
+						scroller.scrollTop += window.getEmPixels(scroller) * 2;
+					}
+				}, 100);
+			}
+			else
+			{
+				leaf.view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
+			}
 		}
 		else
 		{
