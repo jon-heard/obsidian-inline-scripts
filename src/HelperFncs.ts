@@ -16,11 +16,12 @@ export namespace HelperFncs
 {
 	export function staticConstructor(): void
 	{
-		confirmObjectPath("_inlineScripts.inlineScripts.helperFncs");
-		Object.assign(window._inlineScripts.inlineScripts.helperFncs,
+		confirmObjectPath("_inlineScripts.inlineScripts.HelperFncs");
+		Object.assign(window._inlineScripts.inlineScripts.HelperFncs,
 		{
 			confirmObjectPath, getLeafForFile, addToNote, parseMarkdown,
-			callEventListenerCollection, addCss, removeCss, ItemView, addIcon, DragReorder, unblock
+			callEventListenerCollection, addCss, removeCss, ItemView, addIcon, DragReorder, unblock,
+			expFormat, expUnformat
 		});
 	}
 
@@ -66,6 +67,22 @@ export namespace HelperFncs
 	export function unblock(): void
 	{
 		InputBlocker.setEnabled(false);
+	}
+
+	// Modify a string ("expansion") to add the expansion format: prefix, lineprefix and suffix
+	export function expFormat(
+		expansion: string, skipPrefix: boolean, skipLinePrefix: boolean, skipSuffix: boolean)
+		: string
+	{
+		return expFormat_internal(expansion, skipPrefix, skipLinePrefix, skipSuffix);
+	}
+
+	// Modify a string ("expansion") to remove the expansion format: prefix, lineprefix and suffix
+	export function expUnformat(
+		expansion: string, skipPrefix: boolean, skipLinePrefix: boolean, skipSuffix: boolean)
+		: string
+	{
+		return expUnformat_internal(expansion, skipPrefix, skipLinePrefix, skipSuffix);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,7 +236,7 @@ export namespace HelperFncs
 		}
 	}
 
-	export function addCss_internal(id: string, css: string): void
+	function addCss_internal(id: string, css: string): void
 	{
 		id = id + "_css";
 		let e = document.getElementById(id);
@@ -232,10 +249,102 @@ export namespace HelperFncs
 		e.innerText = css;
 	}
 
-	export function removeCss_internal(id: string): void
+	function removeCss_internal(id: string): void
 	{
 		id = id + "_css";
 		const e = document.getElementById(id);
 		e?.remove();
+	}
+
+	function expFormat_internal(
+		expansion: string, skipPrefix: boolean, skipLinePrefix: boolean, skipSuffix: boolean)
+		: string
+	{
+		// Used on all prefixes and suffixes to allow user to specify newlines, tabs and quotes.
+		function unescapeText(src: string)
+		{
+			return src.replaceAll("\\n", "\n").replaceAll("\\t", "\t").replaceAll("\\\"", "\"");
+		}
+
+		// Expansion can be a string or an array-of-strings.  If expansion is NOT an
+		// array-of-strings, make it an array-of-strings, temporarily, to simplify formatting logic.
+		let result = Array.isArray(expansion) ? expansion : [ expansion ];
+
+		const settings = InlineScriptsPlugin.getInstance().settings;
+
+		// linePrefix handling - @ start of result[0] & after each newline in all result elements.
+		if (!skipLinePrefix)
+		{
+			const linePrefix = unescapeText(settings.expansionLinePrefix);
+			result[0] = linePrefix + result[0];
+			for (let i = 0; i < result.length; i++)
+			{
+				if (!result[i].replaceAll) { continue; }
+				result[i] = result[i].replaceAll("\n", "\n" + linePrefix);
+			}
+		}
+
+		// Prefix handling - at start of first element
+		if (!skipPrefix)
+		{
+			const prefix = unescapeText(settings.expansionPrefix);
+			result[0] = prefix + result[0];
+		}
+
+		// Suffix handling - after end of last element
+		if (!skipSuffix)
+		{
+			const suffix = unescapeText(settings.expansionSuffix);
+			result[result.length-1] = result[result.length-1] + suffix;
+		}
+
+		// If passed expansion wasn't an array, turn result back into a non-array.
+		return Array.isArray(expansion) ? result : result[0];
+	}
+
+	function expUnformat_internal(
+		expansion: string, skipPrefix: boolean, skipLinePrefix: boolean, skipSuffix: boolean)
+		: string
+	{
+		// Used on all prefixes and suffixes to allow user to specify newlines, tabs and quotes.
+		function unescapeText(src: string)
+		{
+			return src.replaceAll("\\n", "\n").replaceAll("\\t", "\t").replaceAll("\\\"", "\"");
+		}
+
+		// Expansion can be a string or an array-of-strings.  If expansion is NOT an
+		// array-of-strings, make it an array-of-strings, temporarily, to simplify formatting logic.
+		let result = Array.isArray(expansion) ? expansion : [ expansion ];
+
+		const settings = InlineScriptsPlugin.getInstance().settings;
+
+		// Prefix handling - at start of first element
+		if (!skipPrefix)
+		{
+			const prefix = unescapeText(settings.expansionPrefix);
+			result[0] = result[0].replace(new RegExp("^" + prefix), "");
+		}
+
+		// Suffix handling - after end of last element
+		if (!skipSuffix)
+		{
+			const suffix = unescapeText(settings.expansionSuffix);
+			result[result.length-1] = result[result.length-1].replace(new RegExp(suffix + "$"), "");
+		}
+
+		// linePrefix handling - @ start of result[0] & after each newline in all result elements.
+		if (!skipLinePrefix)
+		{
+			const linePrefix = unescapeText(settings.expansionLinePrefix);
+			result[0] = result[0].replace(new RegExp("^" + linePrefix), "");
+			for (let i = 0; i < result.length; i++)
+			{
+				if (!result[i].replaceAll) { continue; }
+				result[i] = result[i].replaceAll("\n" + linePrefix, "\n");
+			}
+		}
+
+		// If passed expansion wasn't an array, turn result back into a non-array.
+		return Array.isArray(expansion) ? result : result[0];
 	}
 }

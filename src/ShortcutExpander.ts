@@ -51,9 +51,9 @@ export abstract class ShortcutExpander
 		// Setup bound versons of these function for persistant use
 		this._boundExpand = this.expand.bind(this);
 
-		// Add "expand()" to "window._inlineScripts.inlineScripts.helperFncs"
-		HelperFncs.confirmObjectPath("_inlineScripts.inlineScripts.helperFncs");
-		window._inlineScripts.inlineScripts.helperFncs.expand = this._boundExpand;
+		// Add "expand()" to "window._inlineScripts.inlineScripts.HelperFncs"
+		HelperFncs.confirmObjectPath("_inlineScripts.inlineScripts.HelperFncs");
+		window._inlineScripts.inlineScripts.HelperFncs.expand = this._boundExpand;
 	}
 
 	// Take a shortcut string and return the proper Expansion script.
@@ -235,9 +235,10 @@ export abstract class ShortcutExpander
 			// Run the expansion script and return the result
 			return await ( new AsyncFunction(
 				"expand", "runExternal", "print", "expansionInfo", "popups", "expFormat",
+				"expUnformat",
 				expansionScript) )
 				( this._boundExpand, ExternalRunner.run, UserNotifier.getFunction_print(),
-				  expansionInfo, Popups.getInstance(), this.expFormat
+				  expansionInfo, Popups.getInstance(), HelperFncs.expFormat, HelperFncs.expUnformat
 				) ?? "";
 		}
 		// If there was an error...
@@ -296,51 +297,5 @@ export abstract class ShortcutExpander
 			messageType: "SHORTCUT-EXPANSION-ERROR",
 			consoleHasDetails: true
 		});
-	}
-
-	// Passed to a shortcut script to allow formatting the result (i.e. add prefixes & suffix)
-	private static expFormat(
-		expansion: string, skipPrefix: boolean, skipLinePrefix: boolean, skipSuffix: boolean)
-	{
-		// Used on all prefixes and suffixes to allow user to specify newlines, tabs and quotes.
-		function unescapeText(src: string)
-		{
-			return src.replaceAll("\\n", "\n").replaceAll("\\t", "\t").replaceAll("\\\"", "\"");
-		}
-
-		// Expansion can be a string or an array-of-strings.  If expansion is NOT an
-		// array-of-strings, make it an array-of-strings, temporarily, to simplify formatting logic.
-		let result = Array.isArray(expansion) ? expansion : [ expansion ];
-
-		const settings = InlineScriptsPlugin.getInstance().settings;
-
-		// linePrefix handling - @ start of result[0] & after each newline in all result elements.
-		if (!skipLinePrefix)
-		{
-			const linePrefix = unescapeText(settings.expansionLinePrefix);
-			result[0] = linePrefix + result[0];
-			for (let i = 0; i < result.length; i++)
-			{
-				if (!result[i].replaceAll) { continue; }
-				result[i] = result[i].replaceAll("\n", "\n" + linePrefix);
-			}
-		}
-
-		// Prefix handling - at start of first element
-		if (!skipPrefix)
-		{
-			const prefix = unescapeText(settings.expansionPrefix);
-			result[0] = prefix + result[0];
-		}
-
-		// Suffix handling - after end of last element
-		if (!skipSuffix)
-		{
-			const suffix = unescapeText(settings.expansionSuffix);
-			result[result.length-1] = result[result.length-1] + suffix;
-		}
-
-		// If passed expansion wasn't an array, turn result back into a non-array.
-		return Array.isArray(expansion) ? result : result[0];
 	}
 }
