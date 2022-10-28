@@ -229,15 +229,43 @@
 }
 .iscript_buttonView_hr
 {
-	margin: 0.5em 0;
+	margin: 0;
+	margin-top: 0.5em;
 }
-.iscript_shortcutButton
+.iscript_buttonView_shortcutButton
 {
+	margin-right: 0.25em;
 	margin-bottom: 1em;
 }
-.iscript_selectedButton
+.iscript_buttonView_uiButton
+{
+	margin-top: 0.5em;
+	padding: .25em;
+	padding-bottom: 0;
+}
+.iscript_buttonView_uiButton_selected
 {
 	background-color: var(--text-highlight-bg) !important;
+	border-radius: 4px;
+}
+.iscript_buttonView_uiButton_disabled
+{
+	color: var(--text-faint);
+}
+.iscript_buttonView_uiBlock
+{
+	font-style: italic;
+	margin-top: 0.6em;
+}
+.iscript_buttonView_help
+{
+	margin-bottom: 0.5em;
+	border: solid;
+	border-color: var(--text-highlight-bg);
+	border-radius: 4px;
+	padding: 0.25em 0.5em;
+	margin-top: 0.15em;
+	display: none;
 }
 .widget-icon
 {
@@ -245,30 +273,8 @@
 	height: 20px;
 	fill: var(--text-muted);
 }
-.iscript_buttonSettingsBlock
-{
-	font-style: italic;
-	margin-top: 0.125em;
-}
 .iscript_hidden
 {
-	display: none;
-}
-.iscript_buttonViewDisabled
-{
-	padding: 5px 8px 0 8px;
-	margin: 0 3px 10px 3px;
-	border-radius: 4px;
-	color: var(--text-faint);
-}
-.iscript_buttonSettingsHelp
-{
-	margin-bottom: 1em;
-	border: solid;
-	border-color: var(--text-highlight-bg);
-	border-radius: 4px;
-	padding: 0.25em 0.5em;
-	margin-top: -0.5em;
 	display: none;
 }
 .iscript_donationsCaption

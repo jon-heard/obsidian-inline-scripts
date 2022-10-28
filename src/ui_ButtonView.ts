@@ -618,9 +618,9 @@ export class ButtonView extends ItemView
 			});
 
 		this._settingsUi.buttonSettingsBlock = allButtonSettings.createDiv(
-			{ text: "   Group locked", cls: "iscript_buttonSettingsBlock iscript_hidden" });
+			{ text: "   Group locked", cls: "iscript_buttonView_uiBlock iscript_hidden" });
 
-		this.helpUi = root.createDiv({ cls: "iscript_buttonSettingsHelp" });
+		this.helpUi = root.createDiv({ cls: "iscript_buttonView_help" });
 
 		this._buttonUiParent = root.createDiv();
 
@@ -635,7 +635,8 @@ export class ButtonView extends ItemView
 
 	private addSettingsButton(parent: any, icon: string, title: string, fnc: Function): any
 	{
-		let newButton = parent.createDiv({ cls: "nav-action-button", title: title });
+		let newButton = parent.createDiv(
+			{ cls: "nav-action-button iscript_buttonView_uiButton", title: title });
 		newButton.onclick = fnc;
 		newButton.appendChild(
 			(new DOMParser()).parseFromString(ICONS[icon], "text/xml").documentElement
@@ -770,18 +771,18 @@ export class ButtonView extends ItemView
 			this._settingsUi.buttonSettings.classList.add("iscript_hidden");
 			this._settingsUi.buttonSettingsBlock.classList.remove("iscript_hidden");
 			this._settingsUi.groupRename.classList.remove("nav-action-button");
-			this._settingsUi.groupRename.classList.add("iscript_buttonViewDisabled");
+			this._settingsUi.groupRename.classList.add("iscript_buttonView_uiButton_disabled");
 			this._settingsUi.groupRemove.classList.remove("nav-action-button");
-			this._settingsUi.groupRemove.classList.add("iscript_buttonViewDisabled");
+			this._settingsUi.groupRemove.classList.add("iscript_buttonView_uiButton_disabled");
 		}
 		else
 		{
 			this._settingsUi.buttonSettings.classList.remove("iscript_hidden");
 			this._settingsUi.buttonSettingsBlock.classList.add("iscript_hidden");
 			this._settingsUi.groupRename.classList.add("nav-action-button");
-			this._settingsUi.groupRename.classList.remove("iscript_buttonViewDisabled");
+			this._settingsUi.groupRename.classList.remove("iscript_buttonView_uiButton_disabled");
 			this._settingsUi.groupRemove.classList.add("nav-action-button");
-			this._settingsUi.groupRemove.classList.remove("iscript_buttonViewDisabled");
+			this._settingsUi.groupRemove.classList.remove("iscript_buttonView_uiButton_disabled");
 		}
 
 		// Shortcut buttons
@@ -790,7 +791,7 @@ export class ButtonView extends ItemView
 		for (let i = 0; i < buttonDefinitions.length; i++)
 		{
 			let newButton = document.createElement("button");
-			newButton.classList.add("iscript_shortcutButton");
+			newButton.classList.add("iscript_buttonView_shortcutButton");
 			newButton.innerText = this._state.prefix + buttonDefinitions[i].display;
 			newButton.dataset.index = i + "";
 			this._buttonUiParent.appendChild(newButton);
@@ -810,11 +811,13 @@ export class ButtonView extends ItemView
 			if (!BUTTON_VIEW_STATES[key].button) { continue; }
 			if (this._state === BUTTON_VIEW_STATES[key])
 			{
-				BUTTON_VIEW_STATES[key].button.classList.add("iscript_selectedButton");
+				BUTTON_VIEW_STATES[key].button.classList.
+					add("iscript_buttonView_uiButton_selected");
 			}
 			else
 			{
-				BUTTON_VIEW_STATES[key].button.classList.remove("iscript_selectedButton");
+				BUTTON_VIEW_STATES[key].button.classList.
+					remove("iscript_buttonView_uiButton_selected");
 			}
 		}
 
