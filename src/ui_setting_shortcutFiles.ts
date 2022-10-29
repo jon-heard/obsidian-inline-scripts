@@ -98,7 +98,7 @@ export abstract class SettingUi_ShortcutFiles
 			e.toggleClass("is-enabled", shortcutFile ? shortcutFile.enabled : true);
 			e.addEventListener("click", function(this: any)
 			{
-				this.toggleClass("is-enabled", !this.classList.contains("is-enabled"));
+				this.classList.toggle("is-enabled");
 			});
 		e = g.createEl("input", { cls: "iscript_shortcutFileAddress" });
 			e.setAttr("type", "text");
