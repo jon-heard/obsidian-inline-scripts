@@ -19,7 +19,7 @@ export namespace HelperFncs
 		confirmObjectPath("_inlineScripts.inlineScripts.HelperFncs");
 		Object.assign(window._inlineScripts.inlineScripts.HelperFncs,
 		{
-			confirmObjectPath, getLeafForFile, addToNote, parseMarkdown,
+			confirmObjectPath, getLeavesForFile, addToNote, parseMarkdown,
 			callEventListenerCollection, addCss, removeCss, ItemView, addIcon, DragReorder, unblock,
 			expFormat, expUnformat
 		});
@@ -31,16 +31,17 @@ export namespace HelperFncs
 		confirmObjectPath_internal(path, leaf);
 	}
 
-	export function getLeafForFile(file: any): any
+	export function getLeavesForFile(file: any): Array<any>
 	{
-		return getLeafForFile_internal(file);
+		return getLeavesForFile_internal(file);
 	}
 
 	// Takes some text and places it into the current note, replacing the text at targetPosition,
 	// if it is assigned, or appending to the document end if not.
-	export function addToNote(toAdd: string, targetPosition?: any): void
+	export async function addToNote(toAdd: string, targetPosition?: any, path?: string):
+		Promise<void>
 	{
-		addToNote_internal(toAdd, targetPosition);
+		await addToNote_internal(toAdd, targetPosition, path);
 	}
 
 	export function parseMarkdown(md: string): string
@@ -98,89 +99,126 @@ export namespace HelperFncs
 		parent[pathChain[pathChain.length-1]] ||= (leaf === undefined ? {} : leaf);
 	}
 
-	function getLeafForFile_internal(file: any): any
+	function getLeavesForFile_internal(file: any): Array<any>
 	{
+		let result = [];
 		for (const leaf of
 			InlineScriptsPlugin.getInstance().app.workspace.getLeavesOfType("markdown"))
 		{
 			if ((leaf.view as any)?.file === file)
 			{
-				return leaf;
+				result.push(leaf);
 			}
 		}
-		return null;
+		return result;
 	}
 
-	function addToNote_internal(toAdd: string, targetPosition?: any): void
+	async function addToNote_internal(toAdd: string, targetPosition?: any, path?: string)
+		: Promise<void>
 	{
+		// targetPosition defaults to last position possible
 		targetPosition ||= { start: Number.MAX_SAFE_INTEGER, end: Number.MAX_SAFE_INTEGER };
 
 		const plugin = InlineScriptsPlugin.getInstance();
 
-		const file = plugin.app.workspace.getActiveFile();
-		if (!file) { return; }
-		const leaf = HelperFncs.getLeafForFile(file);
-		if (!leaf) { return; }
-		const currentMode = leaf.view.currentMode;
+		// Get file object for the file to edit
+		const file =
+			!path ? plugin.app.workspace.getActiveFile() : (plugin.app.vault as any).fileMap[path];
+		if (!file || file.children) { return; }
 
+		// Check if we're editing the ACTIVE file
+		let isNoteActive = (!path || file === plugin.app.workspace.getActiveFile());
+
+		const leaves = HelperFncs.getLeavesForFile(file);
+		const currentMode = leaves[0]?.view?.currentMode;
+
+		if (isNoteActive && currentMode?.type === "source")
+		{
+			plugin.app.workspace.setActiveLeaf(leaves[0], false, true);
+		}
+
+		if (!toAdd) { return; }
 		if (Array.isArray(toAdd))
 		{
 			toAdd = toAdd.join("");
 		}
 
-		if (currentMode.type === "source")
+		if (!leaves.length)
 		{
-			// Refocus on the editor
-			plugin.app.workspace.setActiveLeaf(leaf, false, true);
+			// Read the content
+			let content = await plugin.app.vault.cachedRead(file);
 
-			if (!toAdd) { return; }
-
-			// Append to the editor
-			let content = leaf.view.editor.getValue();
+			// Modify the content
 			content =
 				content.slice(0, targetPosition.start) + toAdd + content.slice(targetPosition.end);
 
-			leaf.view.editor.setValue(content);
+			// Write the content back
+			await plugin.app.vault.modify(file, content);
+		}
+		else if (currentMode.type === "source")
+		{
+			// Temporarily remove plugin input blocking (since disabling it breaks the note editing)
+			const inputDisabled = plugin.inputDisabled;
+			plugin.inputDisabled = false;
 
-			// Move caret to the note's end (only if "toAdd" isn't null)
-			const scroller = currentMode?.contentContainerEl?.parentElement;
-			if (scroller)
+			// Append to the editor
+			let content = leaves[0].view.editor.getValue();
+			const oldContentSize = content.length;
+			content =
+				content.slice(0, targetPosition.start) + toAdd + content.slice(targetPosition.end);
+			leaves[0].view.editor.setValue(content);
+
+			// Restore plugin input blocking
+			plugin.inputDisabled = inputDisabled;
+
+			// Move caret to the note's end (only if editing the active note & edit is at the end of file)
+			if (isNoteActive && targetPosition.start >= oldContentSize)
 			{
-				const oldScrollTop = scroller.scrollTop;
-				leaf.view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
-				setTimeout(() =>
+				const scroller = currentMode?.contentContainerEl?.parentElement;
+				if (scroller)
 				{
-					if (scroller.scrollTop != oldScrollTop)
+					const oldScrollTop = scroller.scrollTop;
+					leaves[0].view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
+					setTimeout(() =>
 					{
-						scroller.scrollTop += window.getEmPixels(scroller) * 2;
-					}
-				}, 100);
-			}
-			else
-			{
-				leaf.view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
+						if (scroller.scrollTop != oldScrollTop)
+						{
+							scroller.scrollTop += window.getEmPixels(scroller) * 2;
+						}
+					}, 100);
+				}
+				else
+				{
+					leaves[0].view.editor.setSelection({line: Number.MAX_SAFE_INTEGER, ch: 0});
+				}
 			}
 		}
 		else
 		{
-			if (!toAdd) { return; }
+			// Read the content
+			let content = leaves[0].view.data;
+			const oldContentSize = content.length;
 
-			let content = leaf.view.data;
+			// Modify the content
 			content =
 				content.slice(0, targetPosition.start) + toAdd + content.slice(targetPosition.end);
 
-			plugin.app.vault.modify(file, content);
+			// Write the content back
+			await plugin.app.vault.modify(file, content);
 
-			// Scroll to note's end
-			const scroller = currentMode.containerEl.childNodes[0];
-			const scrollerChild = scroller.childNodes[0];
-			const paddingBottom = scrollerChild.style["padding-bottom"];
-			scrollerChild.style["padding-bottom"] = 0;
-			setTimeout(() =>
+			// Scroll to note's end (only if editing the active note & edit is at the end of file)
+			if (isNoteActive && targetPosition.start >= oldContentSize)
 			{
-				scroller.scrollTop = scroller.scrollHeight;
-				scrollerChild.style["padding-bottom"] = paddingBottom;
-			}, 100);
+				const scroller = currentMode.containerEl.childNodes[0];
+				const scrollerChild = scroller.childNodes[0];
+				const paddingBottom = scrollerChild.style["padding-bottom"];
+				scrollerChild.style["padding-bottom"] = 0;
+				setTimeout(() =>
+				{
+					scroller.scrollTop = scroller.scrollHeight;
+					scrollerChild.style["padding-bottom"] = paddingBottom;
+				}, 100);
+			}
 		}
 	}
 
