@@ -1,3 +1,27 @@
+### 0.24.0
+  Plugin updates
+    - "expFormat()" adds standard expansion formatting to a string or string array.  This format is based on settings added under "Expansion format": prefix, line-prefix and suffix.      - "expUnformat()" removes standard expansion formatting from a string or string array.
+    - Shortcut links - can include a block-id to define where the output should go
+    - Shortcut links - can include a bit of javascript to modify expansion output
+    - settings - both the autocomplete feature and the autocomplete help tooltip are togglable in the settings
+    - popups.pick - allow turning the dropdown into a list box of either a fixed size, or adaptive size to it's contents
+    - popups.custom - "resolveFnc()" passed to onOpen to allow early outing with custom result
+    - helper function - "appendToEndOfNote()" replaced with more versatile "addToNote()" function
+    - helper function - "unblock()" added to manually ublock if the input blocker is left on, such as if a shortcut errors out.
+    - helper function - "getLeafForFile()" is replaced with "getLeavesForFile()"
+    - bug fix - the latest Obsidian release breaks some ui in the inline scripts buttons view
+  Library updates
+    - tablefiles - shortcut-file added!  Allows working with files of tables in different formats.
+    - cards 2.0 - a new interface for working with virtual cards.  It has a number of incompatibilities with the older interface.
+    - state - state file now saved to same folder as the state shortcut-file.  This ensures the state is properly transferred with the rest of the vault, regardless of what happens to the .obsidian folder.
+    - state - state saving is now done after each shortcut is run, rather than on a timer
+    - notevars - resolved incompatibilities with latest Obsidian
+    - notevars - resolved bug where running "notevars set" multiple times only saved one of the changes
+    - general - commented entire library
+    - general - shortcuts that use pick popups now show lists instead of dropdowns.
+    - files - shortcut-file added!  Shortcuts for working with files, including: "extensionChange" and "files shortcutbatch"
+    - lists - added "lists rename" and "lists shortcutbatch"
+
 ### 0.23.2
 - bug fix - state is occasionally not saved on Obsidian quit.
 

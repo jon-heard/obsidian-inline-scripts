@@ -73,6 +73,32 @@ const ANNOUNCEMENTS: Array<any> =
 			"guaranteed!  This update adds auto-save to mitigate data loss if save-on-quit " +
 			"fails.<br><br>" +
 			"NOTE - This release updates the library.  Make sure you import the latest library!</div>"
+	},
+	{
+		version: "0.24.0",
+		message:
+			"<div style=\"text-align:left\">" +
+			"<b>Major plugin updates</b>" +
+			"<ul>" +
+			"  <li>a standard format for expansion strings.  This includes:" +
+			"  <ul>" +
+			"    <li>settings (prefix, line-prefix, suffix) for format customization</li>" +
+			"    <li>expFormat() - converts a string into the standard format</li>" +
+			"    <li>expUnformat() - removes the standard format from a string</li>" +
+			"  </ul>" +
+			"  <li>Shortcut links can include a block-id for the shortcut expansion destination</li>" +
+			"  <li>Autocomplete and/or its tooltip can be disabled in the settings</li>" +
+			"</ul>" +
+			"<b>Major library updates</b>" +
+			"<ul>" +
+			"  <li><b>Cards</b> - This system has been revamped.  The shortcut \"help cards\" provides a link to a tutorial video.</li>" +
+			"  <li><b>Tablefiles</b> - A new system to roll on tables in text files.  The shortcut \"help tablefiles\" provides a link to a tutorial video.</li>" +
+			"  <li><b>State</b> - The state is auto-saved to a file beside the state shortcut-file.  Auto-save is now more reliable.</li>" +
+			"  <li><b>Notevars</b> - Incompatibily with the latest Obsidian is resolved.  A bug where multiple \"set\" shortcuts only save one of the variables is resolved.</li>" +
+			"</ul>" +
+			"Check the <a href='https://github.com/jon-heard/obsidian-inline-scripts/releases/tag/0.24.0'>" +
+			"release notes</a> for details." +
+			"</div>"
 	}
 ];
 
