@@ -70,6 +70,8 @@ export abstract class ShortcutLoader
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+	private static isSettingUpShortcuts: boolean = false;
+
 	private static parseShortcutFile_internal(
 		filename: string, content: string, maintainCodeFence?: boolean,
 		maintainAboutString?: boolean) : any
@@ -209,6 +211,10 @@ export abstract class ShortcutLoader
 
 	private static async setupShortcuts_internal(): Promise<void>
 	{
+		// Prevent running this function more than once at a time
+		if (this.isSettingUpShortcuts) { return; }
+		this.isSettingUpShortcuts = true;
+
 		const plugin = InlineScriptsPlugin.getInstance();
 
 		// To fill with data for the generation of help shortcuts
@@ -352,6 +358,9 @@ export abstract class ShortcutLoader
 				"inlineScripts.onShortcutsLoaded",
 				window._inlineScripts.inlineScripts.listeners.onShortcutsLoaded);
 		}
+
+		// End the block on other calls to this function
+		this.isSettingUpShortcuts = false;
 	}
 
 	private static getExpansionScript(scriptId: string, shortcuts: Array<any>): string
