@@ -43,10 +43,10 @@ export abstract class ShortcutLinks
 
 			// Function for resolution
 			const resolutionFnc: Function =
-				nodeInnerText.startsWith("iscript-once") ? ShortcutLinks.linkResolution_once :
-				nodeInnerText.startsWith("iscript-append") ? ShortcutLinks.linkResolution_append :
-				nodeInnerText.startsWith("iscript-prepend") ? ShortcutLinks.linkResolution_prepend :
-				nodeInnerText.startsWith("iscript") ? ShortcutLinks.linkResolution_standard :
+				nodeInnerText.match("^iscript-once(?: |:)") ? ShortcutLinks.linkResolution_once :
+				nodeInnerText.match("^iscript-append(?: |:)") ? ShortcutLinks.linkResolution_append :
+				nodeInnerText.match("^iscript-prepend(?: |:)") ? ShortcutLinks.linkResolution_prepend :
+				nodeInnerText.match("^iscript(?: |:)") ? ShortcutLinks.linkResolution_standard :
 				null;
 			if (!resolutionFnc)
 			{
@@ -155,12 +155,19 @@ export abstract class ShortcutLinks
 
 	private static linkResolution_append(ui: HTMLElement, expansion: string, targetPos: any)
 	{
-		targetPos.start = targetPos.end;
+		if (targetPos) { targetPos.start = targetPos.end; }
 		HelperFncs.addToNote(expansion, targetPos);
 	}
 	private static linkResolution_prepend(ui: HTMLElement, expansion: string, targetPos: any)
 	{
-		targetPos.end = targetPos.start;
+		if (targetPos)
+		{
+			targetPos.end = targetPos.start;
+		}
+		else
+		{
+			targetPos = { start: 0, end: 0 };
+		}
 		HelperFncs.addToNote(expansion, targetPos);
 	}
 }

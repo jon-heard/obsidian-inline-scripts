@@ -1,3 +1,11 @@
+### 0.24.1
+- plugin updates
+  - bug fix - append & prepend shortcut links without block-ids are erroring out
+  - bug fix - rare race condition causes duplicate buttons in buttons view
+- library updates
+  - bug fix - cards - card images don't show when they have spaces or parenthesis
+  - bug fix - lists - combo-lists fail
+
 ### 0.24.0
   Plugin updates
     - "expFormat()" adds standard expansion formatting to a string or string array.  This format is based on settings added under "Expansion format": prefix, line-prefix and suffix.      - "expUnformat()" removes standard expansion formatting from a string or string array.
