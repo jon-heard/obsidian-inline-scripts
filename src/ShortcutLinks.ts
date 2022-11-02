@@ -53,20 +53,23 @@ export abstract class ShortcutLinks
 				continue;
 			}
 
-			// Split the iscript link data section into parts
-			const parts = nodeInnerText.slice(nodeInnerText.indexOf(":") + 1).split(/ ?\| ?/g);
+			// Split the iscript link data section into trimmed parts
+			let  parts = nodeInnerText.slice(nodeInnerText.indexOf(":") + 1).split(/ ?\| ?/g);
 			if (parts[0] === "") { continue; }
+			let shortcutText = parts[0];
+			parts = parts.map(v => v.trim());
 
-			// Remove extra spaces around shortcut text
-			if (parts[0].startsWith(" ")) { parts[0] = parts[0].slice(1); }
-			if (parts[0].endsWith(" ")) { parts[0] = parts[0].slice(0, -1); }
+			// Remove optional extra spaces on either side the shortcut text (DON'T trim as only up
+			// to one space on either side should be removed)
+			if (shortcutText.startsWith(" ")) { shortcutText = shortcutText.slice(1); }
+			if (shortcutText.endsWith(" ")) { shortcutText = shortcutText.slice(0, -1); }
 
 			// New "a" element
 			let a = document.createElement("a");
 			a.classList.add("internal-link");
 			a.classList.add("iscript-link");
 			a.dataset["source"] = nodeInnerText;
-			a.innerText = (parts[1]?.trim() || parts[0]).trim();
+			a.innerText = parts[1] || parts[0];
 			a.setAttr("href", "#");
 
 			// Click response
@@ -74,7 +77,7 @@ export abstract class ShortcutLinks
 			{
 				let targetPos = null;
 
-				// Bad target?  Do nothing.  Else get the target's place in the note.
+				// If a target is provided, get the target's place in the note.
 				if (target)
 				{
 					const noteFile = (app.vault as any).fileMap[notePath];
@@ -98,11 +101,10 @@ export abstract class ShortcutLinks
 						targetPos.end -= idMatch[0].length;
 					}
 				}
-
 				// Expand the iscript shortcut
 				let result = await ShortcutExpander.expand(
-						parts[0], false, { isUserTriggered: true },
-						parts.slice(3).map(v => { return { caption: v.trim() }; })
+						shortcutText, false, { isUserTriggered: true },
+						parts.slice(3).map(v => { return { caption: v }; })
 				);
 
 				// If iscript shortcut expanded, run output customization, then resolution
@@ -110,7 +112,7 @@ export abstract class ShortcutLinks
 				{
 					// Customize result
 					result = HelperFncs.parseMarkdown(result);
-					if (parts.length > 2)
+					if (parts.length > 2 && parts[2])
 					{
 						result = (new Function('$$', "return " + parts[2]))(result);
 					}
