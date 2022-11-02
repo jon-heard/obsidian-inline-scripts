@@ -1,3 +1,7 @@
+### 0.24.2
+- Plugin updates
+  - bug fix - shortcutlinks - link doesn't work if part 2 (output script) is included but not defined
+
 ### 0.24.1
 - plugin updates
   - bug fix - append & prepend shortcut links without block-ids are erroring out
