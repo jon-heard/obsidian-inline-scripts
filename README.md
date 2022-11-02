@@ -352,22 +352,44 @@ The __Inline Scripts__ plugin adds an optional panel to Obsidian onto which you 
 
 ## TUTORIAL: Add links to a note to run shortcuts
 The __Inline Scripts__ plugin allows writing links into notes that, when clicked, will run predefined shortcuts.  There are a few options:
-- __iscript__ - The link can be clicked multiple times.  Each time it is clicked, the link's displayed text is set to the expansion result of the shortcut it triggers.
-- __iscript-once__ - The link can be clicked only once.  Once it is clicked, it is replaced with the expansion result of the shortcut it triggers.
-- __iscript-append__ - The link can be clicked multiple times.  Each time it is clicked, the expansion result of the shortcut it triggers is appended to the end of the note.
+- __iscript__ - The link can be clicked multiple times.  Each time it is clicked, the link's displayed text is set to the expansion result of the shortcut it triggers.  See example #1.
+- __iscript-once__ - The link can be clicked only once.  Once it is clicked, it is replaced with the expansion result of the shortcut it triggers.  See example #2.
+- __iscript-append__ - The link can be clicked multiple times.  Each time it is clicked, the expansion result of the shortcut it triggers is appended to the end of the note.  See example #3
+- __iscript-prepend__ - The link can be clicked multiple times.  Each time it is clicked, the expansion result of the shortuct it triggers is prepended to the beginning of the note.  See example #4.
 
-In addition, the links will accept "???" blocks in their shortcut text (similar to how the Button Panel handles them).  Each "???" triggers a text input popup asking the user to enter the text with which to replace the "???".  The shortcut link can even define a caption to show for each "???" block.
+The link's displayed text starts out as the shortcut text by default, though a custom display text can be defined.  See examples #5 & #6.
 
-| Link text | Description |
-| --------- | ----------- |
-| \`iscript:&nbsp;d100\` | The link's display text is "d100".  Each time the user clicks the link, the shortcut "d100" is run and the link's displayed text is set to the shortcut's expansion. |
-| \`iscript:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as the prior link, except that the link's initial display text is "rollem" instead of "d100". |
-| \`iscript&#8209;append:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as the prior link, except the link's display text does not change.  Instead, the shortcut's expansion text is appended to the end of the note.  This is due to the "iscript-append" heading. |
-| \`iscript&#8209;once:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as the prior link, except the link is entirely replaced by the shortcut's expansion text, meaning only the first click has any effect.  This is due to the "iscript-once" heading. |
-| \`iscript:&nbsp;d???&nbsp;\|&nbsp;rollem\` | Before running the shortcut, the user is asked to enter a value to replace the "???" block with.  The heading for the text entry popup is "Parameter #1". |
-| \`iscript:&nbsp;d???&nbsp;\|&nbsp;rollem&nbsp;\|&nbsp;Enter&nbsp;the&nbsp;dice&nbsp;size.\` | Same as the prior link, except that the heading for the text entry popup is "Enter the dice size.". |
-| \`iscript:&nbsp;???d???&nbsp;\|&nbsp;rollem\` | Before running the shortcut, the user is asked to enter two values to replace the two "???" blocks.  The headings for the text entry popups are "Parameter #1" and  "Parameter #2". |
-| \`iscript:&nbsp;???d??? \| rollem \| Enter&nbsp;the&nbsp;dice&nbsp;count. \| Enter&nbsp;the&nbsp;dice&nbsp;size.\` | Same as the prior link, except that the headings for the text entry popups are "Enter the dice count." and "Enter the dice size.". |
+Links can contain a block-id to change where the expansion result is placed.  A block-id in __iscript__ and __iscript-once__ has the block replaced by the expansion result.  A block-id in __iscript-append__ and __iscript-prepend__ gets added to the end or beginning of the block respectively.  See examples #7, #8, #9 & #10.
+
+Links can contain custom JS code to format the shortcut expansion before printing it.  See examples #11 & #12.
+
+Links will accept "???" blocks in their shortcut text (similar to how the Button Panel handles them).  Each "???" triggers a text input popup asking the user to enter the text with which to replace the "???".  The shortcut link can even define a caption to show for each "???" block.  See exmples #13, #14, #15, #16 & #17.
+
+### Examples
+
+| Example id | Link text | Description |
+| ---------- | --------- | ----------- |
+| 1 | \`iscript:&nbsp;d100\` | The link's display text is "d100".  Each time the user clicks the link, the shortcut "d100" is run and the link's displayed text is set to the shortcut's expansion. |
+| 2 | \`iscript&#8209;once:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #1, except the link is entirely replaced by the shortcut's expansion text, meaning only the first click has any effect.  This is due to the "iscript-once" heading. |
+| 3 | \`iscript&#8209;append:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #1, except the link's display text does not change.  Instead, the shortcut's expansion text is appended to the end of the note.  This is due to the "iscript-append" heading. |
+| 4 | \`iscript&#8209;prepend:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #3, except the shortcut's expansion text is not appended to the end of the note.  Instead, the shortcut's expansion text is prepended to the beginning of the note.  This is due to the "iscript-prepend" heading. |
+| <hr/> | <hr/> | <hr/> |
+| 5 | \`iscript:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #1, except that the link's initial display text is "rollem", instead of "d100". |
+| 6 | \`iscript&#8209;append:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #3, except that the link's display text begins and remains "rollem", instead of "d100". |
+| <hr/> | <hr/> | <hr/> |
+| 7 | \`iscript ^dstblock:&nbsp;d100\` | Sample as example #1, except that the note block with id of "dstblock" has its text set to the expansion, instead of the link's display. |
+| 8 | \`iscript&#8209;once ^dstblock:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #2, except that the note block with id of "dstblock" has its text set to the expansion, instead of the link's display.  The link still goes away, though. |
+| 9 | \`iscript&#8209;append ^dstblock:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #3, except that the note block with id of "dstblock" is appended to, instead of the entire note. |
+| 10 | \`iscript&#8209;prepend ^dstblock:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #3, except that the note block with id of "dstblock" is prepended to, instead of the entire note. |
+| <hr/> | <hr/> | <hr/> |
+| 11 | \`iscript:&nbsp;d100&nbsp;\|&nbsp;rollem&nbsp;\|&nbsp;"Result: " + $$\` | Same as example #5, except that custom JS code is included to print the expansion prepended with "Result: ".  Notice that "$$" is replaced with the expansion in the JS code. |
+| 12 | \`iscript&#8209;append:&nbsp;d100&nbsp;\|&nbsp;rollem&nbsp;\|&nbsp;"- " + $$ + "\n"\` | Same as example #6, except that custom JS code is included to print the expansion prepended with a dash, and appended with a newline.  If the expansion is "83/D100", then the output is "- 83/D100\n".  Notice that "$$" is replaced with the expansion in the JS code |
+| <hr/> | <hr/> | <hr/> |
+| 13 | \`iscript:&nbsp;d???\` | Same as example #1, except that when the link is clicked, and before the shortcut is run, a popup asks to enter text to replace the "???" in the shortcut text.  The popup has a caption of "Parameter #1". |
+| 14 | \`iscript:&nbsp;???d???+???\` | Same as example #13, except that not one, but THREE text entry popups are shown to replace the three "???" in the shortcut text.  The popups have captions of "Parameter #1", "Parameter #2" and "Parameter #3", in that order. |
+| 15 | \`iscript:&nbsp;d???&nbsp;\|&nbsp;\|&nbsp;\|&nbsp;Enter the dice size\` | Same as example #13, except that the text entry popup has the caption "Enter the dice size". |
+| 16 | \`iscript:&nbsp;???d???+???&nbsp;\|&nbsp;\|&nbsp;\|&nbsp;Enter the dice count\` | Same as example #14, except that the text entry popups are "Enter the dice count", "Parameter #2" and "Parameter #3". |
+| 17 | \`iscript:&nbsp;???d???+???&nbsp;\|&nbsp;\|&nbsp;\|&nbsp;Enter the dice count&nbsp;\|&nbsp;Enter the dice size&nbsp;\|&nbsp;Enter the result modifier\` | Same as example #14, except that the text entry popups are "Enter the dice count", "Enter the dice size" and "Enter the result modifier". |
 
 ***
 ***
