@@ -1,12 +1,28 @@
+### 0.24.3
+- Plugin updates
+  - feature - ShortcutExpander - added event listening for expansion errors
+- Library updates
+  - added shortcut-file "system" - "sys lasterror", "sys runjs", "sys triggererror"
+  - polish - une_ui - improved ui.  All shortcuts show one big popup instead of multiple little ones
+  - feature - tablefiles - add shortcut "tbl reroll"
+  - feature - tablefiles - "tbl reroll" (non-ui version) made parameters case-insensitive
+  - feature - tablefiles - "tbl reroll" (non-ui version) made format parameter flexible
+      - removed the need for quotes
+      - allowed singular value: "comma" instead of commas"
+      - allowed untrimmed value
+  - polish - tablefiles - tbl roll (non-ui version) adjusted to be more useful when called from another shortcut
+  - feature - tablefiles - "tbl roll" shortcut (non-ui version) now accepts a path with implicit ".md" extension
+  - bug fix - tablefiles - tbl roll (non-ui version) errored each time
+
 ### 0.24.2
 - Plugin updates
   - bug fix - shortcutlinks - link doesn't work if part 2 (output script) is included but not defined
 
 ### 0.24.1
-- plugin updates
+- Plugin updates
   - bug fix - append & prepend shortcut links without block-ids are erroring out
   - bug fix - rare race condition causes duplicate buttons in buttons view
-- library updates
+- Library updates
   - bug fix - cards - card images don't show when they have spaces or parenthesis
   - bug fix - lists - combo-lists fail
 

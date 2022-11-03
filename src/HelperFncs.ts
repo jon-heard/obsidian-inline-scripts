@@ -50,7 +50,7 @@ export namespace HelperFncs
 	}
 
 	export async function callEventListenerCollection(
-		title: string, collection: any, parameters?: Array<any>, onReturn?: Function): Promise<void>
+		title: string, collection: any, parameters?: any, onReturn?: Function): Promise<void>
 	{
 		await callEventListenerCollection_internal(title, collection, parameters, onReturn);
 	}
@@ -235,7 +235,7 @@ export namespace HelperFncs
 	}
 
 	async function callEventListenerCollection_internal(
-		title: string, collection: any, parameters?: Array<any>, onReturn?: Function): Promise<void>
+		title: string, collection: any, parameters?: any, onReturn?: Function): Promise<void>
 	{
 		if (!collection)
 		{

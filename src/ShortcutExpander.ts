@@ -165,7 +165,7 @@ export abstract class ShortcutExpander
 			}
 		}
 
-		// If there are any listeners for the expansion event, call them.  If any of them return
+		// If there are any listeners for the onExpansion event, call them.  If any of them return
 		// true, then cancel the expansion.
 		else if (expansionInfo.isUserTriggered && !expansionInfo.cancel &&
 		         window._inlineScripts?.inlineScripts?.listeners?.onExpansion)
@@ -285,17 +285,28 @@ export abstract class ShortcutExpander
 		expansionLines.splice(position.line-1, 0, "-".repeat(position.column + 4) + "v");
 		const expansionText = expansionLines.join("\n");
 
+		const errorMessage =
+			message + "\nline: " + position.line + ", column: " + position.column + "\n" +
+			"shortcut-text: \"" + (shortcutText ?? "") + "\"\n" +
+			"─".repeat(20) + "\n" + expansionText;
+
+
 		// Create a user message with the line and column of the error and the expansion script
 		// showing where the error occurred.
 		UserNotifier.run(
 		{
 			popupMessage: "Shortcut expansion issues.",
-			consoleMessage:
-				message + "\nline: " + position.line + ", column: " + position.column + "\n" +
-				"shortcut-text: \"" + (shortcutText ?? "") + "\"\n" +
-				"─".repeat(20) + "\n" + expansionText,
+			consoleMessage: errorMessage,
 			messageType: "SHORTCUT-EXPANSION-ERROR",
 			consoleHasDetails: true
 		});
+
+		// If there are any listeners for the onError event, call them
+		if (window._inlineScripts?.inlineScripts?.listeners?.onError)
+		{
+			HelperFncs.callEventListenerCollection(
+				"inlineScripts.onError",
+				window._inlineScripts.inlineScripts.listeners.onError, errorMessage);
+		}
 	}
 }
