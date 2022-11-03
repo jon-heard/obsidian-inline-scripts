@@ -424,7 +424,8 @@ export abstract class ShortcutLoader
 			const test: RegExp = new RegExp("^help " + name + "$");
 			result.push({ test: test, expansion: expansion });
 		}
-		function makeRefShortcut(groupName: string, abouts: any, displayName?: string)
+		function makeRefShortcut(
+			groupName: string, abouts: any, displayName?: string, removeHr?: boolean)
 		{
 			displayName = displayName || capitalize(groupName);
 			let expansion: string =
@@ -436,6 +437,7 @@ export abstract class ShortcutLoader
 				if (about.description)
 				{
 					description = " - " + stringifyString(about.description);
+					if (removeHr) { description = description.replaceAll("\\n***", ""); }
 				}
 				expansion +=
 					"result += \"- __" + stringifyString(about.syntax) + "__" +
@@ -475,7 +477,8 @@ export abstract class ShortcutLoader
 		}
 
 		// Create "ref all" shortcut: expands to a reference for ALL shortcuts
-		makeRefShortcut("?(?:all)?", settingsAbouts.concat(shortcutFileAbouts), "All shortcuts");
+		makeRefShortcut(
+			"?(?:all)?", settingsAbouts.concat(shortcutFileAbouts), "All shortcuts", true);
 
 		// Create "ref settings" shortcut: expands to a reference for shortcuts defined in settings
 		makeRefShortcut("settings", settingsAbouts);

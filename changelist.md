@@ -1,3 +1,17 @@
+### 0.24.4
+- Plugin updates
+  - polish - "ref all" shortcut removes all horizontal rules in descriptions
+  - feature - autocomplete - special types are handled specially:
+    - text type highlights indefinitely
+    - some of the extra-special types have been converted to text "text (details)"
+    - number types (>0, >=0) only accept numeric values
+    - path text type handles quotes properly (mostly)
+- Library updates
+    - feature - tablefiles - "tbl roll" shortcut (ui-less one) can take the title or basepath of a registered table in addition to a path to a table file.
+    - feature - cards - draw and pick now have a variation that allows entering params in any order (using "from " & "to " prefixes)
+    - polish - cards - removed <number OR "all"> parameter types.  Lets them work with new type checking, and can just use a really big number for "all".
+    - polish - updated all syntaxes to better adhere to the newly checked parameter types
+
 ### 0.24.3
 - Plugin updates
   - feature - ShortcutExpander - added event listening for expansion errors
