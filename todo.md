@@ -1,22 +1,26 @@
+### Immediate
+- ref all - remove ***'
+- have ;;tbl roll [tbl name]:: to accept table titles assigned to registered tables (or even the base name of registered)
+
 ### Next release - Critical
 - sublists sfile
 - __notepick pickFromQuery {count: >0} {pick id: name text, default: ""} : {query: text}__ - Picks {count} random notes based on {query} and remembers them as {pick id}.  The query can contain:
 	- __path:__ - Allows entering a path (complete or partial) that file choices will be filtered down to
 	- __file:__ - Allows entering a filename (complete or partial) that file choices will be filtered down to
 	- __tags:__ - Allows entering a tag that file choices will be filtered down to
-- fix specific situation in autcomplete:
-	- number types (">0", ">=0", ">1", ">=1", etc) to keep going as long as there's a number
-	- "text" types (just need to keep accepting it forever, spaces and all)
-	- "path text" types, if it starts with a quote, keep accepting until end of quote
-- finish mythicv2 (missing stats system)
 
 ### Next release
-bug fixes
+- document all undocumented features - go through all shortcuts and note anything used, but undocumented (list here) then document it
+- add to buttons panel to toggle printing results to the note or printing to a popup
+- finish mythicv2 (missing stats system)
+- fix specific situation in autcomplete:
+	- path texts - "files extensionchange" doesn't work right
+	- x OR y OR z (should explicitly check if text meets each value)
+- add customizable parameter types to allow for things like "list name text" which would add an autocomplete for list names
+- bug fixes
 	- pick ui starts at bottom
 	- pick ui should have bottom buttons outside of scrolling (always on screen)
 - Go through sfiles before lists and look for places where I can use shortcut embedding (now that expUnformat is available)
-- add to buttons panel to toggle printing results to the note or printing to a popup
-- document all undocumented features - go through all shortcuts and note anything used, but undocumented (list here) then document it
 - plugin - replace all '==' with '===' and '!=' with '!==' where appropriate
 
 ### Post-next release

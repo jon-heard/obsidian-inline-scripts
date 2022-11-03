@@ -101,15 +101,16 @@ export class AutoComplete extends EditorSuggest<any>
 		}
 	}
 
-	// Called by the system to determine if auto-complete should pop up
+	// Called by the system to determine if auto-complete should pop up at all
 	private onTrigger_internal(cursor: any, editor: any): any
 	{
+		// If autocomplete is turned off, early out (obviously)
 		if (InlineScriptsPlugin.getInstance().settings.autocomplete === false)
 		{
 			return;
 		}
 
-		// Keep track of the shortcut prefix and suffix
+		// Get the shortcut prefix and suffix
 		const prefix: string = this._plugin.settings.prefix;
 		const suffix: string = this._plugin.settings.suffix;
 

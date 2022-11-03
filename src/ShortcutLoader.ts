@@ -545,14 +545,23 @@ export abstract class ShortcutLoader
 			if (syntax[i] === "{")
 			{
 				const parameterEnd = syntax.indexOf("}", i);
-				if (syntax.slice(i, parameterEnd).indexOf("default") != -1)
-				{
-					result += "(?:([^ ]*)|$)";
-				}
-				else
-				{
-					result += "(?:([^ ]+)|$)";
-				}
+				const parameterSyntax = syntax.slice(i, parameterEnd + 1);
+
+				// Find details about the parameter
+				// NOTE - the "\u241F" is a dummy character used in autocomplete to check if the
+				// carat is in a parameter.  Numbers need to include it in order to pass that check.
+				const expectRegex =
+					(parameterSyntax.match(/: >0(?:}|,)/))         ? "[0-9|\u241F]%1" : // How to do "[1-9][0-9]%1"?
+					(parameterSyntax.match(/: >=0(?:}|,)/))        ? "[0-9|\u241F]%1" :
+					(parameterSyntax.match(/: path text(?:}|,)/))  ? "\"[^\"]%1|[^ ]%1" :
+					(parameterSyntax.match(/: text(?:}|,| \()/))   ? ".%1" :
+					"[^ ]%1";
+				const defaultRegex = (parameterSyntax.includes(", default:")) ? "*" : "+";
+
+				// Build a regex part based on the details of the parameter
+				result += "(?:(" + expectRegex.replaceAll("%1", defaultRegex) + ")|$)";
+
+				// Bump character checking past the parameter
 				i = parameterEnd;
 			}
 			else
