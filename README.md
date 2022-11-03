@@ -83,11 +83,14 @@ Finally, __Inline Scripts__ provides a number of ways to trigger shortcuts beyon
     - To the right of each shortcut entry are a set of buttons.
         - The up and down buttons let you move the shortcut entry up and down the list.
         - The trashcan button lets you delete the shortcut entry.
-- __Prefix & Suffix__ - These settings let you define what to type to start and end a shortcut.  They default to `;;` and `::`.
+- __Shortcut format - Prefix & Suffix__ - These settings let you define what to type to start and end a shortcut.  They default to `;;` and `::`.
     - Both the prefix and suffix _must_ be defined.  If not then they will revert when you leave the __Inline Scripts__ plugin options.
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`-;.`).  If it does then these settings will revert when you leave the __Inline Scripts__ plugin options.
 	- The prefix and suffix must not contain any characters that trigger Obsidian's auto-closing feature.  This includes characters like `"` and `[`.
     - If there are any errors with the prefix & suffix entries, a an error message in a red box will appear above the prefix & suffix textboxes.
+- __Expansion format - Prefix, Line-prefix & Suffix__ - These settings let you define how shortcut expansions are printed to the note.  Most shortcuts will adhere to the formatting defined by these settings (by using the `expFormat()` function).
+- __Autocomplete__ - When turned on, a list of possible shortcuts will appear beside your typing-caret as you type a shortcut.
+- __Autocomplete help popup__ - When turned on, the Autocomplete popup is accompanied by a panel displaying the about help text for the selected shortcut in the Autocomplete list.
 - __Developer mode__ - When turned on, all shortcuts will be reloaded whenever you leave a shortcut-file note (by selecting a different note, or closing the shortcut-file note).  This adds a slight delay, but lets you develop shortcut-files more rapidly.
 - __Allow external__ - When turned on, shortcuts are able to run shell commands.  This is a powerful ability that a maliciously written shortcut can abuse to do serious damage to your computer.  Make sure you trust your shortcuts before turning this on.
 - __Reset to defaults__ - A button that, when pressed, will change all the settings for the __Inline Script__ plugin to their initial values.
