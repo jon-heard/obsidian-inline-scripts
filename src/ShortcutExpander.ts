@@ -251,19 +251,19 @@ export abstract class ShortcutExpander
 			}
 
 			// If needed, get the error's position from the error object
-			if (!errorPosition)
+			if (!errorPosition && e?.stack)
 			{
 				let match = e.stack.split("\n")[1].match(/([0-9]+):([0-9]+)/);
-				errorPosition =
+				if (match)
 				{
-					line:   Number(match[1])-2,
-					column: Number(match[2])
-				};
+					errorPosition = { line: Number(match[1])-2,  column: Number(match[2]) };
+				}
 			}
 
 			// Display the error to the user, then quit
 			this.handleExpansionError(
-				expansionScript, e.message, errorPosition, expansionInfo?.shortcutText);
+				expansionScript, e?.message || "Un-listed error", errorPosition,
+				expansionInfo?.shortcutText);
 			throw null;
 		}
 	}
@@ -272,24 +272,36 @@ export abstract class ShortcutExpander
 	private static handleExpansionError(
 		expansionScript: string, message: string, position: any, shortcutText?: string): void
 	{
+		// Use spaces instead of tabs
 		expansionScript = expansionScript.replaceAll("\t", "    ");
-		// Get the expansion script, modified by line numbers and an arrow pointing to the error
-		let expansionLines = expansionScript.split("\n");
-		// Add line numbers
-		for (let i: number = 0; i < expansionLines.length; i++)
+
+		// Setup variables to be filled based on the given position
+		let positionText = "\nline,column: ?,?";
+		let expansionText = "";
+
+		if (position)
 		{
-			expansionLines[i] = String(i+1).padStart(4, "0") + " " + expansionLines[i];
+			// Get the expansion script, modified by line numbers and an arrow pointing to the error
+			let expansionLines = expansionScript.split("\n");
+
+			// Add line numbers
+			for (let i: number = 0; i < expansionLines.length; i++)
+			{
+				expansionLines[i] = String(i+1).padStart(4, "0") + " " + expansionLines[i];
+			}
+
+			// Add arrows (pointing to error)
+			expansionLines.splice(position.line, 0, "-".repeat(position.column + 4) + "^");
+			expansionLines.splice(position.line-1, 0, "-".repeat(position.column + 4) + "v");
+
+			// Fill message variables based on position
+			positionText = "\nline,column: " + position.line + "," + position.column;
+			expansionText = "\n" + "─".repeat(20) + "\n" + expansionLines.join("\n");
 		}
-		// Add arrows (pointing to error)
-		expansionLines.splice(position.line, 0, "-".repeat(position.column + 4) + "^");
-		expansionLines.splice(position.line-1, 0, "-".repeat(position.column + 4) + "v");
-		const expansionText = expansionLines.join("\n");
 
 		const errorMessage =
-			message + "\nline: " + position.line + ", column: " + position.column + "\n" +
-			"shortcut-text: \"" + (shortcutText ?? "") + "\"\n" +
-			"─".repeat(20) + "\n" + expansionText;
-
+			message + positionText + "\nshortcut-text: \"" + (shortcutText ?? "") + "\"" +
+			expansionText;
 
 		// Create a user message with the line and column of the error and the expansion script
 		// showing where the error occurred.

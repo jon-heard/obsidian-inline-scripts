@@ -1,3 +1,9 @@
+### 0.24.6
+- Plugin updates
+    - bug fix - If an expansion error throws as null, which SOMEHOW actually happened, it's not being handled well.
+- Library updates
+    - bug fix - lists - fixed bug with item renaming not recognizing a combo-list variable
+
 ### 0.24.5
 - Plugin updates
     - feature - autocomplete - now shows while typing the shortcut suffix.  This is useful as some shortcut-texts use ":".
