@@ -118,20 +118,27 @@ export class AutoComplete extends EditorSuggest<any>
 		const lineUpToCursor: string = editor.getLine(cursor.line).slice(0, cursor.ch);
 
 		// Look for whether we are within a shortcut (after a prefix, and NOT after a suffix)
-		let match: any = lineUpToCursor.match(prefix + "[^" + suffix[0] + "]*$");
-		match = match?.first();
+		let shortcutUnderCaret = null;
+		let shortcutStart = lineUpToCursor.lastIndexOf(prefix);
+		if (shortcutStart !== -1)
+		{
+			if (lineUpToCursor.indexOf(suffix, shortcutStart) === -1)
+			{
+				shortcutUnderCaret = lineUpToCursor.slice(shortcutStart + prefix.length);
+			}
+		}
 
 		// If we ARE within a shortcut, auto-complete should pop up
-		if (match)
+		if (shortcutUnderCaret !== null)
 		{
 			return {
 				end: cursor,
 				start:
 				{
-					ch: lineUpToCursor.lastIndexOf(match) + prefix.length,
+					ch: lineUpToCursor.slice(lineUpToCursor.length - shortcutUnderCaret.length),
 					line: cursor.line,
 				},
-				query: match.slice(prefix.length),
+				query: shortcutUnderCaret,
 			};
 		}
 		else

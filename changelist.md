@@ -1,3 +1,10 @@
+### 0.24.5
+- Plugin updates
+    - feature - autocomplete - now shows while typing the shortcut suffix.  This is useful as some shortcut-texts use ":".
+- Library updates
+    - feature - tablefiles - registered folders of tables are now pulled recursively.  i.e. If a table is in a subfolder then it will also be pulled.
+    - polish - tablefiles - "tbl roll" shortcut (non-ui version) now accepts registered table titles and basenames case-insensitively
+
 ### 0.24.4
 - Plugin updates
   - polish - "ref all" shortcut removes all horizontal rules in descriptions
