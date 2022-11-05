@@ -30,7 +30,7 @@ This plugin is currently in __open beta__.
         - [The debugger statement](#development-aid-the-debugger-statement)
         - [Fenced code blocks](#development-aid-fenced-code-blocks)
     - Advanced shortcut writing
-        - [The expFormat() function for polish](#advanced-shortcuts-the-expformat-function-for-polish)
+        - [Adding the common expansion format to your shortcuts (optional)](#advanced-shortcuts-adding-the-common-expansion-format-to-your-shortcuts-optional)
         - [The print() function](#advanced-shortcuts-the-print-function)
         - [Running external applications and scripts](#advanced-shortcuts-running-external-applications-and-scripts)
         - [Syntax strings and regex patterns](#advanced-shortcuts-syntax-strings-and-regex-patterns)
@@ -88,7 +88,8 @@ Finally, __Inline Scripts__ provides a number of ways to trigger shortcuts beyon
     - The suffix string must _not_ contain the prefix string (such as prefix=`;`, suffix=`-;.`).  If it does then these settings will revert when you leave the __Inline Scripts__ plugin options.
 	- The prefix and suffix must not contain any characters that trigger Obsidian's auto-closing feature.  This includes characters like `"` and `[`.
     - If there are any errors with the prefix & suffix entries, a an error message in a red box will appear above the prefix & suffix textboxes.
-- __Expansion format - Prefix, Line-prefix & Suffix__ - These settings let you define how shortcut expansions are printed to the note.  Most shortcuts will adhere to the formatting defined by these settings (by using the `expFormat()` function).
+- __Common expansion format - Prefix, Line-prefix & Suffix__ - These settings let you define the "commmon expansion format", which many shortcuts adhere to.
+    - See [Adding the common expansion format to your shortcuts (optional)](#advanced-shortcuts-adding-the-common-expansion-format-to-your-shortcuts-optional) for more information.
 - __Autocomplete__ - When turned on, a list of possible shortcuts will appear beside your typing-caret as you type a shortcut.
 - __Autocomplete help popup__ - When turned on, the Autocomplete popup is accompanied by a panel displaying the about help text for the selected shortcut in the Autocomplete list.
 - __Developer mode__ - When turned on, all shortcuts will be reloaded whenever you leave a shortcut-file note (by selecting a different note, or closing the shortcut-file note).  This adds a slight delay, but lets you develop shortcut-files more rapidly.
@@ -457,8 +458,18 @@ The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` 
 
 ***
 
-## ADVANCED SHORTCUTS: The expFormat() function for polish
-`expFormat(expansionString)` is a function that adds a common layout to values that are passed through it.  This common layout is intended for expansion results (values that are returned from expansion-scripts).  It takes "expansionString" (a string or string array) adds a prefix (such as "> "), suffix (such as "\n\n") and line-prefix (prepended to each line).  The prefix, suffix and line-prefix are all defined in the __Inline Scripts__ settings, allowing the user to define their own common shortcut format.
+## ADVANCED SHORTCUTS: Adding the common expansion format to your shortcuts (optional)
+Many shortcuts take advantage of a simple system that adds a "common expansion format" to their results.  This is not required, but allows your shortcut's output to look pleasant and similar to other shortcut results.
+
+`expFormat(expansionString)` is a function that takes "expansionString" (a string or string array) and returns it, but adjusted it to adhere to the "common expansion format".  A simple use-case is to adjust your shortcut by replacing `return result;` with `return expFormat(result);`.
+
+`expUnformat(expansionString)` is a counterpoint to `expFormat(expansionString)`.  It takes a string with the "common expansion format" added to it, and strips out the formatting.  This is useful when you need to work with the data from a formatted expansion.
+
+The "common expansion format" is defined in the settings, which allows the user to define how they want shortcuts to print into their notes.
+There are three entries in the "Common expansion format" section of the settings:
+- __prefix__ - text added to the start of an expansion (such as "> ").
+- __line-prefix__ - text added to the start of each line of an expansion.
+- __suffix__ - text added to the end of an expansion (such as "\n\n").
 
 ### Examples
 
@@ -468,13 +479,13 @@ The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` 
 | return expFormat("result"); | ... > result\n\n ... |
 
 Note: The "\n\n" in the results are displayed in the note as a blank line between the result and the following content.
-Note: The Second expansion result is based on the default values for the expansion prefix, suffix and line-prefix in the settings.
+Note: The Second expansion result assumes that the "common expansion format" settings are at defaults.
 
 ### Optional parameters
-The full definition of expFormat is `expFormat(expansionString, skipPrefix, skipLinePrefix, skipSuffix)`.  The final three parameters are optional.
-- __skipPrefix__ - if true, the expansion prefix is not added to the result.
-- __skipLinePrefix__ - if true, the expansion line-prefix is not added to the result.
-- __skipSuffix__ - if true, the expansion suffix is not added to the result.
+The full definition of expFormat is actually `expFormat(expansionString, skipPrefix, skipLinePrefix, skipSuffix)`.  The final three parameters are optional.
+- __skipPrefix__ - if true, the prefix is not added to the result.
+- __skipLinePrefix__ - if true, the line-prefix is not added to the result.
+- __skipSuffix__ - if true, the suffix is not added to the result.
 
 ***
 

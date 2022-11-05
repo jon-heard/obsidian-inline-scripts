@@ -33,10 +33,10 @@ export abstract class SettingUi_ExpansionFormat
 			expansionSuffix: settings.expansionSuffix
 		};
 
-		parent.createEl("h2", { text: "Expansion format" });
+		parent.createEl("h2", { text: "Common expansion format" });
 
 		new Setting(parent)
-			.setName("Expansion prefix")
+			.setName("Prefix")
 			.setDesc("Text added to the start of a formatted expansion.")
 			.addText((text: any) =>
 			{
@@ -50,7 +50,7 @@ export abstract class SettingUi_ExpansionFormat
 			});
 
 		new Setting(parent)
-			.setName("Expansion line prefix")
+			.setName("Line-prefix")
 			.setDesc("Text added to the start of each line of a formatted expansion.")
 			.addText((text: any) =>
 			{
@@ -64,7 +64,7 @@ export abstract class SettingUi_ExpansionFormat
 			});
 
 		new Setting(parent)
-			.setName("Expansion suffix")
+			.setName("Suffix")
 			.setDesc("Text added to the end of a formatted expansion.")
 			.addText((text: any) =>
 			{

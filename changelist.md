@@ -1,3 +1,10 @@
+### 0.24.7
+- Plugin updates
+    - bug fix - autocomplete - selecting from the list doesn't properly add the selection
+    - polish - readme - improved the documentation on "common format expansion"
+- Library updates
+    - bug fix - adventurecrafter - "themes fill" is working, but it's output is broken
+
 ### 0.24.6
 - Plugin updates
     - bug fix - If an expansion error throws as null, which SOMEHOW actually happened, it's not being handled well.

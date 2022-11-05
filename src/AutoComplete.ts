@@ -135,7 +135,7 @@ export class AutoComplete extends EditorSuggest<any>
 				end: cursor,
 				start:
 				{
-					ch: lineUpToCursor.slice(lineUpToCursor.length - shortcutUnderCaret.length),
+					ch: lineUpToCursor.length - shortcutUnderCaret.length,
 					line: cursor.line,
 				},
 				query: shortcutUnderCaret,
