@@ -29,6 +29,8 @@ This plugin is currently in __open beta__.
         - [The console](#development-aid-the-console)
         - [The debugger statement](#development-aid-the-debugger-statement)
         - [Fenced code blocks](#development-aid-fenced-code-blocks)
+        - [Removing Inline Script's input block](#development-aid-removing-inline-scripts-input-block)
+        - [Helper functions](#development-aid-helper-functions)
     - Advanced shortcut writing
         - [Adding the common expansion format to your shortcuts (optional)](#advanced-shortcuts-adding-the-common-expansion-format-to-your-shortcuts-optional)
         - [The print() function](#advanced-shortcuts-the-print-function)
@@ -455,6 +457,29 @@ can be written as:
 
 ### Warning
 The fenced code block _must_ be exact: ` ```js ` for Expansion string and ` ``` ` for Test string.  ` ```javascript `, ` ```JS `, or anything else will break the shortcut.
+
+***
+
+## DEVELOPMENT AID: Removing Inline Script's input block
+When running a shortcut, __Inline Scripts__ blocks user input.  This is signified by dimming the Obsidian UI.  The input block is lifted when the shortcut is finished, but if a shortcut breaks wrong, sometimes, the input block is never lifted.  One solution is to restart Obsidian, but a faster solution, especially while developing a shortcut, is to open the console and run the helper function `_inlineScripts.inlineScripts.HelperFncs.unblock()`.  This will immediately remove the input block, and allow the user to continue working with Obisidian.
+
+## DEVELOPMENT AID: Helper functions
+
+__InlineScripts__ Provides various helper funcstions that can be useful in different situations.  A few are so useful that they are available directly within shortcut scripts, like `expand()`.  Some helper functions are explained elsewhere in this readme, but here is a comprehensive list, along with their purpose:
+- `_inlineScripts.inlineScripts.HelperFncs.addCss(id, css)` - See [Using custom CSS](#advanced-shortcuts-using-custom-css) for details.
+- `_inlineScripts.inlineScripts.HelperFncs.addIcon(id, svg)` - Registers the string of svg {svg} as an icon with an id of {id}.  This is useful for with the "ItemView" class.
+- `_inlineScripts.inlineScripts.HelperFncs.addToNote(toAdd, targetPosition, path)` - Modifies a file.  {toAdd} is the text to insert into the file.  {path} is an optional path string, which defaults to the active note.  It tells which file to modify.  {targetPosition} is an optional range object {start: ? end: ?} for which characters to replace with {toAdd}.  It defaults to both "start" and "end" being at the end of the document, meaning {toAdd} is appended.  If the modified file is the active note, it gets the focus.  If {toAdd} is appended to the modified file (targetPosition points to the end), then the inupt caret is moved to the end of the document.
+- `_inlineScripts.inlineScripts.HelperFncs.callEventListenerCollection(id, collection, parameters, onReturn)` - Takes an object filled with callback functions {collection} and calls each function.  {id} is a string to add to any error that occurs (to help identify this event).  {parameters} is an optional JS value.  If provided, it is passed as a parameter to each function call.  {onReturn} is an optional function.  If provided, it is called when callEventListenerCollection is finished.
+- `_inlineScripts.inlineScripts.HelperFncs.confirmObjectPath(path, leaf)` - Makes sure that the object chain described by {path} exists, where the first string is an object stored in the "window" variable, the next string is an object stored in the first string, etc.  If any objects described by {path} do _not_ exist, then they are created.  The final name of {path} is assigned to the optional parameter {leaf}, which can be _any_ JS value, and defaults to an empty object.
+- `_inlineScripts.inlineScripts.HelperFncs.DragReorder(parent, onreorder)` - A class that can be instantiated to manage a drag-reordering feature in html elements. {parent} is the element that holds all elements to be reordered.  {onreorder} is a function called after each drag-reorder occurs.
+- `_inlineScripts.inlineScripts.HelperFncs.expand(shortcutText)` - See [Calling one shortcut from another](#calling-one-shortcut-from-another) for details.
+- `_inlineScripts.inlineScripts.HelperFncs.expFormat(expansion, skipPrefix, skipLinePrefix, skipSuffix)` - See [Adding the common expansion format to your shortcuts (optional)](#advanced-shortcuts-adding-the-common-expansion-format-to-your-shortcuts-optional) for details.
+- `_inlineScripts.inlineScripts.HelperFncs.expUnformat(expansion, skipPrefix, skipLinePrefix, skipSuffix)` - See [Adding the common expansion format to your shortcuts (optional)](#advanced-shortcuts-adding-the-common-expansion-format-to-your-shortcuts-optional) for details.
+- `_inlineScripts.inlineScripts.HelperFncs.getLeavesForFile(file)` - Takes a file object {file} and returns all the editor ui's that are open to that file in Obsidian.
+- `_inlineScripts.inlineScripts.HelperFncs.ItemView(id, css)` - An Obsidian class that can be extended to create your own side-panels
+- `_inlineScripts.inlineScripts.HelperFncs.parseMarkdown(md)` - Takes a string of markdown {md} and returns that string with all markdown converted to html.
+- `_inlineScripts.inlineScripts.HelperFncs.removeCss(id)` - See [Using custom CSS](#advanced-shortcuts-using-custom-css) for details.
+- `_inlineScripts.inlineScripts.HelperFncs.unblock()` - See [Removing Inline Script's input block](#development-aid-removing-inline-scripts-input-block) for details.
 
 ***
 
