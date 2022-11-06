@@ -7,6 +7,9 @@
 import { MarkdownRenderer, ItemView, addIcon } from "obsidian";
 import { DragReorder } from "./ui_dragReorder";
 import { InputBlocker } from "./ui_InputBlocker";
+import { ExternalRunner } from "./ExternalRunner";
+import { UserNotifier } from "./ui_userNotifier";
+import { Popups } from "./ui_Popups";
 import InlineScriptsPlugin from "./_Plugin";
 
 /*! getEmPixels  | Author: Tyson Matanich (http://matanich.com), 2013 | License: MIT */
@@ -19,9 +22,11 @@ export namespace HelperFncs
 		confirmObjectPath("_inlineScripts.inlineScripts.HelperFncs");
 		Object.assign(window._inlineScripts.inlineScripts.HelperFncs,
 		{
+			runExternal: ExternalRunner.run, print: UserNotifier.getFunction_print(),
+			popups: Popups.getInstance(),
 			confirmObjectPath, getLeavesForFile, addToNote, parseMarkdown,
 			callEventListenerCollection, addCss, removeCss, ItemView, addIcon, DragReorder, unblock,
-			expFormat, expUnformat
+			expFormat, expUnformat, getSettings, registerView
 		});
 	}
 
@@ -84,6 +89,18 @@ export namespace HelperFncs
 		: string
 	{
 		return expUnformat_internal(expansion, skipPrefix, skipLinePrefix, skipSuffix);
+	}
+
+	// Return a copy of the current settings object
+	export function getSettings()
+	{
+		return Object.assign({}, InlineScriptsPlugin.getInstance().settings);
+	}
+
+	// Wraps the plugin's registerView functionality
+	export function registerView(id: string, viewCreator: any)
+	{
+		return InlineScriptsPlugin.getInstance().registerView(id, viewCreator);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +183,7 @@ export namespace HelperFncs
 			const oldContentSize = content.length;
 			content =
 				content.slice(0, targetPosition.start) + toAdd + content.slice(targetPosition.end);
-			leaves[0].view.editor.setValue(content);
+			await leaves[0].view.editor.setValue(content);
 
 			// Restore plugin input blocking
 			plugin.inputDisabled = inputDisabled;

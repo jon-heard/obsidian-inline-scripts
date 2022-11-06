@@ -1,11 +1,17 @@
+
 ### Next release - Critical
+- look into db-folder compatibility
 - __notepick pickFromQuery {count: >0} {pick id: name text, default: ""} : {query: text}__ - Picks {count} random notes based on {query} and remembers them as {pick id}.  The query can contain:
 	- __path:__ - Allows entering a path (complete or partial) that file choices will be filtered down to
 	- __file:__ - Allows entering a filename (complete or partial) that file choices will be filtered down to
 	- __tags:__ - Allows entering a tag that file choices will be filtered down to
-- sublists sfile
+- try and resolve delay issues with notevars set
 
 ### Next release
+- sublists sfile
+- location crafter sfile
+- Look into adding "state save <file>" and "state load <file>" shortcuts
+- adventurecrafter split into non-ui and ui shortcut variations
 - document all undocumented features - go through all shortcuts and note anything used, but undocumented (list here) then document it
 - add to buttons panel to toggle printing results to the note or printing to a popup
 - finish mythicv2 (missing stats system)

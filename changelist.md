@@ -1,3 +1,12 @@
+### 0.24.8
+- Plugin updates
+    - feature - readme - properly documented the useful "unblock()" help function
+    - feature - readme - properly documented an overview of all help functions
+    - feature - helperfncs - added helper functions that were around, but not bundled ("print", "runExternal", "popups", "getSettings", "registerView")
+- Library updates
+    - feature - tablefiles - table files can contain a frontmatter YAML with their configuration.
+    - feature - added confirmations to all "reset" shortcuts in the library.  Double-confirmation for "state".
+
 ### 0.24.7
 - Plugin updates
     - bug fix - autocomplete - selecting from the list doesn't properly add the selection
