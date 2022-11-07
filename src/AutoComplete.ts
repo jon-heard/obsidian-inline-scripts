@@ -122,7 +122,7 @@ export class AutoComplete extends EditorSuggest<any>
 		let shortcutStart = lineUpToCursor.lastIndexOf(prefix);
 		if (shortcutStart !== -1)
 		{
-			if (lineUpToCursor.indexOf(suffix, shortcutStart) === -1)
+			if (lineUpToCursor.indexOf(suffix, shortcutStart + prefix.length) === -1)
 			{
 				shortcutUnderCaret = lineUpToCursor.slice(shortcutStart + prefix.length);
 			}

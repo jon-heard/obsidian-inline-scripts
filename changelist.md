@@ -1,3 +1,7 @@
+### 0.24.9
+- Plugin updates
+    - bug fix - autocomplete - not working when shortcut prefix contains shortcut suffix.
+
 ### 0.24.8
 - Plugin updates
     - feature - readme - properly documented the useful "unblock()" help function
