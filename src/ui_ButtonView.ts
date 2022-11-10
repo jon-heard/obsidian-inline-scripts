@@ -343,9 +343,14 @@ export class ButtonView extends ItemView
 		return ButtonView._instance;
 	}
 
-	public static async activateView(doUiRefresh?: boolean): Promise<void>
+	public static isOpen(): boolean
 	{
-		await this.activateView_internal(doUiRefresh);
+		return this.isOpen_internal();
+	}
+
+	public static async activateView(doUiRefresh?: boolean): Promise<boolean>
+	{
+		return await this.activateView_internal(doUiRefresh);
 	}
 
 	public getButtonGroup(): any
@@ -425,8 +430,7 @@ export class ButtonView extends ItemView
 			name: "Open buttons view",
 			checkCallback: (checking: boolean): boolean =>
 			{
-				let isViewOpened =
-					(plugin.app.workspace.getLeavesOfType(BUTTON_VIEW_TYPE).length !== 0);
+				const isViewOpened = this.isOpen();
 				if (!checking && !isViewOpened)
 				{
 					this.activateView(true);
@@ -456,18 +460,25 @@ export class ButtonView extends ItemView
 		}
 	}
 
-	private static async activateView_internal(doUiRefresh?: boolean): Promise<void>
+	private static isOpen_internal(): boolean
 	{
 		const plugin: InlineScriptsPlugin = InlineScriptsPlugin.getInstance();
-		if (plugin.app.workspace.getLeavesOfType(BUTTON_VIEW_TYPE).length)
+		return !!plugin.app.workspace.getLeavesOfType(BUTTON_VIEW_TYPE).length;
+	}
+
+	private static async activateView_internal(doUiRefresh?: boolean): Promise<boolean>
+	{
+		const plugin: InlineScriptsPlugin = InlineScriptsPlugin.getInstance();
+		if (this.isOpen())
 		{
-			return;
+			return false;
 		}
 		await plugin.app.workspace.getRightLeaf(false).setViewState({ type: BUTTON_VIEW_TYPE });
 		if (doUiRefresh)
 		{
 			ButtonView.getInstance().refreshGroupUi();
 		}
+		return true;
 	}
 
 	private load_internal(): void
@@ -588,7 +599,7 @@ export class ButtonView extends ItemView
 		root.appendChild(hr);
 
 		const allButtonSettings = root.createDiv({ cls: "nav-buttons-container" });
-			allButtonSettings.style["margin-bottom"] = ".37em";
+			allButtonSettings.style[("margin-bottom" as any)] = ".37em";
 		BUTTON_VIEW_STATES["help"].button = this.addSettingsButton(
 			allButtonSettings, "question", "Help with buttons", function ()
 			{

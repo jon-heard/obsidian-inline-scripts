@@ -5,8 +5,6 @@
 "use strict";
 
 import { Setting, Platform } from "obsidian";
-import InlineScriptsPlugin from "./_Plugin";
-import { Popups } from "./ui_Popups";
 
 export abstract class SettingUi_Other
 {
@@ -85,29 +83,9 @@ export abstract class SettingUi_Other
 						.onChange((value: string) => this._settings.allowExternal = value );
 				})
 				.descEl.createEl("div", {
-					cls: "iscript_warning",
+					cls: "iscript_alert",
 					text: "WARNING: enabling this increases the danger from malicious shortcuts" });
 		}
-
-		new Setting(parent)
-			.setName("Reset to defaults")
-			.setDesc("Reset all settings to their default values.")
-			.addButton((button: any) =>
-			{
-				return button
-					.setButtonText("Reset to defaults")
-					.onClick(async () =>
-					{
-						const plugin = InlineScriptsPlugin.getInstance();
-						if (await Popups.getInstance().confirm(
-							"Confirm resetting ALL settings to their default values."))
-						{
-							plugin.settings = InlineScriptsPlugin.getDefaultSettings();
-							plugin.settingsUi.display();
-							plugin.settings.shortcuts = "";
-						}
-					});
-			});
 
 		parent.createEl("hr");
 		let donationCaption = parent.createEl("div", { cls: "iscript_donationsCaption" });

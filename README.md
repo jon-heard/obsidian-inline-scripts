@@ -485,6 +485,7 @@ __InlineScripts__ provides various helper funcstions that can be useful in diffe
 - `_inlineScripts.inlineScripts.HelperFncs.removeCss(id)` - See [Using custom CSS](#advanced-shortcuts-using-custom-css) for details.
 - `_inlineScripts.inlineScripts.HelperFncs.runExternal(command, failSilently, dontFixSlashes)` - __Provided directly to shortcuts.__  See [Running external applications and scripts](#advanced-shortcuts-running-external-applications-and-scripts) for details.
 - `_inlineScripts.inlineScripts.HelperFncs.unblock()` - See [Removing Inline Script's input block](#development-aid-removing-inline-scripts-input-block) for details.
+- `_inlineScripts.inlineScripts.HelperFncs.fileWrite(filepath, content)` - Sets the content to the file at {filepath} to {content}, creating the file if necessary.
 
 ***
 

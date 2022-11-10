@@ -9,6 +9,7 @@ import InlineScriptsPlugin from "./_Plugin";
 import { UserNotifier } from "./ui_userNotifier";
 import { InputBlocker } from "./ui_InputBlocker";
 import { Popups } from "./ui_Popups";
+import { HelperFncs } from "./HelperFncs";
 import { SettingUi_ShortcutFiles } from "./ui_setting_shortcutFiles";
 
 const REGEX_LIBRARY_README_SHORTCUT_FILE: RegExp =
@@ -23,14 +24,14 @@ const PRE_REFACTOR_SFILES = ["tejs_state","tejs_lists","tejs_mythicv2","tejs_myt
 export namespace LibraryImporter
 {
 	// Pull the official library from github & add it to the current vault
-	export function run(): void
+	export async function run(): Promise<boolean>
 	{
-		run_internal();
+		return await run_internal();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	async function run_internal(useCustomSource?: boolean): Promise<void>
+	async function run_internal(useCustomSource?: boolean): Promise<boolean>
 	{
 		const plugin = InlineScriptsPlugin.getInstance();
 
@@ -48,7 +49,7 @@ export namespace LibraryImporter
 			if (addressRemote === null)
 			{
 				InputBlocker.setEnabled(false);
-				return;
+				return false;
 			}
 		}
 
@@ -69,7 +70,7 @@ export namespace LibraryImporter
 				messageType: e.message
 			});
 			InputBlocker.setEnabled(false);
-			return;
+			return false;
 		}
 		readmeContent = readmeContent.replaceAll("\r", "");
 		let libShortcutFiles: Array<string> = [];
@@ -130,13 +131,12 @@ export namespace LibraryImporter
 		if (libraryDestinationPath === null)
 		{
 			InputBlocker.setEnabled(false);
-			return;
+			return false;
 		}
 
 		if (libraryDestinationPath.trim().toLowerCase() === "customlibsrc")
 		{
-			run_internal(true);
-			return;
+			return run_internal(true);
 		}
 
 		// Normalize the inputted library destination path
@@ -149,28 +149,20 @@ export namespace LibraryImporter
 		// Create the choosen library destination folder, if necessary
 		if (!(plugin.app.vault as any).fileMap.hasOwnProperty(libraryDestinationPath))
 		{
-			plugin.app.vault.createFolder(libraryDestinationPath);
+			await plugin.app.vault.createFolder(libraryDestinationPath);
 		}
 
 		// Download and create library files
 		for (const libShortcutFile of libShortcutFiles)
 		{
 			// Download the file
-			let content: string = await window.request({
+			const content: string = await window.request({
 				url: addressRemote + "/" + libShortcutFile + ".md",
 				method: "GET", headers: { "Cache-Control": "no-cache" }
 			});
 
-			let filename: string = libraryDestinationPath + "/" + libShortcutFile + ".md";
-			let file: any = (plugin.app.vault as any).fileMap[filename];
-			if (file)
-			{
-				await plugin.app.vault.modify(file, content);
-			}
-			else
-			{
-				await plugin.app.vault.create(filename, content);
-			}
+			const filename: string = libraryDestinationPath + "/" + libShortcutFile + ".md";
+			await HelperFncs.fileWrite(filename, content);
 		}
 
 		// Delete any pre-refactor library files in the shortcut-files list
@@ -178,10 +170,16 @@ export namespace LibraryImporter
 		{
 			if (PRE_REFACTOR_SFILES.includes(sfNoteNames[i]))
 			{
-				plugin.app.vault.delete((plugin.app.vault as any).fileMap[sfNoteAddresses[i]]);
+				await plugin.app.vault.delete((plugin.app.vault as any).fileMap[sfNoteAddresses[i]]);
 			}
 		}
 
+		// Add version file
+		{
+			const libVersion = readmeContent.match(/# Version (.*)/)[1] || "";
+			const filename: string = libraryDestinationPath + "/" + "Ξ_libraryVersion.md";
+			await HelperFncs.fileWrite(filename, libVersion);
+		}
 
 		// Before adding the library shortcut-files to the plugin settings, we should
 		// update the plugin settings with the latest changes made in the settings ui.
@@ -217,8 +215,11 @@ export namespace LibraryImporter
 				address: address
 			});
 		}
+
 		// Refresh settings ui to display the updated list of shortcut-files
-		InputBlocker.setEnabled(false);
 		InlineScriptsPlugin.getInstance().settingsUi.display();
+		InputBlocker.setEnabled(false);
+
+		return true;
 	}
 }

@@ -54,9 +54,13 @@ export abstract class SettingUi_ShortcutFiles
 				return button
 					.setButtonText("Import full library")
 					.setClass("iscript_spacedUi")
-					.onClick(() =>
+					.onClick(async () =>
 					{
-						LibraryImporter.run();
+						if (await LibraryImporter.run())
+						{
+							document.getElementById("alert_libraryUpdates").
+								toggleClass("iscript_hidden", true);
+						}
 					});
 			});
 		this._shortcutFileUis = parent.createEl("div", { cls: "iscript_shortcutFiles" });

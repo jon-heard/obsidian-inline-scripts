@@ -102,15 +102,6 @@ const ANNOUNCEMENTS: Array<any> =
 	}
 ];
 
-const versionCompare = function(version1: string, version2: string): number
-{
-	const convert =
-		(v: string) => v.split(".").map((x: string) => x.padStart(4, "0")).join(".");
-	version1 = convert(version1);
-	version2 = convert(version2);
-	return (version1 < version2) ? -1 : (version1 > version2) ? 1 : 0;
-};
-
 export default class InlineScriptsPlugin extends Plugin
 {
 	// Store the plugin's settings
@@ -419,11 +410,11 @@ export default class InlineScriptsPlugin extends Plugin
 		const toDisplay = [];
 		for (const announcement of ANNOUNCEMENTS)
 		{
-			if (versionCompare(announcement.version, this.manifest.version) <= 0 &&
-			    versionCompare(announcement.version, this.settings.version) > 0)
+			if (HelperFncs.versionCompare(announcement.version, this.manifest.version) <= 0 &&
+			    HelperFncs.versionCompare(announcement.version, this.settings.version) > 0)
 			{
 				let title = "Inline Scripts\n";
-				if (versionCompare(announcement.version, "0.21.0") === 0)
+				if (HelperFncs.versionCompare(announcement.version, "0.21.0") === 0)
 				{
 					title += "(formerly Text Expander JS)\n";
 				}

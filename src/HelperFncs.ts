@@ -26,8 +26,18 @@ export namespace HelperFncs
 			popups: Popups.getInstance(),
 			confirmObjectPath, getLeavesForFile, addToNote, parseMarkdown,
 			callEventListenerCollection, addCss, removeCss, ItemView, addIcon, DragReorder, unblock,
-			expFormat, expUnformat, getSettings, registerView
+			expFormat, expUnformat, getSettings, registerView, fileWrite
 		});
+	}
+
+	export function versionCompare(version1: string, version2: string): number
+	{
+		return versionCompare_internal(version1, version2);
+	}
+
+	export async function fileWrite(filepath: string, content: string): Promise<void>
+	{
+		await fileWrite_internal(filepath, content);
 	}
 
 	// confirm that an object path is available
@@ -104,6 +114,29 @@ export namespace HelperFncs
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+	function versionCompare_internal(version1: string, version2: string): number
+	{
+		const convert =
+			(v: string) => v.split(".").map((x: string) => x.padStart(5, "0")).join(".");
+		version1 = convert(version1);
+		version2 = convert(version2);
+		return version1.localeCompare(version2);
+	};
+
+	async function fileWrite_internal(filepath: string, content: string): Promise<void>
+	{
+		const plugin = InlineScriptsPlugin.getInstance();
+		const file: any = (plugin.app.vault as any).fileMap[filepath];
+		if (file)
+		{
+			await plugin.app.vault.modify(file, content);
+		}
+		else
+		{
+			await plugin.app.vault.create(filepath, content);
+		}
+	}
 
 	function confirmObjectPath_internal(path: string, leaf?: any): void
 	{

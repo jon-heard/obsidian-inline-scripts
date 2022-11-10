@@ -26,6 +26,7 @@ export abstract class SettingUi_ExpansionFormat
 
 	private static create_internal(parent: any, settings: any): void
 	{
+		// Settings section
 		this._settings =
 		{
 			expansionPrefix: settings.expansionPrefix,
@@ -33,8 +34,10 @@ export abstract class SettingUi_ExpansionFormat
 			expansionSuffix: settings.expansionSuffix
 		};
 
+		// Title
 		parent.createEl("h2", { text: "Common expansion format" });
 
+		// Prefix
 		new Setting(parent)
 			.setName("Prefix")
 			.setDesc("Text added to the start of a formatted expansion.")
@@ -47,8 +50,10 @@ export abstract class SettingUi_ExpansionFormat
 					{
 						this._settings.expansionPrefix = value;
 					});
-			});
+			})
+			.settingEl.toggleClass("iscript_settingBundledTop", true);
 
+		// Line-prefix
 		new Setting(parent)
 			.setName("Line-prefix")
 			.setDesc("Text added to the start of each line of a formatted expansion.")
@@ -61,8 +66,10 @@ export abstract class SettingUi_ExpansionFormat
 					{
 						this._settings.expansionLinePrefix = value;
 					});
-			});
+			})
+			.settingEl.toggleClass("iscript_settingBundled", true);
 
+		// Suffix
 		new Setting(parent)
 			.setName("Suffix")
 			.setDesc("Text added to the end of a formatted expansion.")
@@ -75,6 +82,7 @@ export abstract class SettingUi_ExpansionFormat
 					{
 						this._settings.expansionSuffix = value;
 					});
-			});
+			})
+			.settingEl.toggleClass("iscript_settingBundled", true);
 	}
 }

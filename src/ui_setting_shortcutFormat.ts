@@ -42,7 +42,7 @@ export abstract class SettingUi_ShortcutFormat
 		parent.createEl("h2", { text: "Shortcut format" });
 
 		// A ui for showing errors in shortcut format settings
-		this._formatErrMsgContainerUi = parent.createEl("div", { cls: "iscript_errMsgContainer" });
+		this._formatErrMsgContainerUi = parent.createEl("div", { cls: "iscript_alert iscript_hidden" });
 		this._formatErrMsgContainerUi.createEl("span", { text: "ERROR", cls: "iscript_errMsgTitle" });
 		this._formatErrMsgContentUi = this._formatErrMsgContainerUi.createEl("span");
 
@@ -136,13 +136,13 @@ export abstract class SettingUi_ShortcutFormat
 		if (!err)
 		{
 			this._formatErrMsgContainerUi.toggleClass(
-				"iscript_errMsgContainerShown", false);
+				"iscript_hidden", true);
 			return true;
 		}
 		else
 		{
 			this._formatErrMsgContainerUi.toggleClass(
-				"iscript_errMsgContainerShown", true);
+				"iscript_hidden", false);
 			this._formatErrMsgContentUi.innerText = err;
 			return false;
 		}

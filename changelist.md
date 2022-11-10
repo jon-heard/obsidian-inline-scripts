@@ -1,3 +1,17 @@
+### 0.24.10
+- Plugin updates
+    - feature - settings - Add alerts when there are updates for the plugin or library
+    - feature - helper function - fileWrite (does "fileCreate" or "fileModify" as appropriate)
+    - polish - settings - button-view opening button is disable when button-view is opened
+    - polish - settings - moved "reset settings" button to "Actions" section
+    - polish - settings - removed separators between common expansion format settings
+- Library updates
+    - feature - tablefiles - added an output format: "array", which returns a raw array.  Useful for subshortcutting "tbl roll"
+    - polish - tablefiles - adjusted frontmatter configurations to be pulled from the cache (speeds up "tbl roll" popup).
+    - feature - readme - added version number
+    - bug fix - tablefiles - "tbl roll" (non-ui) checks the path against config tables, but not fm-config tables
+    - bug fix - tablefiles - table with no configuration is messed up when changing values the first time
+
 ### 0.24.9
 - Plugin updates
     - bug fix - autocomplete - not working when shortcut prefix contains shortcut suffix.

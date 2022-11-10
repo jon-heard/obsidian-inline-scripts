@@ -1,3 +1,5 @@
+### This release (modifications)
+- add input-block removal when shortcut failure would cause skipping input-block removal
 
 ### Next release - Critical
 - look into db-folder compatibility

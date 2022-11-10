@@ -38,6 +38,7 @@
 {
 	width: calc(90% - 6.6em) !important;
 }
+
 .iscript_badInput
 {
 	background-color: darkred !important;
@@ -88,24 +89,16 @@
 	content: "▼";
 	display: inline;
 }
-.iscript_errMsgContainer
-{
-	background-color: Red;
-	display: none;
-}
-.iscript_errMsgContainerShown
-{
-	display: inherit;
-}
 .iscript_errMsgTitle
 {
 	font-weight: bold;
-	margin: 0 1em;
+	margin-right: 1em;
 }
 .iscript_settingBundled
 {
 	border: 0;
 	padding: 0;
+	padding-top: 1em;
 }
 .iscript_settingBundledTop
 {
@@ -121,17 +114,19 @@
 	border-radius: 4px;
 	outline: none;
 	height: 30px;
-	width: 252px;
+	width: 10em;
 	text-align: left;
 }
 .is-mobile .iscript_labelControl
 {
 	width: 100%;
 }
-.iscript_warning
+.iscript_alert
 {
 	background-color: red;
 	color: white;
+	border-radius: 1em;
+	padding: 0em 1em;
 }
 #iscript_inputBlocker
 {
