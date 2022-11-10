@@ -223,6 +223,16 @@
 	padding: 1em 0em;
 	border-top: 1px solid var(--background-modifier-border);
 }
+.iscript_button_disabled
+{
+	color: var(--text-faint);
+	cursor: unset
+}
+.iscript_button_disabled:hover
+{
+	background-color: var(--interactive-normal);
+	box-shadow: var(--input-shadow);
+}
 .iscript_buttonView_groupSelect
 {
 	width: 100%
@@ -242,20 +252,18 @@
 	margin-top: 0.5em;
 	padding: .25em;
 	padding-bottom: 0;
+	background-color: unset !important;
 }
 .iscript_buttonView_uiButton_selected
 {
 	background-color: var(--text-highlight-bg) !important;
 	border-radius: 4px;
 }
-.iscript_buttonView_uiButton_disabled
-{
-	color: var(--text-faint);
-}
 .iscript_buttonView_uiBlock
 {
 	font-style: italic;
 	margin-top: 0.7em;
+	margin-left: 0.5em;
 }
 .iscript_buttonView_help
 {

@@ -588,6 +588,7 @@ export class ButtonView extends ItemView
 		root.appendChild(hr);
 
 		const allButtonSettings = root.createDiv({ cls: "nav-buttons-container" });
+			allButtonSettings.style["margin-bottom"] = ".37em";
 		BUTTON_VIEW_STATES["help"].button = this.addSettingsButton(
 			allButtonSettings, "question", "Help with buttons", function ()
 			{
@@ -618,7 +619,7 @@ export class ButtonView extends ItemView
 			});
 
 		this._settingsUi.buttonSettingsBlock = allButtonSettings.createDiv(
-			{ text: "   Group locked", cls: "iscript_buttonView_uiBlock iscript_hidden" });
+			{ text: "Group locked", cls: "iscript_buttonView_uiBlock iscript_hidden" });
 
 		this.helpUi = root.createDiv({ cls: "iscript_buttonView_help" });
 
@@ -771,18 +772,18 @@ export class ButtonView extends ItemView
 			this._settingsUi.buttonSettings.classList.add("iscript_hidden");
 			this._settingsUi.buttonSettingsBlock.classList.remove("iscript_hidden");
 			this._settingsUi.groupRename.classList.remove("nav-action-button");
-			this._settingsUi.groupRename.classList.add("iscript_buttonView_uiButton_disabled");
+			this._settingsUi.groupRename.classList.add("iscript_button_disabled");
 			this._settingsUi.groupRemove.classList.remove("nav-action-button");
-			this._settingsUi.groupRemove.classList.add("iscript_buttonView_uiButton_disabled");
+			this._settingsUi.groupRemove.classList.add("iscript_button_disabled");
 		}
 		else
 		{
 			this._settingsUi.buttonSettings.classList.remove("iscript_hidden");
 			this._settingsUi.buttonSettingsBlock.classList.add("iscript_hidden");
 			this._settingsUi.groupRename.classList.add("nav-action-button");
-			this._settingsUi.groupRename.classList.remove("iscript_buttonView_uiButton_disabled");
+			this._settingsUi.groupRename.classList.remove("iscript_button_disabled");
 			this._settingsUi.groupRemove.classList.add("nav-action-button");
-			this._settingsUi.groupRemove.classList.remove("iscript_buttonView_uiButton_disabled");
+			this._settingsUi.groupRemove.classList.remove("iscript_button_disabled");
 		}
 
 		// Shortcut buttons

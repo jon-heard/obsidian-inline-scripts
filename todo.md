@@ -8,6 +8,8 @@
 - try and resolve delay issues with notevars set
 
 ### Next release
+- file create {file-path: path text} {template-path: path text, default: none}
+- file modify "{start: regex string}" "{end: regex string}" {action: >=0, 0=replace, 1=append, 2=prepend} {content: text}
 - sublists sfile
 - location crafter sfile
 - Look into adding "state save <file>" and "state load <file>" shortcuts
