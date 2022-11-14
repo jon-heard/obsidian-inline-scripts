@@ -26,7 +26,8 @@ export namespace HelperFncs
 			popups: Popups.getInstance(),
 			confirmObjectPath, getLeavesForFile, addToNote, parseMarkdown,
 			callEventListenerCollection, addCss, removeCss, ItemView, addIcon, DragReorder, unblock,
-			expFormat, expUnformat, getSettings, registerView, fileWrite
+			expFormat, expUnformat, getSettings, registerView, fileWrite, asyncFilter, asyncMap,
+			asyncForEach
 		});
 	}
 
@@ -102,7 +103,7 @@ export namespace HelperFncs
 	}
 
 	// Return a copy of the current settings object
-	export function getSettings()
+	export function getSettings(): any
 	{
 		return Object.assign({}, InlineScriptsPlugin.getInstance().settings);
 	}
@@ -111,6 +112,24 @@ export namespace HelperFncs
 	export function registerView(id: string, viewCreator: any)
 	{
 		return InlineScriptsPlugin.getInstance().registerView(id, viewCreator);
+	}
+
+	// Equivalent to array.filter, except that the passed function is run asynchronously
+	export async function asyncFilter(arr: Array<any>, fnc: any): Promise<Array<any>>
+	{
+		return await asyncFilter_internal(arr, fnc);
+	}
+
+	// Equivalent to array.map, except that the passed function is run asynchronously
+	export async function asyncMap(arr: Array<any>, fnc: any): Promise<Array<any>>
+	{
+		return await asyncMap_internal(arr, fnc);
+	}
+
+	// Equivalent to array.forEach, except that the passed function is run asynchronously
+	export async function asyncForEach(arr: Array<any>, fnc: any): Promise<void>
+	{
+		return await asyncForEach_internal(arr, fnc);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -434,5 +453,27 @@ export namespace HelperFncs
 
 		// If passed expansion wasn't an array, turn result back into a non-array.
 		return Array.isArray(expansion) ? result : result[0];
+	}
+
+	// Equivalent to array.filter, except that the passed function is run asynchronously
+	async function asyncFilter_internal(arr: Array<any>, fnc: any): Promise<Array<any>>
+	{
+		const predicateResults = await Promise.all(arr.map(fnc));
+		return arr.filter((v, i) => predicateResults[i]);
+	}
+
+	// Equivalent to array.map, except that the passed function is run asynchronously
+	async function asyncMap_internal(arr: Array<any>, fnc: any): Promise<Array<any>>
+	{
+		return await Promise.all(arr.map(fnc));
+	}
+
+	// Equivalent to array.forEach, except that the passed function is run asynchronously
+	async function asyncForEach_internal(arr: Array<any>, fnc: any): Promise<void>
+	{
+		for (let i = 0; i < arr.length; i++)
+		{
+			await fnc(arr[i], i, arr);
+		}
 	}
 }

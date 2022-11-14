@@ -99,6 +99,28 @@ const ANNOUNCEMENTS: Array<any> =
 			"Check the <a href='https://github.com/jon-heard/obsidian-inline-scripts/releases/tag/0.24.0'>" +
 			"release notes</a> for details." +
 			"</div>"
+	},
+	{
+		version: "0.24.11",
+		message:
+			"<div style=\"text-align:left\">" +
+			"  <b>Summary of notable changes since 0.24.0</b>" +
+			"  <ul>" +
+			"    <li>tablefiles<ul>" +
+			"      <li>Popup - can change multiple table configurations simultaneously by selecting multiple tables with shift or ctrl/cmd keys</li>" +
+			"      <li>Table files can now include a YAML frontmatter which can define their configuration.  This can be edited from the popup, just like other configurations.</li>" +
+			"      <li>A <b>tbl reroll</b> shortcut has been added to allow re-rolling the prior table roll.</li>" +
+			"      <li>Folder paths are now added recursively (table-files in the folder AND subfolder are added)</li>" +
+			"    </ul></li>" +
+			"    <li>cards<ul>" +
+			"      <li><b>draw</b> and <b>pick</b> shortcuts now have a variation that allows entering the <b>from</b>, <b>to</b> and <b>count</b> parameters in <i>any</i> order.</li>" +
+			"    </ul></li>" +
+			"    <li>plugin<ul>" +
+			"      <li>Settings shows alerts when there are updates available for the plugin and/or library</li>" +
+			"      <li>README - Added documentation for the useful <b>unblock()</b> function and a reference for all helper functions</li>" +
+			"    </ul></li>" +
+			"  </ul>" +
+			"</div>"
 	}
 ];
 

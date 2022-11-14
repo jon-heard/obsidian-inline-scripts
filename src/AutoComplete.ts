@@ -150,6 +150,9 @@ export class AutoComplete extends EditorSuggest<any>
 	// Called by the system to get a list of suggestions to display in auto-complete
 	private getSuggestions_internal(context: any): any
 	{
+		// Early out if syntaxesSorted isn't available
+		if (!this._plugin?.syntaxesSorted) { return null; }
+
 		// Get ALL shortcut syntaxes
 		const result = this._plugin.syntaxesSorted
 		// Check each syntax against the query (i.e. the user's current shortcut-text)

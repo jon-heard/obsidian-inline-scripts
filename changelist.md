@@ -1,3 +1,11 @@
+### 0.24.11
+- Plugin updates
+    - feature - helper functions - 3 helper functions added: asyncFilter, asyncMap & asyncForEach.
+- Library updates
+    - feature - tablefiles - can change multiple table configurations simultaneously by selecting multiple tables with shift or ctrl
+    - polish - tablefiles - popup ui layout & styling polished
+    - refactor - lists_ui - helper function asyncFilter used instead of internal asyncFilter function.
+
 ### 0.24.10
 - Plugin updates
     - feature - settings - Add alerts when there are updates for the plugin or library
