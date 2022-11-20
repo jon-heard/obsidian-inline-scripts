@@ -605,7 +605,7 @@ In addition to `>0`, there are many other types used in the _Inline Scripts_ lib
 | text | `.+` | Any text including any spacing. |
 | non-space text | `[^ ]+` | Same as "text", but no spaces allowed. |
 | name text | `[_a-zA-Z][_a-zA-Z0-9]*` | A name: no space.  The first character is an alpha or underscore character.  The remaining characters can be alpha, underscore or number characters. |
-| path text | `"[^ \t\\:*?"<>\|][^\t\\:*?"<>\|]*"\|[^ \t\\:*?"<>\|]+` | The shortcut should also start with the line `$1 = $1.replaceAll(/^\"|\"$/g, "");` (where $1 is set to whatever parameter this is).  |
+| path text | `"[^ \t\\:*?"<>\|][^\t\\:*?"<>\|]*"\|[^ \t\\:*?"<>\|]+` | The shortcut expansion text should also start with the line `$1 = $1.replace(/^"(.*)"$/, "$1");` where the first two $1 (not the third) are set to whatever parameter this is.  This removes any quotes the user puts around the value.  |
 | >0 | `[1-9][0-9]*` | Any integer greater than 0. |
 | >=0 | `[0-9]*` | Any integer greater than or equal to 0. |
 | x&nbsp;TO&nbsp;z | `x\|y\|z` | A range of integers, from x to y.  Example: 3 TO 18 |
