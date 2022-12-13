@@ -1,3 +1,8 @@
+### 0.24.12
+- Plugin updates:
+    - bug fix - library version update alert can show up even if it shouldn't
+    - feature - shortcut links - remove markdown parsing for shortcut link output (user can do it themselves if necessary)
+
 ### 0.24.11
 - Plugin updates
     - feature - helper functions - 3 helper functions added: asyncFilter, asyncMap & asyncForEach.
