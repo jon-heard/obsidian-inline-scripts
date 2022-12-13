@@ -67,7 +67,7 @@ export abstract class SettingUi_Alerts
 			{
 				if (shortcutFile.address.endsWith("state.sfile.md"))
 				{
-					versionFilePath = shortcutFile.address.slice(0, 14) + "Ξ_libraryVersion.md";
+					versionFilePath = shortcutFile.address.slice(0, -14) + "Ξ_libraryVersion.md";
 					break;
 				}
 			}
