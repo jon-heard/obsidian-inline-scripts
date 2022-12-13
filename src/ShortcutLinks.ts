@@ -110,8 +110,7 @@ export abstract class ShortcutLinks
 				// If iscript shortcut expanded, run output customization, then resolution
 				if (result)
 				{
-					// Customize result
-					result = HelperFncs.parseMarkdown(result);
+					// Customizing entry handling
 					if (parts.length > 2 && parts[2])
 					{
 						result = (new Function('$$', "return " + parts[2]))(result);
