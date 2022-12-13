@@ -376,17 +376,17 @@ Links will accept "???" blocks in their shortcut text (similar to how the Button
 | Example id | Link text | Description |
 | ---------- | --------- | ----------- |
 | 1 | \`iscript:&nbsp;d100\` | The link's display text is "d100".  Each time the user clicks the link, the shortcut "d100" is run and the link's displayed text is set to the shortcut's expansion. |
-| 2 | \`iscript&#8209;once:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #1, except the link is entirely replaced by the shortcut's expansion text, meaning only the first click has any effect.  This is due to the "iscript-once" heading. |
-| 3 | \`iscript&#8209;append:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #1, except the link's display text does not change.  Instead, the shortcut's expansion text is appended to the end of the note.  This is due to the "iscript-append" heading. |
-| 4 | \`iscript&#8209;prepend:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #3, except the shortcut's expansion text is not appended to the end of the note.  Instead, the shortcut's expansion text is prepended to the beginning of the note.  This is due to the "iscript-prepend" heading. |
+| 2 | \`iscript&#8209;once:&nbsp;d100` | Same as example #1, except the link is entirely replaced by the shortcut's expansion text, meaning only the first click has any effect.  This is due to the "iscript-once" heading. |
+| 3 | \`iscript&#8209;append:&nbsp;d100` | Same as example #1, except the link's display text does not change.  Instead, the shortcut's expansion text is appended to the end of the note.  This is due to the "iscript-append" heading. |
+| 4 | \`iscript&#8209;prepend:&nbsp;d100` | Same as example #3, except the shortcut's expansion text is not appended to the end of the note.  Instead, the shortcut's expansion text is prepended to the beginning of the note.  This is due to the "iscript-prepend" heading. |
 | <hr/> | <hr/> | <hr/> |
 | 5 | \`iscript:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #1, except that the link's initial display text is "rollem", instead of "d100". |
 | 6 | \`iscript&#8209;append:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #3, except that the link's display text begins and remains "rollem", instead of "d100". |
 | <hr/> | <hr/> | <hr/> |
 | 7 | \`iscript ^dstblock:&nbsp;d100\` | Sample as example #1, except that the note block with id of "dstblock" has its text set to the expansion, instead of the link's display. |
-| 8 | \`iscript&#8209;once ^dstblock:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #2, except that the note block with id of "dstblock" has its text set to the expansion, instead of the link's display.  The link still goes away, though. |
-| 9 | \`iscript&#8209;append ^dstblock:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #3, except that the note block with id of "dstblock" is appended to, instead of the entire note. |
-| 10 | \`iscript&#8209;prepend ^dstblock:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #3, except that the note block with id of "dstblock" is prepended to, instead of the entire note. |
+| 8 | \`iscript&#8209;once ^dstblock:&nbsp;d100&nbsp;\` | Same as example #2, except that the note block with id of "dstblock" has its text set to the expansion, instead of the link's display.  The link still goes away, though. |
+| 9 | \`iscript&#8209;append ^dstblock:&nbsp;d100&nbsp;\` | Same as example #3, except that the note block with id of "dstblock" is appended to, instead of the entire note. |
+| 10 | \`iscript&#8209;prepend ^dstblock:&nbsp;d100&nbsp;\` | Same as example #4, except that the note block with id of "dstblock" is prepended to, instead of the entire note. |
 | <hr/> | <hr/> | <hr/> |
 | 11 | \`iscript:&nbsp;d100&nbsp;\|&nbsp;rollem&nbsp;\|&nbsp;"Result: " + $$\` | Same as example #5, except that custom JS code is included to print the expansion prepended with "Result: ".  Notice that "$$" is replaced with the expansion in the JS code. |
 | 12 | \`iscript&#8209;append:&nbsp;d100&nbsp;\|&nbsp;rollem&nbsp;\|&nbsp;"- " + $$ + "\n"\` | Same as example #6, except that custom JS code is included to print the expansion prepended with a dash, and appended with a newline.  If the expansion is "83/D100", then the output is "- 83/D100\n".  Notice that "$$" is replaced with the expansion in the JS code |
