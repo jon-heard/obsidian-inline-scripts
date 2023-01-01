@@ -173,7 +173,7 @@ Each shortcut is defined by three strings.
 | -- | ----------- | ---------------- | ------------ |
 |  1 | hi | return&nbsp;"Hello!&nbsp;How&nbsp;are&nbsp;you?"; | hi - Expands into "Hello! How are you?".  A simple shortcut to see if the Inline Scripts plugin is running. |
 |  2 | ^date$ | return&nbsp;new&nbsp;Date().toLocaleDateString(); | Expands into the current, local date. |
-|  3 | ^age&nbsp;([0-9]+)$ | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; | age {how old: >=0} - Expands into "I am {how old} years old".  {how old} can be any positive integer.  This is a demo shortcut written for this documentation. |
+|  3 | <nobr>^age ([0-9]+)$</nobr> | return&nbsp;"I&nbsp;am&nbsp;"&nbsp;+&nbsp;$1&nbsp;+&nbsp;"&nbsp;years&nbsp;old."; | age {how old: >=0} - Expands into "I am {how old} years old".  {how old} can be any positive integer.  This is a demo shortcut written for this documentation. |
 
 #### Shortcut #1 - hi (basic)
 At its most basic, a Test string can just be the shortcut itself.  In this example, the shortcut will be triggered when the user types `;;hi::`.  Once triggered, the Expansion string's javascript is run.  In this example the javascript produces the string "Hello! How are you?".  The shortcut that the user typed (`;;hi::`) will be replaced with `Hello! How are you?`.
@@ -375,27 +375,27 @@ Links will accept "???" blocks in their shortcut text (similar to how the Button
 
 | Example id | Link text | Description |
 | ---------- | --------- | ----------- |
-| 1 | \`iscript:&nbsp;d100\` | The link's display text is "d100".  Each time the user clicks the link, the shortcut "d100" is run and the link's displayed text is set to the shortcut's expansion. |
-| 2 | \`iscript&#8209;once:&nbsp;d100` | Same as example #1, except the link is entirely replaced by the shortcut's expansion text, meaning only the first click has any effect.  This is due to the "iscript-once" heading. |
-| 3 | \`iscript&#8209;append:&nbsp;d100` | Same as example #1, except the link's display text does not change.  Instead, the shortcut's expansion text is appended to the end of the note.  This is due to the "iscript-append" heading. |
-| 4 | \`iscript&#8209;prepend:&nbsp;d100` | Same as example #3, except the shortcut's expansion text is not appended to the end of the note.  Instead, the shortcut's expansion text is prepended to the beginning of the note.  This is due to the "iscript-prepend" heading. |
+| 1 | \`iscript: d100\` | The link's display text is "d100".  Each time the user clicks the link, the shortcut "d100" is run and the link's displayed text is set to the shortcut's expansion. |
+| 2 | \`iscript-once: d100` | Same as example #1, except the link is entirely replaced by the shortcut's expansion text, meaning only the first click has any effect.  This is due to the "iscript-once" heading. |
+| 3 | \`iscript-append: d100` | Same as example #1, except the link's display text does not change.  Instead, the shortcut's expansion text is appended to the end of the note.  This is due to the "iscript-append" heading. |
+| 4 | \`iscript-prepend: d100` | Same as example #3, except the shortcut's expansion text is not appended to the end of the note.  Instead, the shortcut's expansion text is prepended to the beginning of the note.  This is due to the "iscript-prepend" heading. |
 | <hr/> | <hr/> | <hr/> |
-| 5 | \`iscript:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #1, except that the link's initial display text is "rollem", instead of "d100". |
-| 6 | \`iscript&#8209;append:&nbsp;d100&nbsp;\|&nbsp;rollem\` | Same as example #3, except that the link's display text begins and remains "rollem", instead of "d100". |
+| 5 | \`iscript: d100 \| rollem\` | Same as example #1, except that the link's initial display text is "rollem", instead of "d100". |
+| 6 | \`iscript-append: d100 \| rollem\` | Same as example #3, except that the link's display text begins and remains "rollem", instead of "d100". |
 | <hr/> | <hr/> | <hr/> |
-| 7 | \`iscript ^dstblock:&nbsp;d100\` | Sample as example #1, except that the note block with id of "dstblock" has its text set to the expansion, instead of the link's display. |
-| 8 | \`iscript&#8209;once ^dstblock:&nbsp;d100&nbsp;\` | Same as example #2, except that the note block with id of "dstblock" has its text set to the expansion, instead of the link's display.  The link still goes away, though. |
-| 9 | \`iscript&#8209;append ^dstblock:&nbsp;d100&nbsp;\` | Same as example #3, except that the note block with id of "dstblock" is appended to, instead of the entire note. |
-| 10 | \`iscript&#8209;prepend ^dstblock:&nbsp;d100&nbsp;\` | Same as example #4, except that the note block with id of "dstblock" is prepended to, instead of the entire note. |
+| 7 | \`iscript ^dstblock: d100\` | Sample as example #1, except that the note block with id of "dstblock" has its text set to the expansion, instead of the link's display. |
+| 8 | \`iscript-once ^dstblock: d100&\` | Same as example #2, except that the note block with id of "dstblock" has its text set to the expansion, instead of the link's display.  The link still goes away, though. |
+| 9 | \`iscript-append ^dstblock: d100\` | Same as example #3, except that the note block with id of "dstblock" is appended to, instead of the entire note. |
+| 10 | \`iscript-prepend ^dstblock: d100\` | Same as example #4, except that the note block with id of "dstblock" is prepended to, instead of the entire note. |
 | <hr/> | <hr/> | <hr/> |
-| 11 | \`iscript:&nbsp;d100&nbsp;\|&nbsp;rollem&nbsp;\|&nbsp;"Result: " + $$\` | Same as example #5, except that custom JS code is included to print the expansion prepended with "Result: ".  Notice that "$$" is replaced with the expansion in the JS code. |
-| 12 | \`iscript&#8209;append:&nbsp;d100&nbsp;\|&nbsp;rollem&nbsp;\|&nbsp;"- " + $$ + "\n"\` | Same as example #6, except that custom JS code is included to print the expansion prepended with a dash, and appended with a newline.  If the expansion is "83/D100", then the output is "- 83/D100\n".  Notice that "$$" is replaced with the expansion in the JS code |
+| 11 | \`iscript: d100 \| rollem \| "Result: " + $$\` | Same as example #5, except that custom JS code is included to print the expansion prepended with "Result: ".  Notice that "$$" is replaced with the expansion in the JS code. |
+| 12 | \`iscript-append: d100 \| rollem \| "- " + $$ + "\n"\` | Same as example #6, except that custom JS code is included to print the expansion prepended with a dash, and appended with a newline.  If the expansion is "83/D100", then the output is "- 83/D100\n".  Notice that "$$" is replaced with the expansion in the JS code |
 | <hr/> | <hr/> | <hr/> |
-| 13 | \`iscript:&nbsp;d???\` | Same as example #1, except that when the link is clicked, and before the shortcut is run, a popup asks to enter text to replace the "???" in the shortcut text.  The popup has a caption of "Parameter #1". |
-| 14 | \`iscript:&nbsp;???d???+???\` | Same as example #13, except that not one, but THREE text entry popups are shown to replace the three "???" in the shortcut text.  The popups have captions of "Parameter #1", "Parameter #2" and "Parameter #3", in that order. |
-| 15 | \`iscript:&nbsp;d???&nbsp;\|&nbsp;\|&nbsp;\|&nbsp;Enter the dice size\` | Same as example #13, except that the text entry popup has the caption "Enter the dice size". |
-| 16 | \`iscript:&nbsp;???d???+???&nbsp;\|&nbsp;\|&nbsp;\|&nbsp;Enter the dice count\` | Same as example #14, except that the text entry popups are "Enter the dice count", "Parameter #2" and "Parameter #3". |
-| 17 | \`iscript:&nbsp;???d???+???&nbsp;\|&nbsp;\|&nbsp;\|&nbsp;Enter the dice count&nbsp;\|&nbsp;Enter the dice size&nbsp;\|&nbsp;Enter the result modifier\` | Same as example #14, except that the text entry popups are "Enter the dice count", "Enter the dice size" and "Enter the result modifier". |
+| 13 | \`iscript: d???\` | Same as example #1, except that when the link is clicked, and before the shortcut is run, a popup asks to enter text to replace the "???" in the shortcut text.  The popup has a caption of "Parameter #1". |
+| 14 | \`iscript: ???d???+???\` | Same as example #13, except that not one, but THREE text entry popups are shown to replace the three "???" in the shortcut text.  The popups have captions of "Parameter #1", "Parameter #2" and "Parameter #3", in that order. |
+| 15 | \`iscript: d??? \| \| \| Enter the dice size\` | Same as example #13, except that the text entry popup has the caption "Enter the dice size". |
+| 16 | \`iscript: ???d???+??? \| \| \| Enter the dice count\` | Same as example #14, except that the text entry popups are "Enter the dice count", "Parameter #2" and "Parameter #3". |
+| 17 | \`iscript: ???d???+??? \| \| \| Enter the dice count \| Enter the dice size \| Enter the result modifier\` | Same as example #14, except that the text entry popups are "Enter the dice count", "Enter the dice size" and "Enter the result modifier". |
 
 ***
 ***
@@ -543,9 +543,9 @@ Be aware that the runExternal function will _always_ fail with an authorization 
 ### Examples
 | Test string | Expansion string | Overview |
 | ----------- | ---------------- | -------- |
-| ^test&nbsp;shell$ | return&nbsp;runExternal("echo&nbsp;Hello&nbsp;from&nbsp;the&nbsp;shell"); | When the user types `;;test shell::`, the shell command `echo Hello from the shell` is run, which prints "Hello from the shell" to the console.  Once the echo command is finished, its console output is returned from runExternal, then that is returned from the Expansion script and, finally, expanded into the note. |
+| ^test shell$ | return&nbsp;runExternal("echo&nbsp;Hello&nbsp;from&nbsp;the&nbsp;shell"); | When the user types `;;test shell::`, the shell command `echo Hello from the shell` is run, which prints "Hello from the shell" to the console.  Once the echo command is finished, its console output is returned from runExternal, then that is returned from the Expansion script and, finally, expanded into the note. |
 | ^runMyScript$ | return&nbsp;runExternal("python&nbsp;myscript.py"); | When the user types `;;runMyScript::`, the command will execute python on "myscript.py", which may print something to the console.  Once the command is finished, runExternal will return any console output (or an empty string if there was none), which is then returned from the Expansion script and, thus, expanded into the note.<br/><br/>If Python is setup properly, the Expansion script could have simply been `return runExternal("myscript.py");`.<br/><br/>If python is not installed, or myscript.py is not in the vault's root folder, or even if myscript.py has a python error, then the shell command will fail.  This will cause runExternal to return null, and an error notification and console log to show up. |
-| ^exec&nbsp;(.*)$ | let&nbsp;result&nbsp;=&nbsp;runExternal($1);<br/>if&nbsp;(result === null)&nbsp;{&nbsp;result&nbsp;=&nbsp;"FAILED";&nbsp;}<br/>return&nbsp;"Shell&nbsp;command&nbsp;result&nbsp;=&nbsp;\""&nbsp;+&nbsp;result&nbsp;+&nbsp;"\"."; | This shortcut allows the user to run _any_ shell command.  For example, typing `;;exec dir::` will print the vault root-folder's contents and expand them into the note. |
+| ^exec (.*)$ | let&nbsp;result&nbsp;=&nbsp;runExternal($1);<br/>if&nbsp;(result === null)&nbsp;{&nbsp;result&nbsp;=&nbsp;"FAILED";&nbsp;}<br/>return&nbsp;"Shell&nbsp;command&nbsp;result&nbsp;=&nbsp;\""&nbsp;+&nbsp;result&nbsp;+&nbsp;"\"."; | This shortcut allows the user to run _any_ shell command.  For example, typing `;;exec dir::` will print the vault root-folder's contents and expand them into the note. |
 
 ### Command errors
 When a command produces an error:

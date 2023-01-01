@@ -1,5 +1,6 @@
 ### This release (modifications)
 - add input-block removal when shortcut failure would cause skipping input-block removal
+- have Inline Scripts accept &nbsp;.  (convert to normal space internally).  Put &nbsp; back into readme tables
 
 ### Next release - Critical
 - look into db-folder compatibility
